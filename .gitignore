@@ -1,0 +1,6 @@
+*.pdf
+bin
+.idea
+out
+project
+target
