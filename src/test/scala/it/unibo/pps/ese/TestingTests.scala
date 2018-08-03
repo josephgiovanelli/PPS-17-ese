@@ -6,6 +6,6 @@ class TestingTests extends FunSuite {
   test("TestClass.number") {
     val t = new TestClass(5)
     assert(t.number == 5)
-    //assert(t.number == 2)
+    assert(t.number == 2)
   }
 }
