@@ -7,6 +7,7 @@ object Scala2P {
     t.asInstanceOf[Struct].getArg(i).getTerm
 
   implicit def stringToTerm(s: String): Term = Term.createTerm(s)
+  implicit def IntToTerm(i: scala.Int): Term = new Int(i)
 
   val engine = new Prolog
 

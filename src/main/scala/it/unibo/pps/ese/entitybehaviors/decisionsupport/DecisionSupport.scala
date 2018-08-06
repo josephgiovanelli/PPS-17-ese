@@ -1,19 +1,33 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
-import alice.tuprolog.Term
+import alice.tuprolog.{Term}
 
 trait DecisionSupport {
   def createVisualField(entitiesAttributes: Seq[EntityAttributes]): Unit
   def clearVisualField(): Unit
-  def discoverPreys(hunter: EntityAttributes): Stream[(Term, Term)]
-  def discoverPartners(entity: EntityAttributes): Stream[(Term, Term)]
+  def discoverPreys(hunter: EntityAttributes): Stream[(Int, Int)]
+  def discoverPartners(entity: EntityAttributes): Stream[(Int, Int)]
+  def nextMove(from: EntityAttributes, to: EntityAttributes): (Int, Int)
+
 }
 
-object EntityKinds extends Enumeration {
-  val carnivorous, herbivore, plant = Value
-}
+object DecisionSupport {
+  def apply(): DecisionSupport = new DecisionSupportImpl()
 
-case class EntityAttributes(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: (Int, Int)) {
-  override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position._1 + ", " + position._2 + "])"
+  private class DecisionSupportImpl() extends DecisionSupport {
+
+    var visualField: Set[EntityAttributes] = Set.empty
+
+    override def createVisualField(entitiesAttributes: Seq[EntityAttributes]): Unit = visualField ++= entitiesAttributes
+
+    override def clearVisualField(): Unit = visualField = Set.empty
+
+    override def discoverPreys(hunter: EntityAttributes): Stream[(Int, Int)] = ???
+
+    override def discoverPartners(entity: EntityAttributes): Stream[(Int, Int)] = ???
+
+    override def nextMove(from: EntityAttributes, to: EntityAttributes): (Int, Int) = ???
+  }
+
 }
 
