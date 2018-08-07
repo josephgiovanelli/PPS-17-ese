@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.model
 
+import it.unibo.pps.ese.model.support.EventBus
+
 sealed trait NervousSystem {
   def eventBus : EventBus
 }

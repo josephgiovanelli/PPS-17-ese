@@ -1,6 +1,6 @@
-package it.unibo.pps.ese
+package it.unibo.pps.ese.model
 
-package object CustomTypes {
+package object support {
   type Consumer = Event => Unit
   type Event = String
 }

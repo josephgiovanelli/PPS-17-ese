@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.model
 
-import it.unibo.pps.ese.CustomTypes.{Consumer, Event}
+import it.unibo.pps.ese.model.support.{Consumer, Event, EventBus}
 
 trait Component
 

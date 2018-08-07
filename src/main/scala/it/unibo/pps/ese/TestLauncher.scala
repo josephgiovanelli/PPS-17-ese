@@ -1,10 +1,9 @@
 package it.unibo.pps.ese
 
-import it.unibo.pps.ese.CustomTypes.Event
+import it.unibo.pps.ese.model.support.Event
 import it.unibo.pps.ese.model.{Entity, ReaderComponent, World, WriterComponent}
 
-object TestLauncher{
-  def main(args: Array[String]): Unit = {
+object TestLauncher extends App {
 
     val world = World()
     val entity = Entity("improved", "1")
@@ -19,5 +18,5 @@ object TestLauncher{
 
     p1.subscribe(event => println(event))
     p2.writeData(new Event("Hello World"))
-  }
+
 }

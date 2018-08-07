@@ -1,6 +1,4 @@
-package it.unibo.pps.ese.model
-
-import it.unibo.pps.ese.CustomTypes.{Consumer, Event}
+package it.unibo.pps.ese.model.support
 
 sealed trait EventBus {
   def send(event: Event): Unit
