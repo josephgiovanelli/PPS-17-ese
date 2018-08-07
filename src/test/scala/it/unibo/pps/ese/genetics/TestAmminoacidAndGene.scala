@@ -23,7 +23,6 @@ class TestAmminoacidAndGene extends FunSuite{
 
   test("Testing if the gene code returned by class that" +
     " extend trait Gene is the right one"){
-    import Gene._
     val simpleGeneSeq:Seq[ProteinoGenicAmminoacid] = List('F')
     val basicGene = BasicGene(simpleGeneSeq,IdentifierGene)
     assert(basicGene.geneCode == simpleGeneSeq)
@@ -31,6 +30,8 @@ class TestAmminoacidAndGene extends FunSuite{
     val geneIdentifier:Seq[ProteinoGenicAmminoacid] = List('A','C')
     val alleleIdentifier:Seq[ProteinoGenicAmminoacid] = List('D')
     val geneWithAllelicForms = GeneWithAllelicForms(geneIdentifier,alleleIdentifier,StructuralGene)
-    assert((geneIdentifier ++ alleleIdentifier) == geneWithAllelicForms.geneCode)
+    assert((geneIdentifier ++ alleleIdentifier) == geneWithAllelicForms.completeCode)
+    assert(geneIdentifier ==geneWithAllelicForms.geneCode)
+    assert(alleleIdentifier == geneWithAllelicForms.alleleCode)
   }
 }

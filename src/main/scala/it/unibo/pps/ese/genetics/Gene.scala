@@ -1,31 +1,30 @@
 package it.unibo.pps.ese.genetics
-object Gene{
 
-  import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 
-  sealed trait GeneType
-  case object IdentifierGene extends GeneType
-  case object StructuralGene extends GeneType
-  case object RegulatorGene extends GeneType
+sealed trait GeneType
+case object IdentifierGene extends GeneType
+case object StructuralGene extends GeneType
+case object RegulatorGene extends GeneType
 
-  trait Gene{
-    def geneType:GeneType
-    def geneCode:Seq[ProteinoGenicAmminoacid]
-    override def toString: String = "Gene amminoacid: "+geneCode.toString()
-  }
+trait Gene{
+  def geneType:GeneType
+  def geneCode:Seq[ProteinoGenicAmminoacid]
+  def completeCode:Seq[ProteinoGenicAmminoacid]
+  override def toString: String = "Gene amminoacid: "+geneCode.toString()
+}
 
-  case class BasicGene(
-                        override val geneCode:Seq[ProteinoGenicAmminoacid],
-                        override val geneType: GeneType
-                      ) extends Gene{
-  }
+case class BasicGene(
+                      override val geneCode:Seq[ProteinoGenicAmminoacid],
+                      override val geneType: GeneType
+                    ) extends Gene{
+  override def completeCode: Seq[ProteinoGenicAmminoacid] = geneCode
+}
 
-  case class GeneWithAllelicForms(
-                                   geneSequence:Seq[ProteinoGenicAmminoacid],
-                                   alleleCode:Seq[ProteinoGenicAmminoacid],
-                                   override val geneType: GeneType) extends Gene{
-    override def geneCode: Seq[ProteinoGenicAmminoacid] = geneSequence ++ alleleCode
-    override def toString: String = "{ "+geneSequence+",allelic amminoacid: "+alleleCode+"}"
-  }
-
+case class GeneWithAllelicForms(
+                                 override val geneCode:Seq[ProteinoGenicAmminoacid],
+                                 alleleCode:Seq[ProteinoGenicAmminoacid],
+                                 override val geneType: GeneType) extends Gene{
+  override def completeCode: Seq[ProteinoGenicAmminoacid] = geneCode ++ alleleCode
+  override def toString: String = "{ "+geneCode+",allelic amminoacid: "+alleleCode+"}"
 }

@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.genetics.Qualities.{Quality, QualityValueConstraints, Speed}
 import org.scalatest.FunSuite
 
 class TestQualities extends FunSuite{

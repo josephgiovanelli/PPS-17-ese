@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genetics
 
-object Qualities {
   sealed trait QualityType
   case object Speed extends QualityType
   case object FieldOfView extends QualityType
@@ -32,13 +31,14 @@ object Qualities {
       import QualityValueConstraints._
       require(checkParamater(qualityType,qualityValue))
       def checkParamater(f:Double=>Boolean,v:Double):Boolean = f(v)
+      override def toString: String = qualityType.toString+": "+qualityValue
     }
   }
 
 
   object QualityValueConstraints{
     implicit def qualityTypeToConstraint(qualityType: QualityType):Double=>Boolean = {
-      constraints(qualityType)
+      if(constraints.contains(qualityType)) constraints(qualityType) else (_)=>true
     }
     val maxSpeed:Double= 100.0
     val speedConstraints:Double=>Boolean = s => s>0.0 && s < maxSpeed
@@ -47,4 +47,3 @@ object Qualities {
     )
 
   }
-}
