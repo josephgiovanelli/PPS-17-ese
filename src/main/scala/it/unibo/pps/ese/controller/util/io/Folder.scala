@@ -29,7 +29,7 @@ object Folder {
 
     def getFiles: Seq[File] = folder.listFiles().filter(_.isFile).toSeq
 
-    def getFiles(fileFormat: FileFormat): Seq[File] = getFiles.filter(_.getName.endsWith(fileFormat.extensions))
+    def getFiles(fileFormat: FileFormat): Seq[File] = getFiles.filter(f => fileFormat.extensions.map(ext => f.getName.endsWith(ext)).exists(b => b))
 
     def getFilesAsStream: Seq[InputStream] = convertToInputStream(getFiles)
 
