@@ -18,6 +18,7 @@ object ChromosomeType extends Enumeration {
     case _ =>chromosomeType.trueSequence.equals(seq)
   }
 }
+
 sealed trait SexualChromosomeType
 case object X extends SexualChromosomeType
 case object Y extends SexualChromosomeType
@@ -29,6 +30,7 @@ case object Female extends Gender
 import ChromosomeType.{ChromosomeType, _}
 
 case class CommonChromosome(reignGene:BasicGene,speciesGene:BasicGene)
+
 trait ChromosomeCouple{
   type ChromosomeUnit <: {
     def geneList: Seq[Gene]
@@ -64,13 +66,53 @@ sealed trait SexualChromosome extends Chromosome{
   def sexualChromosome: SexualChromosomeType
 }
 
-sealed trait Genome{
-  def autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple]
-  def firstGenomeSequence:Map[ChromosomeType,Chromosome]
-  def secondGenomeSequence:Map[ChromosomeType,Chromosome]
+
+abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
+  private var couple:Map[Int,ChromosomeUnit] = Map()
+  override def addChromosomeCouple(c1: ChromosomeUnit, c2: ChromosomeUnit): Unit = {
+    _assignCouple(c1,c2)
+  }
+  override def addFirstChromosome(c: ChromosomeUnit): Unit = _assignCouple(c,couple(2))
+
+  override def addSecondChromosome(c: ChromosomeUnit): Unit = _assignCouple(couple(1),c)
+
+  override def firstChromosome: ChromosomeUnit = couple(1)
+
+  override def secondChromosome: ChromosomeUnit = couple(2)
+
+  private def _checkConsistency(c1:ChromosomeUnit, c2:ChromosomeUnit):Boolean = {
+    c1.chromosomeType==c2.chromosomeType ||
+    c1.chromosomeType == ChromosomeType.SEXUAL_X||
+    c1.chromosomeType == ChromosomeType.SEXUAL_Y
+  }
+
+  private def _assignCouple(c1:ChromosomeUnit, c2:ChromosomeUnit):Unit = _checkConsistency(c1,c2) match {
+    case true=> couple = Map(1->c1,2->c2)
+    case _=> throw new IllegalArgumentException()
+  }
 }
-sealed trait AnimalGenome extends Genome{
-  def sexualChromosomeCouple:SexualChromosomeCouple
-  def firstSexualChromosome:SexualChromosome
-  def secondSexualChromosome:SexualChromosome
+
+abstract class BasicChromosome(
+                                override val chromosomeType: ChromosomeType,
+                                override val geneList:Seq[Gene]) extends Chromosome{
+  require(checkListOfGene(chromosomeType,geneList.map(_.geneType)))
 }
+
+class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[Gene])
+  extends BasicChromosome(chromosomeType,geneList)
+
+class SexualChromosomeImpl(chromosomeType: ChromosomeType,
+                           override val sexualChromosome: SexualChromosomeType,
+                           geneList:Seq[Gene])
+  extends BasicChromosome(chromosomeType,geneList) with SexualChromosome{}
+
+object Chromosome{
+  def apply(chromosomeType: ChromosomeType,geneList:Gene*): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
+
+  def apply(chromosomeType: ChromosomeType,
+            sexualChromosome: SexualChromosomeType,
+            geneList:Gene*): SexualChromosome = new SexualChromosomeImpl(chromosomeType,
+    sexualChromosome,
+    geneList)
+}
+
