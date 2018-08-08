@@ -8,6 +8,7 @@ object ChromosomeType extends Enumeration {
 
   val COMMON = Val(List(IdentifierGene,IdentifierGene))
   val STRUCTURAL_PLANT = Val(List(StructuralGene,StructuralGene,StructuralGene))
+  val ONLY_FOR_TEST = Val(List(RegulatorGene))
   val STRUCTURAL_ANIMAL = Val(List())
   val LIFE_CYCLE = Val(List(RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene))
   val FEEDING = Val(List(IdentifierGene))

@@ -37,7 +37,7 @@ class AnimalFeatureImpl extends AnimalFeature{
   override def gender:Gender = animalGender.get
 
   override def animalQualities: Map[QualityType,Quality] = qualities.map(q =>(q.qualityType,q)).toMap
-  override def toString: String = qualities.toString()
+  override def toString: String = "Gender: "+gender+", Qualities: "+qualities.toString()
 
   override def activeAllelicStructure: Seq[AllelicBehaviour] = activeStructuralBehaviour
 
