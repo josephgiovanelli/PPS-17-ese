@@ -1,0 +1,18 @@
+name: Gatto
+geneLength: 30
+reign: A
+typology: C
+structuralChromosome: it/unibo/pps/ese/controller/loader/structural-genes
+regulationChromosome:
+  allelesPath: it/unibo/pps/ese/controller/loader/structural-alleles
+  names:
+    life: agtd
+    childhood: agjl
+    maturity: gdagf
+    oldness: adsf
+    decline: dfzf
+sexualChromosome:
+  allelesPath: it/unibo/pps/ese/controller/loader/structural-alleles
+  names:
+    fertility: sdad
+    fecundity: asdg
