@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation
 
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.{DecisionSupport, EntityAttributes, EntityKinds, Point}
+import it.unibo.pps.ese.entitybehaviors.decisionsupport._
 
 object PerformanceTest extends App {
 
@@ -11,8 +11,9 @@ object PerformanceTest extends App {
   val prey4 = EntityAttributes(4, EntityKinds.carnivorous, 10, 10, 10, (3, 3))
   val prey5 = EntityAttributes(5, EntityKinds.carnivorous, 9, 9, 9, (4, 3))
 
+  val worldRules: WorldRules = WorldRules(3, (0, 5), Seq((EntityKinds.carnivorous, EntityKinds.herbivore), (EntityKinds.herbivore, EntityKinds.plant)), Seq((EntityKinds.carnivorous, EntityKinds.carnivorous), (EntityKinds.herbivore, EntityKinds.herbivore)))
 
-  val decisionSupport: DecisionSupport = PrologDecisionSupport()
+  val decisionSupport: DecisionSupport = PrologDecisionSupport(worldRules)
 
   val startTime = System.nanoTime
 

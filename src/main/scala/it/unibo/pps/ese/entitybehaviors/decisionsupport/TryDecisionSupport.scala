@@ -9,8 +9,9 @@ object TryDecisionSupport extends App {
   val prey4 = EntityAttributes(4, EntityKinds.carnivorous, 10, 10, 10, (3, 3))
   val prey5 = EntityAttributes(5, EntityKinds.carnivorous, 9, 9, 9, (4, 3))
 
+  val worldRules: WorldRules = WorldRules(3, (0, 5), Seq((EntityKinds.carnivorous, EntityKinds.herbivore), (EntityKinds.herbivore, EntityKinds.plant)), Seq((EntityKinds.carnivorous, EntityKinds.carnivorous), (EntityKinds.herbivore, EntityKinds.herbivore)))
 
-  val decisionSupport: DecisionSupport = DecisionSupport()
+  val decisionSupport: DecisionSupport = DecisionSupport(worldRules)
 
   val startTime = System.nanoTime
 
@@ -22,5 +23,11 @@ object TryDecisionSupport extends App {
 
   val estimatedTime = System.nanoTime - startTime
   println(estimatedTime)
+
+  val s = Set("v1", "v2", "v3")
+  object MyEnum extends Enumeration {
+    s.foreach(Value)
+  }
+  MyEnum.values.foreach(println)
 
 }

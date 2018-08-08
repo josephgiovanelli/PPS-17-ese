@@ -7,7 +7,9 @@ class DecisionSupportTest extends FunSuite {
   val prey2 = EntityAttributes(2, EntityKinds.herbivore, 6, 6, 6, (2, 1))
   val hunter = EntityAttributes(3, EntityKinds.carnivorous, 10, 10, 10, (3, 3))
 
-  val decisionSupport: DecisionSupport = DecisionSupport()
+  val worldRules: WorldRules = WorldRules(3, (0, 5), Seq((EntityKinds.carnivorous, EntityKinds.herbivore), (EntityKinds.herbivore, EntityKinds.plant)), Seq((EntityKinds.carnivorous, EntityKinds.carnivorous), (EntityKinds.herbivore, EntityKinds.herbivore)))
+
+  val decisionSupport: DecisionSupport = DecisionSupport(worldRules)
   decisionSupport.createVisualField(Seq(prey2, hunter))
   val firstTest: Stream[EntityChoice] = decisionSupport.discoverPreys(hunter)
 
@@ -23,7 +25,7 @@ class DecisionSupportTest extends FunSuite {
     assert(newDistance < originalDistance)
   }
 
-  val decisionSupport2: DecisionSupport = DecisionSupport()
+  val decisionSupport2: DecisionSupport = DecisionSupport(worldRules)
   decisionSupport2.createVisualField(Seq(prey1, prey2, hunter))
   decisionSupport2.clearVisualField()
   val thirdTest: Stream[EntityChoice] = decisionSupport2.discoverPreys(hunter)

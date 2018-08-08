@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation
 
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.{DecisionSupport, EntityAttributes, EntityChoice, EntityKinds}
+import it.unibo.pps.ese.entitybehaviors.decisionsupport._
 import org.scalatest.FunSuite
 
 class PrologDecisionSupportTest extends FunSuite {
@@ -9,7 +9,9 @@ class PrologDecisionSupportTest extends FunSuite {
   val prey2 = EntityAttributes(2, EntityKinds.herbivore, 6, 6, 6, (2, 1))
   val hunter = EntityAttributes(3, EntityKinds.carnivorous, 10, 10, 10, (3, 3))
 
-  val decisionSupport: DecisionSupport = PrologDecisionSupport()
+  val worldRules: WorldRules = WorldRules(3, (0, 5), Seq((EntityKinds.carnivorous, EntityKinds.herbivore), (EntityKinds.herbivore, EntityKinds.plant)), Seq((EntityKinds.carnivorous, EntityKinds.carnivorous), (EntityKinds.herbivore, EntityKinds.herbivore)))
+
+  val decisionSupport: DecisionSupport = PrologDecisionSupport(worldRules)
   decisionSupport.createVisualField(Seq(prey2, hunter))
   val firstTest: Stream[EntityChoice] = decisionSupport.discoverPreys(hunter)
 
@@ -25,7 +27,7 @@ class PrologDecisionSupportTest extends FunSuite {
     assert(newDistance < originalDistance)
   }
 
-  val decisionSupport2: DecisionSupport = PrologDecisionSupport()
+  val decisionSupport2: DecisionSupport = PrologDecisionSupport(worldRules)
   decisionSupport2.createVisualField(Seq(prey1, prey2, hunter))
   decisionSupport2.clearVisualField()
   val thirdTest: Stream[EntityChoice] = decisionSupport2.discoverPreys(hunter)

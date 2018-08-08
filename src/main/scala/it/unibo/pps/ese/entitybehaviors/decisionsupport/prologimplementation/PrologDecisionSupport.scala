@@ -6,9 +6,9 @@ import it.unibo.pps.ese.entitybehaviors.decisionsupport._
 import scala.io.Source
 
 object PrologDecisionSupport {
-  def apply(): DecisionSupport = new PrologDecisionSupportImpl()
+  def apply(worldRules: WorldRules): DecisionSupport = new PrologDecisionSupportImpl(worldRules)
 
-  private class PrologDecisionSupportImpl() extends DecisionSupport {
+  private class PrologDecisionSupportImpl(worldRules: WorldRules) extends AbstractDecisionSupport(worldRules) {
     import Scala2P._
     import alice.tuprolog._
 
@@ -24,6 +24,11 @@ object PrologDecisionSupport {
     val filename: String = getClass.getResource("/DecisionTree.pl").getPath
     val fileContents: String = Source.fromFile(filename).getLines.reduce((line1, line2) => line1 + "\n" + line2)
     mkPrologTheory(fileContents)
+    modifyDynamicKnowledge("setAttackThreshold(" + worldRules.attackThreshold + ")")
+    modifyDynamicKnowledge("setHeightThresholds(" + worldRules.heightThresholds._1 + "," + worldRules.heightThresholds._2 + ")")
+    worldRules.compatibleHuntingKinds foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleHuntingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
+    worldRules.compatibleCouplingKinds foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleCouplingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
+
 
     override def createVisualField(entitiesAttributes: Seq[EntityAttributes]): Unit =
       entitiesAttributes foreach (entityAttributes => modifyDynamicKnowledge("add" + entityAttributes))

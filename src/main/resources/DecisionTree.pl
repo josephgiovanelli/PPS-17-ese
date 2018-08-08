@@ -8,6 +8,32 @@ entity(john, herbivore, 6, 6, 6, [3, 1]).
 entity(smith, carnivorous, 10, 10, 10, [3, 3]).
 entity(jack, herbivore, 4, 4, 4, [5, 5]).
 */
+/*
+Example of dynamic contents.
+*/
+/*
+threshold(attack, 3).
+threshold(subHeight, 0).
+threshold(topHeight, 5).
+
+kind(prey, carnivorous, herbivore).
+kind(prey, herbivore, plant).
+kind(partner, carnivorous, carnivorous).
+kind(partner, herbivore, herbivore).
+*/
+
+setAttackThreshold(Threshold) :-
+	assert(threshold(attack, Threshold)).
+
+setHeightThresholds(SubThreshold, TopThreshold) :-
+	assert(threshold(subHeight, SubThreshold)),
+	assert(threshold(topHeight, TopThreshold)).
+
+addCompatibleHuntingKinds(HunterKind, PreyKind) :-
+	assert(kind(prey, HunterKind, PreyKind)).
+
+addCompatibleCouplingKinds(HunterKind, PartnerKind) :-
+	assert(kind(partner, HunterKind, PartnerKind)).
 
 /*
 addEntity(+Name, +Kind, +Height, +Strong, +Defense, +Pos)
@@ -29,23 +55,22 @@ Check if the defense of the prey Y is acceptable for the hunter X.
 */
 simulateAttack(StrongX, DefenseY) :-
 	Z is StrongX - DefenseY,
-	Z > 3.
+	threshold(attack, T),
+	Z > T.
 
 /*
 compatiblePreysKind(+KindX, +KindY)
 Check if the kind of the prey Y is suitable for the hunter X.
 */
 compatiblePreysKind(KindX, KindY) :-
-	(KindX == carnivorous, KindY == herbivore);
-	(KindX == herbivore, KindY == plant).
+	kind(prey, KindX, KindY).
 
 /*
 compatiblePartnersKind(+KindX, +KindY)
 Check if the kind of the entity Y is suitable for the entity X.
 */
 compatiblePartnersKind(KindX, KindY) :-
-	(KindX == carnivorous, KindY == carnivorous);
-	(KindX == herbivore, KindY == herbivore).
+	kind(partner, KindX, KindY).
 
 /*
 heightDiff(+HeightX, +HeightY)
@@ -53,7 +78,9 @@ Check if the height of the prey Y is suitable for the hunter X.
 */
 heightDiff(HeightX, HeightY) :-
 	Z is HeightX - HeightY,
-	(Z > 0, Z < 5).
+	threshold(subHeight, S),
+	threshold(topHeight, T),
+	(Z > S, Z < T).
 
 /*
 discoverPreys(+X, -Y, -Lenght)
