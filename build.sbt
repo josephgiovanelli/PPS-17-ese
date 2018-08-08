@@ -9,3 +9,5 @@ libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.5" % "test"
 libraryDependencies += "org.yaml" % "snakeyaml" % "1.21"
 libraryDependencies += "net.jcazevedo" %% "moultingyaml" % "0.4.0"
 libraryDependencies += "org.danilopianini" % "thread-inheritable-resource-loader" % "0.3.0"
+libraryDependencies += "commons-io" % "commons-io" % "2.6"
+
