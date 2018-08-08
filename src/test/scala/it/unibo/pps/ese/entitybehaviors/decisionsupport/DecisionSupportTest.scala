@@ -1,13 +1,19 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
+import it.unibo.pps.ese.entitybehaviors.StaticRules
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRules._
 import org.scalatest.FunSuite
 
 class DecisionSupportTest extends FunSuite {
-  val prey1 = EntityAttributes(1, EntityKinds.herbivore, 6, 6, 6, (6, 6))
-  val prey2 = EntityAttributes(2, EntityKinds.herbivore, 6, 6, 6, (2, 1))
-  val hunter = EntityAttributes(3, EntityKinds.carnivorous, 10, 10, 10, (3, 3))
 
-  val worldRules: WorldRules = WorldRules(3, (0, 5), Seq((EntityKinds.carnivorous, EntityKinds.herbivore), (EntityKinds.herbivore, EntityKinds.plant)), Seq((EntityKinds.carnivorous, EntityKinds.carnivorous), (EntityKinds.herbivore, EntityKinds.herbivore)))
+  StaticRules.instance().addValues(Set("carnivorous", "herbivore", "plant"))
+
+  val worldRules: WorldRules = WorldRules(3, (0, 5), Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
+    Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
+
+  val prey1 = EntityAttributes(1, EntityKinds('herbivore), 6, 6, 6, (6, 6))
+  val prey2 = EntityAttributes(2, EntityKinds('herbivore), 6, 6, 6, (2, 1))
+  val hunter = EntityAttributes(3, EntityKinds('carnivorous), 10, 10, 10, (3, 3))
 
   val decisionSupport: DecisionSupport = DecisionSupport(worldRules)
   decisionSupport.createVisualField(Seq(prey2, hunter))

@@ -1,15 +1,24 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
+import it.unibo.pps.ese.entitybehaviors.StaticRules
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRules._
+
+
 
 object TryDecisionSupport extends App {
-  val prey0 = EntityAttributes(0, EntityKinds.plant, 5, 2, 2, (5, 6))
-  val prey1 = EntityAttributes(1, EntityKinds.herbivore, 6, 6, 6, (6, 6))
-  val prey2 = EntityAttributes(2, EntityKinds.herbivore, 7, 7, 7, (2, 1))
-  val prey3 = EntityAttributes(3, EntityKinds.herbivore, 6, 6, 6, (3, 1))
-  val prey4 = EntityAttributes(4, EntityKinds.carnivorous, 10, 10, 10, (3, 3))
-  val prey5 = EntityAttributes(5, EntityKinds.carnivorous, 9, 9, 9, (4, 3))
 
-  val worldRules: WorldRules = WorldRules(3, (0, 5), Seq((EntityKinds.carnivorous, EntityKinds.herbivore), (EntityKinds.herbivore, EntityKinds.plant)), Seq((EntityKinds.carnivorous, EntityKinds.carnivorous), (EntityKinds.herbivore, EntityKinds.herbivore)))
+  StaticRules.instance().addValues(Set("carnivorous", "herbivore", "plant"))
+
+  val worldRules: WorldRules = WorldRules(3, (0, 5), Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
+    Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
+
+  val prey0 = EntityAttributes(0, EntityKinds('plant), 5, 2, 2, (5, 6))
+  val prey1 = EntityAttributes(1, EntityKinds('herbivore), 6, 6, 6, (6, 6))
+  val prey2 = EntityAttributes(2, EntityKinds('herbivore), 7, 7, 7, (2, 1))
+  val prey3 = EntityAttributes(3, EntityKinds('herbivore), 6, 6, 6, (3, 1))
+  val prey4 = EntityAttributes(4, EntityKinds('carnivorous), 10, 10, 10, (3, 3))
+  val prey5 = EntityAttributes(5, EntityKinds('carnivorous), 9, 9, 9, (4, 3))
+
 
   val decisionSupport: DecisionSupport = DecisionSupport(worldRules)
 
@@ -24,10 +33,12 @@ object TryDecisionSupport extends App {
   val estimatedTime = System.nanoTime - startTime
   println(estimatedTime)
 
-  val s = Set("v1", "v2", "v3")
-  object MyEnum extends Enumeration {
-    s.foreach(Value)
-  }
+
+  /*val prova = Prova(MyEnum('v1))
   MyEnum.values.foreach(println)
+  println(prova.myEnum match {
+    case MyEnum('v1) => "ciao"
+    case _ => "ehi"
+  })*/
 
 }

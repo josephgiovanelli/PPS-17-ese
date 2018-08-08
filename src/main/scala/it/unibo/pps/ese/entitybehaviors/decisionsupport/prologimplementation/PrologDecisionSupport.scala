@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation
 
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.Point.Point
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRules.WorldRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport._
 
 import scala.io.Source

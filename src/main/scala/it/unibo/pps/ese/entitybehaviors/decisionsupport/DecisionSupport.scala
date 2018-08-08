@@ -2,6 +2,7 @@ package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
 
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.Point.Point
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRules.WorldRules
 
 import scala.math._
 
