@@ -1,15 +1,14 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation
 
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.Point.Point
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRules.WorldRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport._
 
 import scala.io.Source
 
 object PrologDecisionSupport {
-  def apply(worldRules: WorldRules): DecisionSupport = new PrologDecisionSupportImpl(worldRules)
+  def apply(): DecisionSupport = new PrologDecisionSupportImpl()
 
-  private class PrologDecisionSupportImpl(worldRules: WorldRules) extends AbstractDecisionSupport(worldRules) {
+  private class PrologDecisionSupportImpl() extends DecisionSupport {
     import Scala2P._
     import alice.tuprolog._
 

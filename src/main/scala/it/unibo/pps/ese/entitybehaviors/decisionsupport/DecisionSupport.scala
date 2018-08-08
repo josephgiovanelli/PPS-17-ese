@@ -1,12 +1,15 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
 
+import it.unibo.pps.ese.entitybehaviors.StaticRules
+import it.unibo.pps.ese.entitybehaviors.WorldRules.WorldRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.Point.Point
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRules.WorldRules
 
 import scala.math._
 
 trait DecisionSupport {
+  val worldRules: WorldRules = StaticRules.instance().getRules()
+
   implicit def tupleToEntityChoice(tuple: (Int, Int)): EntityChoice = EntityChoice(tuple._1, tuple._2)
   implicit def streamTupleToStreamEntityChoice(tuples: Stream[(Int, Int)]): Stream[EntityChoice] = tuples map tupleToEntityChoice
 
@@ -19,13 +22,12 @@ trait DecisionSupport {
 
 }
 
-abstract case class AbstractDecisionSupport(worldRules: WorldRules) extends DecisionSupport
 
 
 object DecisionSupport {
-  def apply(worldRules: WorldRules): DecisionSupport = new DecisionSupportImpl(worldRules)
+  def apply(): DecisionSupport = new DecisionSupportImpl()
 
-  private class DecisionSupportImpl(worldRules: WorldRules) extends AbstractDecisionSupport(worldRules) {
+  private class DecisionSupportImpl() extends DecisionSupport() {
 
     private var visualField: Set[EntityAttributes] = Set.empty
 

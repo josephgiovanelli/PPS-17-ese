@@ -1,16 +1,18 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
 import it.unibo.pps.ese.entitybehaviors.StaticRules
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRules._
+import it.unibo.pps.ese.entitybehaviors.WorldRules._
 
 
 
 object TryDecisionSupport extends App {
 
-  StaticRules.instance().addValues(Set("carnivorous", "herbivore", "plant"))
-
+  StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
   val worldRules: WorldRules = WorldRules(3, (0, 5), Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
+
+  StaticRules.instance().setRules(worldRules)
+
 
   val prey0 = EntityAttributes(0, EntityKinds('plant), 5, 2, 2, (5, 6))
   val prey1 = EntityAttributes(1, EntityKinds('herbivore), 6, 6, 6, (6, 6))
@@ -20,7 +22,7 @@ object TryDecisionSupport extends App {
   val prey5 = EntityAttributes(5, EntityKinds('carnivorous), 9, 9, 9, (4, 3))
 
 
-  val decisionSupport: DecisionSupport = DecisionSupport(worldRules)
+  val decisionSupport: DecisionSupport = DecisionSupport()
 
   val startTime = System.nanoTime
 
