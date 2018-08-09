@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.genetics
 
+import it.unibo.pps.ese.genetics
 import org.scalatest.FunSuite
 import it.unibo.pps.ese.genetics.AmminoAcidUtilities._
 import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
@@ -11,7 +12,8 @@ class TestDnaTranslation extends FunSuite{
   def buildAnimalGenome(geneType: GeneType,
                         chromosomeType: ChromosomeType,
                         dominanceLevelA1:Int,
-                        dominanceLevelA2:Int)
+                        dominanceLevelA2:Int,
+                        dietTypeCode:Seq[ProteinoGenicAmminoacid])
   :(AnimalGenome,DnaTranslator) = {
     val g1:Seq[ProteinoGenicAmminoacid] = List('A')
     val a1:Seq[ProteinoGenicAmminoacid] = List('C')
@@ -72,8 +74,23 @@ class TestDnaTranslation extends FunSuite{
 
     val dnaTranslator:DnaTranslator = new DnaTranslatorImpl(List(geneFeatures,geneFeaturesS1,geneFeaturesS2))
 
+    val csf:Seq[ProteinoGenicAmminoacid] = dietTypeCode
+//    val csc:Seq[ProteinoGenicAmminoacid] = List('D','C')
+
+    val gf= BasicGene(csf,IdentifierGene)
+//    val gfc = BasicGene(csc,RegulatorGene)
+
+    val cf1 = Chromosome(ChromosomeType.FEEDING,gf)
+    val cf2 = Chromosome(ChromosomeType.FEEDING,gf)
+
+    val ccf = new ChromosomeCoupleImpl{
+      type ChromosomeUnit = Chromosome
+    }
+    ccf.addChromosomeCouple(cf1,cf2)
     (AnimalGenome(Map(
-      chromosomeType->cc2a),ccs2),dnaTranslator)
+      chromosomeType->cc2a,
+      ChromosomeType.FEEDING ->ccf
+    ),ccs2),dnaTranslator)
   }
 
   test("Test the translation of animal " +
@@ -82,7 +99,8 @@ class TestDnaTranslation extends FunSuite{
     val couple:(AnimalGenome,DnaTranslator) = buildAnimalGenome(
       StructuralGene,
       ChromosomeType.STRUCTURAL_ANIMAL,
-      5,4
+      5,4,
+      List('D','E')
     )
     val animalGenome:AnimalGenome = couple._1
     val dnaTranslator:DnaTranslator = couple._2
@@ -102,7 +120,8 @@ class TestDnaTranslation extends FunSuite{
     val couple:(AnimalGenome,DnaTranslator) = buildAnimalGenome(
       StructuralGene,
       ChromosomeType.STRUCTURAL_ANIMAL,
-      4,4
+      4,4,
+      List('D','E')
     )
     val animalGenome:AnimalGenome = couple._1
     val dnaTranslator:DnaTranslator = couple._2
@@ -121,7 +140,8 @@ class TestDnaTranslation extends FunSuite{
     val couple:(AnimalGenome,DnaTranslator) = buildAnimalGenome(
       RegulatorGene,
       ChromosomeType.ONLY_FOR_TEST,
-      5,4
+      5,4,
+      List('D','E')
     )
     val animalGenome:AnimalGenome = couple._1
     val dnaTranslator:DnaTranslator = couple._2
@@ -139,7 +159,8 @@ class TestDnaTranslation extends FunSuite{
     val couple:(AnimalGenome,DnaTranslator) = buildAnimalGenome(
       RegulatorGene,
       ChromosomeType.ONLY_FOR_TEST,
-      4,4
+      4,4,
+      List('D','E')
     )
     val animalGenome:AnimalGenome = couple._1
     val dnaTranslator:DnaTranslator = couple._2
@@ -148,6 +169,39 @@ class TestDnaTranslation extends FunSuite{
       .animalQualities(Speed)
       .qualityValue
     assert(qualityValue==7.5)
+    println(dnaTranslator.getQualitiesByGenome(animalGenome))
+  }
+  test("Test the translation of an herbivore animal "){
+
+    val couple:(AnimalGenome,DnaTranslator) = buildAnimalGenome(
+      RegulatorGene,
+      ChromosomeType.ONLY_FOR_TEST,
+      4,4,
+      List('D','E')
+    )
+    val animalGenome:AnimalGenome = couple._1
+    val dnaTranslator:DnaTranslator = couple._2
+    val diet:DietType = dnaTranslator
+      .getQualitiesByGenome(animalGenome)
+      .dietType
+    assert(diet==Herbivore)
+    println(dnaTranslator.getQualitiesByGenome(animalGenome))
+  }
+
+  test("Test the translation of an carnivorous animal "){
+
+    val couple:(AnimalGenome,DnaTranslator) = buildAnimalGenome(
+      RegulatorGene,
+      ChromosomeType.ONLY_FOR_TEST,
+      4,4,
+      List('D','C')
+    )
+    val animalGenome:AnimalGenome = couple._1
+    val dnaTranslator:DnaTranslator = couple._2
+    val diet:DietType = dnaTranslator
+      .getQualitiesByGenome(animalGenome)
+      .dietType
+    assert(diet==Carnivorous)
     println(dnaTranslator.getQualitiesByGenome(animalGenome))
   }
 }

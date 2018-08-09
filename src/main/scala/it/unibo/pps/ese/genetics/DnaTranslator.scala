@@ -1,11 +1,24 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
-
+import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import AmminoAcidUtilities._
 sealed trait DnaTranslator {
   def getQualitiesByGenome(animalGenome: AnimalGenome):AnimalFeature
 }
 
+object IdentifierGeneTranslator{
+
+  def translateIdentifierGene(gene: Gene,af: AnimalFeature):AnimalFeature = {
+    val herbivoreSeq:Seq[ProteinoGenicAmminoacid] = List('D','E')
+    val carnivorousSeq:Seq[ProteinoGenicAmminoacid] = List('D','C')
+    gene.completeCode match {
+      case `herbivoreSeq` => af.dietType_(Herbivore);af
+      case `carnivorousSeq` => af.dietType_(Carnivorous); af
+      case _ => af
+    }
+  }
+}
 
 object DnaTranslator{
   class DnaTranslatorImpl(val speciesGeneBehaviour:Seq[GeneFeatures] ) extends DnaTranslator{
@@ -16,9 +29,17 @@ object DnaTranslator{
       val gs2:Map[ChromosomeType,Chromosome] = animalGenome.secondGenomeSequence
       val animalFeature:AnimalFeature = new AnimalFeatureImpl
       val gl1:Seq[Gene] = gs1.flatMap(_._2.geneList).filter(_.geneType!= IdentifierGene).toSeq
+      val gi1:Seq[Gene] = gs1.flatMap(_._2.geneList).filter(_.geneType== IdentifierGene).toSeq
+      iterateIdentifierGene(gi1,animalFeature)
       iterateGeneList(gl1,animalFeature)
       translateSexualChromosomeCouple(animalGenome.sexualChromosomeCouple,animalFeature)
 
+      def iterateIdentifierGene(gc1:Seq[Gene],animalFeature: AnimalFeature): AnimalFeature
+      = gc1 match {
+        case h::t  =>
+          iterateIdentifierGene(t,IdentifierGeneTranslator.translateIdentifierGene(h,animalFeature))
+        case _ => animalFeature
+      }
       def translateSexualChromosomeCouple(scc: SexualChromosomeCouple,af: AnimalFeature):AnimalFeature
       = scc.gender match {
         case Female=>{

@@ -1,9 +1,15 @@
 package it.unibo.pps.ese.genetics
+trait Identified
+sealed trait DietType extends Identified
+case object Herbivore extends DietType
+case object Carnivorous extends DietType
 
 sealed trait AnimalFeature{
-  def affectQuality(qualityType: QualityType,value:Double)
-  def gender_(gender: Gender)
+  private[genetics] def affectQuality(qualityType: QualityType,value:Double)
+  private[genetics] def gender_(gender: Gender)
   def gender:Gender
+  def dietType:DietType
+  private[genetics]def dietType_(dietT: DietType)
   def animalQualities:Map[QualityType,Quality]
   def activeAllelicStructure:Seq[AllelicBehaviour]
   def addActiveStructuralAllele(b:AllelicBehaviour)
@@ -12,7 +18,11 @@ sealed trait AnimalFeature{
 
 class AnimalFeatureImpl extends AnimalFeature{
   var animalGender:Option[Gender] = Option.empty
+  var diet:Option[DietType] = None
   val typeFilter:((Quality,QualityType)=>Boolean) = (a,b)=>a.qualityType==b
+
+  override def dietType_(dietT:DietType): Unit = diet = Some(dietT)
+  override def dietType: DietType = diet.get
 
   var qualities: Seq[Quality] = List()
   var activeStructuralBehaviour:Seq[AllelicBehaviour] = List()
@@ -37,7 +47,7 @@ class AnimalFeatureImpl extends AnimalFeature{
   override def gender:Gender = animalGender.get
 
   override def animalQualities: Map[QualityType,Quality] = qualities.map(q =>(q.qualityType,q)).toMap
-  override def toString: String = "Gender: "+gender+", Qualities: "+qualities.toString()
+  override def toString: String = "Gender: "+gender+",Diet: "+dietType+", Qualities: "+qualities.toString()
 
   override def activeAllelicStructure: Seq[AllelicBehaviour] = activeStructuralBehaviour
 
