@@ -31,7 +31,7 @@ class TestGenomeCreation extends FunSuite{
     val lcgs2:Seq[ProteinoGenicAmminoacid] = List('U')
     val lcgs3:Seq[ProteinoGenicAmminoacid] = List('V')
     val lcgs4:Seq[ProteinoGenicAmminoacid] = List('W')
-    val lcgs5:Seq[ProteinoGenicAmminoacid] = List('Y')
+//    val lcgs5:Seq[ProteinoGenicAmminoacid] = List('Y')
 
 
     //allelesCode
@@ -47,8 +47,8 @@ class TestGenomeCreation extends FunSuite{
     val lcgs4a1:Seq[ProteinoGenicAmminoacid] = List('P')
     val lcgs4a2:Seq[ProteinoGenicAmminoacid] = List('Q')
 
-    val lcgs5a1:Seq[ProteinoGenicAmminoacid] = List('P')
-    val lcgs5a2:Seq[ProteinoGenicAmminoacid] = List('Q')
+//    val lcgs5a1:Seq[ProteinoGenicAmminoacid] = List('P')
+//    val lcgs5a2:Seq[ProteinoGenicAmminoacid] = List('Q')
 
 
     val lcap11:AlleleWithProbability = AlleleWithProbability(lcgs1a1,0.5)
@@ -63,14 +63,14 @@ class TestGenomeCreation extends FunSuite{
     val lcap41:AlleleWithProbability = AlleleWithProbability(lcgs4a1,0.5)
     val lcap42:AlleleWithProbability = AlleleWithProbability(lcgs4a2,0.5)
 
-    val lcap51:AlleleWithProbability = AlleleWithProbability(lcgs5a1,0.5)
-    val lcap52:AlleleWithProbability = AlleleWithProbability(lcgs5a2,0.5)
+//    val lcap51:AlleleWithProbability = AlleleWithProbability(lcgs5a1,0.5)
+//    val lcap52:AlleleWithProbability = AlleleWithProbability(lcgs5a2,0.5)
 
     val lcgp1:GeneWithPossibleAlleles= GeneWithPossibleAlleles(lcgs1,List(lcap11,lcap12))
     val lcgp2:GeneWithPossibleAlleles= GeneWithPossibleAlleles(lcgs2,List(lcap21,lcap22))
     val lcgp3:GeneWithPossibleAlleles= GeneWithPossibleAlleles(lcgs3,List(lcap31,lcap32))
     val lcgp4:GeneWithPossibleAlleles= GeneWithPossibleAlleles(lcgs4,List(lcap41,lcap42))
-    val lcgp5:GeneWithPossibleAlleles= GeneWithPossibleAlleles(lcgs5,List(lcap51,lcap52))
+//    val lcgp5:GeneWithPossibleAlleles= GeneWithPossibleAlleles(lcgs5,List(lcap51,lcap52))
 
     //FEEDING CHROMOSOME
     val cfr:Seq[ProteinoGenicAmminoacid] = List('D','C')
@@ -100,7 +100,7 @@ class TestGenomeCreation extends FunSuite{
     val speciesGenerator:SpeciesGenerator = new SpeciesGenerator(
       commonChromosomeGenes = List(gr,gs),
       structuralChromosomeGenes = List(sgp),
-      lifeCycleChromosomeGenes = List(lcgp1,lcgp2,lcgp3,lcgp4,lcgp5),
+      lifeCycleChromosomeGenes = List(lcgp1,lcgp2,lcgp3,lcgp4),
       feedingChromosomeGenes = List(fg),
       sexualChromosomeGenes = List(sxgp1,sxgp2)
     )

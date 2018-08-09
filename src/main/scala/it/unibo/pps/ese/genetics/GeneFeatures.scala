@@ -9,6 +9,35 @@ sealed trait GeneFeatures{
   def allelicForm:Seq[AllelicBehaviour]
 }
 
+sealed trait GeneData{
+  def geneSeq:Seq[ProteinoGenicAmminoacid]
+  def name:String
+  def geneFeatures:Seq[Feature]
+  def allelicForm:Seq[AlleleData]
+}
+
+
+object GeneData{
+  def apply(
+             geneSeq:Seq[ProteinoGenicAmminoacid],
+             name:String,
+             geneFeatures:Seq[Feature],
+             allelicForm:Seq[AlleleData]
+           ): GeneData = GeneDataImpl(
+    geneSeq,name,geneFeatures,allelicForm
+  )
+  case class GeneDataImpl(
+                               override val geneSeq:Seq[ProteinoGenicAmminoacid],
+                               override val name:String,
+                               override val geneFeatures:Seq[Feature],
+                               override val allelicForm:Seq[AlleleData]
+                             )extends GeneData
+}
+
+
+
+
+
 trait Feature {
   def name:String
   def conversionMaps:Seq[ConversionMap]
@@ -27,6 +56,10 @@ sealed trait AllelicBehaviour{
   def featuresBehaviour:Seq[(Feature,Double)]
   def energyConsumption:Double
 }
+sealed trait AlleleData extends AllelicBehaviour{
+  def probability:Double
+}
+
 
 
 object AllelicBehaviour{
@@ -46,15 +79,46 @@ object AllelicBehaviour{
     val a2d = a2.dominanceLevel
     if( a1d==a2d) None else {if(a1d > a2d) Some(a1) else Some(a2)}
   }
-  case class AllelicBehaviourImpl(
-                                   geneSeq:Seq[ProteinoGenicAmminoacid],
-                                   allelicSeq:Seq[ProteinoGenicAmminoacid],
-                                   dominanceLevel:Int,
-                                   featuresBehaviour:Seq[(Feature,Double)],
-                                   energyConsumption:Double
-                                 )extends AllelicBehaviour
 }
 
+case class AllelicBehaviourImpl(
+                                 geneSeq:Seq[ProteinoGenicAmminoacid],
+                                 allelicSeq:Seq[ProteinoGenicAmminoacid],
+                                 dominanceLevel:Int,
+                                 featuresBehaviour:Seq[(Feature,Double)],
+                                 energyConsumption:Double
+                               )extends AllelicBehaviour
+
+object AllelicData {
+  def apply(
+             geneSeq: Seq[ProteinoGenicAmminoacid],
+             allelicSeq: Seq[ProteinoGenicAmminoacid],
+             dominanceLevel: Int,
+             featuresBehaviour: Seq[(Feature, Double)],
+             energyConsumption: Double,
+             probability:Double): AlleleData =
+    new AllelicDataImpl(
+    geneSeq,
+    allelicSeq,
+    dominanceLevel,
+    featuresBehaviour,
+    energyConsumption,
+    probability)
+
+  class AllelicDataImpl(
+                         geneSeq: Seq[ProteinoGenicAmminoacid],
+                         allelicSeq: Seq[ProteinoGenicAmminoacid],
+                         dominanceLevel: Int,
+                         featuresBehaviour: Seq[(Feature, Double)],
+                         energyConsumption: Double,
+                         override val probability:Double
+                       ) extends AllelicBehaviourImpl(
+    geneSeq,
+    allelicSeq,
+    dominanceLevel,
+    featuresBehaviour,
+    energyConsumption) with AlleleData
+}
 
 object GeneFeatures{
   def apply(
@@ -72,6 +136,9 @@ object GeneFeatures{
                                override val allelicForm:Seq[AllelicBehaviour]
                              )extends GeneFeatures
 }
+
+
+
 object Feature{
   def apply(name:String,features:Seq[ConversionMap]): Feature = FeatureImpl(name,features)
   private[this] case class FeatureImpl(override val name:String, override val conversionMaps: Seq[ConversionMap]) extends Feature

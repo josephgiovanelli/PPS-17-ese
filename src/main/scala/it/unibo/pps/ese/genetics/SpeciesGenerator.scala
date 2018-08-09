@@ -6,6 +6,7 @@ import scala.annotation.tailrec
 
 case class GeneWithPossibleAlleles(baseGeneSeq:Seq[ProteinoGenicAmminoacid],alleles:Seq[AlleleWithProbability])
 case class AlleleWithProbability(allelicSeq:Seq[ProteinoGenicAmminoacid],probability:Double)
+
 sealed trait AnimalGenomeSupplier{
   def generateAnimalGenome:AnimalGenome
 }

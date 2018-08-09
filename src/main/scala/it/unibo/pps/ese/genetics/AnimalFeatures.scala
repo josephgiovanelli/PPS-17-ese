@@ -1,8 +1,5 @@
 package it.unibo.pps.ese.genetics
-trait Identified
-sealed trait DietType extends Identified
-case object Herbivore extends DietType
-case object Carnivorous extends DietType
+
 
 sealed trait AnimalFeature{
   private[genetics] def affectQuality(qualityType: QualityType,value:Double)
