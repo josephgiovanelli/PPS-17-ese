@@ -1,9 +1,8 @@
 package it.unibo.pps.ese.entitybehaviors
 
-import it.unibo.pps.ese.entitybehaviors.WorldRules.WorldRules
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityKinds, WorldTypes, WorldTypesImpl}
 
-sealed trait StaticRules {
+sealed trait StaticRules extends WorldTypesImpl {
   def getSpecies(): Set[String]
   def addSpecies(kinds: Set[String]): Unit
 
@@ -29,12 +28,5 @@ object StaticRules {
   }
 }
 
-object WorldRules {
-  def apply(attackThreshold: Int, heightThresholds: (Int, Int), compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRules =  WorldRules(attackThreshold, heightThresholds, compatibleHuntingKinds, compatibleCouplingKinds)
-  implicit def stringToEntityKinds(string: String): EntityKinds.Value = EntityKinds(Symbol(string))
-  implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
-  implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
-  case class WorldRules(attackThreshold: Int, heightThresholds: (Int, Int), compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)])
-}
 

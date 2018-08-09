@@ -2,15 +2,12 @@ package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
 
 import it.unibo.pps.ese.entitybehaviors.StaticRules
-import it.unibo.pps.ese.entitybehaviors.WorldRules.WorldRules
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.Point.Point
 
 import scala.math._
 
-trait DecisionSupport {
+trait DecisionSupport extends WorldTypesImpl {
   val worldRules: WorldRules = StaticRules.instance().getRules()
 
-  implicit def tupleToEntityChoice(tuple: (Int, Int)): EntityChoice = EntityChoice(tuple._1, tuple._2)
   implicit def streamTupleToStreamEntityChoice(tuples: Stream[(Int, Int)]): Stream[EntityChoice] = tuples map tupleToEntityChoice
 
   def createVisualField(entitiesAttributes: Seq[EntityAttributes]): Unit
@@ -18,7 +15,7 @@ trait DecisionSupport {
 
   def discoverPreys(hunter: EntityAttributes): Stream[EntityChoice]
   def discoverPartners(entity: EntityAttributes): Stream[EntityChoice]
-  def nextMove(from: EntityAttributes, to: EntityAttributes): Point
+  def nextMove(from: EntityAttributes, to: EntityAttributes): GeneralPosition[PositionMeasure]
 
 }
 
@@ -27,7 +24,7 @@ trait DecisionSupport {
 object DecisionSupport {
   def apply(): DecisionSupport = new DecisionSupportImpl()
 
-  private class DecisionSupportImpl() extends DecisionSupport() {
+  private class DecisionSupportImpl() extends DecisionSupport {
 
     private var visualField: Set[EntityAttributes] = Set.empty
 
@@ -41,7 +38,7 @@ object DecisionSupport {
     override def discoverPartners(hunter: EntityAttributes): Stream[EntityChoice] =
       basicFilter(hunter) filter (partner => compatiblePartnersKind(hunter, partner)) filter (partner => simulateCoupling(hunter, partner)) map (partner => calculateLength(hunter, partner))
 
-    override def nextMove(from: EntityAttributes, to: EntityAttributes): Point = (from.position, to.position) match  {
+    override def nextMove(from: EntityAttributes, to: EntityAttributes): GeneralPosition[PositionMeasure] = (from.position, to.position) match  {
       case (f, t) if (f sameAbscissa t) > 0 => (f.x - 1, f.y)
       case (f, t) if (f sameAbscissa t) < 0 => (f.x + 1, f.y)
       case (f, t) if (f sameOrdinate t) > 0 => (f.x, f.y - 1)
@@ -67,7 +64,7 @@ object DecisionSupport {
 
     private def simulateCoupling(entity: EntityAttributes, partner: EntityAttributes): Boolean = ???
 
-    private def calculateLength(hunter: EntityAttributes, prey: EntityAttributes): (Int, Int) =
+    private def calculateLength(hunter: EntityAttributes, prey: EntityAttributes): EntityChoice =
       (prey.name, abs(hunter.position.x - prey.position.x) + abs(hunter.position.y - prey.position.y))
 
   }

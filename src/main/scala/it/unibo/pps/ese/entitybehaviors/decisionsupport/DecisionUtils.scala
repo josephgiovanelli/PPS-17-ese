@@ -1,12 +1,54 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
 import it.unibo.pps.ese.entitybehaviors.StaticRules
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.Point.Point
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 
-/*object EntityKinds extends Enumeration {
-  val carnivorous, herbivore, plant = Value
-}*/
 
+trait WorldTypes {
+  type Name
+  type Kind
+  type HeightMeasure <: Int
+  type AttackMeasure <: Int
+  type PositionMeasure <: Int
+
+  type EntityAttributes <: {
+    def name: Name
+    def kind: Kind
+    def height: HeightMeasure
+    def strong: AttackMeasure
+    def defense: AttackMeasure
+    def position: GeneralPosition[PositionMeasure]
+  }
+
+  type EntityChoice <: {
+    def name: Name
+    def distance: Int
+  }
+
+  type WorldRules <: {
+    def attackThreshold: AttackMeasure
+    def heightThresholds: (HeightMeasure, HeightMeasure)
+    def compatibleHuntingKinds: Set[(Kind, Kind)]
+    def compatibleCouplingKinds: Set[(Kind, Kind)]
+  }
+}
+
+trait WorldTypesImpl extends  WorldTypes {
+  type Name = Int
+  type Kind = EntityKinds.Value
+  type HeightMeasure = Int
+  type AttackMeasure = Int
+  type PositionMeasure = Int
+
+  type EntityAttributes = EntityAttributesImpl
+  type EntityChoice = EntityChoiceImpl
+  type WorldRules = WorldRulesImpl
+
+  implicit def tupleToEntityChoice(tuple: (Int, Int)): EntityChoice = EntityChoiceImpl(tuple._1, tuple._2)
+  implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
+  implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
+}
 
 object EntityKinds extends Enumeration {
   type EntityKinds = Value
@@ -18,47 +60,32 @@ object EntityKinds extends Enumeration {
   def unapply(arg: EntityKinds): Option[Symbol] = Some(Symbol(values.find(x => arg.equals(x)).get.toString))
 }
 
-abstract class GeneralPosition[PositionMeasure](val x: PositionMeasure, val y: PositionMeasure) {
-  //implicit def generalPositionToTuple(generalPosition: GeneralPosition[PositionMeasure]): (PositionMeasure, PositionMeasure) = (generalPosition.x, generalPosition.y)
-  //implicit def tupleToGeneralPosition(tuple: (PositionMeasure, PositionMeasure)): GeneralPosition[PositionMeasure]
-
-  def sameAbscissa(generalPosition: GeneralPosition[PositionMeasure]): Int
-  def sameOrdinate(generalPosition: GeneralPosition[PositionMeasure]): Int
+case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: PositionMeasure) {
+  def sameAbscissa(generalPosition: GeneralPosition[PositionMeasure]): Int = if (x == generalPosition.x) 0 else if (x > generalPosition.x) 1 else -1
+  def sameOrdinate(generalPosition: GeneralPosition[PositionMeasure]): Int = if (y == generalPosition.y) 0 else if (y > generalPosition.y) 1 else -1
 }
 
-object Point {
-  implicit def tupleToPoint(tuple: (Int, Int)): Point = Point(tuple._1, tuple._2)
-  implicit def pointToTuple(point: Point): (Int, Int) = (point.x, point.y)
 
-  case class Point(override val x: Int, override val y: Int) extends GeneralPosition[Int](x: Int, y: Int) {
-    override def sameAbscissa(generalPosition: GeneralPosition[Int]): Int = if (x == generalPosition.x) 0 else if (x > generalPosition.x) 1 else -1
-    override def sameOrdinate(generalPosition: GeneralPosition[Int]): Int = if (y == generalPosition.y) 0 else if (y > generalPosition.y) 1 else -1
+object EntityAttributesImpl {
+  def apply(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position)
+
+  implicit def tupleToPoint(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
+  implicit def pointToTuple(point: GeneralPosition[Int]): (Int, Int) = (point.x, point.y)
+
+  case class EntityAttributesImpl(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]){
+    override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "])"
   }
+
 }
 
-/*trait EntityAttributesTypes {
-  type Name
-  type Kind
-  type HeightMeasure
-  type AttackMeasure
-  type Position[PositionMeasure] <: GeneralPosition[PositionMeasure]
+case class EntityChoiceImpl(name: Int, distance: Int)
+
+object WorldRulesImpl {
+  def apply(attackThreshold: Int, heightThresholds: (Int, Int), compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, compatibleHuntingKinds, compatibleCouplingKinds)
+  implicit def stringToEntityKinds(string: String): EntityKinds.Value = EntityKinds(Symbol(string))
+  implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
+  implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
+
+  case class WorldRulesImpl(attackThreshold: Int, heightThresholds: (Int, Int), compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)])
 }
-
-
-abstract class AbstractEntityAttributes[PositionMeasure]() extends EntityAttributesTypes {
-  val name: Name
-  val kind: Kind
-  val height: HeightMeasure
-  val strong: AttackMeasure
-  val defense: AttackMeasure
-  val position: Position[PositionMeasure]
-}*/
-
-case class EntityAttributes(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: Point) {
-  override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "])"
-}
-
-case class EntityChoice(name: Int, distance: Int)
-
-
 
