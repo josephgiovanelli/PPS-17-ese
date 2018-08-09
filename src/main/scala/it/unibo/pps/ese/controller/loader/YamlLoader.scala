@@ -23,13 +23,13 @@ class YamlLoader extends Loader {
 
   import CustomYaml._
 
-  override def loadSimulation(configPath: String): Unit = {
+  override def loadSimulation(configPath: String): SimulationData = {
     val simulation = loadFileContent(configPath).parseYaml.convertTo[Simulation]
-    val plants = simulation.plants.map({case (k, v) => (loadPlant(k), v)})
-    val animals = simulation.animals.map({case (k, v) => (loadAnimal(k), v)})
+    SimulationData(simulation.animals.map({case (k, v) => (loadAnimal(k), v)}),
+      simulation.plants.map({case (k, v) => (loadPlant(k), v)}))
   }
 
-  private def loadPlant(path: String): Plant = loadFileContent(path).parseYaml.convertTo[Plant]
+  private def loadPlant(path: String): PlantData = loadFileContent(path).parseYaml.convertTo[Plant]
 
   private def loadAnimal(path: String): AnimalData = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
@@ -70,5 +70,3 @@ class YamlLoader extends Loader {
     ret
   }
 }
-
-case class SimulationData(animals: Map[Animal, Int], plants: Map[Plant, Int])

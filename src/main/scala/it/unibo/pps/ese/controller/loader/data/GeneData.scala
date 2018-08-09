@@ -9,6 +9,8 @@ trait GeneData {
 
 abstract class AbsGeneData(val properties: Map[String, Class[_]], val alleles: Seq[AlleleData]) extends GeneData {
   def name: String
+  require(alleles.nonEmpty)
+  require(alleles.exists(_.probability == 1.0))
   alleles.foreach(
     all => {
       require(all.effect.keySet.subsetOf(properties.keySet),
