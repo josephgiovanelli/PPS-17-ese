@@ -104,6 +104,22 @@ class TestSetupSpecies extends FunSuite{
       sexualChromosome = List(genedataSx1,genedataSx2)
     ))
     val animalGenome:AnimalGenome = speciesSetup.speciesGenerator.generateAnimalGenome
-    println(speciesSetup.dnaTranslator.getQualitiesByGenome(animalGenome))
+    val animalFeature:AnimalFeature = speciesSetup.dnaTranslator.getQualitiesByGenome(animalGenome)
+    println(animalFeature)
+    if(animalFeature.gender == Male){
+      assert(!(animalFeature.animalQualities contains Fertility))
+      assert(!(animalFeature.animalQualities contains Fecondity))
+    }else{
+      assert(animalFeature.animalQualities contains Fertility)
+      assert(animalFeature.animalQualities contains Fecondity)
+      assert(animalFeature.animalQualities(Fertility).qualityValue==2.0)
+      assert(animalFeature.animalQualities(Fecondity).qualityValue==3.0)
+    }
+    assert(animalFeature.animalQualities(Speed).qualityValue==6.0)
+    val qualityValue:Double = animalFeature
+      .animalQualities(MaxLife)
+      .qualityValue
+    assert(qualityValue==2.0 || qualityValue == 3.0)
+
   }
 }
