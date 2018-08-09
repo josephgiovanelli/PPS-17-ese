@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation
 
-import it.unibo.pps.ese.entitybehaviors.StaticRules
+import it.unibo.pps.ese.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{DecisionSupport, EntityAttributesImpl, EntityKinds}

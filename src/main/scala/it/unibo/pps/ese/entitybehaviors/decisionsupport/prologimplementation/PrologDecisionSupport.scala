@@ -8,7 +8,6 @@ object PrologDecisionSupport {
   def apply(): DecisionSupport = new PrologDecisionSupportImpl()
 
   private class PrologDecisionSupportImpl() extends DecisionSupport {
-    override type PositionMeasure = Int
 
     import Scala2P._
     import alice.tuprolog._

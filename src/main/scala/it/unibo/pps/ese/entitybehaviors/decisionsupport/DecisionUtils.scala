@@ -1,22 +1,15 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
-import it.unibo.pps.ese.entitybehaviors.StaticRules
+import it.unibo.pps.ese.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 
-/*case class MyInt(int: Int) {
-  def meno(i: Int): MyInt = MyInt(int - i)
-  def piu(i: Int): MyInt = MyInt(int + i)
-  def >(i: MyInt): Boolean = int > i.int
-  def <(i: MyInt): Boolean = int < i.int
-  def toInt: Int = int
-}*/
 
 trait WorldTypes {
   type Name
   type Kind
-  type HeightMeasure <: Int
-  type AttackMeasure <: Int
+  type HeightMeasure
+  type AttackMeasure
   type PositionMeasure <: Int
 
   type EntityAttributes <: {
@@ -30,7 +23,7 @@ trait WorldTypes {
 
   type EntityChoice <: {
     def name: Name
-    def distance: Int
+    def distance: PositionMeasure
   }
 
   type WorldRules <: {
