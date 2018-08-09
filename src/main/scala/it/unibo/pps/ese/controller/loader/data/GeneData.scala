@@ -8,7 +8,15 @@ trait GeneData {
 }
 
 abstract class AbsGeneData(val properties: Map[String, Class[_]], val alleles: Seq[AlleleData]) extends GeneData {
-  def id: String
   def name: String
-  require(alleles.forall(data => data.effect.keySet.subsetOf(properties.keySet)))
+  alleles.foreach(
+    all => {
+      require(all.effect.keySet.subsetOf(properties.keySet),
+        "Allele " + all.id + " of gene " + id + " (simple name: " + name + " )" +
+          "tries to modify properties: " + all.effect.keySet.toString()
+          + ", but the gene has only properties: "
+          + properties.keySet.toString())
+      require(all.gene == id, all.gene + " " + id)
+    }
+  )
 }

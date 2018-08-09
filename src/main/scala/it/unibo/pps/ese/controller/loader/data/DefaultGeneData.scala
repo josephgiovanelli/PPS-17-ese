@@ -8,9 +8,8 @@ object DefaultGeneData {
   def apply(defaultGene: DefaultGene, id: String, alleleData: Seq[AlleleData] = Seq()): GeneData
   = new DefaultGeneDataImpl(defaultGene, id, alleleData)
 
-  private class DefaultGeneDataImpl(defaultGene: DefaultGene, override val id: String,
-                                    override val alleles: Seq[AlleleData])
-                                  extends AbsGeneData(defaultGene.properties, alleles) with DefaultGeneData {
+  private class DefaultGeneDataImpl(defaultGene: DefaultGene, _id: String, _alleles: Seq[AlleleData]) extends {
+    override val id: String = _id
     override val name: String = defaultGene.name
-  }
+  } with AbsGeneData(defaultGene.properties, _alleles) with DefaultGeneData
 }

@@ -1,8 +1,7 @@
-gene: abb
+gene: aac
 id: sdabh
 dominance: 5.0
 consume: 5.0
 probability: 1.0
 effect:
-  lunghezza: 3.0
-  muscolatura: 2.0
+  maturity: 3.0

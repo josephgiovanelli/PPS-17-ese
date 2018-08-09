@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
-import it.unibo.pps.ese.controller.loader.data.{AlleleData, CustomGeneData, DefaultGeneData}
+import it.unibo.pps.ese.controller.loader.data.{AlleleData, GeneData, CustomGeneData, DefaultGeneData}
 import it.unibo.pps.ese.controller.util.io.Folder
 import net.jcazevedo.moultingyaml._
 import org.kaikikm.threadresloader.ResourceLoader
@@ -27,19 +27,28 @@ class YamlLoader extends Loader {
     val simulation = loadFileContent(configPath).parseYaml.convertTo[Simulation]
     val plants = simulation.plants.map({case (k, v) => (loadPlant(k), v)})
     val animals = simulation.animals.map({case (k, v) => (loadAnimal(k), v)})
-    //print(animals)
   }
 
   private def loadPlant(path: String): Plant = loadFileContent(path).parseYaml.convertTo[Plant]
 
   private def loadAnimal(path: String): Animal = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
-    loadStructuralChromosome(loadedAnimal.structuralChromosome)
-    //loadDefaultChromosomes()
+    val structuralChromosome = loadStructuralChromosome(loadedAnimal.structuralChromosome)
+    loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
+    println(loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome))
     loadedAnimal
   }
 
-  private def loadStructuralChromosome(genesPath: String): Unit =  {
+  private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData): Seq[GeneData] = {
+    require(chromosomeData.names.keySet == genesSet.map(_.name))
+    val alleles = loadAlleles(chromosomeData.allelesPath)
+    //TODO check no wrong alleles
+    chromosomeData.names.toSeq.map({
+      case (k, v) => DefaultGeneData(genesSet.find(e => e.name == k).get, v, alleles.filter(a => a.gene == v))
+    })
+  }
+
+  private def loadStructuralChromosome(genesPath: String): Seq[CustomGeneData] =  {
     Folder(genesPath).getFilesAsStream(Folder.YAML)
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
       .map(g => CustomGeneData(g, loadAlleles(g.allelesPath)))

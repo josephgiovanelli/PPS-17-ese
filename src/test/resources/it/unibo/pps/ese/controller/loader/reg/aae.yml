@@ -1,8 +1,7 @@
-gene: abb
+gene: aae
 id: sdabh
 dominance: 5.0
 consume: 5.0
 probability: 1.0
 effect:
-  lunghezza: 3.0
-  muscolatura: 2.0
+  decline: 3.0

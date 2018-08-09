@@ -4,15 +4,15 @@ reign: A
 typology: C
 structuralChromosome: it/unibo/pps/ese/controller/loader/struct
 regulationChromosome:
-  allelesPath: it/unibo/pps/ese/controller/loader/structural-alleles
+  allelesPath: it/unibo/pps/ese/controller/loader/reg
   names:
-    life: agtd
-    childhood: agjl
-    maturity: gdagf
-    oldness: adsf
-    decline: dfzf
+    life: aaa
+    childhood: aab
+    maturity: aac
+    oldness: aad
+    decline: aae
 sexualChromosome:
-  allelesPath: it/unibo/pps/ese/controller/loader/structural-alleles
+  allelesPath: it/unibo/pps/ese/controller/loader/sex
   names:
-    fertility: sdad
-    fecundity: asdg
+    fertility: aaf
+    fecundity: aag
