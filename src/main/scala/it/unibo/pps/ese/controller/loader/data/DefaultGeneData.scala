@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.loader.DefaultGene
 trait DefaultGeneData extends GeneData
 
 object DefaultGeneData {
-  def apply(defaultGene: DefaultGene, id: String, alleleData: Seq[AlleleData] = Seq()): GeneData
+  def apply(defaultGene: DefaultGene, id: String, alleleData: Seq[AlleleData] = Seq()): DefaultGeneData
   = new DefaultGeneDataImpl(defaultGene, id, alleleData)
 
   private class DefaultGeneDataImpl(defaultGene: DefaultGene, _id: String, _alleles: Seq[AlleleData]) extends {

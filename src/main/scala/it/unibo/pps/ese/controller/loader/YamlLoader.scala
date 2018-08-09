@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
-import it.unibo.pps.ese.controller.loader.data.{AlleleData, GeneData, CustomGeneData, DefaultGeneData}
+import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.util.io.Folder
 import net.jcazevedo.moultingyaml._
 import org.kaikikm.threadresloader.ResourceLoader
@@ -31,15 +31,15 @@ class YamlLoader extends Loader {
 
   private def loadPlant(path: String): Plant = loadFileContent(path).parseYaml.convertTo[Plant]
 
-  private def loadAnimal(path: String): Animal = {
+  private def loadAnimal(path: String): AnimalData = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
     val structuralChromosome = loadStructuralChromosome(loadedAnimal.structuralChromosome)
-    loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
-    println(loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome))
-    loadedAnimal
+    val regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
+    val sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome)
+    AnimalData(loadedAnimal, structuralChromosome, regulationChromosome, sexualChromosome)
   }
 
-  private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData): Seq[GeneData] = {
+  private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData): Seq[DefaultGeneData] = {
     require(chromosomeData.names.keySet == genesSet.map(_.name))
     val alleles = loadAlleles(chromosomeData.allelesPath)
     //TODO check no wrong alleles
@@ -72,13 +72,3 @@ class YamlLoader extends Loader {
 }
 
 case class SimulationData(animals: Map[Animal, Int], plants: Map[Plant, Int])
-
-trait AnimalData{
-  def name: String
-  def geneLength: Int
-  def reign: String
-  def typology: String
-  def structuralChromosome: Seq[CustomGeneData]
-  def regulationChromosome: Seq[DefaultGeneData]
-  def sexualChromosome: Seq[DefaultGeneData]
-}
