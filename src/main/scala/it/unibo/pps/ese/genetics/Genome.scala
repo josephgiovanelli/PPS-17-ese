@@ -48,5 +48,12 @@ object AnimalGenome{
     override def firstSexualChromosome: SexualChromosome = _coupleToUnit(sexualChromosomeCouple,1)
 
     override def secondSexualChromosome: SexualChromosome = _coupleToUnit(sexualChromosomeCouple,2)
+
+    override def toString: String = "First: "+firstGenomeSequence.values.toString()+"\n"+
+                                    "Second: "+secondGenomeSequence.values.toString()+"\n"+
+                                    "Sexual Chromosome 1: "+firstSexualChromosome.geneList.toString()+"\n"+
+                                    "Sexual Chromosome 2: "+secondSexualChromosome.geneList.toString()+"\n"
+
   }
+
 }

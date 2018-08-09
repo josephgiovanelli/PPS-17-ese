@@ -16,7 +16,7 @@ object ChromosomeType extends Enumeration {
   val SEXUAL_Y = Val(List())
   def checkListOfGene(chromosomeType: ChromosomeType,seq: Seq[GeneType]):Boolean= chromosomeType match {
     case STRUCTURAL_ANIMAL => seq.forall(_ == StructuralGene)
-    case _ =>chromosomeType.trueSequence.equals(seq)
+    case _ =>println(seq);chromosomeType.trueSequence.equals(seq)
   }
 }
 
@@ -96,11 +96,14 @@ abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
 abstract class BasicChromosome(
                                 override val chromosomeType: ChromosomeType,
                                 override val geneList:Seq[Gene]) extends Chromosome{
+  println(chromosomeType+geneList.map(_.geneType).toString())
   require(checkListOfGene(chromosomeType,geneList.map(_.geneType)))
 }
 
 class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[Gene])
-  extends BasicChromosome(chromosomeType,geneList)
+  extends BasicChromosome(chromosomeType,geneList){
+  override def toString: String = chromosomeType.toString+"->"+geneList
+}
 
 class SexualChromosomeImpl(chromosomeType: ChromosomeType,
                            override val sexualChromosome: SexualChromosomeType,
@@ -109,6 +112,7 @@ class SexualChromosomeImpl(chromosomeType: ChromosomeType,
 
 object Chromosome{
   def apply(chromosomeType: ChromosomeType,geneList:Gene*): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
+//  def apply(chromosomeType: ChromosomeType,geneList:Seq[Gene]): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
 
   def apply(chromosomeType: ChromosomeType,
             sexualChromosome: SexualChromosomeType,
