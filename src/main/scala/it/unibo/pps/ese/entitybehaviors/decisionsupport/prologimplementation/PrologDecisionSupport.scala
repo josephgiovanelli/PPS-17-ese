@@ -16,7 +16,7 @@ object PrologDecisionSupport {
     implicit def termToInt(term: Term): scala.Int = term.toString.toInt
     implicit def tupleTermToTupleInt(tuple: (Term, Term)): (scala.Int, scala.Int) = (tuple._1, tuple._2)
     implicit def streamTupleTermToStreamTupleInt(streamTupleTerm: Stream[(Term, Term)]): Stream[(scala.Int, scala.Int)] = streamTupleTerm map tupleTermToTupleInt
-    implicit def tupleTermToEntityChoice(tuple: (Term, Term)): EntityChoice = EntityChoiceImpl(tuple._1, tuple._2)
+    implicit def tupleTermToEntityChoice(tuple: (Term, Term)): EntityChoice = new EntityChoice(tuple._1, tuple._2)
     implicit def streamTupleTermStreamEntityChoice(tuples: Stream[(Term, Term)]): Stream[EntityChoice] = tuples map tupleTermToEntityChoice
     implicit def tupleTermToPoint(tuple: (Term, Term)): GeneralPosition[scala.Int] = GeneralPosition(tuple._1, tuple._2)
 

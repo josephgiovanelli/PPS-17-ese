@@ -4,6 +4,13 @@ import it.unibo.pps.ese.entitybehaviors.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 
+/*case class MyInt(int: Int) {
+  def meno(i: Int): MyInt = MyInt(int - i)
+  def piu(i: Int): MyInt = MyInt(int + i)
+  def >(i: MyInt): Boolean = int > i.int
+  def <(i: MyInt): Boolean = int < i.int
+  def toInt: Int = int
+}*/
 
 trait WorldTypes {
   type Name
@@ -34,7 +41,7 @@ trait WorldTypes {
   }
 }
 
-trait WorldTypesImpl extends  WorldTypes {
+trait WorldTypesImpl extends WorldTypes {
   type Name = Int
   type Kind = EntityKinds.Value
   type HeightMeasure = Int
@@ -45,7 +52,6 @@ trait WorldTypesImpl extends  WorldTypes {
   type EntityChoice = EntityChoiceImpl
   type WorldRules = WorldRulesImpl
 
-  implicit def tupleToEntityChoice(tuple: (Int, Int)): EntityChoice = EntityChoiceImpl(tuple._1, tuple._2)
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
 }
@@ -69,8 +75,8 @@ case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: Positi
 object EntityAttributesImpl {
   def apply(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position)
 
-  implicit def tupleToPoint(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
-  implicit def pointToTuple(point: GeneralPosition[Int]): (Int, Int) = (point.x, point.y)
+  implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
+  implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
 
   case class EntityAttributesImpl(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]){
     override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "])"

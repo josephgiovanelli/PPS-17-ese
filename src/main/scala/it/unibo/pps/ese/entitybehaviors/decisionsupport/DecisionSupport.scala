@@ -8,7 +8,8 @@ import scala.math._
 trait DecisionSupport extends WorldTypesImpl {
   val worldRules: WorldRules = StaticRules.instance().getRules()
 
-  implicit def streamTupleToStreamEntityChoice(tuples: Stream[(Int, Int)]): Stream[EntityChoice] = tuples map tupleToEntityChoice
+  implicit def tupleToEntityChoice(tuple: (Name, Int)): EntityChoice = new EntityChoice(tuple._1, tuple._2)
+  implicit def streamTupleToStreamEntityChoice(tuples: Stream[(Name, Int)]): Stream[EntityChoice] = tuples map tupleToEntityChoice
 
   def createVisualField(entitiesAttributes: Seq[EntityAttributes]): Unit
   def clearVisualField(): Unit
@@ -46,7 +47,7 @@ object DecisionSupport {
     }
 
     private def basicFilter(entity: EntityAttributes): Stream[EntityAttributes] =
-      visualField filter (prey => !prey.equals(entity)) filter (other => heightDiff(entity, other)) toStream
+      visualField filter (prey => prey != entity) filter (other => heightDiff(entity, other)) toStream
 
     private def heightDiff(entity1: EntityAttributes, entity2: EntityAttributes): Boolean = {
       val diff = abs(entity1.height - entity2.height)
