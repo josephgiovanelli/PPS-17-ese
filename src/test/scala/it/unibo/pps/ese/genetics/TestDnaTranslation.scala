@@ -6,6 +6,7 @@ import it.unibo.pps.ese.genetics.AmminoAcidUtilities._
 import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.DnaTranslator.DnaTranslatorImpl
 import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.QualityType._
 
 class TestDnaTranslation extends FunSuite{
 

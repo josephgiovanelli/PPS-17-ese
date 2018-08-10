@@ -1,21 +1,25 @@
 package it.unibo.pps.ese.genetics
+  import enumeratum._
 
-  sealed trait QualityType
-  case object Speed extends QualityType
-  case object FieldOfView extends QualityType
-  case object RangeOfAction extends QualityType
-  case object MaxLife extends QualityType
-  case object EnergyRequirements extends QualityType
-  case object Height extends QualityType
-  case object ResistenceToAttack extends QualityType
-//  case object DietType extends QualityType
-  case object NutritionalValue extends QualityType
-  case object Fertility extends QualityType
-  case object Fecondity extends QualityType
-  case object Attractiveness extends QualityType
-  case object ChildhoodLenght extends QualityType
-  case object AdultnessLenght extends QualityType
-  case object PercentageDecay extends QualityType
+  sealed trait QualityType extends EnumEntry
+  object QualityType extends Enum[QualityType]{
+    val values = findValues
+    case object Speed extends QualityType
+    case object FieldOfView extends QualityType
+    case object RangeOfAction extends QualityType
+    case object MaxLife extends QualityType
+    case object EnergyRequirements extends QualityType
+    case object Height extends QualityType
+    case object ResistenceToAttack extends QualityType
+    //  case object DietType extends QualityType
+    case object NutritionalValue extends QualityType
+    case object Fertility extends QualityType
+    case object Fecondity extends QualityType
+    case object Attractiveness extends QualityType
+    case object ChildhoodLenght extends QualityType
+    case object AdultnessLenght extends QualityType
+    case object PercentageDecay extends QualityType
+  }
 
 
   sealed trait Quality{
@@ -43,7 +47,7 @@ package it.unibo.pps.ese.genetics
     val maxSpeed:Double= 100.0
     val speedConstraints:Double=>Boolean = s => s>0.0 && s < maxSpeed
     val constraints:Map[QualityType,Double=>Boolean] = Map(
-      Speed->speedConstraints,
+      QualityType.Speed->speedConstraints,
     )
 
   }

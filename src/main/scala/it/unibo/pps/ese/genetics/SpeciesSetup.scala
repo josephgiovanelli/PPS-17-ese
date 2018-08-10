@@ -4,7 +4,7 @@ import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import AmminoAcidUtilities._
 import it.unibo.pps.ese.genetics.DnaTranslator.DnaTranslatorImpl
 
-class SpeciesSetup(animalData: AnimalData) {
+class SpeciesSetup(animalData: MyAnimalData) {
   val allGeneData:Seq[GeneData] = animalData.structuralChromosome ++
                                   animalData.regulationChromosome ++
                                   animalData.sexualChromosome
@@ -29,6 +29,7 @@ class SpeciesSetup(animalData: AnimalData) {
     feedingChromosomeGenes = List(stringToDiet(animalData.typology)),
     sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
   )
+  val mutantAllele:Seq[AlleleData] = allGeneData.flatMap(_.allelicForm).filter(_.probability==0)
 
   def stringToReign(s:String):BasicGene = {
     val aS:String = Animal.reignName
@@ -40,19 +41,22 @@ class SpeciesSetup(animalData: AnimalData) {
   }
 
   def speciesNameToGene(s:String):BasicGene = {
+    println(s)
     val speciedCodeSeq:Seq[ProteinoGenicAmminoacid]=
-      s.toLowerCase
+      s.toUpperCase
       .toSeq
       .filter(c=>ProteinoGenicAmminoacid
         .values
         .map(_.shortName)
         .contains(c))
+        .toList
     BasicGene(speciedCodeSeq,IdentifierGene)
   }
   def allGenes(genes:Seq[GeneData]):Seq[GeneWithPossibleAlleles] = {
     genes.map(geneData=>{
       val alleles:Seq[AlleleWithProbability] = geneData
                                                       .allelicForm
+                                                      .filter(_.probability>0)
                                                       .map(allele=>
                                                         AlleleWithProbability(allele.allelicSeq,allele.probability))
       GeneWithPossibleAlleles(geneData.geneSeq,alleles)

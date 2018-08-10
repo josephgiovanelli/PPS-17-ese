@@ -3,6 +3,7 @@ package it.unibo.pps.ese.genetics
 import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import org.scalatest.FunSuite
 import AmminoAcidUtilities._
+import QualityType._
 class TestSetupSpecies extends FunSuite{
   test("Test setup"){
     val g1:Seq[ProteinoGenicAmminoacid] = List('A')
@@ -94,8 +95,8 @@ class TestSetupSpecies extends FunSuite{
     val genedataSx2:GeneData = GeneData(cg2,"Fertilita",List(featureS2),List(allelicdataSx2))
 
 
-    val speciesSetup:SpeciesSetup = new SpeciesSetup(AnimalDataImpl(
-      name = "Cane",
+    val speciesSetup:SpeciesSetup = new SpeciesSetup(MyAnimalDataImpl(
+      name = "Cane gatto",
       geneLength = 20,
       reign = "Animal",
       typology = "Carnivorous",
@@ -115,11 +116,14 @@ class TestSetupSpecies extends FunSuite{
       assert(animalFeature.animalQualities(Fertility).qualityValue==2.0)
       assert(animalFeature.animalQualities(Fecondity).qualityValue==3.0)
     }
-    assert(animalFeature.animalQualities(Speed).qualityValue==6.0)
+    val speed:Double = animalFeature
+      .animalQualities(Speed)
+      .qualityValue
+    assert(speed==6.0||speed==9.0)
     val qualityValue:Double = animalFeature
       .animalQualities(MaxLife)
       .qualityValue
     assert(qualityValue==2.0 || qualityValue == 3.0)
-
+    println(animalGenome)
   }
 }

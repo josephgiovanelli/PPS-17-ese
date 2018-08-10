@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genetics
 
 
-trait AnimalData{
+trait MyAnimalData{
   def name: String
   def geneLength: Int
   def reign: String
@@ -10,7 +10,7 @@ trait AnimalData{
   def regulationChromosome: Seq[GeneData]
   def sexualChromosome: Seq[GeneData]
 }
-case class AnimalDataImpl(
+case class MyAnimalDataImpl(
  name: String,
  geneLength: Int,
  reign: String,
@@ -18,5 +18,5 @@ case class AnimalDataImpl(
  structuralChromosome: Seq[GeneData],
  regulationChromosome: Seq[GeneData],
  sexualChromosome: Seq[GeneData]
-) extends AnimalData
+) extends MyAnimalData
 

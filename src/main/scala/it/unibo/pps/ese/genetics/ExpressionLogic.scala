@@ -39,7 +39,7 @@ object ExpressionLogic{
         animalFeature.affectQuality(e.qualityAffected,e.effectRatio*f._2)
       })
     })
-    animalFeature.affectQuality(EnergyRequirements,a.energyConsumption)
+    animalFeature.affectQuality(QualityType.EnergyRequirements,a.energyConsumption)
     animalFeature
   }
 
@@ -80,7 +80,7 @@ object ExpressionLogic{
           animalFeature.affectQuality(e.qualityAffected,e.effectRatio*((f._2+a2Effect)/2))
         })
       })
-      animalFeature.affectQuality(EnergyRequirements,(a1.energyConsumption+a2.energyConsumption)/2)
+      animalFeature.affectQuality(QualityType.EnergyRequirements,(a1.energyConsumption+a2.energyConsumption)/2)
       animalFeature
     }
   }
