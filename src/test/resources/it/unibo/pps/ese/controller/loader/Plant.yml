@@ -1,5 +1,6 @@
 name: ErbaGatta
-geneLength: 30
+geneLength: 3
+alleleLength: 3
 reign: P
 height: 20.0
 nutritionalValue: 3.0
