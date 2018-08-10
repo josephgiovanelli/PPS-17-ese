@@ -4,7 +4,8 @@ import it.unibo.pps.ese.entitybehaviors.FakeEvent.FakeEvent
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldTypesImpl
 
 object FakeEventType extends Enumeration {
-  val PING, PONG, CALCULATE_NEXT_MOVE, NEXT_MOVE, NAME, HEIGHT, STRONG, DEFENSE, KIND, SPEED, VISUAL_FIELD, ACTION_FIELD, AVERAGE_LIFE, ENERGY_REQUIREMENTS,
+  val DEAD, CALCULATE_NEXT_MOVE, NEXT_MOVE, EAT_ENTITY, NEXT_YEAR = Value
+  val NAME, HEIGHT, STRONG, DEFENSE, KIND, SPEED, VISUAL_FIELD, ACTION_FIELD, AVERAGE_LIFE, ENERGY_REQUIREMENTS,
     NUTRITIVE_VALUE, END_CHILD_PHASE, END_ADULT_PHASE, PERCENTAGE_DECAY = Value
 }
 
@@ -30,7 +31,7 @@ class FakeBus {
 }
 
 case class FakePoint(x: Int, y: Int)
-case class FakeEntityRepresentation(name: Int, kind: String, height: Int, strong: Int, defense: Int, point: FakePoint)
+case class FakeEntityRepresentation(name: Int, kind: String, height: Int, strong: Int, defense: Int, point: FakePoint, nutritiveValue: Int)
 
 sealed trait FakeBuffer extends WorldTypesImpl {
   def getEntityInVisualField(id: Int): Set[FakeEntityRepresentation]

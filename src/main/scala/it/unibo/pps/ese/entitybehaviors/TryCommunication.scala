@@ -16,9 +16,9 @@ object TryCommunication extends App {
   val fakeBus: FakeBus = new FakeBus
 
   val brain: BrainComponent = BrainComponent(fakeBus, FakePoint(3, 3))
-  val physicalStatus: PhysicalStatusComponent = PhysicalStatusComponent(fakeBus)
+  val physicalStatus: PhysicalStatusComponent = PhysicalStatusComponent(fakeBus, 2)
+  val debuggerStatus: DebuggerComponent = DebuggerComponent(fakeBus)
 
-  fakeBus.publish(FakeEvent(FakeEventType.PONG, "0"))
 
   //deve acquisirli Brain
   fakeBus.publish(FakeEvent(FakeEventType.NAME, "4"))
@@ -28,7 +28,6 @@ object TryCommunication extends App {
   fakeBus.publish(FakeEvent(FakeEventType.KIND, "carnivorous"))
 
   //devono acquisirli Brain e PhysicalStatus
-  fakeBus.publish(FakeEvent(FakeEventType.SPEED, "2"))
   fakeBus.publish(FakeEvent(FakeEventType.VISUAL_FIELD, "10"))
   fakeBus.publish(FakeEvent(FakeEventType.ACTION_FIELD, "5"))
 
@@ -40,15 +39,18 @@ object TryCommunication extends App {
   fakeBus.publish(FakeEvent(FakeEventType.END_ADULT_PHASE, "30"))
   fakeBus.publish(FakeEvent(FakeEventType.PERCENTAGE_DECAY, "0.3"))
 
-  val prey0 = FakeEntityRepresentation(0, "plant", 5, 2, 2, FakePoint(5, 6))
-  val prey1 = FakeEntityRepresentation(1, "herbivore", 6, 6, 6, FakePoint(7, 6))
-  val prey2 = FakeEntityRepresentation(2, "herbivore", 7, 7, 7, FakePoint(2, 1))
-  val prey3 = FakeEntityRepresentation(3, "herbivore", 6, 6, 6, FakePoint(8, 1))
-  val prey5 = FakeEntityRepresentation(5, "carnivorous", 9, 9, 9, FakePoint(4, 3))
+  val prey0 = FakeEntityRepresentation(0, "plant", 5, 2, 2, FakePoint(5, 6), 3)
+  val prey1 = FakeEntityRepresentation(1, "herbivore", 6, 6, 6, FakePoint(7, 6), 4)
+  val prey2 = FakeEntityRepresentation(2, "herbivore", 7, 7, 7, FakePoint(2, 1), 5)
+  val prey3 = FakeEntityRepresentation(3, "herbivore", 6, 6, 6, FakePoint(8, 1), 6)
+  val prey5 = FakeEntityRepresentation(5, "carnivorous", 9, 9, 9, FakePoint(4, 3), 7)
 
   FakeBuffer.instance().setEntityInVisualField(4, Set(prey0, prey1, prey2, prey3, prey5))
 
   fakeBus.publish(FakeEvent(FakeEventType.CALCULATE_NEXT_MOVE, ""))
+  fakeBus.publish(FakeEvent(FakeEventType.CALCULATE_NEXT_MOVE, ""))
+  fakeBus.publish(FakeEvent(FakeEventType.CALCULATE_NEXT_MOVE, ""))
+
 
 
 }
