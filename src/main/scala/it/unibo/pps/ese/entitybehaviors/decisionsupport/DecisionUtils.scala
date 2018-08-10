@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
-import it.unibo.pps.ese.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 
@@ -71,7 +70,7 @@ object EntityAttributesImpl {
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
 
-  case class EntityAttributesImpl(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]){
+  case class EntityAttributesImpl(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, var position: GeneralPosition[Int]){
     override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "])"
   }
 

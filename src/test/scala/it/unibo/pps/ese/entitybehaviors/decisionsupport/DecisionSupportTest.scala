@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
-import it.unibo.pps.ese.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 import org.scalatest.FunSuite
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._

@@ -1,9 +1,10 @@
 package it.unibo.pps.ese.entitybehaviors
 
 import it.unibo.pps.ese.entitybehaviors.FakeEvent.FakeEvent
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldTypesImpl
 
 object FakeEventType extends Enumeration {
-  val PING, PONG, HEIGHT, STRONG, DEFENSE, KIND, SPEED, VISUAL_FIELD, ACTION_FIELD, AVERAGE_LIFE, ENERGY_REQUIREMENTS,
+  val PING, PONG, CALCULATE_NEXT_MOVE, NEXT_MOVE, NAME, HEIGHT, STRONG, DEFENSE, KIND, SPEED, VISUAL_FIELD, ACTION_FIELD, AVERAGE_LIFE, ENERGY_REQUIREMENTS,
     NUTRITIVE_VALUE, END_CHILD_PHASE, END_ADULT_PHASE, PERCENTAGE_DECAY = Value
 }
 
@@ -27,4 +28,28 @@ class FakeBus {
   def register(fakeComponent: FakeComponent): Unit = fakeComponents += fakeComponent
   def publish(fakeEvent: FakeEvent): Unit = fakeComponents foreach (fakeComponent => fakeComponent.consume(fakeEvent))
 }
+
+case class FakePoint(x: Int, y: Int)
+case class FakeEntityRepresentation(name: Int, kind: String, height: Int, strong: Int, defense: Int, point: FakePoint)
+
+sealed trait FakeBuffer extends WorldTypesImpl {
+  def getEntityInVisualField(id: Int): Set[FakeEntityRepresentation]
+  def setEntityInVisualField(id: Int, entities: Set[FakeEntityRepresentation]): Unit
+}
+
+object FakeBuffer {
+  private val _instance = new FakeBufferImpl()
+  def instance() =
+    _instance
+
+  class FakeBufferImpl() extends FakeBuffer {
+    private var buffer: Map[Int, Set[FakeEntityRepresentation]] = Map.empty
+
+    override def getEntityInVisualField(id: Int): Set[FakeEntityRepresentation] = if (buffer.get(id).isDefined) buffer(id) else Set.empty
+    override def setEntityInVisualField(id: Int, entities: Set[FakeEntityRepresentation]): Unit = buffer += (id -> entities)
+  }
+}
+
+
+
 

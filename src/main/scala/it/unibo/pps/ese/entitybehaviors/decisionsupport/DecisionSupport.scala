@@ -1,8 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
 
-import it.unibo.pps.ese.StaticRules
-
 import scala.math._
 
 trait DecisionSupport extends WorldTypesImpl {
