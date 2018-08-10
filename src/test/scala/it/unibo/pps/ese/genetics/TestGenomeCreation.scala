@@ -100,7 +100,7 @@ class TestGenomeCreation extends FunSuite{
     val speciesGenerator:SpeciesGenerator = new SpeciesGenerator(
       commonChromosomeGenes = List(gr,gs),
       structuralChromosomeGenes = List(sgp),
-      lifeCycleChromosomeGenes = List(lcgp1,lcgp2,lcgp3,lcgp4),
+      lifeCycleChromosomeGenes = List(lcgp1,lcgp2,lcgp3,lcgp4,lcgp4),
       feedingChromosomeGenes = List(fg),
       sexualChromosomeGenes = List(sxgp1,sxgp2)
     )

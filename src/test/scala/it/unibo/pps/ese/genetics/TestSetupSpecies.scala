@@ -98,10 +98,10 @@ class TestSetupSpecies extends FunSuite{
     val speciesSetup:SpeciesSetup = new SpeciesSetup(TranslatedAnimalDataImpl(
       name = "Cane gatto",
       geneLength = 20,
-      reign = "Animal",
-      typology = "Carnivorous",
+      reign = "A",
+      typology = "C",
       structuralChromosome = List(genedataStruc),
-      regulationChromosome = List(genedatalc1,genedatalc2,genedatalc3,genedatalc4),
+      regulationChromosome = List(genedatalc1,genedatalc2,genedatalc3,genedatalc4,genedatalc4),
       sexualChromosome = List(genedataSx1,genedataSx2)
     ))
     val animalGenome:AnimalGenome = speciesSetup.speciesGenerator.generateAnimalGenome
