@@ -1,8 +1,5 @@
 package it.unibo.pps.ese.entitybehaviors
 
-import javax.tools.Diagnostic.Kind
-
-import apple.laf.JRSUIState.TitleBarHeightState
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 
 object TryCommunication extends App {
