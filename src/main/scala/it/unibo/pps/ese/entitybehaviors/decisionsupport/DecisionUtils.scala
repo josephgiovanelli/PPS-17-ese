@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
+import it.unibo.pps.ese.entitybehaviors.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 

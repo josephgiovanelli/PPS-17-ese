@@ -1,4 +1,6 @@
-package it.unibo.pps.ese.entitybehaviors.decisionsupport
+package it.unibo.pps.ese.entitybehaviors
+
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldTypesImpl
 
 sealed trait StaticRules extends WorldTypesImpl {
   def getSpecies(): Set[String]
