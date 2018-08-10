@@ -11,11 +11,11 @@ sealed trait AnimalGenomeSupplier{
   def generateAnimalGenome:AnimalGenome
 }
 class SpeciesGenerator(
-  commonChromosomeGenes:Seq[BasicGene],
-  structuralChromosomeGenes:Seq[GeneWithPossibleAlleles],
-  lifeCycleChromosomeGenes:Seq[GeneWithPossibleAlleles],
-  feedingChromosomeGenes:Seq[Gene],
-  sexualChromosomeGenes:Seq[GeneWithPossibleAlleles]
+                        commonChromosomeGenes:Seq[BasicGene],
+                        structuralChromosomeGenes:Seq[GeneWithPossibleAlleles],
+                        lifeCycleChromosomeGenes:Seq[GeneWithPossibleAlleles],
+                        feedingChromosomeGenes:Seq[MGene],
+                        sexualChromosomeGenes:Seq[GeneWithPossibleAlleles]
 ) extends AnimalGenomeSupplier {
   override def generateAnimalGenome: AnimalGenome = {
 
@@ -44,13 +44,12 @@ class SpeciesGenerator(
     ccc.addChromosomeCouple(cc1,cc2)
     ccc
   }
-  @tailrec
-  private final def _createGeneCouples(
+  private def _createGeneCouples(
                           gt:GeneType,
                           gs:Seq[GeneWithPossibleAlleles],
                           gl:Seq[(GeneWithAllelicForms)])
-  :Seq[(Gene)] = gs match {
-    case h::t =>
+  :Seq[(MGene)] = gs match {
+    case h+:t =>
       val map:Map[Seq[ProteinoGenicAmminoacid],Double] = h.alleles.map(a=>(a.allelicSeq,a.probability)).toMap
       val g1:GeneWithAllelicForms = GeneWithAllelicForms(h.baseGeneSeq,Utilities.sample(map),gt)
       _createGeneCouples(gt,t,gl :+ g1)
@@ -59,8 +58,8 @@ class SpeciesGenerator(
 
   private def buildStructuralChromosomeCouple:ChromosomeCouple = {
 
-    val sgs1:Seq[Gene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
-    val sgs2:Seq[Gene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
+    val sgs1:Seq[MGene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
+    val sgs2:Seq[MGene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
     val sc1:Chromosome = Chromosome(ChromosomeType.STRUCTURAL_ANIMAL,sgs1: _*)
     val sc2:Chromosome = Chromosome(ChromosomeType.STRUCTURAL_ANIMAL,sgs2: _*)
     val scc = new ChromosomeCoupleImpl {
@@ -70,8 +69,8 @@ class SpeciesGenerator(
     scc
   }
   private def buildLifeCycleChromosomeCouple:ChromosomeCouple = {
-    val lcgs1:Seq[Gene] = _createGeneCouples(RegulatorGene,lifeCycleChromosomeGenes,List())
-    val lcgs2:Seq[Gene] = _createGeneCouples(RegulatorGene,lifeCycleChromosomeGenes,List())
+    val lcgs1:Seq[MGene] = _createGeneCouples(RegulatorGene,lifeCycleChromosomeGenes,List())
+    val lcgs2:Seq[MGene] = _createGeneCouples(RegulatorGene,lifeCycleChromosomeGenes,List())
     val lcc1:Chromosome = Chromosome(ChromosomeType.LIFE_CYCLE,lcgs1: _*)
     val lcc2:Chromosome = Chromosome(ChromosomeType.LIFE_CYCLE,lcgs2: _*)
     val lccc = new ChromosomeCoupleImpl {
@@ -91,8 +90,8 @@ class SpeciesGenerator(
   }
 
   private def buildSexualChromosomeCouple:SexualChromosomeCouple = {
-    val sgs1:Seq[Gene] = _createGeneCouples(RegulatorGene,sexualChromosomeGenes,List())
-    val sgs2:Seq[Gene] = _createGeneCouples(RegulatorGene,sexualChromosomeGenes,List())
+    val sgs1:Seq[MGene] = _createGeneCouples(RegulatorGene,sexualChromosomeGenes,List())
+    val sgs2:Seq[MGene] = _createGeneCouples(RegulatorGene,sexualChromosomeGenes,List())
     def _secondChromosome:SexualChromosome = Utilities.pickRandomElement(Male, Female) match {
       case Male =>
         Chromosome(ChromosomeType.SEXUAL_Y, Y)

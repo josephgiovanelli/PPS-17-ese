@@ -7,7 +7,8 @@ object ProteinoGenicAmminoacid extends Enumeration {
     }
 
     implicit def valueToAmminoacidVal(x: Value): Val = x.asInstanceOf[Val]
-    val Ala = Val('A', "Alanine")
+    val Ala = Val('A',"Alanine")
+    val Bob = Val('B',"Bobeine")
     val Cys = Val('C',"Cysteine")
     val Asp = Val('D',"Aspartic acid")
     val Glu = Val('E',"Glutamic acid")
@@ -37,4 +38,12 @@ object ProteinoGenicAmminoacid extends Enumeration {
     implicit def seqCharToListAmminoacid(seq: Seq[Char]):Seq[ProteinoGenicAmminoacid] = {
       seq.map(charToAmminoacid)
     }
+    def amminoAcidSeqFromString(s:String):Seq[ProteinoGenicAmminoacid]=
+                                                      s.toUpperCase
+                                                        .toSeq
+                                                        .filter(c=>ProteinoGenicAmminoacid
+                                                          .values
+                                                          .map(_.shortName)
+                                                          .contains(c))
+                                                        .toList
   }

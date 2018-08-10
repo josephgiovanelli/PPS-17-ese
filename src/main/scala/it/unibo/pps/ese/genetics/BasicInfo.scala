@@ -8,11 +8,11 @@ sealed trait DietType extends Identified{
   def geneId:BasicGene
 }
 case object Herbivore extends DietType{
-  val dietName:String = "Herbivore"
+  val dietName:String = "H"
   val geneId:BasicGene = BasicGene(List('D','E'),IdentifierGene)
 }
 case object Carnivorous extends DietType{
-  val dietName:String = "Carnivorous"
+  val dietName:String = "C"
   val geneId:BasicGene = BasicGene(List('D','C'),IdentifierGene)
 }
 
@@ -25,10 +25,10 @@ sealed trait Reign{
   def geneId:BasicGene
 }
 case object Animal extends Reign{
-  val reignName ="Animal"
+  val reignName ="A"
   val geneId:BasicGene = BasicGene(List('A'),IdentifierGene)
 }
 case object Plant extends Reign{
-  val reignName="Plant"
+  val reignName="P"
   val geneId:BasicGene = BasicGene(List('P'),IdentifierGene)
 }

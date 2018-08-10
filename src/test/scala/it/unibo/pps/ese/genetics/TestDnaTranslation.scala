@@ -52,7 +52,7 @@ class TestDnaTranslation extends FunSuite{
     val cs2 = Chromosome(ChromosomeType.SEXUAL_X,X,gs,gs2)
 
     val cmapS:ConversionMap = ConversionMap(Fertility,1)
-    val cmapS2:ConversionMap = ConversionMap(Fecondity,1)
+    val cmapS2:ConversionMap = ConversionMap(Fecundity,1)
 
     val featureS:Feature = Feature("fecondita",List(cmapS))
     val featureS2:Feature = Feature("fertilita",List(cmapS2))

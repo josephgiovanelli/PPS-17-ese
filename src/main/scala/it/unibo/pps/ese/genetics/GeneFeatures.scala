@@ -13,30 +13,8 @@ sealed trait GeneData{
   def geneSeq:Seq[ProteinoGenicAmminoacid]
   def name:String
   def geneFeatures:Seq[Feature]
-  def allelicForm:Seq[AlleleData]
+  def allelicForm:Seq[AlleleInfo]
 }
-
-
-object GeneData{
-  def apply(
-             geneSeq:Seq[ProteinoGenicAmminoacid],
-             name:String,
-             geneFeatures:Seq[Feature],
-             allelicForm:Seq[AlleleData]
-           ): GeneData = GeneDataImpl(
-    geneSeq,name,geneFeatures,allelicForm
-  )
-  case class GeneDataImpl(
-                               override val geneSeq:Seq[ProteinoGenicAmminoacid],
-                               override val name:String,
-                               override val geneFeatures:Seq[Feature],
-                               override val allelicForm:Seq[AlleleData]
-                             )extends GeneData
-}
-
-
-
-
 
 trait Feature {
   def name:String
@@ -56,7 +34,7 @@ sealed trait AllelicBehaviour{
   def featuresBehaviour:Seq[(Feature,Double)]
   def energyConsumption:Double
 }
-sealed trait AlleleData extends AllelicBehaviour{
+sealed trait AlleleInfo extends AllelicBehaviour{
   def probability:Double
 }
 
@@ -96,8 +74,8 @@ object AllelicData {
              dominanceLevel: Int,
              featuresBehaviour: Seq[(Feature, Double)],
              energyConsumption: Double,
-             probability:Double): AlleleData =
-    new AllelicDataImpl(
+             probability:Double): AlleleInfo =
+    new AllelicInfoImpl(
     geneSeq,
     allelicSeq,
     dominanceLevel,
@@ -105,7 +83,7 @@ object AllelicData {
     energyConsumption,
     probability)
 
-  class AllelicDataImpl(
+  class AllelicInfoImpl(
                          geneSeq: Seq[ProteinoGenicAmminoacid],
                          allelicSeq: Seq[ProteinoGenicAmminoacid],
                          dominanceLevel: Int,
@@ -117,7 +95,7 @@ object AllelicData {
     allelicSeq,
     dominanceLevel,
     featuresBehaviour,
-    energyConsumption) with AlleleData
+    energyConsumption) with AlleleInfo
 }
 
 object GeneFeatures{
@@ -153,3 +131,21 @@ object ConversionMap {
     extends ConversionMap
 
 }
+
+object GeneData{
+  def apply(
+             geneSeq:Seq[ProteinoGenicAmminoacid],
+             name:String,
+             geneFeatures:Seq[Feature],
+             allelicForm:Seq[AlleleInfo]
+           ): GeneData = GeneDataImpl(
+    geneSeq,name,geneFeatures,allelicForm
+  )
+  case class GeneDataImpl(
+                           override val geneSeq:Seq[ProteinoGenicAmminoacid],
+                           override val name:String,
+                           override val geneFeatures:Seq[Feature],
+                           override val allelicForm:Seq[AlleleInfo]
+                         )extends GeneData
+}
+

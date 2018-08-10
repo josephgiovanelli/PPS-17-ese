@@ -10,7 +10,7 @@ object ChromosomeType extends Enumeration {
   val STRUCTURAL_PLANT = Val(List(StructuralGene,StructuralGene,StructuralGene))
   val ONLY_FOR_TEST = Val(List(RegulatorGene))
   val STRUCTURAL_ANIMAL = Val(List())
-  val LIFE_CYCLE = Val(List(RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene))
+  val LIFE_CYCLE = Val(List(RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene))
   val FEEDING = Val(List(IdentifierGene))
   val SEXUAL_X = Val(List(RegulatorGene,RegulatorGene))
   val SEXUAL_Y = Val(List())
@@ -32,7 +32,7 @@ case class CommonChromosome(reignGene:BasicGene,speciesGene:BasicGene)
 
 trait ChromosomeCouple{
   type ChromosomeUnit <: {
-    def geneList: Seq[Gene]
+    def geneList: Seq[MGene]
     def chromosomeType:ChromosomeType
   }
   def addChromosomeCouple(c1:ChromosomeUnit, c2:ChromosomeUnit)
@@ -45,7 +45,7 @@ trait ChromosomeCouple{
 trait SexualChromosomeCouple extends ChromosomeCouple{
   type ChromosomeUnit <: {
     def sexualChromosome:SexualChromosomeType
-    def geneList: Seq[Gene]
+    def geneList: Seq[MGene]
     def chromosomeType:ChromosomeType
   }
   def gender:Gender = (firstChromosome.sexualChromosome,secondChromosome.sexualChromosome) match {
@@ -58,7 +58,7 @@ trait SexualChromosomeCouple extends ChromosomeCouple{
 
 sealed trait Chromosome{
   def chromosomeType:ChromosomeType
-  def geneList:Seq[Gene]
+  def geneList:Seq[MGene]
 }
 
 sealed trait SexualChromosome extends Chromosome{
@@ -93,28 +93,28 @@ abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
 
 abstract class BasicChromosome(
                                 override val chromosomeType: ChromosomeType,
-                                override val geneList:Seq[Gene]) extends Chromosome{
+                                override val geneList:Seq[MGene]) extends Chromosome{
 //  println(chromosomeType+geneList.map(_.geneType).toString())
   require(checkListOfGene(chromosomeType,geneList.map(_.geneType)))
 }
 
-class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[Gene])
+class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[MGene])
   extends BasicChromosome(chromosomeType,geneList){
   override def toString: String = chromosomeType.toString+"->"+geneList
 }
 
 class SexualChromosomeImpl(chromosomeType: ChromosomeType,
                            override val sexualChromosome: SexualChromosomeType,
-                           geneList:Seq[Gene])
+                           geneList:Seq[MGene])
   extends BasicChromosome(chromosomeType,geneList) with SexualChromosome{}
 
 object Chromosome{
-  def apply(chromosomeType: ChromosomeType,geneList:Gene*): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
+  def apply(chromosomeType: ChromosomeType,geneList:MGene*): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
 //  def apply(chromosomeType: ChromosomeType,geneList:Seq[Gene]): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
 
   def apply(chromosomeType: ChromosomeType,
             sexualChromosome: SexualChromosomeType,
-            geneList:Gene*): SexualChromosome = new SexualChromosomeImpl(chromosomeType,
+            geneList:MGene*): SexualChromosome = new SexualChromosomeImpl(chromosomeType,
     sexualChromosome,
     geneList)
 }

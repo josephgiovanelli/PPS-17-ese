@@ -4,7 +4,7 @@ import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import AmminoAcidUtilities._
 import it.unibo.pps.ese.genetics.DnaTranslator.DnaTranslatorImpl
 
-class SpeciesSetup(animalData: MyAnimalData) {
+class SpeciesSetup(animalData: TranslatedAnimalData) {
   val allGeneData:Seq[GeneData] = animalData.structuralChromosome ++
                                   animalData.regulationChromosome ++
                                   animalData.sexualChromosome
@@ -20,6 +20,7 @@ class SpeciesSetup(animalData: MyAnimalData) {
                         ad.energyConsumption))
     GeneFeatures(geneData.geneSeq,geneData.name,geneData.geneFeatures,allelicBehaviours)
   })
+
   val dnaTranslator:DnaTranslator = new DnaTranslatorImpl(geneFeatures)
 
   val speciesGenerator:SpeciesGenerator = new SpeciesGenerator(
@@ -29,7 +30,7 @@ class SpeciesSetup(animalData: MyAnimalData) {
     feedingChromosomeGenes = List(stringToDiet(animalData.typology)),
     sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
   )
-  val mutantAllele:Seq[AlleleData] = allGeneData.flatMap(_.allelicForm).filter(_.probability==0)
+  val mutantAllele:Seq[AlleleInfo] = allGeneData.flatMap(_.allelicForm).filter(_.probability==0)
 
   def stringToReign(s:String):BasicGene = {
     val aS:String = Animal.reignName
@@ -41,16 +42,7 @@ class SpeciesSetup(animalData: MyAnimalData) {
   }
 
   def speciesNameToGene(s:String):BasicGene = {
-    println(s)
-    val speciedCodeSeq:Seq[ProteinoGenicAmminoacid]=
-      s.toUpperCase
-      .toSeq
-      .filter(c=>ProteinoGenicAmminoacid
-        .values
-        .map(_.shortName)
-        .contains(c))
-        .toList
-    BasicGene(speciedCodeSeq,IdentifierGene)
+    BasicGene(amminoAcidSeqFromString(s),IdentifierGene)
   }
   def allGenes(genes:Seq[GeneData]):Seq[GeneWithPossibleAlleles] = {
     genes.map(geneData=>{
