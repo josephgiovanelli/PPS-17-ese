@@ -1,9 +1,11 @@
 package it.unibo.pps.ese.view
 
+import scalafx.Includes._
 import javafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
+import scalafx.geometry.Orientation
 import scalafx.scene.layout.BorderPane
 
 object ZoomPreferences {
@@ -30,15 +32,14 @@ private class MainScene(width: Double = 1200, heigth: Double = 800) extends Scen
   worldTab.text = "World"
   worldTab.closable = false
 
-  val worldContainerPane = new BorderPane()
+  val worldContainerPane = new SplitPane()
   val detailsPane = DetailsPane()
   val worldPane: WorldPane = WorldPane(worldWidth, worldHeigth, detailsPane)
-  detailsPane.prefWidth = 300
   detailsPane.prefHeight <== worldContainerPane.height
 
-
-  worldContainerPane.center = worldPane
-  worldContainerPane.right = detailsPane
+  worldContainerPane.orientation = Orientation.Horizontal
+  worldContainerPane.items ++= List(worldPane, detailsPane)
+  worldContainerPane.dividerPositions = 0.7
   worldTab.content = worldContainerPane
 
   val zoomSlider = new Slider(ZoomPreferences.minZoom, ZoomPreferences.maxZoom, ZoomPreferences.prefZoom)
