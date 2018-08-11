@@ -13,6 +13,8 @@ object PlantInfo{
 
     override def geneLength: Int = plantData.geneLength
 
+    override def alleleLength: Int = plantData.alleleLength
+
     override def reign: String = plantData.reign
 
     override def height: Double = plantData.height

@@ -11,9 +11,9 @@ object InputDataAdapter {
       aD.geneLength,
       aD.reign,
       aD.typology,
-      aD.structuralChromosome.map(customGeneDataToGeneData),
-      aD.regulationChromosome.map(defaultGeneDataToCustomGeneData).map(customGeneDataToGeneData),
-      aD.sexualChromosome.map(defaultGeneDataToCustomGeneData).map(customGeneDataToGeneData)
+      aD.structuralChromosome.map(customGeneDataToGeneData).toSeq,
+      aD.regulationChromosome.map(defaultGeneDataToCustomGeneData).map(customGeneDataToGeneData).toSeq,
+      aD.sexualChromosome.map(defaultGeneDataToCustomGeneData).map(customGeneDataToGeneData).toSeq
     )
   }
 
@@ -27,7 +27,7 @@ object InputDataAdapter {
 
       override def properties: Map[String, Class[_]] = dgd.properties
 
-      override def alleles: Seq[AlleleData] = dgd.alleles
+      override def alleles: Set[AlleleData] = dgd.alleles
     }
     MyCustomGeneData
   }
@@ -47,7 +47,7 @@ object InputDataAdapter {
       Feature(cMap._1,getConversionMapSeq(cMap._2))
     }).toSeq
 
-    val allelicForms:Seq[AlleleInfo] = customGeneData.alleles.map(alleleData=>{
+    val allelicForms:Seq[AlleleInfo] = customGeneData.alleles.toSeq.map(alleleData=>{
         val featuresBehaviour:Seq[(Feature,Double)] = alleleData
                                                           .effect
                                                           .map(e=>(getFeatureByName(e._1,geneFeatures),e._2))
