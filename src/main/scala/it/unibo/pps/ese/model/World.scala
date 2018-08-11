@@ -5,7 +5,8 @@ sealed trait World {
 }
 
 sealed trait CachedWorld {
-  def queryableState : EntitiesStateCache = EntitiesStateCache apply
+  private[this] val _queryableState = EntitiesStateCache apply
+  def queryableState : EntitiesStateCache = _queryableState
 }
 
 sealed trait InteractiveWorld extends CachedWorld {
@@ -30,7 +31,8 @@ object World {
 
     override def addEntity(entity: Entity): Unit = {
       entity match {
-        case _: Entity with BaseNervousSystem => entity addComponent WorldBridgeComponent(this)
+        case _: Entity with NervousSystemExtension => entity addComponent new WorldBridgeComponent(entity id, this)
+        case _ => Unit
       }
       entities_=(entities :+ entity)
     }
