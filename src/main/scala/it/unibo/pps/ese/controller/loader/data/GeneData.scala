@@ -4,13 +4,14 @@ trait GeneData {
   def id: String
   def name: String
   def properties: Map[String, Class[_]]
-  def alleles: Seq[AlleleData]
+  def alleles: Set[AlleleData]
 }
 
-abstract class AbsGeneData(val properties: Map[String, Class[_]], val alleles: Seq[AlleleData]) extends GeneData {
-  def name: String
+abstract class AbsGeneData(val properties: Map[String, Class[_]], _alleles: Iterable[AlleleData]) extends GeneData {
+  val alleles:  Set[AlleleData] = _alleles.toSet
+  require(alleles.size == _alleles.size)
   require(alleles.nonEmpty)
-  require(alleles.exists(_.probability == 1.0))
+  require(alleles.map(_.probability).sum == 1.0)
   alleles.foreach(
     all => {
       require(all.effect.keySet.subsetOf(properties.keySet),
@@ -21,4 +22,18 @@ abstract class AbsGeneData(val properties: Map[String, Class[_]], val alleles: S
       require(all.gene == id, all.gene + " " + id)
     }
   )
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[AbsGeneData]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: AbsGeneData =>
+      (that canEqual this) &&
+        id == that.id
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(id)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }

@@ -13,9 +13,9 @@ class YamlLoader extends Loader {
 
   object CustomYaml extends DefaultYamlProtocol {
     implicit val simulationFormat = yamlFormat2(Simulation)
-    implicit val plantFormat = yamlFormat6(Plant)
+    implicit val plantFormat = yamlFormat7(Plant)
     implicit val defaultChromosomeDataFormat = yamlFormat2(DefaultChromosomeData)
-    implicit val animalFormat = yamlFormat7(Animal)
+    implicit val animalFormat = yamlFormat8(Animal)
     implicit val propertyInfoFormat = yamlFormat1(PropertyInfo)
     implicit val geneFormat = yamlFormat4(Gene)
     implicit val alleleFormat = yamlFormat6(Allele)

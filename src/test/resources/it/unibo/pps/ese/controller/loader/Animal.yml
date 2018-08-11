@@ -1,5 +1,6 @@
 name: Gatto
-geneLength: 30
+geneLength: 3
+alleleLength: 3
 reign: A
 typology: C
 structuralChromosome: it/unibo/pps/ese/controller/loader/struct
