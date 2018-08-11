@@ -2,7 +2,9 @@ package it.unibo.pps.ese.model
 
 import it.unibo.pps.ese.model.support.{Consumer, Event, EventBus}
 
-trait Component
+trait Component {
+  def initialize(): Unit
+}
 
 trait NervousSystemComponent extends Component {
   private[this] var _nervousSystem : Option[EventBus] = None
@@ -22,8 +24,8 @@ trait ComponentLocator extends Component {
   def findComponent(component: Component ) : Option[Component] = None
 }
 
-class BaseReaderComponent extends Component with ComponentLocator with BusReader
-class BaseWriterComponent extends BaseReaderComponent with BusWriter
+abstract class BaseReaderComponent extends Component with ComponentLocator with BusReader
+abstract class BaseWriterComponent extends BaseReaderComponent with BusWriter
 
-class ReaderComponent extends BaseReaderComponent
-class WriterComponent extends BaseWriterComponent
+abstract class ReaderComponent extends BaseReaderComponent
+abstract class WriterComponent extends BaseWriterComponent

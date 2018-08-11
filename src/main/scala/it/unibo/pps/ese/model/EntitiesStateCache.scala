@@ -8,7 +8,7 @@ case class StoredProperty(era: Long, value : Object)
 
 sealed trait EntitiesStateCache {
 
-  def addOrUpdateEntity (entityId: String, era: Int, element: EntityProperty) : Unit
+  def addOrUpdateEntityState (entityId: String, era: Int, element: EntityProperty) : Unit
   def getEntityState(entityId: String): EntityState
   def deleteEntityState(entityId: String) : Unit
   def getFilteredState(filter: EntityState => Boolean ) : Seq[EntityState]
@@ -24,7 +24,7 @@ object EntitiesStateCache {
     private val _entitiesRepository : DataRepository[String, DataRepository[String, StoredProperty]] =
       DataRepository[String, DataRepository[String, StoredProperty]]
 
-    override def addOrUpdateEntity(entityId: String, era: Int, element: EntityProperty): Unit = {
+    override def addOrUpdateEntityState(entityId: String, era: Int, element: EntityProperty): Unit = {
       val entityState = _entitiesRepository getById entityId getOrElse DataRepository[String, StoredProperty]
       entityState addOrUpdate(element propertyId, StoredProperty(era = era, element value))
     }
@@ -39,6 +39,7 @@ object EntitiesStateCache {
     override def deleteEntityState(entityId: String): Unit = _entitiesRepository deleteById entityId
 
     override def getFilteredState(filter: EntityState => Boolean): Seq[EntityState] = {
+      println("richiesta stato")
       val entityStates = (_entitiesRepository getAll) map(x => EntityState(x._1, (x._2 getAll)
         .map(y => EntityProperty(y._1, y._2.era, y._2.value))))
       entityStates filter filter

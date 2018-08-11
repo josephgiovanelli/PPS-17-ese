@@ -12,17 +12,18 @@ trait BaseNervousSystem extends NervousSystem {
 }
 
 sealed trait Entity {
+  def id: String
   def getComponents : Seq[Component]
   def addComponent(component : Component) : Unit
 }
+
 object Entity {
 
   def apply(instance: String, id: String): Entity = instance match {
-    case "base" => BaseEntity(id)
     case "improved" => new ImprovedEntity(id) with BaseNervousSystem
   }
 
-  private case class BaseEntity(id: String) extends Entity {
+  private abstract case class BaseEntity(id: String) extends Entity {
 
     private[this] var components : Seq[Component] = Seq.empty
 
@@ -38,6 +39,8 @@ object Entity {
         case c : NervousSystemComponent => c nervousSystem_= eventBus
       }
       super.addComponent(component)
+      component initialize
     }
   }
+
 }

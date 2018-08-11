@@ -1,29 +1,40 @@
 package it.unibo.pps.ese.model
 
-import it.unibo.pps.ese.model.support.DataRepository
-
 sealed trait World {
-  def getEntities : Seq[Entity]
-  def addEntity(entity : Entity) : Unit
+  def entities : Seq[Entity]
 }
 
-sealed trait CachedWorld[A, B] {
-  def entitiesStateCache : DataRepository[A, B]
+sealed trait CachedWorld {
+  def queryableState : EntitiesStateCache = EntitiesStateCache apply
 }
+
+sealed trait InteractiveWorld extends CachedWorld {
+  def addEntity(entity: Entity): Unit
+  def removeEntity(id: String): Unit
+}
+
 
 object World {
 
-  def apply(): World = new BaseWorld
+  def apply(): InteractiveWorld = new BaseInteractiveWorld
 
   private case class BaseWorld() extends World {
-    private[this] var entities : Seq[Entity] = Seq.empty
 
-    override def getEntities: Seq[Entity] = entities
-    override def addEntity(entity: Entity): Unit = entities = entities :+ entity
+    private[this] var _entities : Seq[Entity] = Seq empty
+
+    protected def entities_=(entities : Seq[Entity]) : Unit = _entities = entities
+    override def entities: Seq[Entity] = _entities
   }
 
-  //private trait BaseCachedWorld extends CachedWorld [String, DataRepository[]]
+  private class BaseInteractiveWorld extends BaseWorld with InteractiveWorld {
+
+    override def addEntity(entity: Entity): Unit = {
+      entity match {
+        case _: Entity with BaseNervousSystem => entity addComponent WorldBridgeComponent(this)
+      }
+      entities_=(entities :+ entity)
+    }
+
+    override def removeEntity(id: String): Unit = entities_=(entities filterNot(e => e.id == id))
+  }
 }
-
-
-//class EntitiesStateCache

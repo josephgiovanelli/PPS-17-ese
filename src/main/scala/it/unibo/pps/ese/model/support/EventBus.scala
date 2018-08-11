@@ -4,6 +4,7 @@ sealed trait EventBus {
   def send(event: Event): Unit
   def attach(e: Consumer): Unit
 }
+
 object EventBus {
   def apply(): EventBus = BaseEventBus()
 
