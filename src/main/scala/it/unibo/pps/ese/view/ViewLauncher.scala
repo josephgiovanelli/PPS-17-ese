@@ -17,7 +17,7 @@ object ViewLauncher extends JFXApp {
 
   object SceneManager {
 
-    def setScene(scene: Scene) = {
+    def setScene(scene: Scene): Unit = {
       stage.scene = scene
     }
   }

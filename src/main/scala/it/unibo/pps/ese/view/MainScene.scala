@@ -12,7 +12,7 @@ object ZoomPreferences {
   val prefZoom: Int = 3
 }
 
-class MainScene(width: Double = 1200, heigth: Double = 800) extends Scene(width, heigth) {
+private class MainScene(width: Double = 1200, heigth: Double = 800) extends Scene(width, heigth) {
 
   val menuBar = new MenuBar()
   val fileMenu = new Menu("File")
@@ -29,8 +29,17 @@ class MainScene(width: Double = 1200, heigth: Double = 800) extends Scene(width,
   val worldTab = new Tab()
   worldTab.text = "World"
   worldTab.closable = false
-  val worldPane: WorldPane = WorldPane(worldWidth, worldHeigth)
-  worldTab.content = worldPane
+
+  val worldContainerPane = new BorderPane()
+  val detailsPane = DetailsPane()
+  val worldPane: WorldPane = WorldPane(worldWidth, worldHeigth, detailsPane)
+  detailsPane.prefWidth = 300
+  detailsPane.prefHeight <== worldContainerPane.height
+
+
+  worldContainerPane.center = worldPane
+  worldContainerPane.right = detailsPane
+  worldTab.content = worldContainerPane
 
   val zoomSlider = new Slider(ZoomPreferences.minZoom, ZoomPreferences.maxZoom, ZoomPreferences.prefZoom)
   zoomSlider.accessibleText = "Zoom"
