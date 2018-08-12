@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 class EntityInfo extends Dynamic {
 
-  val values: mutable.Map[String, StoredProperty] = mutable.Map.empty[String, StoredProperty]
+  val values: mutable.Map[String, Any] = mutable.Map.empty[String, Any]
 
   def selectDynamic(name: String): Any = {
     values.get(name) match {
@@ -16,7 +16,7 @@ class EntityInfo extends Dynamic {
     }
   }
 
-  def updateDynamic(name: String)(value: StoredProperty): Unit = {
+  def updateDynamic(name: String)(value: Any): Unit = {
     values(name) = value
   }
 }

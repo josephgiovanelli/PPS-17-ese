@@ -13,23 +13,21 @@ class ExampleComponent(override val entityId: String) extends WriterComponent(en
   }
 
   private def subscribeEvents(): Unit = subscribe {
-    case ev: ExampleEvent => {
+    case ev: ExampleEvent =>
       println(ev speed)
       publish(RequireEntitiesState("example"))
-    }
-    case EntitiesStateResponse(id, state) if id == "example" => {
+    case EntitiesStateResponse(id, state) if id == "example" =>
       println("response : " + state)
       val myState : Option[EntityInfo] = state find (s => s.entityId == entityId) map (s => s state)
       if (myState isDefined) {
-        val a = (myState get).speed
+        import EntityInfoConversion._
+        val a : Int = (myState get).speed
         println("speed : " + a)
       }
-
-    }
     case _ => Unit
   }
 
   private def configureMappings(): Unit = {
-    addMapping[ExampleEvent]((classOf[ExampleEvent], ev => Seq(EntityProperty("speed", 1l, ev speed))))
+    addMapping[ExampleEvent]((classOf[ExampleEvent], ev => Seq(EntityProperty("speed", ev speed))))
   }
 }

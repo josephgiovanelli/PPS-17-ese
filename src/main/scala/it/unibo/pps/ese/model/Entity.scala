@@ -1,11 +1,14 @@
 package it.unibo.pps.ese.model
 
-import it.unibo.pps.ese.model.support.{Event, EventBus}
-
 sealed trait Entity {
   def id: String
   def getComponents : Seq[Component]
   def addComponent(component : Component) : Unit
+}
+
+sealed trait ActiveEntity {
+  def computeNewState(): Unit
+  def requireInfo(): Unit
 }
 
 sealed trait NervousSystemExtension {
@@ -31,6 +34,18 @@ object Entity {
   }
 
   private class ImprovedEntity(id: String) extends BaseEntity(id) {
+
+    self : NervousSystemExtension =>
+    override def addComponent(component: Component): Unit = {
+      component match {
+        case c : NervousSystemComponent => c nervousSystem_= nervousSystem
+      }
+      super.addComponent(component)
+      component initialize()
+    }
+  }
+
+  private class ActiveEntity(id: String) extends BaseEntity(id) {
 
     self : NervousSystemExtension =>
     override def addComponent(component: Component): Unit = {
