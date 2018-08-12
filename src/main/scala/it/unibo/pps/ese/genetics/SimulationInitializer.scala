@@ -3,27 +3,27 @@ package it.unibo.pps.ese.genetics
 import it.unibo.pps.ese.controller.loader.data.{PlantData, SimulationData}
 
 sealed trait SimulationInitializer{
-  def getAllAnimals:Map[String,Seq[AnimalFeature]]
+  def getAllAnimals:Map[String,Seq[AnimalInfo]]
   def getAllPlant:Map[String,Seq[PlantData]]
 }
 object SimulationInitializer {
   def apply(simulationData: SimulationData): SimulationInitializer = SimulationInitializerImpl(simulationData)
   private[this] case class SimulationInitializerImpl(simulationData: SimulationData) extends SimulationInitializer{
-    private val speciesSetup:Map[String,SpeciesSetup] = simulationData
+    private val speciesSetup:Map[String,SpeciesUtilities] = simulationData
       .animals
       .keys
       .map(e=>
         (e.name,
-          new SpeciesSetup(InputDataAdapter.translateAnimalData(e))
+          SpeciesUtilities(InputDataAdapter.translateAnimalData(e))
           ))
       .toMap
 
-    override def getAllAnimals: Map[String, Seq[AnimalFeature]] = {
+    override def getAllAnimals: Map[String, Seq[AnimalInfo]] = {
       simulationData.animals.map(e=>(e._1.name,e._2)).map(c=>{
-        var seq:Seq[AnimalFeature] = ( 0 to c._2 by 1).map(i=> {
-          val setup: SpeciesSetup = speciesSetup(c._1)
-          val animalGenome = setup.speciesGenerator.generateAnimalGenome
-          setup.dnaTranslator.getQualitiesByGenome(animalGenome)
+        var seq:Seq[AnimalInfo] = ( 0 to c._2 by 1).map(i=> {
+          val setup: SpeciesUtilities = speciesSetup(c._1)
+          val animalGenome = setup.generateAnimalGenome
+          setup.translateGenome(animalGenome)
         })
         (c._1,seq)
       })

@@ -9,9 +9,9 @@ class TestLoadingSimulation extends FunSuite{
     val animalData:TranslatedAnimalData = InputDataAdapter.translateAnimalData(
       data.animals.keySet.toSeq.head
     )
-    val speciesSetup:SpeciesSetup = new SpeciesSetup(animalData)
-    val animalGenome:AnimalGenome = speciesSetup.speciesGenerator.generateAnimalGenome
-    val animalFeature:AnimalFeature = speciesSetup.dnaTranslator.getQualitiesByGenome(animalGenome)
+    val speciesSetup:SpeciesUtilities = SpeciesUtilities(animalData)
+    val animalGenome:AnimalGenome = speciesSetup.generateAnimalGenome
+    val animalFeature:AnimalInfo = speciesSetup.translateGenome(animalGenome)
     println(animalGenome)
     println(animalFeature)
     val simulationInitializer:SimulationInitializer = SimulationInitializer(data)

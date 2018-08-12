@@ -95,7 +95,7 @@ class TestSetupSpecies extends FunSuite{
     val genedataSx2:GeneData = GeneData(cg2,"Fertilita",List(featureS2),List(allelicdataSx2))
 
 
-    val speciesSetup:SpeciesSetup = new SpeciesSetup(TranslatedAnimalDataImpl(
+    val speciesSetup:SpeciesUtilities = SpeciesUtilities(TranslatedAnimalDataImpl(
       name = "Cane gatto",
       geneLength = 20,
       reign = "A",
@@ -104,8 +104,8 @@ class TestSetupSpecies extends FunSuite{
       regulationChromosome = List(genedatalc1,genedatalc2,genedatalc3,genedatalc4,genedatalc4),
       sexualChromosome = List(genedataSx1,genedataSx2)
     ))
-    val animalGenome:AnimalGenome = speciesSetup.speciesGenerator.generateAnimalGenome
-    val animalFeature:AnimalFeature = speciesSetup.dnaTranslator.getQualitiesByGenome(animalGenome)
+    val animalGenome:AnimalGenome = speciesSetup.generateAnimalGenome
+    val animalFeature:AnimalInfo = speciesSetup.translateGenome(animalGenome)
     println(animalFeature)
     if(animalFeature.gender == Male){
       assert(!(animalFeature.animalQualities contains Fertility))
