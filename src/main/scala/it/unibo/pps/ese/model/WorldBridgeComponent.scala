@@ -25,7 +25,9 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
   private var requireInfoPromise : Promise[Done] = Promise()
   private var newStateAccumulator : Long = 0
   private var requireInfoAccumulator : Long = 0
-  private var componentsNumber : Long = 0
+
+  newStatePromise success new Done()
+  requireInfoPromise success new Done()
 
   override def initialize(): Unit = subscribe {
     case RequireEntitiesState(id, filter) => publish(EntitiesStateResponse(id, (world queryableState) getFilteredState filter))
@@ -34,18 +36,18 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     case NewState(properties) => properties foreach (e => (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
     case ComputeNextStateResponse() =>
       newStateAccumulator += 1
-      if (newStateAccumulator == entitySpecifications.componentsCount) newStatePromise success new Done()
+      if (newStateAccumulator == entitySpecifications.componentsCount - 1) newStatePromise success new Done()
     case GetInfoResponse() =>
       requireInfoAccumulator += 1
-      if (requireInfoAccumulator == entitySpecifications.componentsCount) requireInfoPromise success new Done()
+      if (requireInfoAccumulator == entitySpecifications.componentsCount - 1) requireInfoPromise success new Done()
     case _ => Unit
   }
 
   override def computeNewState(): Future[Done] = {
     if (newStatePromise isCompleted) {
-      publish(ComputeNextState())
       newStatePromise = Promise()
       newStateAccumulator = 0
+      publish(ComputeNextState())
       newStatePromise future
     } else {
       failurePromise()
@@ -54,9 +56,9 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
 
   override def requireInfo(): Future[Done] = {
     if (requireInfoPromise isCompleted) {
-      publish(GetInfo())
       requireInfoPromise = Promise()
       requireInfoAccumulator = 0
+      publish(GetInfo())
       requireInfoPromise future
     } else {
       failurePromise()
@@ -65,7 +67,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
 
   private def failurePromise() : Future[Done] = {
     val result = Promise[Done]()
-    result failure new RuntimeException("Already pending request")
+    result failure new RuntimeException("Pending request")
     result future
   }
 }

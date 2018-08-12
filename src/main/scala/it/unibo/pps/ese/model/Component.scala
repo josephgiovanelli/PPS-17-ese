@@ -26,8 +26,12 @@ trait BusReader extends NervousSystemComponent {
 
 abstract class BaseComponent(override val entitySpecifications: EntitySpecifications) extends Component
 
-abstract class BaseReaderComponent(entitySpecifications: EntitySpecifications) extends BaseComponent(entitySpecifications)  with BusReader
-abstract class BaseWriterComponent(entitySpecifications: EntitySpecifications) extends BaseReaderComponent(entitySpecifications) with BusWriter
+abstract class BaseReaderComponent(entitySpecifications: EntitySpecifications)
+  extends BaseComponent(entitySpecifications)  with BusReader
+abstract class BaseWriterComponent(entitySpecifications: EntitySpecifications)
+  extends BaseReaderComponent(entitySpecifications) with BusWriter
 
-abstract class ReaderComponent(entitySpecifications: EntitySpecifications) extends BaseReaderComponent(entitySpecifications)
-abstract class WriterComponent(entitySpecifications: EntitySpecifications) extends BaseWriterComponent(entitySpecifications)
+abstract class ReaderComponent(entitySpecifications: EntitySpecifications)
+  extends BaseReaderComponent(entitySpecifications)
+abstract class WriterComponent(entitySpecifications: EntitySpecifications)
+  extends BaseWriterComponent(entitySpecifications)
