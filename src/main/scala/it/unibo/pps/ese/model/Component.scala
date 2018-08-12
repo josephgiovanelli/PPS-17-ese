@@ -6,7 +6,7 @@ import scala.reflect.ClassTag
 
 trait Component {
   def initialize(): Unit
-  def entityId : String
+  def entitySpecifications : EntitySpecifications
 }
 
 trait NervousSystemComponent extends Component {
@@ -24,10 +24,10 @@ trait BusReader extends NervousSystemComponent {
   def subscribe(consumer : Consumer) : Unit = nervousSystem subscribe consumer
 }
 
-abstract class BaseComponent(override val entityId: String) extends Component
+abstract class BaseComponent(override val entitySpecifications: EntitySpecifications) extends Component
 
-abstract class BaseReaderComponent(entityId: String) extends BaseComponent(entityId)  with BusReader
-abstract class BaseWriterComponent(entityId: String) extends BaseReaderComponent(entityId) with BusWriter
+abstract class BaseReaderComponent(entitySpecifications: EntitySpecifications) extends BaseComponent(entitySpecifications)  with BusReader
+abstract class BaseWriterComponent(entitySpecifications: EntitySpecifications) extends BaseReaderComponent(entitySpecifications) with BusWriter
 
-abstract class ReaderComponent(entityId: String) extends BaseReaderComponent(entityId)
-abstract class WriterComponent(entityId: String) extends BaseWriterComponent(entityId)
+abstract class ReaderComponent(entitySpecifications: EntitySpecifications) extends BaseReaderComponent(entitySpecifications)
+abstract class WriterComponent(entitySpecifications: EntitySpecifications) extends BaseWriterComponent(entitySpecifications)

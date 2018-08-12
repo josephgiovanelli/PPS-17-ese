@@ -7,14 +7,14 @@ object TestLauncher extends App {
     val world = World()
     val entity = Entity("improved", "1")
 
-    val p1 = new ReaderComponent("1") {
+    val p1 = new ReaderComponent(entity specifications) {
       override def initialize(): Unit = Unit
     }
-    val p2 = new WriterComponent("1") {
+    val p2 = new WriterComponent(entity specifications) {
       override def initialize(): Unit = Unit
     }
 
-    val p3 = new ExampleComponent("1")
+    val p3 = new ExampleComponent(entity specifications)
 
     entity addComponent p1
     entity addComponent p2
@@ -24,6 +24,6 @@ object TestLauncher extends App {
 
     p1.subscribe(event => println(event))
     p3.publish(ExampleEvent(100))
-    p2.publish(RequireEntitiesState("example"))
+    p3.publish(RequireEntitiesState("example"))
 
 }

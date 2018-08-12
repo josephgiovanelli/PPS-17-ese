@@ -3,8 +3,6 @@ package it.unibo.pps.ese.model
 import scala.language.dynamics
 import scala.collection.mutable
 
-//Aggiungere qua filtro era
-
 class EntityInfo extends Dynamic {
 
   val values: mutable.Map[String, Any] = mutable.Map.empty[String, Any]

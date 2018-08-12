@@ -5,7 +5,7 @@ import scala.language.dynamics
 
 case class ExampleEvent(speed: Int) extends BaseEvent
 
-class ExampleComponent(override val entityId: String) extends WriterComponent(entityId) {
+class ExampleComponent(override val entitySpecifications: EntitySpecifications) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()
@@ -18,7 +18,7 @@ class ExampleComponent(override val entityId: String) extends WriterComponent(en
       publish(RequireEntitiesState("example"))
     case EntitiesStateResponse(id, state) if id == "example" =>
       println("response : " + state)
-      val myState : Option[EntityInfo] = state find (s => s.entityId == entityId) map (s => s state)
+      val myState : Option[EntityInfo] = state find (s => s.entityId == entitySpecifications.id) map (s => s state)
       if (myState isDefined) {
         import EntityInfoConversion._
         val a : Int = (myState get).speed

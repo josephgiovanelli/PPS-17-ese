@@ -1,5 +1,9 @@
 package it.unibo.pps.ese.model
 
+import it.unibo.pps.ese.model.support.Done
+
+import scala.concurrent.Future
+
 sealed trait World {
   def entities : Seq[Entity]
 }
@@ -12,6 +16,16 @@ sealed trait CachedWorld {
 sealed trait InteractiveWorld extends CachedWorld {
   def addEntity(entity: Entity): Unit
   def removeEntity(id: String): Unit
+}
+
+//Boh boh
+
+sealed trait UpdatableWorld {
+  private[this] var _entityBridges : Seq[WorldBridgeComponent] = Seq empty
+  def addBridge(bridge : WorldBridgeComponent): Unit = _entityBridges = _entityBridges :+ bridge
+  def removeBridge(entityId: String): Unit = _entityBridges = _entityBridges filterNot(bridge => bridge.entitySpecifications.id == entityId)
+  def requireStateUpdate: Future[Done]
+  def requireInfoUpdate: Future[Done]
 }
 
 
@@ -31,7 +45,7 @@ object World {
 
     override def addEntity(entity: Entity): Unit = {
       entity match {
-        case _: Entity with NervousSystemExtension => entity addComponent new WorldBridgeComponent(entity id, this)
+        case _: Entity with NervousSystemExtension => entity addComponent new WorldBridgeComponent(entity specifications, this)
         case _ => Unit
       }
       entities_=(entities :+ entity)
