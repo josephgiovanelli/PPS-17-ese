@@ -2,8 +2,9 @@ package it.unibo.pps.ese.genetics
 
 import AmminoAcidUtilities._
 import it.unibo.pps.ese.genetics.DnaTranslator.DnaTranslatorImpl
-
+import Conversion._
 sealed trait SpeciesUtilities{
+  def generateAnimal:AnimalInfo = translateGenome(generateAnimalGenome)
   def generateAnimalGenome:AnimalGenome
   def translateGenome(genome:AnimalGenome):AnimalInfo
   def obtainMutantAlleles:Seq[AlleleInfo]
@@ -30,22 +31,13 @@ object SpeciesUtilities{
     private val dnaTranslator:DnaTranslator = new DnaTranslatorImpl(geneFeatures)
 
     private val speciesGenerator:SpeciesGenerator = new SpeciesGenerator(
-      commonChromosomeGenes = List(stringToReign(animalData.reign),speciesNameToGene(animalData.name)),
+      commonChromosomeGenes = List(animalData.reign,speciesNameToGene(animalData.name)),
       structuralChromosomeGenes = allGenes(animalData.structuralChromosome),
       lifeCycleChromosomeGenes = allGenes(animalData.regulationChromosome),
       feedingChromosomeGenes = List(stringToDiet(animalData.typology)),
       sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
     )
     private val mutantAllele:Seq[AlleleInfo] = allGeneData.flatMap(_.allelicForm).filter(_.probability==0)
-
-    private def stringToReign(s:String):BasicGene = {
-      val aS:String = Animal.reignName
-      val pS:String = Plant.reignName
-      s match {
-        case `aS` => Animal.geneId
-        case `pS` => Plant.geneId
-      }
-    }
 
     private def speciesNameToGene(s:String):BasicGene = {
       BasicGene(amminoAcidSeqFromString(s),IdentifierGene)
@@ -73,6 +65,7 @@ object SpeciesUtilities{
     override def generateAnimalGenome: AnimalGenome = speciesGenerator.generateAnimalGenome
 
     override def translateGenome(genome:AnimalGenome): AnimalInfo = AnimalInfo(
+      Species(animalData.reign,animalData.name),
       dnaTranslator.getQualitiesByGenome(genome),
       genome
     )

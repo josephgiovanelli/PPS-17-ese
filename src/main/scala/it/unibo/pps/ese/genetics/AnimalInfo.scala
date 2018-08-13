@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.genetics
 
 trait AnimalInfo {
+  def species:Species
   def gender:Gender
   def dietType:DietType
   def genome:AnimalGenome
@@ -8,7 +9,8 @@ trait AnimalInfo {
   def activeAlleles:Seq[AllelicBehaviour]
 }
 object AnimalInfo{
-  def apply(animalFeature: AnimalFeature,genome: AnimalGenome): AnimalInfo = new AnimalInfoImpl(
+  def apply(species: Species,animalFeature: AnimalFeature,genome: AnimalGenome): AnimalInfo = new AnimalInfoImpl(
+    species = species,
     gender = animalFeature.gender,
     dietType = animalFeature.dietType,
     genome = genome,
@@ -17,6 +19,7 @@ object AnimalInfo{
   )
   //Anche altro apply
   case class AnimalInfoImpl(
+    species: Species,
     gender: Gender,
     dietType: DietType,
     genome: AnimalGenome,

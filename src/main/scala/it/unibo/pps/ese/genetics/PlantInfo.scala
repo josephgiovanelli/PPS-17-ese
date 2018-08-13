@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.controller.loader.beans.Plant
 import it.unibo.pps.ese.controller.loader.data.PlantData
 
 trait PlantInfo extends PlantData{
