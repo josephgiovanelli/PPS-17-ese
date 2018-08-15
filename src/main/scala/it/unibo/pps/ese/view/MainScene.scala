@@ -5,8 +5,9 @@ import javafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
-import scalafx.geometry.Orientation
+import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
+import scalafx.scene.paint.Color
 
 object ZoomPreferences {
   val minZoom: Int = 1
@@ -15,7 +16,9 @@ object ZoomPreferences {
 }
 
 
-class MainScene(width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
+private class MainScene(width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
+
+  val generationTextLabel: String = "Generation: "
 
   val menuBar = new MenuBar()
   val fileMenu = new Menu("File")
@@ -47,6 +50,21 @@ class MainScene(width: Double = 1200, height: Double = 800) extends Scene(width,
   zoomSlider.accessibleText = "Zoom"
   worldPane.entitySize <== zoomSlider.value
 
+  val zoomLabel = new Label("Zoom")
+
+  val zoomPane = new BorderPane()
+  zoomPane.left = zoomLabel
+  zoomPane.center = zoomSlider
+  zoomPane.padding = Insets(10, 50, 10, 50)
+
+  val generationLabel = new Label(generationTextLabel + 0)
+  val generationPane = new BorderPane()
+  generationPane.center = generationLabel
+
+  val topPane = new BorderPane()
+  topPane.bottom = generationPane
+  topPane.center = zoomPane
+
   val statisticsTab = new Tab()
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
@@ -55,7 +73,7 @@ class MainScene(width: Double = 1200, height: Double = 800) extends Scene(width,
   simulationPane.tabs = List(worldTab, statisticsTab)
 
   val mainPane = new BorderPane()
-  mainPane.top = zoomSlider
+  mainPane.top = topPane
   mainPane.center = simulationPane
 
   val contentPane = new BorderPane()
@@ -64,7 +82,8 @@ class MainScene(width: Double = 1200, height: Double = 800) extends Scene(width,
 
   root = contentPane
 
-  override def updateWorld(world: List[Entity]): Unit = {
-    worldPane.updateWorld(world)
+  override def updateWorld(generation: Int, world: List[Entity]): Unit = {
+    generationLabel.text = generationTextLabel + generation
+    worldPane.updateWorld(generation, world)
   }
 }

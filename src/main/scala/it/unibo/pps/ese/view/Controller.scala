@@ -16,7 +16,7 @@ class Controller(val view: View) extends Observer {
   view.addObserver(this)
 
   val r: Random = Random
-  view.updateWorld((0 until 3000)
+  view.updateWorld(1, (0 until 3000)
     .map(x => Entity(
       name = "a"+x,
       color = Color.Green,

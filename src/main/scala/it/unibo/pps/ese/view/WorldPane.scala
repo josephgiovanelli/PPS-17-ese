@@ -15,7 +15,7 @@ import scalafx.scene.paint.Color
 import scala.util.Random
 
 trait WorldView {
-  def updateWorld(world: List[Entity]): Unit
+  def updateWorld(generation: Int, world: List[Entity]): Unit
 }
 
 trait WorldPane extends ScrollPane with WorldView {
@@ -26,7 +26,9 @@ object WorldPane {
   def apply(width: Int, height: Int, detailsPane: DetailsPane): WorldPane = new WorldPaneImpl(width, height, detailsPane)
 }
 
-class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends WorldPane {
+private class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends WorldPane {
+
+  val selectionColor: Color = Color.Gold
 
   private var currentWorld: Map[Position, Entity] = Map()
   private var currentSelected: Option[(Position, Entity)] = None
@@ -44,7 +46,7 @@ class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends W
 
   content = canvas
 
-  entitySize.onChange(updateWorld(currentWorld.values.toList))
+  entitySize.onChange(drawWorld(currentWorld.values.toList))
 
   tooltip = new Tooltip()
   canvas.onMouseMoved = (e: MouseEvent) => {
@@ -74,7 +76,7 @@ class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends W
     currentWorld.get(pos) match {
       case Some(entity) =>
         currentSelected = Some(pos, entity)
-        graphicsContext.fill = Color.Red
+        graphicsContext.fill = selectionColor
         graphicsContext.fillRect(pos.x, pos.y, entitySize(), entitySize())
         detailsPane.showDetails(entity)
       case None =>
@@ -91,12 +93,16 @@ class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends W
       val value = if(e.deltaY>0) 1 else -1
       entitySize = if (entitySize()+value>=minZoom && entitySize()+value<=maxZoom) IntegerProperty(entitySize()+value)
         else entitySize
-      update(currentWorld.values.toList)
+      updateWorld(currentWorld.values.toList)
     }
   }*/
 
 
-  override def updateWorld(world: List[Entity]): Unit = {
+  override def updateWorld(generation: Int, world: List[Entity]): Unit = {
+    drawWorld(world)
+  }
+
+  private def drawWorld(world: List[Entity]): Unit = {
     currentWorld = Map() ++ world.map(e => (Position(e.position.x*entitySize(), e.position.y*entitySize()), e))
 
     graphicsContext.clearRect(0, 0, worldViewWidth(), worldViewHeigth())
@@ -107,7 +113,7 @@ class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends W
     currentSelected match {
       case Some(tuple) =>
         currentSelected = Some(Position(tuple._2.position.x * entitySize(), tuple._2.position.y * entitySize()), tuple._2)
-        graphicsContext.fill = Color.Red
+        graphicsContext.fill = selectionColor
         graphicsContext.fillRect(currentSelected.get._1.x, currentSelected.get._1.y, entitySize(), entitySize())
       case None =>
     }

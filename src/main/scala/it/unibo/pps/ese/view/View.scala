@@ -36,9 +36,9 @@ private class ViewImpl extends View {
     }
   }
 
-  override def updateWorld(world: List[Entity]): Unit = {
+  override def updateWorld(generation: Int, world: List[Entity]): Unit = {
     currentView match {
-      case ViewType.MainView => mainView.updateWorld(world)
+      case ViewType.MainView => mainView.updateWorld(generation, world)
       case _ =>
     }
   }
