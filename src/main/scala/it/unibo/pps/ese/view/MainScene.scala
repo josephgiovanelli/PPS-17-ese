@@ -14,7 +14,8 @@ object ZoomPreferences {
   val prefZoom: Int = 3
 }
 
-private class MainScene(width: Double = 1200, heigth: Double = 800) extends Scene(width, heigth) {
+
+class MainScene(width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
 
   val menuBar = new MenuBar()
   val fileMenu = new Menu("File")
@@ -62,4 +63,8 @@ private class MainScene(width: Double = 1200, heigth: Double = 800) extends Scen
   contentPane.center = mainPane
 
   root = contentPane
+
+  override def updateWorld(world: List[Entity]): Unit = {
+    worldPane.updateWorld(world)
+  }
 }

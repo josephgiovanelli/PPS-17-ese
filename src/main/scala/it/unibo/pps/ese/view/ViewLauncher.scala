@@ -11,14 +11,8 @@ object WorldPrefernces {
 
 object ViewLauncher extends JFXApp {
 
-  stage = new PrimaryStage {
-    scene = new MainScene()
-  }
+  val view: View = View()
+  stage = view
 
-  object SceneManager {
-
-    def setScene(scene: Scene): Unit = {
-      stage.scene = scene
-    }
-  }
+  val controller: Controller = new Controller(view)
 }

@@ -11,18 +11,19 @@ import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.input.{KeyEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.paint.Color
-import scalafx.stage.Popup
 
 import scala.util.Random
 
-trait WorldPane extends ScrollPane {
-  var entitySize: IntegerProperty = IntegerProperty(ZoomPreferences.prefZoom)
+trait WorldView {
+  def updateWorld(world: List[Entity]): Unit
+}
 
-  def update(entities: List[Entity])
+trait WorldPane extends ScrollPane with WorldView {
+  var entitySize: IntegerProperty = IntegerProperty(ZoomPreferences.prefZoom)
 }
 
 object WorldPane {
-  def apply(width: Int, heigth: Int, detailsPane: DetailsPane): WorldPane = new WorldPaneImpl(width, heigth, detailsPane)
+  def apply(width: Int, height: Int, detailsPane: DetailsPane): WorldPane = new WorldPaneImpl(width, height, detailsPane)
 }
 
 class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends WorldPane {
@@ -43,19 +44,10 @@ class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends W
 
   content = canvas
 
-  val r: Random = Random
-  update((0 until 3000)
-    .map(x => Entity(
-      name = "a"+x,
-      color = Color.Green,
-      position = Position(r.nextInt(worldWidth), r.nextInt(worldHeigth))))
-    .toList)
-
-  entitySize.onChange(update(currentWorld.values.toList))
+  entitySize.onChange(updateWorld(currentWorld.values.toList))
 
   tooltip = new Tooltip()
   canvas.onMouseMoved = (e: MouseEvent) => {
-//    println(getEntityRealPosition(e.x, e.y) + ", " + getEntityWorldViewPosition(e.x, e.y))
     val pos: Position = getEntityWorldViewPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
@@ -104,11 +96,11 @@ class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends W
   }*/
 
 
-  override def update(entities: List[Entity]): Unit = {
-    currentWorld = Map() ++ entities.map(e => (Position(e.position.x*entitySize(), e.position.y*entitySize()), e))
+  override def updateWorld(world: List[Entity]): Unit = {
+    currentWorld = Map() ++ world.map(e => (Position(e.position.x*entitySize(), e.position.y*entitySize()), e))
 
     graphicsContext.clearRect(0, 0, worldViewWidth(), worldViewHeigth())
-    entities foreach(e => {
+    world foreach(e => {
       graphicsContext.fill = e.color
       graphicsContext.fillRect(e.position.x*entitySize(), e.position.y*entitySize(), entitySize(), entitySize())
     })
