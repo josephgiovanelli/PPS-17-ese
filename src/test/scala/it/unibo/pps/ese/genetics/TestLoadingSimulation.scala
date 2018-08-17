@@ -45,5 +45,9 @@ class TestLoadingSimulation extends FunSuite{
     assert(geneticsSimulator.newPlant("ErbaGatta").availability==4.0)
 
     assertThrows[IllegalStateException](geneticsSimulator.beginSimulation(data))
+
+    val newAnimal = geneticsSimulator.newAnimal("Gatto")
+    val translateAnimalGenome = geneticsSimulator.getAnimalInfoByGenome("Gatto",newAnimal.genome)
+    assert(translateAnimalGenome==newAnimal)
   }
 }

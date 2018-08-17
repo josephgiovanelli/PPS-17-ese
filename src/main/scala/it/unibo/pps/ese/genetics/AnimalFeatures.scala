@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genetics
 
 
-sealed trait AnimalFeature{
+private[genetics] sealed trait AnimalFeature{
   private[genetics] def affectQuality(qualityType: QualityType,value:Double)
   private[genetics] def gender_(gender: Gender)
   def gender:Gender
@@ -13,7 +13,7 @@ sealed trait AnimalFeature{
 }
 
 
-class AnimalFeatureImpl extends AnimalFeature{
+private[genetics] class AnimalFeatureImpl extends AnimalFeature{
   var animalGender:Option[Gender] = Option.empty
   var diet:Option[DietType] = None
   val typeFilter:((Quality,QualityType)=>Boolean) = (a,b)=>a.qualityType==b

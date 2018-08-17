@@ -110,7 +110,6 @@ class SexualChromosomeImpl(chromosomeType: ChromosomeType,
 
 object Chromosome{
   def apply(chromosomeType: ChromosomeType,geneList:MGene*): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
-//  def apply(chromosomeType: ChromosomeType,geneList:Seq[Gene]): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
 
   def apply(chromosomeType: ChromosomeType,
             sexualChromosome: SexualChromosomeType,

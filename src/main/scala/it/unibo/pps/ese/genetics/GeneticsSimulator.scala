@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.controller.loader.data.SimulationData
-
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
+import InputDataAdapter._
 trait GeneticsSimulator {
   def beginSimulation(simulationData:SimulationData):InitializedSimulation
   def speciesList:Seq[String]
@@ -9,6 +9,9 @@ trait GeneticsSimulator {
   def newPlant(species: String):PlantInfo
   def newAnimal(species:String):AnimalInfo
   def mutantAlleleOfSpecies(species:String):Seq[AllelicBehaviour]
+  def addNewAnimalSpecies(animalData:AnimalData,num:Int):Seq[AnimalInfo]
+  def addNewPlantSpecies(plantData:PlantData,num:Int):Seq[PlantInfo]
+  def getAnimalInfoByGenome(species:String,genome: AnimalGenome):AnimalInfo
 }
 object GeneticsSimulator extends GeneticsSimulator{
   private[this] var started:Boolean=false
@@ -34,4 +37,20 @@ object GeneticsSimulator extends GeneticsSimulator{
   override def plantSpeciesList: Seq[String] = plantSetup.keySet.toSeq
 
   override def newPlant(species: String): PlantInfo = plantSetup(species)
+
+  override def addNewAnimalSpecies(animalData: AnimalData, num: Int): Seq[AnimalInfo] = {
+    val name = animalData.name
+    val newSetup = SpeciesUtilities(animalData)
+    speciesSetup = speciesSetup + (name->newSetup)
+    newSetup.generateNumberOfAnimal(num)
+  }
+
+  override def addNewPlantSpecies(plantData: PlantData, num: Int): Seq[PlantInfo] = {
+    plantSetup  = plantSetup + (plantData.name -> PlantGenerator.createPlantInfoByPlantData(plantData))
+    PlantGenerator.createNumberOfPlants(num,plantData)
+  }
+
+  override def getAnimalInfoByGenome(species:String,genome: AnimalGenome): AnimalInfo = {
+    speciesSetup(species).translateGenome(genome)
+  }
 }

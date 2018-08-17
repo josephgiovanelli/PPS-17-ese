@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.genetics
 
+import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 
 import scala.annotation.tailrec
@@ -36,14 +37,10 @@ class SpeciesGenerator(
   }
 
   private def buildCommonChromosomeCouple:ChromosomeCouple = {
-    val cc1 = Chromosome(ChromosomeType.COMMON,commonChromosomeGenes: _*)
-    val cc2 = Chromosome(ChromosomeType.COMMON,commonChromosomeGenes: _*)
-    val ccc = new ChromosomeCoupleImpl {
-      type ChromosomeUnit = Chromosome
-    }
-    ccc.addChromosomeCouple(cc1,cc2)
-    ccc
+    buildChromosomeCouple(commonChromosomeGenes,commonChromosomeGenes,ChromosomeType.COMMON)
   }
+
+  @tailrec
   private def _createGeneCouples(
                           gt:GeneType,
                           gs:Seq[GeneWithPossibleAlleles],
@@ -56,37 +53,33 @@ class SpeciesGenerator(
     case _ =>gl
   }
 
-  private def buildStructuralChromosomeCouple:ChromosomeCouple = {
-
-    val sgs1:Seq[MGene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
-    val sgs2:Seq[MGene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
-    val sc1:Chromosome = Chromosome(ChromosomeType.STRUCTURAL_ANIMAL,sgs1: _*)
-    val sc2:Chromosome = Chromosome(ChromosomeType.STRUCTURAL_ANIMAL,sgs2: _*)
-    val scc = new ChromosomeCoupleImpl {
+  private def buildChromosomeCouple(
+                                     gs1:Seq[MGene],
+                                     gs2:Seq[MGene],
+                                     chromosomeType: ChromosomeType):ChromosomeCouple = {
+    val c1:Chromosome = Chromosome(chromosomeType,gs1: _*)
+    val c2:Chromosome = Chromosome(chromosomeType,gs2: _*)
+    val cc = new ChromosomeCoupleImpl {
       type ChromosomeUnit = Chromosome
     }
-    scc.addChromosomeCouple(sc1,sc2)
-    scc
+    cc.addChromosomeCouple(c1,c2)
+    cc
   }
+
+  private def buildStructuralChromosomeCouple:ChromosomeCouple = {
+    val sgs1:Seq[MGene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
+    val sgs2:Seq[MGene] = _createGeneCouples(StructuralGene,structuralChromosomeGenes,List())
+    buildChromosomeCouple(sgs1,sgs2,ChromosomeType.STRUCTURAL_ANIMAL)
+  }
+
   private def buildLifeCycleChromosomeCouple:ChromosomeCouple = {
     val lcgs1:Seq[MGene] = _createGeneCouples(RegulatorGene,lifeCycleChromosomeGenes,List())
     val lcgs2:Seq[MGene] = _createGeneCouples(RegulatorGene,lifeCycleChromosomeGenes,List())
-    val lcc1:Chromosome = Chromosome(ChromosomeType.LIFE_CYCLE,lcgs1: _*)
-    val lcc2:Chromosome = Chromosome(ChromosomeType.LIFE_CYCLE,lcgs2: _*)
-    val lccc = new ChromosomeCoupleImpl {
-      type ChromosomeUnit = Chromosome
-    }
-    lccc.addChromosomeCouple(lcc1,lcc2)
-    lccc
+    buildChromosomeCouple(lcgs1,lcgs2,ChromosomeType.LIFE_CYCLE)
   }
+
   private def buildFeedingChromosomeCouple:ChromosomeCouple = {
-    val fc1 = Chromosome(ChromosomeType.FEEDING,feedingChromosomeGenes: _*)
-    val fc2 = Chromosome(ChromosomeType.FEEDING,feedingChromosomeGenes: _*)
-    val fcc = new ChromosomeCoupleImpl {
-      type ChromosomeUnit = Chromosome
-    }
-    fcc.addChromosomeCouple(fc1,fc2)
-    fcc
+    buildChromosomeCouple(feedingChromosomeGenes,feedingChromosomeGenes,ChromosomeType.FEEDING)
   }
 
   private def buildSexualChromosomeCouple:SexualChromosomeCouple = {

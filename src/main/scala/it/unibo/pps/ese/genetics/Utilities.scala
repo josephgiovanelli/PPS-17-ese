@@ -19,5 +19,7 @@ object Utilities {
     }
     sys.error(f"this should never happen")  // needed so it will compile
   }
-
+  def seqOfElement[T](n:Int,e:T):Seq[T] = {
+    (1 to n by 1).map(i=>e)
+  }
 }

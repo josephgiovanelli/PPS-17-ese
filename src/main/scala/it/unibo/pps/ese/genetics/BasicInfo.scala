@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import AmminoAcidUtilities._
 trait Identified
 sealed trait DietType extends Identified{

@@ -5,7 +5,7 @@ import it.unibo.pps.ese.genetics.AllelicData.AllelicInfoImpl
 import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 
 object InputDataAdapter {
-  def translateAnimalData(aD:AnimalData):TranslatedAnimalData = {
+  implicit def translateAnimalData(aD:AnimalData):TranslatedAnimalData = {
     TranslatedAnimalDataImpl(
       aD.name,
       aD.geneLength,
@@ -32,7 +32,7 @@ object InputDataAdapter {
     MyCustomGeneData
   }
 
-  def customGeneDataToGeneData(customGeneData: CustomGeneData):GeneData = {
+  private[this] def customGeneDataToGeneData(customGeneData: CustomGeneData):GeneData = {
     def getQualityTypeByString(s:String):QualityType = {
       QualityType.values.find(q=>q.entryName.toLowerCase()==s.toLowerCase).get
     }

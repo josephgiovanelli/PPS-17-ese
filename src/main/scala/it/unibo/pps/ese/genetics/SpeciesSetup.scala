@@ -3,9 +3,11 @@ package it.unibo.pps.ese.genetics
 import AmminoAcidUtilities._
 import it.unibo.pps.ese.genetics.DnaTranslator.DnaTranslatorImpl
 import Conversion._
+import Utilities._
 sealed trait SpeciesUtilities{
   def generateAnimal:AnimalInfo = translateGenome(generateAnimalGenome)
   def generateAnimalGenome:AnimalGenome
+  def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= seqOfElement(n,generateAnimal)
   def translateGenome(genome:AnimalGenome):AnimalInfo
   def obtainMutantAlleles:Seq[AlleleInfo]
 }

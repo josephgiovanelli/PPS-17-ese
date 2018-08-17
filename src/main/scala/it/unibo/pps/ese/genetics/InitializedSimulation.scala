@@ -16,11 +16,7 @@ object InitializedSimulation {
     override private[genetics] def initialSetup = speciesSetup
     override def getAllAnimals: Map[String, Seq[AnimalInfo]] = {
       simulationData.animals.map(e=>(e._1.name,e._2)).map(c=>{
-        var seq:Seq[AnimalInfo] = ( 1 to c._2 by 1).map(i=> {
-          val setup: SpeciesUtilities = speciesSetup(c._1)
-          val animalGenome = setup.generateAnimalGenome
-          setup.translateGenome(animalGenome)
-        })
+        val seq:Seq[AnimalInfo] = speciesSetup(c._1).generateNumberOfAnimal(c._2)
         (c._1,seq)
       })
     }
