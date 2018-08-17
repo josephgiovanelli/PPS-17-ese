@@ -10,8 +10,8 @@ sealed trait DnaTranslator {
 object IdentifierGeneTranslator{
 
   def translateIdentifierGene(gene: MGene, af: AnimalFeature):AnimalFeature = {
-    val herbivoreSeq:Seq[ProteinoGenicAmminoacid] = List('D','E')
-    val carnivorousSeq:Seq[ProteinoGenicAmminoacid] = List('D','C')
+    val herbivoreSeq:Seq[ProteinoGenicAmminoacid] = Herbivore.geneId.completeCode
+    val carnivorousSeq:Seq[ProteinoGenicAmminoacid] = Carnivorous.geneId.completeCode
     gene.completeCode match {
       case `herbivoreSeq` => af.dietType_(Herbivore);af
       case `carnivorousSeq` => af.dietType_(Carnivorous); af

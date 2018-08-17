@@ -59,11 +59,7 @@ class SpeciesGenerator(
                                      chromosomeType: ChromosomeType):ChromosomeCouple = {
     val c1:Chromosome = Chromosome(chromosomeType,gs1: _*)
     val c2:Chromosome = Chromosome(chromosomeType,gs2: _*)
-    val cc = new ChromosomeCoupleImpl {
-      type ChromosomeUnit = Chromosome
-    }
-    cc.addChromosomeCouple(c1,c2)
-    cc
+    ChromosomeCouple(c1,c2)
   }
 
   private def buildStructuralChromosomeCouple:ChromosomeCouple = {
@@ -93,11 +89,7 @@ class SpeciesGenerator(
     }
     val cs1:SexualChromosome = Chromosome(ChromosomeType.SEXUAL_X, X, sgs1: _*)
     val cs2:SexualChromosome = _secondChromosome
-    val sxcc = new ChromosomeCoupleImpl with SexualChromosomeCouple {
-      type ChromosomeUnit = SexualChromosome
-    }
-    sxcc.addChromosomeCouple(cs1,cs2)
-    sxcc
+    SexualChromosomeCouple(cs1,cs2)
   }
 
 

@@ -20,6 +20,7 @@ object ChromosomeType extends Enumeration {
   }
 }
 
+
 sealed trait SexualChromosomeType
 case object X extends SexualChromosomeType
 case object Y extends SexualChromosomeType
@@ -41,6 +42,15 @@ trait ChromosomeCouple{
   def firstChromosome:ChromosomeUnit
   def secondChromosome:ChromosomeUnit
 }
+object ChromosomeCouple{
+  def apply(c1: Chromosome,c2: Chromosome): ChromosomeCouple = {
+    val cc = new ChromosomeCoupleImpl {
+      type ChromosomeUnit = Chromosome
+    }
+    cc.addChromosomeCouple(c1,c2)
+    cc
+  }
+}
 
 trait SexualChromosomeCouple extends ChromosomeCouple{
   type ChromosomeUnit <: {
@@ -55,6 +65,15 @@ trait SexualChromosomeCouple extends ChromosomeCouple{
     case _=> throw new IllegalStateException()
   }
 }
+object exualChromosomeCouple{
+  def apply(sc1:SexualChromosome,sc2:SexualChromosome): SexualChromosomeCouple ={
+    val scc = new ChromosomeCoupleImpl with SexualChromosomeCouple {
+      type ChromosomeUnit = SexualChromosome
+    }
+    scc.addChromosomeCouple(sc1,sc2)
+    scc
+  }
+}
 
 sealed trait Chromosome{
   def chromosomeType:ChromosomeType
@@ -64,7 +83,6 @@ sealed trait Chromosome{
 sealed trait SexualChromosome extends Chromosome{
   def sexualChromosome: SexualChromosomeType
 }
-
 
 abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
   private var couple:Map[Int,ChromosomeUnit] = Map()
