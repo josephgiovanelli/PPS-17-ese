@@ -65,7 +65,7 @@ trait SexualChromosomeCouple extends ChromosomeCouple{
     case _=> throw new IllegalStateException()
   }
 }
-object exualChromosomeCouple{
+object SexualChromosomeCouple{
   def apply(sc1:SexualChromosome,sc2:SexualChromosome): SexualChromosomeCouple ={
     val scc = new ChromosomeCoupleImpl with SexualChromosomeCouple {
       type ChromosomeUnit = SexualChromosome
