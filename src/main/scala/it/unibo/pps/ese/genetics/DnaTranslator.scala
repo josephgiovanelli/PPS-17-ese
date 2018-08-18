@@ -108,7 +108,7 @@ object DnaTranslator{
       }
       def findGeneOnSequence(gene: MGene, gs:Map[ChromosomeType,Chromosome]):MGene = {
         val gl:Seq[MGene] = gs.flatMap(_._2.geneList).filter(_.geneType!= IdentifierGene).toSeq
-        gl.find(_.geneCode == gene.geneCode).get
+        gl.find(_.geneId == gene.geneId).get
       }
 
       animalFeature

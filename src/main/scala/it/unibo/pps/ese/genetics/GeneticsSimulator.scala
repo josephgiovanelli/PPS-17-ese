@@ -8,7 +8,7 @@ trait GeneticsSimulator {
   def plantSpeciesList:Seq[String]
   def newPlant(species: String):PlantInfo
   def newAnimal(species:String):AnimalInfo
-  def mutantAlleleOfSpecies(species:String):Seq[AllelicBehaviour]
+  def obtainMutantAlleles(species:String,gene:MGene):Seq[MGene]
   def addNewAnimalSpecies(animalData:AnimalData,num:Int):Seq[AnimalInfo]
   def addNewPlantSpecies(plantData:PlantData,num:Int):Seq[PlantInfo]
   def getAnimalInfoByGenome(species:String,genome: AnimalGenome):AnimalInfo
@@ -32,7 +32,9 @@ object GeneticsSimulator extends GeneticsSimulator{
 
   override def newAnimal(species: String): AnimalInfo = speciesSetup(species).generateAnimal
 
-  override def mutantAlleleOfSpecies(species: String): Seq[AllelicBehaviour] = speciesSetup(species).obtainMutantAlleles
+  override def obtainMutantAlleles(species: String,gene:MGene): Seq[MGene] = speciesSetup(species)
+                                                                        .obtainMutantAlleles(gene)
+
 
   override def plantSpeciesList: Seq[String] = plantSetup.keySet.toSeq
 

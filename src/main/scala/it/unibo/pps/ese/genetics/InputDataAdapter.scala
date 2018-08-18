@@ -37,6 +37,7 @@ object InputDataAdapter {
       QualityType.values.find(q=>q.entryName.toLowerCase()==s.toLowerCase).get
     }
     val geneSeq:Seq[ProteinoGenicAmminoacid] = amminoAcidSeqFromString(customGeneData.id)
+
     def getConversionMapSeq(map:Map[String,Double]):Seq[ConversionMap]  ={
       map.map(e=>ConversionMap(getQualityTypeByString(e._1),e._2)).toSeq
     }

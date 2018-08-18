@@ -9,22 +9,22 @@ case object RegulatorGene extends GeneType
 
 trait MGene{
   def geneType:GeneType
-  def geneCode:Seq[ProteinoGenicAmminoacid]
+  def geneId:Seq[ProteinoGenicAmminoacid]
   def completeCode:Seq[ProteinoGenicAmminoacid]
-  override def toString: String = "Gene amminoacid: "+geneCode.toString()
+  override def toString: String = "Gene amminoacid: "+geneId.toString()
 }
 
 case class BasicGene(
-                      override val geneCode:Seq[ProteinoGenicAmminoacid],
+                      override val geneId:Seq[ProteinoGenicAmminoacid],
                       override val geneType: GeneType
                     ) extends MGene{
-  override def completeCode: Seq[ProteinoGenicAmminoacid] = geneCode
+  override def completeCode: Seq[ProteinoGenicAmminoacid] = geneId
 }
 
 case class GeneWithAllelicForms(
-                                 override val geneCode:Seq[ProteinoGenicAmminoacid],
+                                 override val geneId:Seq[ProteinoGenicAmminoacid],
                                  alleleCode:Seq[ProteinoGenicAmminoacid],
                                  override val geneType: GeneType) extends MGene{
-  override def completeCode: Seq[ProteinoGenicAmminoacid] = geneCode ++ alleleCode
-  override def toString: String = "{ "+geneCode+",allelic amminoacid: "+alleleCode+"}"
+  override def completeCode: Seq[ProteinoGenicAmminoacid] = geneId ++ alleleCode
+  override def toString: String = "{ "+geneId+",allelic amminoacid: "+alleleCode+"}"
 }

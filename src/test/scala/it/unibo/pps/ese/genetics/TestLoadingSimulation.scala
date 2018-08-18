@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genetics
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genetics.QualityType.{Fecundity, Fertility, Life, Speed}
 import org.scalatest.FunSuite
-
+import ChromosomeConversion._
 class TestLoadingSimulation extends FunSuite{
   test("Test loading"){
     val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
@@ -39,7 +39,7 @@ class TestLoadingSimulation extends FunSuite{
     assert(speed==1.6)
     val life:Double = qualities(Life).qualityValue
     assert(life==3.0)
-    assert(geneticsSimulator.mutantAlleleOfSpecies("Gatto").isEmpty)
+//    assert(geneticsSimulator.obtainMutantAlleles("Gatto").isEmpty)
 
     assert(geneticsSimulator.plantSpeciesList.contains("ErbaGatta"))
     assert(geneticsSimulator.newPlant("ErbaGatta").availability==4.0)
@@ -62,18 +62,28 @@ class TestLoadingSimulation extends FunSuite{
     println(female)
     val sm=male.genome.firstGenomeSequence
     val sf=female.genome.firstGenomeSequence
-    val sxcc = SexualChromosomeCouple(female.genome.firstSexualChromosome,
-                                      male.genome.secondSexualChromosome)
-    val childGenome = AnimalGenome(
-      Map(
-        ChromosomeType.COMMON -> ChromosomeCouple(sm(ChromosomeType.COMMON),sf(ChromosomeType.COMMON)),
-        ChromosomeType.STRUCTURAL_ANIMAL -> ChromosomeCouple(sm(ChromosomeType.STRUCTURAL_ANIMAL),sf(ChromosomeType.STRUCTURAL_ANIMAL)),
-        ChromosomeType.LIFE_CYCLE -> ChromosomeCouple(sm(ChromosomeType.LIFE_CYCLE),sf(ChromosomeType.LIFE_CYCLE)),
-        ChromosomeType.FEEDING -> ChromosomeCouple(sm(ChromosomeType.FEEDING),sf(ChromosomeType.FEEDING))
-      ),
-      sxcc
-    )
+    val sxcc = female.genome.firstSexualChromosome:+:male.genome.secondSexualChromosome
+
+    def printGeneType(g:MGene):Unit = g match {
+      case BasicGene(g,t)=> println(g)
+      case GeneWithAllelicForms(g,a,t)=>println(g+"-Al-"+a)
+    }
+
+    sm.values.foreach(c=> {
+      println(c.chromosomeType)
+      c.geneList.foreach(printGeneType)
+    })
+    val childGenome = Map(
+        sm(ChromosomeType.COMMON)|->|sf(ChromosomeType.COMMON),
+        sm(ChromosomeType.STRUCTURAL_ANIMAL)|->| sf(ChromosomeType.STRUCTURAL_ANIMAL),
+        sm(ChromosomeType.LIFE_CYCLE)|->|sf(ChromosomeType.LIFE_CYCLE),
+        sm(ChromosomeType.FEEDING) |->| sf(ChromosomeType.FEEDING)
+      )|%-%| sxcc
+
     val child = geneticsSimulator.getAnimalInfoByGenome("Gatto",childGenome)
     println(child)
+    assert(geneticsSimulator.obtainMutantAlleles("Gatto",
+      sm(ChromosomeType.STRUCTURAL_ANIMAL).geneList.head).nonEmpty)
+
   }
 }

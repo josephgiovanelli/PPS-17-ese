@@ -9,7 +9,7 @@ sealed trait SpeciesUtilities{
   def generateAnimalGenome:AnimalGenome
   def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= seqOfElement(n,generateAnimal)
   def translateGenome(genome:AnimalGenome):AnimalInfo
-  def obtainMutantAlleles:Seq[AlleleInfo]
+  def obtainMutantAlleles(gene:MGene):Seq[MGene]
 }
 object SpeciesUtilities{
   def apply(animalData:TranslatedAnimalData):SpeciesUtilities = new SpeciesSetup(animalData)
@@ -72,7 +72,11 @@ object SpeciesUtilities{
       genome
     )
 
-    override def obtainMutantAlleles: Seq[AlleleInfo] = mutantAllele
+    override def obtainMutantAlleles(gene:MGene):Seq[MGene] ={
+      mutantAllele
+        .filter(a=>a.geneSeq==gene.geneId)
+        .map(a=>GeneWithAllelicForms(a.geneSeq,a.allelicSeq,gene.geneType))
+    }
   }
 }
 

@@ -25,13 +25,13 @@ class TestAmminoacidAndGene extends FunSuite{
     " extend trait Gene is the right one"){
     val simpleGeneSeq:Seq[ProteinoGenicAmminoacid] = List('F')
     val basicGene = BasicGene(simpleGeneSeq,IdentifierGene)
-    assert(basicGene.geneCode == simpleGeneSeq)
+    assert(basicGene.geneId == simpleGeneSeq)
 
     val geneIdentifier:Seq[ProteinoGenicAmminoacid] = List('A','C')
     val alleleIdentifier:Seq[ProteinoGenicAmminoacid] = List('D')
     val geneWithAllelicForms = GeneWithAllelicForms(geneIdentifier,alleleIdentifier,StructuralGene)
     assert((geneIdentifier ++ alleleIdentifier) == geneWithAllelicForms.completeCode)
-    assert(geneIdentifier ==geneWithAllelicForms.geneCode)
+    assert(geneIdentifier ==geneWithAllelicForms.geneId)
     assert(alleleIdentifier == geneWithAllelicForms.alleleCode)
   }
 }

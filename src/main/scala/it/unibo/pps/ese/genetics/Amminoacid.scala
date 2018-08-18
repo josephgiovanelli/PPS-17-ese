@@ -29,6 +29,7 @@ object ProteinoGenicAmminoacid extends Enumeration {
     val Vali = Val('V',"Valine")
     val Trp = Val('W',"Tryptophan")
     val Tyr = Val('Y',"Tyrosine")
+    val Zip = Val('Z',"Zipeine")
 }
   import ProteinoGenicAmminoacid._
   object AmminoAcidUtilities {

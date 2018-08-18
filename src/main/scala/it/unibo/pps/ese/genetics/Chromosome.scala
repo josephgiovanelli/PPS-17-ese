@@ -83,6 +83,19 @@ sealed trait Chromosome{
 sealed trait SexualChromosome extends Chromosome{
   def sexualChromosome: SexualChromosomeType
 }
+object ChromosomeConversion{
+  implicit class RichChromosome (c1 :Chromosome) {
+    def :+:(c2:Chromosome):ChromosomeCouple = ChromosomeCouple(c1,c2)
+    def |->|(c2:Chromosome):(ChromosomeType,ChromosomeCouple) = c1.chromosomeType->ChromosomeCouple(c1,c2)
+  }
+  implicit class RichSexualChromosome (c1 :SexualChromosome) {
+    def :+:(c2:SexualChromosome):SexualChromosomeCouple = SexualChromosomeCouple(c1,c2)
+  }
+  implicit class RichChromosomeMap(aC:Map[ChromosomeType,ChromosomeCouple]){
+    def |%-%|(scc: SexualChromosomeCouple):AnimalGenome=AnimalGenome(aC,scc)
+  }
+}
+
 
 abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
   private var couple:Map[Int,ChromosomeUnit] = Map()
@@ -118,13 +131,17 @@ abstract class BasicChromosome(
 
 class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[MGene])
   extends BasicChromosome(chromosomeType,geneList){
+
   override def toString: String = chromosomeType.toString+"->"+geneList
+
 }
 
 class SexualChromosomeImpl(chromosomeType: ChromosomeType,
                            override val sexualChromosome: SexualChromosomeType,
                            geneList:Seq[MGene])
-  extends BasicChromosome(chromosomeType,geneList) with SexualChromosome{}
+  extends BasicChromosome(chromosomeType,geneList) with SexualChromosome{
+
+}
 
 object Chromosome{
   def apply(chromosomeType: ChromosomeType,geneList:MGene*): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
