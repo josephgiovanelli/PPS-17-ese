@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.dna
 
-import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
+import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 
 sealed trait Genome{
   def requiredChromosomes:Seq[ChromosomeType]

@@ -1,6 +1,7 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.entities
 
 import it.unibo.pps.ese.controller.loader.data.PlantData
+import it.unibo.pps.ese.genetics.dna.Genome
 
 trait PlantInfo extends PlantData{
   def genome:Genome

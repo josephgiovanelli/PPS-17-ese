@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.genetics.AmminoAcidUtilities._
+import it.unibo.pps.ese.genetics.dna._
+import it.unibo.pps.ese.genetics.entities.{Female, Male}
 import org.scalatest.FunSuite
 
 class TestChromosome extends FunSuite{

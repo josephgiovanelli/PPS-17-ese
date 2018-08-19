@@ -1,4 +1,6 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.dnaexpression
+
+import it.unibo.pps.ese.genetics.entities.{DietType, Gender, Quality, QualityType}
 
 
 private[genetics] sealed trait AnimalFeature{
@@ -32,11 +34,11 @@ private[genetics] class AnimalFeatureImpl extends AnimalFeature{
                               qualityType: QualityType,
                               value: Double): Unit = (isQualityPresent(qualityType),qualityType) match {
 
-    case (true,_) => {
+    case (true,_) =>
       val oldQualityValue:Double = qualities.find(typeFilter(_,qualityType)).get.qualityValue
       val updatedQuantity:Quality = Quality(oldQualityValue+value,qualityType)
       qualities = qualities.filter(!typeFilter(_,qualityType)) :+ updatedQuantity
-    }
+
     case (false,_) => qualities = qualities :+ Quality(value,qualityType)
   }
 

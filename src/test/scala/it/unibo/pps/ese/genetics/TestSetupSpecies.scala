@@ -1,9 +1,13 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import org.scalatest.FunSuite
-import AmminoAcidUtilities._
-import QualityType._
+import it.unibo.pps.ese.genetics.dna.{AnimalGenome, GeneWithAllelicForms, RegulatorGene}
+import it.unibo.pps.ese.genetics.dnaexpression._
+import it.unibo.pps.ese.genetics.entities.QualityType._
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Male}
+import it.unibo.pps.ese.genetics.generators.SpeciesUtilities
+import it.unibo.pps.ese.genetics.generators.data.TranslatedAnimalDataImpl
 class TestSetupSpecies extends FunSuite{
   test("Test setup"){
     val g1:Seq[ProteinoGenicAmminoacid] = List('A')

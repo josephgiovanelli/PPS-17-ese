@@ -1,10 +1,10 @@
 package it.unibo.pps.ese.genetics
 
+import it.unibo.pps.ese.genetics.dna._
 import org.scalatest.FunSuite
 
 class TestAmminoacidAndGene extends FunSuite{
-  import AmminoAcidUtilities._
-  import ProteinoGenicAmminoacid._
+  import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid._
   test("Test Essential Amminoacid creation from char"){
     def checkAmminoacidEquality(p1:ProteinoGenicAmminoacid,p2:ProteinoGenicAmminoacid):Boolean= p1 == p2
     assert(checkAmminoacidEquality('A',ProteinoGenicAmminoacid.Ala))

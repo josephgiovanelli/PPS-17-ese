@@ -1,9 +1,10 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.generators
 
 import it.unibo.pps.ese.controller.loader.data.PlantData
-import it.unibo.pps.ese.genetics.AmminoAcidUtilities.amminoAcidSeqFromString
 import it.unibo.pps.ese.genetics.Utilities.seqOfElement
-import Conversion._
+import it.unibo.pps.ese.genetics.dna._
+import it.unibo.pps.ese.genetics.entities.PlantInfo
+
 sealed trait PlantGenerator{
   def createPlantInfoByPlantData(plantData: PlantData):PlantInfo
   def createNumberOfPlants(num:Int,plantData: PlantData):Seq[PlantInfo] ={
@@ -14,6 +15,7 @@ sealed trait PlantGenerator{
 object PlantGenerator extends PlantGenerator {
 
   def createPlantInfoByPlantData(plantData: PlantData):PlantInfo = {
+    import NametoGeneUtilities._
     val commonGenes = List(stringToReignGene(plantData.reign),speciesNameToGene(plantData.name))
     val cc1 = Chromosome(ChromosomeType.COMMON,commonGenes :_*)
     val cc2 = Chromosome(ChromosomeType.COMMON,commonGenes :_*)
@@ -37,13 +39,16 @@ object PlantGenerator extends PlantGenerator {
     PlantInfo(plantData,genome)
   }
 
-  def speciesNameToGene(s:String):BasicGene = {
-    BasicGene(amminoAcidSeqFromString(s),IdentifierGene)
+  private[this] object NametoGeneUtilities{
+    def speciesNameToGene(s:String):BasicGene = {
+      BasicGene(amminoAcidSeqFromString(s),IdentifierGene)
+    }
+    def propertyNameToGene(s:String):BasicGene = {
+      BasicGene(amminoAcidSeqFromString(s),StructuralGene)
+    }
+    def allPropertiesGene(seq:String*):Seq[BasicGene] = {
+      seq.map(propertyNameToGene)
+    }
   }
-  def propertyNameToGene(s:String):BasicGene = {
-    BasicGene(amminoAcidSeqFromString(s),StructuralGene)
-  }
-  def allPropertiesGene(seq:String*):Seq[BasicGene] = {
-    seq.map(propertyNameToGene)
-  }
+
 }

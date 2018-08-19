@@ -1,11 +1,14 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.entities
 
-import AmminoAcidUtilities._
+import it.unibo.pps.ese.genetics.dna.{BasicGene, IdentifierGene}
+
 trait Identified
+
 sealed trait DietType extends Identified{
   def dietName:String
   def geneId:BasicGene
 }
+
 case object Herbivore extends DietType{
   val dietName:String = "H"
   val geneId:BasicGene = BasicGene(List('D','E'),IdentifierGene)
@@ -32,19 +35,4 @@ case object Animal extends Reign{
 case object Plant extends Reign{
   val reignName="P"
   val geneId:BasicGene = BasicGene(List('P'),IdentifierGene)
-}
-
-object Conversion{
-  implicit def stringToReign(s:String):Reign = {
-    val aS:String = Animal.reignName
-    val pS:String = Plant.reignName
-    s match {
-      case `aS` => Animal
-      case `pS` => Plant
-    }
-  }
-  implicit def stringToReignGene(s:String):BasicGene = {
-    stringToReign(s).geneId
-  }
-
 }

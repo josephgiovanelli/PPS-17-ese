@@ -1,12 +1,12 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.genetics
 import org.scalatest.FunSuite
-import it.unibo.pps.ese.genetics.AmminoAcidUtilities._
-import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
-import it.unibo.pps.ese.genetics.DnaTranslator.DnaTranslatorImpl
-import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
-import it.unibo.pps.ese.genetics.QualityType._
+import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
+import it.unibo.pps.ese.genetics.dna._
+import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.dnaexpression._
+import it.unibo.pps.ese.genetics.entities.QualityType._
+import it.unibo.pps.ese.genetics.entities.{Carnivorous, DietType, Herbivore}
 
 class TestDnaTranslation extends FunSuite{
 
@@ -73,7 +73,7 @@ class TestDnaTranslation extends FunSuite{
     val geneFeaturesS1:GeneFeatures = GeneFeatures(cg1,"Fecondita",List(featureS),List(allelicBehaviourS1))
     val geneFeaturesS2:GeneFeatures = GeneFeatures(cg2,"Fertilita",List(featureS2),List(allelicBehaviourS2))
 
-    val dnaTranslator:DnaTranslator = new DnaTranslatorImpl(List(geneFeatures,geneFeaturesS1,geneFeaturesS2))
+    val dnaTranslator:DnaTranslator = DnaTranslator(List(geneFeatures,geneFeaturesS1,geneFeaturesS2))
 
     val csf:Seq[ProteinoGenicAmminoacid] = dietTypeCode
 //    val csc:Seq[ProteinoGenicAmminoacid] = List('D','C')

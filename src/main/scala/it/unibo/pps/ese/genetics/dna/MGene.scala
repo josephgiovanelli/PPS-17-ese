@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.dna
 
-import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 
 sealed trait GeneType
 case object IdentifierGene extends GeneType

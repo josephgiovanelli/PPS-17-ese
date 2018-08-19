@@ -1,8 +1,9 @@
 package it.unibo.pps.ese.genetics
 
-import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import org.scalatest.FunSuite
-import AmminoAcidUtilities._
+import it.unibo.pps.ese.genetics.dna.{BasicGene, IdentifierGene}
+import it.unibo.pps.ese.genetics.generators.{AlleleWithProbability, GeneWithPossibleAlleles, SpeciesGenerator}
 class TestGenomeCreation extends FunSuite{
   test("Test creation"){
     //Common CHROMOSOME

@@ -1,4 +1,7 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.entities
+
+import it.unibo.pps.ese.genetics.dna.AnimalGenome
+import it.unibo.pps.ese.genetics.dnaexpression.{AllelicBehaviour, AnimalFeature}
 
 trait AnimalInfo {
   def species:Species
@@ -9,7 +12,7 @@ trait AnimalInfo {
   def activeAlleles:Seq[AllelicBehaviour]
 }
 object AnimalInfo{
-  def apply(species: Species,animalFeature: AnimalFeature,genome: AnimalGenome): AnimalInfo = new AnimalInfoImpl(
+  def apply(species: Species,animalFeature: AnimalFeature,genome: AnimalGenome): AnimalInfo = AnimalInfoImpl(
     species = species,
     gender = animalFeature.gender,
     dietType = animalFeature.dietType,

@@ -1,8 +1,10 @@
-package it.unibo.pps.ese.genetics
-import AllelicBehaviour.getDominant
-import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
+package it.unibo.pps.ese.genetics.dnaexpression
 
-import scala.util.Random
+import it.unibo.pps.ese.genetics._
+import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
+import it.unibo.pps.ese.genetics.dna.{ChromosomeType, GeneType, RegulatorGene, StructuralGene}
+import it.unibo.pps.ese.genetics.dnaexpression.AllelicBehaviour.getDominant
+import it.unibo.pps.ese.genetics.entities.QualityType
 
 sealed trait ExpressionLogic{
   def expressBehavior(
@@ -17,6 +19,7 @@ object ExpressionLogic{
   def apply(geneType: GeneType): ExpressionLogic = geneType match {
     case StructuralGene => StructuralGeneExpressionLogic
     case RegulatorGene => RegulatorGeneExpressionLogic
+    case _=> throw new IllegalArgumentException
   }
 
   def apply(chromosomeType: ChromosomeType): ExpressionLogic = chromosomeType match {
@@ -33,7 +36,7 @@ object ExpressionLogic{
     }
   }
 
-  def affectQualityByAllele(a:AllelicBehaviour,animalFeature: AnimalFeature):AnimalFeature = {
+  private[this] def affectQualityByAllele(a:AllelicBehaviour,animalFeature: AnimalFeature):AnimalFeature = {
     a.featuresBehaviour.foreach(f=>{
       f._1.conversionMaps.foreach(e=>{
         animalFeature.affectQuality(e.qualityAffected,e.effectRatio*f._2)
@@ -50,9 +53,7 @@ object ExpressionLogic{
                                   a2: AllelicBehaviour,
                                   animalFeature: AnimalFeature): AnimalFeature
     = getDominant(a1,a2) match{
-      case Some(a) => {
-        affectQualityByAllele(a,animalFeature)
-      }
+      case Some(a) => affectQualityByAllele(a,animalFeature)
       case None => affectQualityByAllele(Utilities.pickRandomElement(a1,a2),animalFeature)
     }
   }
@@ -64,13 +65,8 @@ object ExpressionLogic{
                                   a2: AllelicBehaviour,
                                   animalFeature: AnimalFeature): AnimalFeature
     = getDominant(a1,a2) match{
-      case Some(a) => {
-        affectQualityByAllele(a,animalFeature)
-      }
-      case None => {
-        affectQualityByAlleleCouple(a1,a2,animalFeature)
-      }
-
+      case Some(a) => affectQualityByAllele(a,animalFeature)
+      case None => affectQualityByAlleleCouple(a1,a2,animalFeature)
     }
 
     def affectQualityByAlleleCouple(a1:AllelicBehaviour,a2:AllelicBehaviour,animalFeature: AnimalFeature):AnimalFeature = {

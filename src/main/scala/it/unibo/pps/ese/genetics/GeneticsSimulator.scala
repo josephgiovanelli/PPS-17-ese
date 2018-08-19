@@ -1,7 +1,11 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
-import InputDataAdapter._
+import it.unibo.pps.ese.genetics.dna.{AnimalGenome, MGene}
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
+import it.unibo.pps.ese.genetics.generators.{PlantGenerator, SpeciesUtilities}
+import it.unibo.pps.ese.genetics.generators.data.InputDataAdapter._
+
 trait GeneticsSimulator {
   def beginSimulation(simulationData:SimulationData):InitializedSimulation
   def speciesList:Seq[String]

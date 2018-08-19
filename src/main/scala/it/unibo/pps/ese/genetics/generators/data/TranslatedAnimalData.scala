@@ -1,5 +1,6 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.generators.data
 
+import it.unibo.pps.ese.genetics.dnaexpression.GeneData
 
 trait TranslatedAnimalData{
   def name: String

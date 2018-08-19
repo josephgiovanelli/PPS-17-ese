@@ -1,7 +1,8 @@
 package it.unibo.pps.ese.genetics
 
+import it.unibo.pps.ese.genetics.entities.{Quality, QualityValueConstraints}
 import org.scalatest.FunSuite
-import QualityType._
+import it.unibo.pps.ese.genetics.entities.QualityType._
 class TestQualities extends FunSuite{
   test("Test the instantiation of a given quality"){
     val speedValue:Double = 50

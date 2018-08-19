@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.dna
 
 object ProteinoGenicAmminoacid extends Enumeration {
     type ProteinoGenicAmminoacid = Value
@@ -31,20 +31,4 @@ object ProteinoGenicAmminoacid extends Enumeration {
     val Tyr = Val('Y',"Tyrosine")
     val Zip = Val('Z',"Zipeine")
 }
-  import ProteinoGenicAmminoacid._
-  object AmminoAcidUtilities {
-    implicit def charToAmminoacid(c:Char):ProteinoGenicAmminoacid = {
-      ProteinoGenicAmminoacid.values.find(p=>p.shortName == c).getOrElse(throw new IllegalArgumentException)
-    }
-    implicit def seqCharToListAmminoacid(seq: Seq[Char]):Seq[ProteinoGenicAmminoacid] = {
-      seq.map(charToAmminoacid)
-    }
-    def amminoAcidSeqFromString(s:String):Seq[ProteinoGenicAmminoacid]=
-                                                      s.toUpperCase
-                                                        .toSeq
-                                                        .filter(c=>ProteinoGenicAmminoacid
-                                                          .values
-                                                          .map(_.shortName)
-                                                          .contains(c))
-                                                        .toList
-  }
+

@@ -6,6 +6,6 @@ trait SimulationData {
 }
 
 object SimulationData {
-  def apply(animals: Map[AnimalData, Int], plants: Map[PlantData, Int]) : SimulationData = new SimulationDataImpl(animals, plants)
+  def apply(animals: Map[AnimalData, Int], plants: Map[PlantData, Int]) : SimulationData = SimulationDataImpl(animals, plants)
   case class SimulationDataImpl(animals: Map[AnimalData, Int], plants: Map[PlantData, Int]) extends SimulationData
 }

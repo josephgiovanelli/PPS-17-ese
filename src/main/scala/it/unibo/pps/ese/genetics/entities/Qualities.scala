@@ -1,5 +1,6 @@
-package it.unibo.pps.ese.genetics
-  import enumeratum._
+package it.unibo.pps.ese.genetics.entities
+
+import enumeratum._
 
   sealed trait QualityType extends EnumEntry
   object QualityType extends Enum[QualityType]{

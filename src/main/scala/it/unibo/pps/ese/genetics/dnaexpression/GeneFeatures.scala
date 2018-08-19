@@ -1,6 +1,7 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.dnaexpression
 
-import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.entities.QualityType
 
 sealed trait GeneFeatures{
   def geneSeq:Seq[ProteinoGenicAmminoacid]
@@ -104,7 +105,7 @@ object GeneFeatures{
              name:String,
              geneFeatures:Seq[Feature],
              allelicForm:Seq[AllelicBehaviour]
-           ): GeneFeatures = new GeneFeaturesImpl(
+           ): GeneFeatures = GeneFeaturesImpl(
     geneSeq,name,geneFeatures,allelicForm
   )
   case class GeneFeaturesImpl(

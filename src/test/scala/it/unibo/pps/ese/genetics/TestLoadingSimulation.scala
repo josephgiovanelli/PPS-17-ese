@@ -1,9 +1,12 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.genetics.QualityType.{Fecundity, Fertility, Life, Speed}
+import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, ChromosomeType, GeneWithAllelicForms, MGene}
+import it.unibo.pps.ese.genetics.entities.QualityType.{Fecundity, Fertility, Life, Speed}
 import org.scalatest.FunSuite
-import ChromosomeConversion._
+import it.unibo.pps.ese.genetics.entities._
+import it.unibo.pps.ese.genetics.generators.SpeciesUtilities
+import it.unibo.pps.ese.genetics.generators.data.{InputDataAdapter, TranslatedAnimalData}
 class TestLoadingSimulation extends FunSuite{
   test("Test loading"){
     val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")

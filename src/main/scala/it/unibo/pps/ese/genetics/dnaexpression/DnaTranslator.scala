@@ -1,37 +1,46 @@
-package it.unibo.pps.ese.genetics
+package it.unibo.pps.ese.genetics.dnaexpression
 
-import it.unibo.pps.ese.genetics.ChromosomeType.ChromosomeType
-import it.unibo.pps.ese.genetics.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
-import AmminoAcidUtilities._
+import it.unibo.pps.ese.genetics._
+import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
+import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
+import it.unibo.pps.ese.genetics.dna._
+import it.unibo.pps.ese.genetics.entities.{Carnivorous, Female, Herbivore, Male}
 sealed trait DnaTranslator {
   def getQualitiesByGenome(animalGenome: AnimalGenome):AnimalFeature
 }
 
-object IdentifierGeneTranslator{
-
-  def translateIdentifierGene(gene: MGene, af: AnimalFeature):AnimalFeature = {
-    val herbivoreSeq:Seq[ProteinoGenicAmminoacid] = Herbivore.geneId.completeCode
-    val carnivorousSeq:Seq[ProteinoGenicAmminoacid] = Carnivorous.geneId.completeCode
-    gene.completeCode match {
-      case `herbivoreSeq` => af.dietType_(Herbivore);af
-      case `carnivorousSeq` => af.dietType_(Carnivorous); af
-      case _ => af
-    }
-  }
-}
-
 object DnaTranslator{
-  class DnaTranslatorImpl(val speciesGeneBehaviour:Seq[GeneFeatures] ) extends DnaTranslator{
+  def apply(speciesGeneBehaviour:Seq[GeneFeatures] ): DnaTranslator = new DnaTranslatorImpl(speciesGeneBehaviour)
+
+  private[this]class DnaTranslatorImpl(val speciesGeneBehaviour:Seq[GeneFeatures] ) extends DnaTranslator{
+
+    private[this] object IdentifierGeneTranslator{
+
+      def translateIdentifierGene(gene: MGene, af: AnimalFeature):AnimalFeature = {
+        val herbivoreSeq:Seq[ProteinoGenicAmminoacid] = Herbivore.geneId.completeCode
+        val carnivorousSeq:Seq[ProteinoGenicAmminoacid] = Carnivorous.geneId.completeCode
+        gene.completeCode match {
+          case `herbivoreSeq` => af.dietType_(Herbivore);af
+          case `carnivorousSeq` => af.dietType_(Carnivorous); af
+          case _ => af
+        }
+      }
+    }
 
     override def getQualitiesByGenome(animalGenome: AnimalGenome): AnimalFeature = {
+      import TranslationUtilities._
       val gs1:Map[ChromosomeType,Chromosome] = animalGenome.firstGenomeSequence
       val gs2:Map[ChromosomeType,Chromosome] = animalGenome.secondGenomeSequence
       val animalFeature:AnimalFeature = new AnimalFeatureImpl
       val gl1:Seq[MGene] = gs1.flatMap(_._2.geneList).filter(_.geneType!= IdentifierGene).toSeq
       val gi1:Seq[MGene] = gs1.flatMap(_._2.geneList).filter(_.geneType== IdentifierGene).toSeq
       iterateIdentifierGene(gi1,animalFeature)
-      iterateGeneList(gl1,animalFeature)
+      iterateGeneList(gl1,animalFeature,animalGenome)
       translateSexualChromosomeCouple(animalGenome.sexualChromosomeCouple,animalFeature)
+      animalFeature
+    }
+
+    private[this] object TranslationUtilities{
 
       def iterateIdentifierGene(gc1:Seq[MGene], animalFeature: AnimalFeature): AnimalFeature
       = gc1 match {
@@ -41,40 +50,40 @@ object DnaTranslator{
       }
       def translateSexualChromosomeCouple(scc: SexualChromosomeCouple,af: AnimalFeature):AnimalFeature
       = scc.gender match {
-        case Female=>{
+        case Female=>
           af.gender_(Female)
           val chosenChromosome = Utilities.pickRandomElement(scc.firstChromosome,scc.secondChromosome)
           iterateSexualGeneList(chosenChromosome.geneList,af)
-        }
+
         case Male => af.gender_(Male);af
       }
 
       def iterateSexualGeneList(gList:Seq[MGene], af:AnimalFeature):AnimalFeature ={
-          gList.foreach(h=>{
-            val allConversionMap: Seq[ConversionMap] = conversionMapsFromGene(h)
-            val ab=findAlleleBehaviour(h)
-            ExpressionLogic(ChromosomeType.SEXUAL_X).expressBehavior(
-              allConversionMap,
-              ab,
-              ab,
-              af
-            )
-          })
+        gList.foreach(h=>{
+          val allConversionMap: Seq[ConversionMap] = conversionMapsFromGene(h)
+          val ab=findAlleleBehaviour(h)
+          ExpressionLogic(ChromosomeType.SEXUAL_X).expressBehavior(
+            allConversionMap,
+            ab,
+            ab,
+            af
+          )
+        })
         af
       }
 
-      def iterateGeneList(gl:Seq[MGene], af: AnimalFeature):AnimalFeature= gl match {
-        case h+:t => {
+      def iterateGeneList(gl:Seq[MGene], af: AnimalFeature,animalGenome: AnimalGenome):AnimalFeature= gl match {
+        case h+:t =>
           val allConversionMap: Seq[ConversionMap] = conversionMapsFromGene(h)
           val alleleCouple:(AllelicBehaviour,AllelicBehaviour) = alleleBehaviourCouple(h,animalGenome)
           ExpressionLogic(h.geneType).expressBehavior(
-                                                        allConversionMap,
-                                                        alleleCouple._1,
-                                                        alleleCouple._2,
-                                                        af
-                                                      )
-          iterateGeneList(t,af)
-        }
+            allConversionMap,
+            alleleCouple._1,
+            alleleCouple._2,
+            af
+          )
+          iterateGeneList(t,af,animalGenome)
+
         case _=> af
       }
 
@@ -97,21 +106,19 @@ object DnaTranslator{
       }
 
       def findAlleleBehaviour(gene: MGene):AllelicBehaviour = gene match {
-        case GeneWithAllelicForms(gc,ac,gt) => {
+        case GeneWithAllelicForms(gc,ac,gt) =>
           speciesGeneBehaviour
             .find(_.geneSeq==gc)
             .get
             .allelicForm
             .find(_.allelicSeq == ac)
             .get
-        }
       }
       def findGeneOnSequence(gene: MGene, gs:Map[ChromosomeType,Chromosome]):MGene = {
         val gl:Seq[MGene] = gs.flatMap(_._2.geneList).filter(_.geneType!= IdentifierGene).toSeq
         gl.find(_.geneId == gene.geneId).get
       }
 
-      animalFeature
     }
   }
 
