@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.model
+package it.unibo.pps.ese.genericWorld.model
 
-import it.unibo.pps.ese.model.support.BaseEvent
+import it.unibo.pps.ese.genericWorld.model.support.BaseEvent
 import scala.language.dynamics
 
 case class ExampleEvent(speed: Int) extends BaseEvent

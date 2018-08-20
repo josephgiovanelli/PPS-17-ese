@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.model
+package it.unibo.pps.ese.genericWorld.model
 
-import it.unibo.pps.ese.model.support.DataRepository
+import it.unibo.pps.ese.genericWorld.model.support.DataRepository
 
 case class EntityState(entityId: String, state: EntityInfo)
 case class EntityProperty(propertyId : String, value : Any)

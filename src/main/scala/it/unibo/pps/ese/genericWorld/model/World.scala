@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.model
+package it.unibo.pps.ese.genericWorld.model
 
-import it.unibo.pps.ese.model.support.Done
+import it.unibo.pps.ese.genericWorld.model.support.Done
 import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait World {

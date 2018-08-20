@@ -1,9 +1,9 @@
-package it.unibo.pps.ese
+package it.unibo.pps.ese.genericWorld
 
 import java.util.UUID.randomUUID
 
-import it.unibo.pps.ese.controller.{Controller, View}
-import it.unibo.pps.ese.model._
+import it.unibo.pps.ese.genericWorld.controller.{Controller, View}
+import it.unibo.pps.ese.genericWorld.model._
 
 object TestLauncher extends App {
 

@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.model
+package it.unibo.pps.ese.genericWorld.model
 
 package object support {
 

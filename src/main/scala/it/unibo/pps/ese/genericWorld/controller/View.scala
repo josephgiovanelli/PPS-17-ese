@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.controller
+package it.unibo.pps.ese.genericWorld.controller
 
-import it.unibo.pps.ese.model.{EntityInfoConversion, EntityState}
+import it.unibo.pps.ese.genericWorld.model.{EntityInfoConversion, EntityState}
 
 class View {
 

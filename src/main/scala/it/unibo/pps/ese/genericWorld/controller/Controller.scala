@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.controller
+package it.unibo.pps.ese.genericWorld.controller
 
-import it.unibo.pps.ese.model.World
+import it.unibo.pps.ese.genericWorld.model.World
 
 sealed trait Controller {
   def initialize(frameRate: Int): Unit

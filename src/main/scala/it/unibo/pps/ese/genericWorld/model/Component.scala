@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.model
+package it.unibo.pps.ese.genericWorld.model
 
-import it.unibo.pps.ese.model.support.{Consumer, Event, EventBus}
+import it.unibo.pps.ese.genericWorld.model.support.{Consumer, Event, EventBus}
 
 import scala.reflect.ClassTag
 
