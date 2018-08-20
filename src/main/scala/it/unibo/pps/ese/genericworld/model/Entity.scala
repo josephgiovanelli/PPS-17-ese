@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.genericWorld.model
+package it.unibo.pps.ese.genericworld.model
 
 sealed trait Entity {
   def id: String

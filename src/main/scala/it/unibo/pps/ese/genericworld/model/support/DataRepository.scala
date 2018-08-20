@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.genericWorld.model.support
+package it.unibo.pps.ese.genericworld.model.support
 
 import scala.collection.mutable
 

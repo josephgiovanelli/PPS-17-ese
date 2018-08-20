@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.genericWorld.controller
+package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.genericWorld.model.World
+import it.unibo.pps.ese.genericworld.model.World
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global

@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.genericWorld.model
+package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.genericWorld.model.support.{BaseEvent, Done}
+import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, Done}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
