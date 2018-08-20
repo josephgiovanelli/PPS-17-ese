@@ -2,8 +2,10 @@ package it.unibo.pps.ese.genericworld.controller
 
 import it.unibo.pps.ese.genericworld.model.World
 
+import scala.concurrent.duration.FiniteDuration
+
 sealed trait Controller {
-  def initialize(frameRate: Int): Unit
+  def attachView(view: View, frameRate: Int): Unit
   def play(): Unit
   def pause(): Unit
   def exit(): Unit
@@ -11,15 +13,15 @@ sealed trait Controller {
 
 object Controller {
 
-  def apply(world: World, view: View): Controller = BaseController(world, view)
+  def apply(world: World, clockPeriod: FiniteDuration): Controller = BaseController(world, clockPeriod)
 
-  private case class BaseController(world: World, view:View) extends Controller {
+  private case class BaseController(world: World, clockPeriod: FiniteDuration) extends Controller {
 
-    var simulationLoop = SimulationLoop(world, 15L)
+    val simulationLoop = SimulationLoop(world, clockPeriod)
     var stop = false
     var paused = true
 
-    override def initialize(frameRate: Int): Unit =
+    override def attachView(view: View, frameRate: Int): Unit =
       new Thread (() => {
         while(!stop) {
           normalizeFrameRate(() => {
@@ -28,6 +30,7 @@ object Controller {
           }, frameRate)
         }
       }) start()
+
 
     override def play(): Unit = this synchronized {
       simulationLoop play()
@@ -51,7 +54,10 @@ object Controller {
       val start = System.currentTimeMillis()
       job()
       val stop = System.currentTimeMillis()
-      if (stop - start < 1000 / fps) this synchronized wait((1000 / fps) - (stop - start))
+      if (stop - start < 1000 / fps) {
+        Thread.sleep((1000 / fps) - (stop - start))
+        //this synchronized wait((1000 / fps) - (stop - start))
+      }
     }
   }
 }

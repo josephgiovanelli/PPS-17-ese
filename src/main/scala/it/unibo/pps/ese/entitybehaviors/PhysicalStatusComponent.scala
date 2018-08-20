@@ -1,11 +1,32 @@
 package it.unibo.pps.ese.entitybehaviors
 
-import it.unibo.pps.ese.entitybehaviors.FakeEvent.FakeEvent
+import it.unibo.pps.ese.genericworld.model._
+import it.unibo.pps.ese.genericworld.model.support.BaseEvent
+
 import scala.math.floor
 
-case class PhysicalStatusComponent(fakeBus: FakeBus, speed: Int) extends FakeComponent(fakeBus: FakeBus) {
+case class Dead() extends BaseEvent
+case class PhysicalStatusInfo(averageLife: Int,
+                               energyRequirements: Int,
+                               nutritiveValue: Int,
+                               endChildPhase: Int,
+                               endAdultPhase: Int,
+                               percentageDecay: Double,
+                               speed: Int
+                             ) extends BaseEvent
+
+case class PhysicalStatusComponent(override val entitySpecifications: EntitySpecifications,
+                                   averageLife: Int,
+                                   energyRequirements: Int,
+                                   nutritiveValue: Int,
+                                   endChildPhase: Int,
+                                   endAdultPhase: Int,
+                                   percentageDecay: Double,
+                                   speed: Int
+                                  ) extends WriterComponent(entitySpecifications)  {
 
   val MAX_ENERGY = 100
+  val YEAR_TO_CLOCK = 10
 
   object LifePhases extends Enumeration {
     val CHILD, ADULT, ELDERLY = Value
@@ -14,49 +35,55 @@ case class PhysicalStatusComponent(fakeBus: FakeBus, speed: Int) extends FakeCom
   var currentYear: Int = 0
   var currentEnergy: Int = MAX_ENERGY
   var currentPhase: LifePhases.Value = LifePhases.CHILD
-
-  var name: Option[Int] = None
-  var averageLife: Option[Int] = None
-  var energyRequirements: Option[Int] = None
-  var nutritiveValue: Option[Int] = None
-  var endChildPhase: Option[Int] = None
-  var endAdultPhase: Option[Int] = None
-  var percentageDecay: Option[Float] = None
-
   var currentSpeed: Int = speed
-  fakeBus.publish(FakeEvent(FakeEventType.SPEED, speed.toString))
+  var elapsedClocks: Int = 0
 
-
-
-  override def consume(fakeEvent: FakeEvent): Unit = fakeEvent match {
-    case FakeEvent(a, b) if a.equals(FakeEventType.NAME) => name = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.AVERAGE_LIFE) => averageLife = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.ENERGY_REQUIREMENTS) => energyRequirements = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.NUTRITIVE_VALUE) => nutritiveValue = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.END_CHILD_PHASE) => endChildPhase = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.END_ADULT_PHASE) => endAdultPhase = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.PERCENTAGE_DECAY) => percentageDecay = Some(b.toFloat)
-
-    case FakeEvent(a, b) if a.equals(FakeEventType.NEXT_MOVE) => {
-      currentEnergy -= energyRequirements.get
-      if (currentEnergy <= 0) fakeBus.publish(FakeEvent(FakeEventType.DEAD, ""))
-    }
-    case FakeEvent(a, b) if a.equals(FakeEventType.NEXT_YEAR) => {
-      currentYear += 1
-      if (currentPhase == LifePhases.CHILD && currentYear > endChildPhase.get) currentPhase = LifePhases.ADULT
-      else if (currentPhase == LifePhases.ADULT && currentYear > endAdultPhase.get) currentPhase = LifePhases.ELDERLY
-      else if (currentPhase == LifePhases.ELDERLY) {
-        currentSpeed = floor(speed * percentageDecay.get).toInt
-        fakeBus.publish(FakeEvent(FakeEventType.SPEED, currentSpeed.toString))
-      }
-      if (currentYear == floor(averageLife.get * percentageDecay.get)) fakeBus.publish(FakeEvent(FakeEventType.DEAD, ""))
-    }
-    case FakeEvent(a, b) if a.equals(FakeEventType.EAT_ENTITY) => {
-      val fakeEntityRepresentation: FakeEntityRepresentation =FakeBuffer.instance().getEntityInVisualField(name.get) filter (x => x.name.equals(b.toInt)) head;
-      currentEnergy += fakeEntityRepresentation.nutritiveValue
-      if(currentEnergy > MAX_ENERGY) currentEnergy = MAX_ENERGY
-    }
-    case _ => Unit
+  override def initialize(): Unit = {
+    subscribeEvents()
+    configureMappings()
   }
 
+  private def subscribeEvents(): Unit = {
+    subscribe {
+      case ComputeNextState() =>
+        currentEnergy -= energyRequirements
+        if (currentEnergy <= 0) publish(Dead())
+        elapsedClocks += 1
+        if (elapsedClocks == YEAR_TO_CLOCK) yearCallback()
+        publish(new ComputeNextStateResponse)
+      case RequireSpeed() =>
+        publish(RequireSpeedResponse(speed))
+      case EatEntity(entityId) =>
+        publish(RequireEntitiesState(entitySpecifications id, x => x.entityId == entityId))
+      case EntitiesStateResponse(id, states) if id == entitySpecifications.id =>
+        import EntityInfoConversion._
+        currentEnergy += states.head.state.nutritiveValue
+        if(currentEnergy > MAX_ENERGY) currentEnergy = MAX_ENERGY
+      case GetInfo() =>
+        publish(PhysicalStatusInfo(averageLife, energyRequirements, nutritiveValue, endChildPhase, endAdultPhase, percentageDecay, speed))
+        publish(new GetInfoResponse)
+      case _ => Unit
+    }
+  }
+
+  private def configureMappings(): Unit = {
+    addMapping[PhysicalStatusInfo]((classOf[PhysicalStatusInfo], ev => Seq(
+      EntityProperty("averageLife", ev averageLife),
+      EntityProperty("energyRequirements", ev energyRequirements),
+      EntityProperty("nutritiveValue", ev nutritiveValue),
+      EntityProperty("endChildPhase", ev endChildPhase),
+      EntityProperty("endAdultPhase", ev endAdultPhase),
+      EntityProperty("percentageDecay", ev percentageDecay),
+      EntityProperty("speed", ev speed)
+    )))
+  }
+
+  private def yearCallback(): Unit = {
+    elapsedClocks = 0
+    currentYear += 1
+    if (currentPhase == LifePhases.CHILD && currentYear > endChildPhase) currentPhase = LifePhases.ADULT
+    else if (currentPhase == LifePhases.ADULT && currentYear > endAdultPhase) currentPhase = LifePhases.ELDERLY
+    else if (currentPhase == LifePhases.ELDERLY) currentSpeed = floor(speed * percentageDecay).toInt
+    if (currentYear == floor(averageLife * percentageDecay)) publish(Dead())
+  }
 }

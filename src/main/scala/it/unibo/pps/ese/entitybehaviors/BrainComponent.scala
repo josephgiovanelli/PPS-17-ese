@@ -1,59 +1,105 @@
 package it.unibo.pps.ese.entitybehaviors
 
-import it.unibo.pps.ese.entitybehaviors.FakeEvent._
+import java.util.Random
+
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{DecisionSupport, EntityAttributesImpl, EntityChoiceImpl, EntityKinds}
+import it.unibo.pps.ese.genericworld.model._
+import it.unibo.pps.ese.genericworld.model.support.BaseEvent
+import it.unibo.pps.ese.utils.Point
 
+case class BrainInfo(position: Point,
+                     height: Int,
+                     strong: Int,
+                     defense: Int,
+                     kind: String,
+                     actionField: Int,
+                     visualField: Int) extends BaseEvent
+case class EntityPosition(position: Point) extends BaseEvent
+case class EatEntity(entityId: String) extends BaseEvent
+case class RequireSpeed() extends BaseEvent
+case class RequireSpeedResponse(speed: Int) extends BaseEvent
 
-case class BrainComponent(fakeBus: FakeBus, var position: FakePoint) extends FakeComponent(fakeBus: FakeBus) {
+case class BrainComponent(override val entitySpecifications: EntitySpecifications,
+                          var position: Point,
+                          height: Int,
+                          strong: Int,
+                          defense: Int,
+                          kind: String,
+                          actionField: Int,
+                          visualField: Int
+                         ) extends WriterComponent(entitySpecifications)  {
 
   val decisionSupport: DecisionSupport = DecisionSupport()
 
-  var name: Option[Int] = None
-  var height: Option[Int] = None
-  var strong: Option[Int] = None
-  var defense: Option[Int] = None
-  var kind: Option[String] = None
+  var entityInVisualField: Map[String, EntityAttributesImpl] = Map.empty
 
-  var speed: Option[Int] = None
-  var actionField: Option[Int] = None
-
-  var entityInVisualField: Map[Int, EntityAttributesImpl] = Map.empty
-
-  override def consume(fakeEvent: FakeEvent): Unit = fakeEvent match {
-    case FakeEvent(a, b) if a.equals(FakeEventType.NAME) => name = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.HEIGHT) => height = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.STRONG) => strong = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.DEFENSE) => defense = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.KIND) => kind = Some(b)
-    case FakeEvent(a, b) if a.equals(FakeEventType.SPEED) => speed = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.ACTION_FIELD) => actionField = Some(b.toInt)
-    case FakeEvent(a, b) if a.equals(FakeEventType.CALCULATE_NEXT_MOVE) => fakeBus.publish(FakeEvent(FakeEventType.NEXT_MOVE, nextMove.toString))
-    case _ => Unit
+  override def initialize(): Unit = {
+    subscribeEvents()
+    configureMappings()
   }
 
-  private def nextMove: FakePoint = {
-    entityInVisualField = Map.empty
-    FakeBuffer.instance().getEntityInVisualField(name.get) map
-      (x => mapToEntityAttributes(x)) foreach(x => entityInVisualField += (x.name -> x))
-    val me: EntityAttributesImpl = EntityAttributesImpl(name.get, EntityKinds(Symbol(kind.get)), height.get, strong.get, defense.get, (position.x, position.y))
-    decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
-    val entityChoice = decisionSupport.discoverPreys(me).min(Ordering.by((_:EntityChoiceImpl).distance))
-    val entityAttribute = entityInVisualField(entityChoice.name)
+  private def subscribeEvents(): Unit = {
+    import EntityInfoConversion._
+    subscribe {
+      case ComputeNextState() =>
+        publish(RequireEntitiesState(entitySpecifications id, x => distanceBetween(x.state.position, position) <= visualField))
+      case EntitiesStateResponse(id, state) if id == entitySpecifications.id =>
+        entityInVisualField = Map.empty
+        state map (x => EntityAttributesImpl(x.entityId, x.state.kind, x.state.height, x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y))) foreach (x => entityInVisualField += (x.name -> x))
+        publish(new RequireSpeed)
+      case RequireSpeedResponse(speed) =>
+        publish(EntityPosition(nextMove(speed)))
+        publish(new ComputeNextStateResponse)
+      case GetInfo() =>
+        publish(BrainInfo(position, height, strong, defense, kind, actionField, visualField))
+        publish(new GetInfoResponse)
+      case _ => Unit
+    }
+  }
 
-    if (entityChoice.distance < actionField.get) {
-      me.position = entityAttribute.position
-      fakeBus.publish(FakeEvent(FakeEventType.EAT_ENTITY, entityAttribute.name.toString))
-    } else {
-      (0 until speed.get) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+  private def configureMappings(): Unit = {
+    addMapping[EntityPosition]((classOf[EntityPosition], ev => Seq(EntityProperty("position", ev position))))
+    addMapping[BrainInfo]((classOf[BrainInfo], ev => Seq(
+      EntityProperty("height", ev height),
+      EntityProperty("position", ev position),
+      EntityProperty("strong", ev strong),
+      EntityProperty("defense", ev defense),
+      EntityProperty("kind", ev kind),
+      EntityProperty("actionField", ev actionField),
+      EntityProperty("visualField", ev visualField)
+    )))
+  }
+
+  private def nextMove(speed: Int): Point = {
+
+    val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y))
+    decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
+    val preys = decisionSupport.discoverPreys(me)
+    if (preys.nonEmpty) {
+      val entityChoice = preys.min(Ordering.by((_:EntityChoiceImpl).distance))
+      val entityAttribute = entityInVisualField(entityChoice.name)
+
+      if (entityChoice.distance < actionField) {
+        me.position = entityAttribute.position
+        publish(EatEntity(entityAttribute name))
+      } else {
+        (0 until speed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+      }
+
+      position = Point(me.position.x, me.position.y)
+    }
+    else {
+      if (new Random().nextBoolean()) position = Point(position.x + speed, position.y)
+      else position = Point(position.x, position.y + speed)
     }
 
+//    if (new Random().nextBoolean()) position = Point(position.x + speed, position.y)
+//          else position = Point(position.x, position.y + speed)
     decisionSupport.clearVisualField()
-    position = FakePoint(me.position.x, me.position.y)
     position
   }
 
-  private def mapToEntityAttributes(representation: FakeEntityRepresentation): EntityAttributesImpl =
-    EntityAttributesImpl(representation.name, EntityKinds(Symbol(representation.kind)), representation.height, representation.strong, representation.defense, (representation.point.x, representation.point.y))
+  private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
 
 }

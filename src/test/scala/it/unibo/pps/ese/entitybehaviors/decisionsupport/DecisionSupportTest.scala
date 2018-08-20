@@ -15,9 +15,9 @@ class DecisionSupportTest extends FunSuite {
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
   StaticRules.instance().setRules(worldRules)
 
-  val prey1 = EntityAttributesImpl(1, EntityKinds('herbivore), 6, 6, 6, (6, 6))
-  val prey2 = EntityAttributesImpl(2, EntityKinds('herbivore), 6, 6, 6, (2, 1))
-  val hunter = EntityAttributesImpl(3, EntityKinds('carnivorous), 10, 10, 10, (3, 3))
+  val prey1 = EntityAttributesImpl("1", EntityKinds('herbivore), 6, 6, 6, (6, 6))
+  val prey2 = EntityAttributesImpl("2", EntityKinds('herbivore), 6, 6, 6, (2, 1))
+  val hunter = EntityAttributesImpl("3", EntityKinds('carnivorous), 10, 10, 10, (3, 3))
 
   val decisionSupport: DecisionSupport = DecisionSupport()
   decisionSupport.createVisualField(Seq(prey2, hunter))

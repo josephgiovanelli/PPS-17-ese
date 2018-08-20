@@ -11,9 +11,9 @@ object TryCommunication extends App {
   StaticRules.instance().setRules(worldRules)
   val fakeBus: FakeBus = new FakeBus
 
-  val brain: BrainComponent = BrainComponent(fakeBus, FakePoint(3, 3))
-  val physicalStatus: PhysicalStatusComponent = PhysicalStatusComponent(fakeBus, 2)
-  val debuggerStatus: DebuggerComponent = DebuggerComponent(fakeBus)
+  //val brain: BrainComponent = BrainComponent(fakeBus, FakePoint(3, 3))
+  //val physicalStatus: PhysicalStatusComponent = PhysicalStatusComponent(fakeBus, 2)
+  //val debuggerStatus: DebuggerComponent = DebuggerComponent(fakeBus)
 
 
   //deve acquisirli Brain

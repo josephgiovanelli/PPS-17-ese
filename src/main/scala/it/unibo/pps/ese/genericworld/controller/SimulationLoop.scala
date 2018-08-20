@@ -14,9 +14,9 @@ sealed trait SimulationLoop {
 
 object SimulationLoop {
 
-  def apply(model: World, period: Long): SimulationLoop = BaseSimulationLoop(model, period)
+  def apply(model: World, period: FiniteDuration): SimulationLoop = BaseSimulationLoop(model, period)
 
-  private case class BaseSimulationLoop(model: World, period: Long) extends SimulationLoop {
+  private case class BaseSimulationLoop(model: World, period: FiniteDuration) extends SimulationLoop {
 
     private[this] val timer = new java.util.Timer()
     private[this] var scheduledTask = None: Option[java.util.TimerTask]
@@ -30,14 +30,14 @@ object SimulationLoop {
 
           val ret =
             for {
-              _ <- model.requireStateUpdate
-              b <- model.requireInfoUpdate
+              b <- model.requireStateUpdate
+              //c <- model.requireInfoUpdate
             } yield b
 
-          Await.result(ret, period millis )
+          Await.result(ret, period)
         }
       }
-      timer.schedule(task, 0, period)
+      timer.schedule(task, 0, period.toMillis)
       scheduledTask = Some(task)
     }
 

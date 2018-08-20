@@ -35,7 +35,7 @@ trait WorldTypes {
 }
 
 trait WorldTypesImpl extends WorldTypes {
-  type Name = Int
+  type Name = String
   type Kind = EntityKinds.Value
   type HeightMeasure = Int
   type AttackMeasure = Int
@@ -66,18 +66,18 @@ case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: Positi
 
 
 object EntityAttributesImpl {
-  def apply(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position)
+  def apply(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position)
 
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
 
-  case class EntityAttributesImpl(name: Int, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, var position: GeneralPosition[Int]){
+  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, var position: GeneralPosition[Int]){
     override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "])"
   }
 
 }
 
-case class EntityChoiceImpl(name: Int, distance: Int)
+case class EntityChoiceImpl(name: String, distance: Int)
 
 object WorldRulesImpl {
   def apply(attackThreshold: Int, heightThresholds: (Int, Int), compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, compatibleHuntingKinds, compatibleCouplingKinds)

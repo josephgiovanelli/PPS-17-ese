@@ -14,12 +14,12 @@ object PerformanceTest extends App {
   StaticRules.instance().setRules(worldRules)
 
 
-  val prey0 = EntityAttributesImpl(0, EntityKinds('plant), 5, 2, 2, (5, 6))
-  val prey1 = EntityAttributesImpl(1, EntityKinds('herbivore), 6, 6, 6, (6, 6))
-  val prey2 = EntityAttributesImpl(2, EntityKinds('herbivore), 7, 7, 7, (2, 1))
-  val prey3 = EntityAttributesImpl(3, EntityKinds('herbivore), 6, 6, 6, (3, 1))
-  val prey4 = EntityAttributesImpl(4, EntityKinds('carnivorous), 10, 10, 10, (3, 3))
-  val prey5 = EntityAttributesImpl(5, EntityKinds('carnivorous), 9, 9, 9, (4, 3))
+  val prey0 = EntityAttributesImpl("0", EntityKinds('plant), 5, 2, 2, (5, 6))
+  val prey1 = EntityAttributesImpl("1", EntityKinds('herbivore), 6, 6, 6, (6, 6))
+  val prey2 = EntityAttributesImpl("2", EntityKinds('herbivore), 7, 7, 7, (2, 1))
+  val prey3 = EntityAttributesImpl("3", EntityKinds('herbivore), 6, 6, 6, (3, 1))
+  val prey4 = EntityAttributesImpl("4", EntityKinds('carnivorous), 10, 10, 10, (3, 3))
+  val prey5 = EntityAttributesImpl("5", EntityKinds('carnivorous), 9, 9, 9, (4, 3))
 
   val decisionSupport: DecisionSupport = PrologDecisionSupport()
 

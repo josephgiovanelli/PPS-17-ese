@@ -23,19 +23,19 @@ object EntitiesStateCache {
     private val _entitiesRepository : DataRepository[String, EntityInfo] =
       DataRepository[String, EntityInfo]
 
-    override def addOrUpdateEntityState(entityId: String, element: EntityProperty): Unit = {
+    override def addOrUpdateEntityState(entityId: String, element: EntityProperty): Unit = this synchronized {
       val entityState = _entitiesRepository getById entityId getOrElse new EntityInfo
       entityState.updateDynamic(element.propertyId)(element value)
       _entitiesRepository addOrUpdate (entityId, entityState)
     }
 
-    override def getEntityState(entityId: String): EntityState = {
+    override def getEntityState(entityId: String): EntityState = this synchronized {
       EntityState(entityId, _entitiesRepository getById entityId getOrElse new EntityInfo)
     }
 
-    override def deleteEntityState(entityId: String): Unit = _entitiesRepository deleteById entityId
+    override def deleteEntityState(entityId: String): Unit = this synchronized _entitiesRepository deleteById entityId
 
-    override def getFilteredState(filter: EntityState => Boolean): Seq[EntityState] = {
+    override def getFilteredState(filter: EntityState => Boolean): Seq[EntityState] = this synchronized {
       val entityStates = (_entitiesRepository getAll) map(x => EntityState(x._1, x._2))
       entityStates filter filter
     }
