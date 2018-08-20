@@ -29,6 +29,6 @@ object AnimalInfo{
     animalQualities:Map[QualityType,Quality],
     activeAlleles:Seq[AllelicBehaviour]
   ) extends AnimalInfo{
-    override def toString: String = "Gender: "+gender+",Diet: "+dietType+", Qualities: "+animalQualities.toString()
+    override def toString: String = species+", "+"Gender: "+gender+",Diet: "+dietType+", Qualities: "+animalQualities.toString()
   }
 }

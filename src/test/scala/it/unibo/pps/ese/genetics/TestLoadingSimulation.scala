@@ -87,6 +87,7 @@ class TestLoadingSimulation extends FunSuite{
     println(child)
     assert(geneticsSimulator.obtainMutantAlleles("Gatto",
       sm(ChromosomeType.STRUCTURAL_ANIMAL).geneList.head).nonEmpty)
+    println(female.animalQualities.values.size)
 
   }
 }

@@ -1,9 +1,7 @@
-gene: abb
+gene: aab
 id: sda
 dominance: 5.0
 consume: 5.0
 probability: 1.0
 effect:
-  lunghezza: 3.0
-  muscolatura: 2.0
-  tutte: 2.0
+  childhood: 3.0
