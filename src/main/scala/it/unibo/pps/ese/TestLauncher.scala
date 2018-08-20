@@ -1,35 +1,36 @@
 package it.unibo.pps.ese
 
-import it.unibo.pps.ese.model._
-import it.unibo.pps.ese.model.support.Done
+import java.util.UUID.randomUUID
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success}
-import scala.concurrent.duration._
+import it.unibo.pps.ese.controller.{Controller, View}
+import it.unibo.pps.ese.model._
 
 object TestLauncher extends App {
 
     val world = World()
-    val entity = Entity("improved", "1")
+    val entity = Entity("improved", randomUUID().toString)
     val component = new ExampleComponent(entity specifications)
     entity addComponent component
     world addEntity entity
 
-    while(true) {
+    val view = new View
 
-        import EntityInfoConversion._
+    val controller = Controller(world, view)
+    controller initialize 30
 
-        val ret =
-            for {
-                a <- world.requireStateUpdate
-                b <- world.requireInfoUpdate
-            } yield b
+    controller.play()
+    println("Playing")
+    Thread.sleep(1000)
 
-        Await.result(ret, 500 millis )
+    controller.pause()
+    println("Paused")
+    Thread.sleep(1000)
 
-        val b : Seq[EntityState] = world entitiesState;
-        b filter (e => e.entityId == "1") foreach (e => println("Speed : " + e.state.speed))
-        Thread.sleep(500)
-    }
+    controller.play()
+
+    println("Playing")
+    Thread.sleep(1000)
+
+    println("Stopped")
+    controller.exit()
 }

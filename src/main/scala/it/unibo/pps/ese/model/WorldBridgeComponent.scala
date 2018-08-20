@@ -2,7 +2,7 @@ package it.unibo.pps.ese.model
 
 import it.unibo.pps.ese.model.support.{BaseEvent, Done}
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 case class RequireEntitiesState(id: String, filter: EntityState => Boolean = _ => true) extends BaseEvent
 case class EntitiesStateResponse(id: String, state: Seq[EntityState]) extends BaseEvent
@@ -15,8 +15,8 @@ case class GetInfo() extends BaseEvent
 case class GetInfoResponse() extends BaseEvent
 
 sealed trait WorldBridge {
-  def computeNewState(): Future[Done]
-  def requireInfo(): Future[Done]
+  def computeNewState(implicit context: ExecutionContext): Future[Done]
+  def requireInfo(implicit context: ExecutionContext): Future[Done]
 }
 
 class WorldBridgeComponent(override val entitySpecifications: EntitySpecifications, world: InteractiveWorld) extends WriterComponent(entitySpecifications) with WorldBridge {
@@ -43,7 +43,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     case _ => Unit
   }
 
-  override def computeNewState(): Future[Done] = {
+  override def computeNewState(implicit context: ExecutionContext): Future[Done] = {
     if (newStatePromise isCompleted) {
       newStatePromise = Promise()
       newStateAccumulator = 0
@@ -54,7 +54,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     }
   }
 
-  override def requireInfo(): Future[Done] = {
+  override def requireInfo(implicit context: ExecutionContext): Future[Done] = {
     if (requireInfoPromise isCompleted) {
       requireInfoPromise = Promise()
       requireInfoAccumulator = 0

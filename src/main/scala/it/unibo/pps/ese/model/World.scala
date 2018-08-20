@@ -1,16 +1,14 @@
 package it.unibo.pps.ese.model
 
 import it.unibo.pps.ese.model.support.Done
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait World {
   def addEntity(entity: Entity): Unit
   def removeEntity(id: String): Unit
   def entitiesState : Seq[EntityState]
-  def requireStateUpdate: Future[Done]
-  def requireInfoUpdate: Future[Done]
+  def requireStateUpdate(implicit context: ExecutionContext): Future[Done]
+  def requireInfoUpdate(implicit context: ExecutionContext): Future[Done]
 }
 
 sealed trait CachedWorld {
@@ -27,12 +25,17 @@ sealed trait InteractiveWorld extends CachedWorld {
 sealed trait UpdatableWorld {
 
   private[this] var _entityBridges : Seq[WorldBridgeComponent] = Seq empty
-  def addBridge(bridge : WorldBridgeComponent): Unit = _entityBridges = _entityBridges :+ bridge
-  def removeBridge(entityId: String): Unit = _entityBridges = _entityBridges filterNot(bridge => bridge.entitySpecifications.id == entityId)
-  def requireStateUpdate: Future[Done] = serializeFutures(_entityBridges)(e => e.computeNewState()) map(_ => new Done())
-  def requireInfoUpdate: Future[Done] = Future.traverse(_entityBridges)(e => e.requireInfo()) map (_ => new Done())
 
-  private def serializeFutures[A, B](l: Iterable[A])(fn: A ⇒ Future[B]): Future[List[B]] =
+  def addBridge(bridge : WorldBridgeComponent): Unit = _entityBridges = _entityBridges :+ bridge
+
+  def removeBridge(entityId: String): Unit = _entityBridges = _entityBridges filterNot(bridge => bridge.entitySpecifications.id == entityId)
+
+  def requireStateUpdate(implicit context: ExecutionContext): Future[Done] = serializeFutures(scala.util.Random.shuffle(_entityBridges))(e => e.computeNewState) map(_ => new Done())
+
+  def requireInfoUpdate(implicit context: ExecutionContext): Future[Done] = Future.traverse(_entityBridges)(e => e.requireInfo) map (_ => new Done())
+
+  private def serializeFutures[A, B](l: Iterable[A])(fn: A ⇒ Future[B])
+                                    (implicit context: ExecutionContext): Future[List[B]] =
     l.foldLeft(Future(List.empty[B])) {
       (previousFuture, next) =>
         for {

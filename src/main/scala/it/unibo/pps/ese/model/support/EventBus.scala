@@ -1,5 +1,8 @@
 package it.unibo.pps.ese.model.support
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
 sealed trait EventBus {
   def send(event: Event): Unit
   def attach(e: Consumer): Unit
@@ -14,7 +17,7 @@ object EventBus {
 
     override def send(event: Event): Unit = {
       consumersRegistry foreach { f =>
-        f(event)
+        Future {f(event)}
       }
     }
 
