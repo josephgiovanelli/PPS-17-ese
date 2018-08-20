@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genetics.generators
 
-import it.unibo.pps.ese.genetics.dnaexpression.DnaTranslator.DnaTranslatorImpl
 import it.unibo.pps.ese.genetics.Utilities.seqOfElement
 import it.unibo.pps.ese.genetics.dna._
 import it.unibo.pps.ese.genetics.dnaexpression._
@@ -51,7 +50,7 @@ object SpeciesUtilities{
         GeneFeatures(geneData.geneSeq, geneData.name, geneData.geneFeatures, allelicBehaviours)
       })
 
-      val dnaTranslator: DnaTranslator = new DnaTranslatorImpl(geneFeatures)
+      val dnaTranslator: DnaTranslator = DnaTranslator(geneFeatures)
 
       val speciesGenerator: SpeciesGenerator = new SpeciesGenerator(
         commonChromosomeGenes = List(animalData.reign, speciesNameToGene(animalData.name)),
