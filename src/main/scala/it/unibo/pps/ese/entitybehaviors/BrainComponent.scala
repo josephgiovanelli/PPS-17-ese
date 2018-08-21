@@ -73,6 +73,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   private def nextMove(speed: Int): Point = {
 
+    val start = System.currentTimeMillis()
+
     val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y))
     decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
     val preys = decisionSupport.discoverPreys(me)
@@ -93,6 +95,9 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       if (new Random().nextBoolean()) position = Point(position.x + speed, position.y)
       else position = Point(position.x, position.y + speed)
     }
+
+    val stop = System.currentTimeMillis()
+    println(stop - start)
 
 //    if (new Random().nextBoolean()) position = Point(position.x + speed, position.y)
 //          else position = Point(position.x, position.y + speed)

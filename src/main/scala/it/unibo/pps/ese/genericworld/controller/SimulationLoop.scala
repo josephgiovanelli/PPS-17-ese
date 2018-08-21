@@ -34,7 +34,14 @@ object SimulationLoop {
               //c <- model.requireInfoUpdate
             } yield b
 
-          Await.result(ret, period)
+          try {
+            Await.result(ret, period)
+          } catch {
+            case e: Exception => {
+              println("ciao")
+              println(e printStackTrace())
+            }
+          }
         }
       }
       timer.schedule(task, 0, period.toMillis)

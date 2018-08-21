@@ -11,6 +11,7 @@ import enumeratum._
     case object Life extends QualityType
     case object EnergyRequirements extends QualityType
     case object Height extends QualityType
+    case object Strength extends QualityType
     case object ResistenceToAttack extends QualityType
     case object NutritionalValue extends QualityType
     case object Fertility extends QualityType

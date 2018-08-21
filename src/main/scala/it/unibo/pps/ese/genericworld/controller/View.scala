@@ -13,7 +13,7 @@ class View {
 
   def render(entities: Seq[EntityState]): Unit = {
     Future {
-      entities foreach(e => println("Frame: " + frame + ", Id: " + e.entityId + ", Speed: " + e.state.position))
+      entities foreach(e => println("Frame: " + frame + ", Id: " + e.entityId + ", Speed: " + e.state.nutritiveValue))
       frame += 1
     }
   }
