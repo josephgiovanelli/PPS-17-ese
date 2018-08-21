@@ -1,4 +1,6 @@
 # PPS-17-ese
+[![Build Status](https://travis-ci.com/KaikiKM/PPS-17-ese.svg?token=oWAmD57ERLq49pfkA9og&branch=master)](https://travis-ci.com/KaikiKM/PPS-17-ese)
+
 Il progetto consiste in un motore di simulazione evoluzionistico,con le seguenti caratteristiche:
 
 * All'apertura l'utente potrà creare diverse specie con diverse caratteristiche fisiche ed un insieme di geni possibili che andranno a modificare le caratteristiche dei diversi individui.
