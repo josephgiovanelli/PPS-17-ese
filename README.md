@@ -25,7 +25,7 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](https://www.scala-sbt.org/) - The build tool used
+* [SBT](https://www.scala-sbt.org/) - The build tool used
 
 
 
