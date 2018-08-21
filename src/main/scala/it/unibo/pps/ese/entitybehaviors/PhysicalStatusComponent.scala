@@ -12,7 +12,8 @@ case class PhysicalStatusInfo(averageLife: Int,
                                endChildPhase: Int,
                                endAdultPhase: Int,
                                percentageDecay: Double,
-                               speed: Int
+                               speed: Int,
+                               fertility: Int
                              ) extends BaseEvent
 
 case class PhysicalStatusComponent(override val entitySpecifications: EntitySpecifications,
@@ -22,7 +23,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
                                    endChildPhase: Int,
                                    endAdultPhase: Int,
                                    percentageDecay: Double,
-                                   speed: Int
+                                   speed: Int,
+                                   fertility: Int
                                   ) extends WriterComponent(entitySpecifications)  {
 
   val MAX_ENERGY = 100
@@ -60,7 +62,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         currentEnergy += states.head.state.nutritiveValue
         if(currentEnergy > MAX_ENERGY) currentEnergy = MAX_ENERGY
       case GetInfo() =>
-        publish(PhysicalStatusInfo(averageLife, energyRequirements, nutritiveValue, endChildPhase, endAdultPhase, percentageDecay, speed))
+        publish(PhysicalStatusInfo(averageLife, energyRequirements, nutritiveValue, endChildPhase, endAdultPhase, percentageDecay, speed, fertility))
         publish(new GetInfoResponse)
       case _ => Unit
     }

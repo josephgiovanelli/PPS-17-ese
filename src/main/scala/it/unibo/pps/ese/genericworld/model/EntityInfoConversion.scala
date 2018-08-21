@@ -20,6 +20,7 @@ object EntityInfoConversion {
     def defense : Int = obj.selectDynamic("defense").asInstanceOf[Int]
     def actionField : Int = obj.selectDynamic("actionField").asInstanceOf[Int]
     def visualField : Int = obj.selectDynamic("visualField").asInstanceOf[Int]
+    def attractiveness : Int = obj.selectDynamic("attractiveness").asInstanceOf[Int]
   }
 
   implicit class PhysicalStatusConversions(obj: EntityInfo) {
@@ -30,5 +31,6 @@ object EntityInfoConversion {
     def endAdultPhase : Int = obj.selectDynamic("endAdultPhase").asInstanceOf[Int]
     def percentageDecay : Double = obj.selectDynamic("percentageDecay").asInstanceOf[Double]
     def speed : Int = obj.selectDynamic("speed").asInstanceOf[Int]
+    def fertility: Int = obj.selectDynamic("fertility").asInstanceOf[Int]
   }
 }

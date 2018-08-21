@@ -26,6 +26,7 @@ object PrologDecisionSupport {
     val fileContents: String = Source.fromFile(filename).getLines.reduce((line1, line2) => line1 + "\n" + line2)
     mkPrologTheory(fileContents)
     modifyDynamicKnowledge("setAttackThreshold(" + worldRules.attackThreshold + ")")
+    modifyDynamicKnowledge("setAttractivenessThreshold(" + worldRules.couplingThreshold + ")")
     modifyDynamicKnowledge("setHeightThresholds(" + worldRules.heightThresholds._1 + "," + worldRules.heightThresholds._2 + ")")
     worldRules.compatibleHuntingKinds foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleHuntingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
     worldRules.compatibleCouplingKinds foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleCouplingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))

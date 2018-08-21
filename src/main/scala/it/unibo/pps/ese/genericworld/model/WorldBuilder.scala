@@ -20,7 +20,7 @@ object WorldBuilder {
   def buildWorldFromSimulationData(simulationConfigPath: String, height: Int, width: Int): World = {
 
     StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(3, (0, 5), Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(3, (0, 5), 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
       Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
     StaticRules.instance().setRules(worldRules)
 
@@ -56,9 +56,10 @@ object WorldBuilder {
       animalInfo.animalQualities(Height).qualityValue.toInt,
       animalInfo.animalQualities(Strength).qualityValue.toInt,
       animalInfo.animalQualities(ResistenceToAttack).qualityValue.toInt,
-      animalInfo.dietType.dietName,
+      animalInfo.dietType,
       animalInfo.animalQualities(RangeOfAction).qualityValue.toInt,
-      animalInfo.animalQualities(FieldOfView).qualityValue.toInt)
+      animalInfo.animalQualities(FieldOfView).qualityValue.toInt,
+      animalInfo.animalQualities(Attractiveness).qualityValue.toInt)
   }
 
   private def initializePhysicalComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
@@ -70,7 +71,8 @@ object WorldBuilder {
       animalInfo.animalQualities(Maturity).qualityValue.toInt,
       animalInfo.animalQualities(Oldness).qualityValue.toInt,
       animalInfo.animalQualities(Decline).qualityValue,
-      animalInfo.animalQualities(Speed).qualityValue.toInt)
+      animalInfo.animalQualities(Speed).qualityValue.toInt,
+      animalInfo.animalQualities(Fertility).qualityValue.toInt)
   }
 
   private def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {

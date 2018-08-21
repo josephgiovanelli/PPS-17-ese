@@ -11,6 +11,8 @@ trait WorldTypes {
   type HeightMeasure
   type AttackMeasure
   type PositionMeasure <: Int
+  type AttractivenessMeasure
+  type Sex
 
   type EntityAttributes <: {
     def name: Name
@@ -19,6 +21,8 @@ trait WorldTypes {
     def strong: AttackMeasure
     def defense: AttackMeasure
     def position: GeneralPosition[PositionMeasure]
+    def attractiveness: AttractivenessMeasure
+    def sex: Sex
   }
 
   type EntityChoice <: {
@@ -40,6 +44,8 @@ trait WorldTypesImpl extends WorldTypes {
   type HeightMeasure = Int
   type AttackMeasure = Int
   type PositionMeasure = Int
+  type AttractivenessMeasure = Int
+  type Sex = SexTypes.Value
 
   type EntityAttributes = EntityAttributesImpl
   type EntityChoice = EntityChoiceImpl
@@ -47,6 +53,10 @@ trait WorldTypesImpl extends WorldTypes {
 
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
+}
+
+object SexTypes extends Enumeration {
+  val male, female = Value
 }
 
 object EntityKinds extends Enumeration {
@@ -66,13 +76,13 @@ case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: Positi
 
 
 object EntityAttributesImpl {
-  def apply(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int]): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position)
+  def apply(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int], attractiveness: Int, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position, attractiveness, sex)
 
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
 
-  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, var position: GeneralPosition[Int]){
-    override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "])"
+  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, var position: GeneralPosition[Int], attractiveness: Int, sex: SexTypes.Value){
+    override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "], " + attractiveness + ", " + sex + ")"
   }
 
 }
@@ -80,11 +90,11 @@ object EntityAttributesImpl {
 case class EntityChoiceImpl(name: String, distance: Int)
 
 object WorldRulesImpl {
-  def apply(attackThreshold: Int, heightThresholds: (Int, Int), compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, compatibleHuntingKinds, compatibleCouplingKinds)
+  def apply(attackThreshold: Int, heightThresholds: (Int, Int), couplingThreshold: Int, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, couplingThreshold, compatibleHuntingKinds, compatibleCouplingKinds)
   implicit def stringToEntityKinds(string: String): EntityKinds.Value = EntityKinds(Symbol(string))
   implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
   implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
-  case class WorldRulesImpl(attackThreshold: Int, heightThresholds: (Int, Int), compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)])
+  case class WorldRulesImpl(attackThreshold: Int, heightThresholds: (Int, Int), couplingThreshold: Int, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)])
 }
 

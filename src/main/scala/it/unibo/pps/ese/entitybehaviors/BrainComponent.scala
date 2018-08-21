@@ -3,7 +3,7 @@ package it.unibo.pps.ese.entitybehaviors
 import java.util.Random
 
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.{DecisionSupport, EntityAttributesImpl, EntityChoiceImpl, EntityKinds}
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.utils.Point
@@ -14,7 +14,8 @@ case class BrainInfo(position: Point,
                      defense: Int,
                      kind: String,
                      actionField: Int,
-                     visualField: Int) extends BaseEvent
+                     visualField: Int,
+                     attractiveness: Int) extends BaseEvent
 case class EntityPosition(position: Point) extends BaseEvent
 case class EatEntity(entityId: String) extends BaseEvent
 case class RequireSpeed() extends BaseEvent
@@ -27,7 +28,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
                           defense: Int,
                           kind: String,
                           actionField: Int,
-                          visualField: Int
+                          visualField: Int,
+                          attractiveness: Int
                          ) extends WriterComponent(entitySpecifications)  {
 
   val decisionSupport: DecisionSupport = DecisionSupport()
@@ -46,13 +48,13 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         publish(RequireEntitiesState(entitySpecifications id, x => distanceBetween(x.state.position, position) <= visualField))
       case EntitiesStateResponse(id, state) if id == entitySpecifications.id =>
         entityInVisualField = Map.empty
-        state map (x => EntityAttributesImpl(x.entityId, x.state.kind, x.state.height, x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y))) foreach (x => entityInVisualField += (x.name -> x))
+        state map (x => EntityAttributesImpl(x.entityId, x.state.kind, x.state.height, x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y), x.state.attractiveness, SexTypes.male)) foreach (x => entityInVisualField += (x.name -> x))
         publish(new RequireSpeed)
       case RequireSpeedResponse(speed) =>
         publish(EntityPosition(nextMove(speed)))
         publish(new ComputeNextStateResponse)
       case GetInfo() =>
-        publish(BrainInfo(position, height, strong, defense, kind, actionField, visualField))
+        publish(BrainInfo(position, height, strong, defense, kind, actionField, visualField, attractiveness))
         publish(new GetInfoResponse)
       case _ => Unit
     }
@@ -75,7 +77,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
     val start = System.currentTimeMillis()
 
-    val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y))
+    val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.male)
     decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
     val preys = decisionSupport.discoverPreys(me)
     if (preys.nonEmpty) {

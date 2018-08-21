@@ -2,7 +2,7 @@ package it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation
 
 import it.unibo.pps.ese.entitybehaviors.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.{DecisionSupport, EntityChoiceImpl, EntityKinds}
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.{DecisionSupport, EntityChoiceImpl, EntityKinds, SexTypes}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 import org.scalatest.FunSuite
 
@@ -11,13 +11,13 @@ class PrologDecisionSupportTest extends FunSuite {
   StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
 
   StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
-  val worldRules: WorldRulesImpl = WorldRulesImpl(3, (0, 5), Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
+  val worldRules: WorldRulesImpl = WorldRulesImpl(3, (0, 5), 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
   StaticRules.instance().setRules(worldRules)
 
-  val prey1 = EntityAttributesImpl("1", EntityKinds('herbivore), 6, 6, 6, (6, 6))
-  val prey2 = EntityAttributesImpl("2", EntityKinds('herbivore), 6, 6, 6, (2, 1))
-  val hunter = EntityAttributesImpl("3", EntityKinds('carnivorous), 10, 10, 10, (3, 3))
+  val prey1 = EntityAttributesImpl("1", EntityKinds('herbivore), 6, 6, 6, (6, 6), 5, SexTypes.male)
+  val prey2 = EntityAttributesImpl("2", EntityKinds('herbivore), 6, 6, 6, (2, 1), 5, SexTypes.female)
+  val hunter = EntityAttributesImpl("3", EntityKinds('carnivorous), 10, 10, 10, (3, 3), 5, SexTypes.male)
   val decisionSupport: DecisionSupport = PrologDecisionSupport()
   decisionSupport.createVisualField(Seq(prey2, hunter))
   val firstTest: Stream[EntityChoiceImpl] = decisionSupport.discoverPreys(hunter)
