@@ -15,11 +15,13 @@ case class BrainInfo(position: Point,
                      kind: String,
                      actionField: Int,
                      visualField: Int,
-                     attractiveness: Int) extends BaseEvent
+                     attractiveness: Int,
+                     gender: String
+                    ) extends BaseEvent
 case class EntityPosition(position: Point) extends BaseEvent
 case class EatEntity(entityId: String) extends BaseEvent
-case class RequireSpeed() extends BaseEvent
-case class RequireSpeedResponse(speed: Int) extends BaseEvent
+case class RequireDynamicParameters() extends BaseEvent
+case class RequireDynamicParametersResponse(speed: Int, energy: Int, fertility: Int) extends BaseEvent
 
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           var position: Point,
@@ -29,8 +31,14 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
                           kind: String,
                           actionField: Int,
                           visualField: Int,
-                          attractiveness: Int
+                          attractiveness: Int,
+                          gender: String
                          ) extends WriterComponent(entitySpecifications)  {
+
+  val ENERGY_THRESHOLD = 60
+  val MIN_PREYS_FOR_COUPLING = 3
+  val FERTILITY_THRESHOLD = 20
+
 
   val decisionSupport: DecisionSupport = DecisionSupport()
 
@@ -48,13 +56,13 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         publish(RequireEntitiesState(entitySpecifications id, x => distanceBetween(x.state.position, position) <= visualField))
       case EntitiesStateResponse(id, state) if id == entitySpecifications.id =>
         entityInVisualField = Map.empty
-        state map (x => EntityAttributesImpl(x.entityId, x.state.kind, x.state.height, x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y), x.state.attractiveness, SexTypes.male)) foreach (x => entityInVisualField += (x.name -> x))
-        publish(new RequireSpeed)
-      case RequireSpeedResponse(speed) =>
-        publish(EntityPosition(nextMove(speed)))
+        state map (x => EntityAttributesImpl(x.entityId, x.state.kind, x.state.height, x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y), x.state.attractiveness, x.state.gender)) foreach (x => entityInVisualField += (x.name -> x))
+        publish(new RequireDynamicParameters)
+      case RequireDynamicParametersResponse(speed, energy, fertility) =>
+        publish(EntityPosition(nextMove(speed, energy, fertility)))
         publish(new ComputeNextStateResponse)
       case GetInfo() =>
-        publish(BrainInfo(position, height, strong, defense, kind, actionField, visualField, attractiveness))
+        publish(BrainInfo(position, height, strong, defense, kind, actionField, visualField, attractiveness, gender))
         publish(new GetInfoResponse)
       case _ => Unit
     }
@@ -69,19 +77,24 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       EntityProperty("defense", ev defense),
       EntityProperty("kind", ev kind),
       EntityProperty("actionField", ev actionField),
-      EntityProperty("visualField", ev visualField)
+      EntityProperty("visualField", ev visualField),
+      EntityProperty("attractiveness", ev attractiveness),
+      EntityProperty("gender", ev gender)
     )))
   }
 
-  private def nextMove(speed: Int): Point = {
+  private def nextMove(speed: Int, energy: Int, fertility: Int): Point = {
 
     val start = System.currentTimeMillis()
 
-    val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.male)
+    val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.withNameOpt(gender).get)
     decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
+    val partners = decisionSupport.discoverPartners(me)
     val preys = decisionSupport.discoverPreys(me)
-    if (preys.nonEmpty) {
-      val entityChoice = preys.min(Ordering.by((_:EntityChoiceImpl).distance))
+    var targets: Stream[EntityChoiceImpl] = preys
+    if (energy > ENERGY_THRESHOLD && preys.size > MIN_PREYS_FOR_COUPLING && fertility > FERTILITY_THRESHOLD) targets = partners
+    if (targets.nonEmpty) {
+      val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
       val entityAttribute = entityInVisualField(entityChoice.name)
 
       if (entityChoice.distance < actionField) {

@@ -140,8 +140,8 @@ nextMove(+X, +Y, -Move) :-
 return the next move of the path from PosX to PosY.
 */
 nextMove(X, Y, NewX, NewY) :-
-	entity(X, KindX, HeightX, StrongX, DefenseX, PosX),
-	entity(Y, KindY, HeightY, StrongY, DefenseY, PosY),
+	entity(X, KindX, HeightX, StrongX, DefenseX, PosX, AttractivenessX, SexX),
+	entity(Y, KindY, HeightY, StrongY, DefenseY, PosY, AttractivenessY, SexY),
 	path(PosX, PosY, PathDirection, [[NewX, NewY] | OtherMoves]).
 
 /*

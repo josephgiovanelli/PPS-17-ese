@@ -53,8 +53,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         elapsedClocks += 1
         if (elapsedClocks == YEAR_TO_CLOCK) yearCallback()
         publish(new ComputeNextStateResponse)
-      case RequireSpeed() =>
-        publish(RequireSpeedResponse(speed))
+      case RequireDynamicParameters() =>
+        publish(RequireDynamicParametersResponse(speed, currentEnergy, fertility))
       case EatEntity(entityId) =>
         publish(RequireEntitiesState(entitySpecifications id, x => x.entityId == entityId))
       case EntitiesStateResponse(id, states) if id == entitySpecifications.id =>
@@ -76,7 +76,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
       EntityProperty("endChildPhase", ev endChildPhase),
       EntityProperty("endAdultPhase", ev endAdultPhase),
       EntityProperty("percentageDecay", ev percentageDecay),
-      EntityProperty("speed", ev speed)
+      EntityProperty("speed", ev speed),
+      EntityProperty("fertility", ev fertility)
     )))
   }
 

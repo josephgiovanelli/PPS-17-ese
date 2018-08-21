@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityKinds, SexTypes}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds.EntityKinds
 import it.unibo.pps.ese.utils.Point
 
@@ -21,6 +21,7 @@ object EntityInfoConversion {
     def actionField : Int = obj.selectDynamic("actionField").asInstanceOf[Int]
     def visualField : Int = obj.selectDynamic("visualField").asInstanceOf[Int]
     def attractiveness : Int = obj.selectDynamic("attractiveness").asInstanceOf[Int]
+    def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("attractiveness").asInstanceOf[String]).get
   }
 
   implicit class PhysicalStatusConversions(obj: EntityInfo) {

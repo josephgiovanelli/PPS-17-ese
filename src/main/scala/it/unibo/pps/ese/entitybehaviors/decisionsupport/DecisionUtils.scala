@@ -57,6 +57,8 @@ trait WorldTypesImpl extends WorldTypes {
 
 object SexTypes extends Enumeration {
   val male, female = Value
+
+  def withNameOpt(s: String): Option[Value] = values.find(_.toString == s)
 }
 
 object EntityKinds extends Enumeration {

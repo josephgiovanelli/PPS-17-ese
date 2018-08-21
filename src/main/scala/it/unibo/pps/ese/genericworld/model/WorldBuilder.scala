@@ -59,7 +59,8 @@ object WorldBuilder {
       animalInfo.dietType,
       animalInfo.animalQualities(RangeOfAction).qualityValue.toInt,
       animalInfo.animalQualities(FieldOfView).qualityValue.toInt,
-      animalInfo.animalQualities(Attractiveness).qualityValue.toInt)
+      animalInfo.animalQualities(Attractiveness).qualityValue.toInt,
+      animalInfo.gender.toString.toLowerCase)
   }
 
   private def initializePhysicalComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
