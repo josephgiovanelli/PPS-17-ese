@@ -30,7 +30,6 @@ class TestLoadingSimulation extends FunSuite{
     val qualities = gatto.animalQualities
 
     if(gatto.gender == Male){
-      assert(!(qualities contains Fertility))
       assert(!(qualities contains Fecundity))
     }else{
       assert(qualities contains Fertility)

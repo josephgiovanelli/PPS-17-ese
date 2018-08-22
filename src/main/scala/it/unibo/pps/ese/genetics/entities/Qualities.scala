@@ -21,6 +21,8 @@ import enumeratum._
     case object Maturity extends QualityType
     case object Oldness extends QualityType
     case object Decline extends QualityType
+    def maleSexualQualities:Seq[QualityType] = List(Fertility)
+    def femaleSexualQualities:Seq[QualityType] = List(Fertility,Fecundity)
   }
 
 

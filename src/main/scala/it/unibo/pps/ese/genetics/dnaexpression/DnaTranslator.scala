@@ -4,7 +4,8 @@ import it.unibo.pps.ese.genetics._
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.genetics.dna._
-import it.unibo.pps.ese.genetics.entities.{Carnivorous, Female, Herbivore, Male}
+import it.unibo.pps.ese.genetics.entities.QualityType.Fertility
+import it.unibo.pps.ese.genetics.entities._
 sealed trait DnaTranslator {
   def getQualitiesByGenome(animalGenome: AnimalGenome):AnimalFeature
 }
@@ -55,19 +56,28 @@ object DnaTranslator{
           val chosenChromosome = Utilities.pickRandomElement(scc.firstChromosome,scc.secondChromosome)
           iterateSexualGeneList(chosenChromosome.geneList,af)
 
-        case Male => af.gender_(Male);af
+        case Male =>
+          af.gender_(Male)
+          val chosenChromosome = if(scc.firstChromosome.sexualChromosome==X) scc.firstChromosome else scc.secondChromosome
+          iterateSexualGeneList(chosenChromosome.geneList,af)
       }
 
       def iterateSexualGeneList(gList:Seq[MGene], af:AnimalFeature):AnimalFeature ={
         gList.foreach(h=>{
           val allConversionMap: Seq[ConversionMap] = conversionMapsFromGene(h)
-          val ab=findAlleleBehaviour(h)
-          ExpressionLogic(ChromosomeType.SEXUAL_X).expressBehavior(
-            allConversionMap,
-            ab,
-            ab,
-            af
-          )
+          val filter:QualityType=>Boolean = af.gender match {
+            case Male=> QualityType.maleSexualQualities.contains(_)
+            case Female=> QualityType.femaleSexualQualities.contains(_)
+          }
+          if(allConversionMap.map(_.qualityAffected).exists(filter)){
+            val ab:AllelicBehaviour=findAlleleBehaviour(h)
+            ExpressionLogic(ChromosomeType.SEXUAL_X).expressBehavior(
+              allConversionMap,
+              ab,
+              ab,
+              af
+            )
+          }
         })
         af
       }
@@ -88,8 +98,16 @@ object DnaTranslator{
       }
 
       def conversionMapsFromGene(gene: MGene):Seq[ConversionMap] = {
-        findGeneFeatures(gene).flatMap(_.conversionMaps)
+//        val filter:ConversionMap=>Boolean = gender match {
+//          case Some(Female) =>(q)=>QualityType.femaleSexualQualities.contains(q.qualityAffected)
+//          case Some(Male) => (q)=>QualityType.maleSexualQualities.contains(q.qualityAffected)
+//          case None => (_)=>true
+//         }
+        findGeneFeatures(gene)
+          .flatMap(_.conversionMaps)
+//          .filter(filter(_))
       }
+
       def alleleBehaviourCouple(gene: MGene, animalGenome: AnimalGenome):(AllelicBehaviour,AllelicBehaviour) = {
         val ab1:AllelicBehaviour = findAlleleBehaviour(gene)
         val ab2:AllelicBehaviour = findAlleleBehaviour(findRespectiveGene(gene,animalGenome))

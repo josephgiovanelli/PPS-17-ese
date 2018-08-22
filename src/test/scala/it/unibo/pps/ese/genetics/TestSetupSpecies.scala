@@ -112,7 +112,6 @@ class TestSetupSpecies extends FunSuite{
     val animalFeature:AnimalInfo = speciesSetup.translateGenome(animalGenome)
     println(animalFeature)
     if(animalFeature.gender == Male){
-      assert(!(animalFeature.animalQualities contains Fertility))
       assert(!(animalFeature.animalQualities contains Fecundity))
     }else{
       assert(animalFeature.animalQualities contains Fertility)
