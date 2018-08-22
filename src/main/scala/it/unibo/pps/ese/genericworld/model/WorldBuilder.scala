@@ -55,13 +55,13 @@ object WorldBuilder {
       100,
       100,
       position,
-      animalInfo.animalQualities(Height).qualityValue.toInt,
-      animalInfo.animalQualities(Strength).qualityValue.toInt,
-      animalInfo.animalQualities(ResistenceToAttack).qualityValue.toInt,
+      animalInfo.animalQualities(Height).qualityValue,
+      animalInfo.animalQualities(Strength).qualityValue,
+      animalInfo.animalQualities(ResistenceToAttack).qualityValue,
       animalInfo.dietType,
-      animalInfo.animalQualities(RangeOfAction).qualityValue.toInt,
-      animalInfo.animalQualities(FieldOfView).qualityValue.toInt,
-      animalInfo.animalQualities(Attractiveness).qualityValue.toInt,
+      animalInfo.animalQualities(RangeOfAction).qualityValue,
+      animalInfo.animalQualities(FieldOfView).qualityValue,
+      animalInfo.animalQualities(Attractiveness).qualityValue,
       animalInfo.gender.toString.toLowerCase)
   }
 
@@ -69,13 +69,13 @@ object WorldBuilder {
     PhysicalStatusComponent(
       entity specifications,
       animalInfo.animalQualities(Life).qualityValue.toInt,
-      animalInfo.animalQualities(EnergyRequirements).qualityValue.toInt,
-      animalInfo.animalQualities(NutritionalValue).qualityValue.toInt,
-      animalInfo.animalQualities(Maturity).qualityValue.toInt,
-      animalInfo.animalQualities(Oldness).qualityValue.toInt,
+      animalInfo.animalQualities(EnergyRequirements).qualityValue,
+      animalInfo.animalQualities(NutritionalValue).qualityValue,
+      animalInfo.animalQualities(Maturity).qualityValue,
+      animalInfo.animalQualities(Oldness).qualityValue,
       animalInfo.animalQualities(Decline).qualityValue,
-      animalInfo.animalQualities(Speed).qualityValue.toInt,
-      animalInfo.animalQualities(Fertility).qualityValue.toInt)
+      animalInfo.animalQualities(Speed).qualityValue,
+      animalInfo.animalQualities(Fertility).qualityValue)
   }
 
   private def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {

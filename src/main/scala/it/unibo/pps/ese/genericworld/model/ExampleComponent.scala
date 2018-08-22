@@ -19,7 +19,7 @@ class ExampleComponent(override val entitySpecifications: EntitySpecifications) 
       val myState : Option[EntityInfo] = state find (s => s.entityId == entitySpecifications.id) map (s => s state)
       if (myState isDefined) {
         import EntityInfoConversion._
-        val a : Int = (myState get).speed
+        val a : Double = (myState get).speed
         println("speed : " + a)
       }
     case ComputeNextState() =>

@@ -15,23 +15,23 @@ object EntityInfoConversion {
   implicit class BrainComponentConversions(obj: EntityInfo) {
     def position : Point = obj.selectDynamic("position").asInstanceOf[Point]
     def kind : EntityKinds = EntityKinds(Symbol(obj.selectDynamic("kind").asInstanceOf[String]))
-    def height : Int = obj.selectDynamic("height").asInstanceOf[Int]
-    def strong : Int = obj.selectDynamic("strong").asInstanceOf[Int]
-    def defense : Int = obj.selectDynamic("defense").asInstanceOf[Int]
-    def actionField : Int = obj.selectDynamic("actionField").asInstanceOf[Int]
-    def visualField : Int = obj.selectDynamic("visualField").asInstanceOf[Int]
-    def attractiveness : Int = obj.selectDynamic("attractiveness").asInstanceOf[Int]
+    def height : Double = obj.selectDynamic("height").asInstanceOf[Double]
+    def strong : Double = obj.selectDynamic("strong").asInstanceOf[Double]
+    def defense : Double = obj.selectDynamic("defense").asInstanceOf[Double]
+    def actionField : Double = obj.selectDynamic("actionField").asInstanceOf[Double]
+    def visualField : Double = obj.selectDynamic("visualField").asInstanceOf[Double]
+    def attractiveness : Double = obj.selectDynamic("attractiveness").asInstanceOf[Double]
     def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("attractiveness").asInstanceOf[String]).get
   }
 
   implicit class PhysicalStatusConversions(obj: EntityInfo) {
-    def averageLife : Int = obj.selectDynamic("averageLife").asInstanceOf[Int]
-    def energyRequirements : Int = obj.selectDynamic("energyRequirements").asInstanceOf[Int]
-    def nutritiveValue : Int = obj.selectDynamic("nutritiveValue").asInstanceOf[Int]
-    def endChildPhase : Int = obj.selectDynamic("endChildPhase").asInstanceOf[Int]
-    def endAdultPhase : Int = obj.selectDynamic("endAdultPhase").asInstanceOf[Int]
+    def averageLife : Double = obj.selectDynamic("averageLife").asInstanceOf[Double]
+    def energyRequirements : Double = obj.selectDynamic("energyRequirements").asInstanceOf[Double]
+    def nutritiveValue : Double = obj.selectDynamic("nutritiveValue").asInstanceOf[Double]
+    def endChildPhase : Double = obj.selectDynamic("endChildPhase").asInstanceOf[Double]
+    def endAdultPhase : Double = obj.selectDynamic("endAdultPhase").asInstanceOf[Double]
     def percentageDecay : Double = obj.selectDynamic("percentageDecay").asInstanceOf[Double]
-    def speed : Int = obj.selectDynamic("speed").asInstanceOf[Int]
-    def fertility: Int = obj.selectDynamic("fertility").asInstanceOf[Int]
+    def speed : Double = obj.selectDynamic("speed").asInstanceOf[Double]
+    def fertility: Double = obj.selectDynamic("fertility").asInstanceOf[Double]
   }
 }

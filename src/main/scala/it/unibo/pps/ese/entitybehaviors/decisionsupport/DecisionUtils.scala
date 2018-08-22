@@ -41,10 +41,10 @@ trait WorldTypes {
 trait WorldTypesImpl extends WorldTypes {
   type Name = String
   type Kind = EntityKinds.Value
-  type HeightMeasure = Int
-  type AttackMeasure = Int
+  type HeightMeasure = Double
+  type AttackMeasure = Double
   type PositionMeasure = Int
-  type AttractivenessMeasure = Int
+  type AttractivenessMeasure = Double
   type Sex = SexTypes.Value
 
   type EntityAttributes = EntityAttributesImpl
@@ -78,12 +78,12 @@ case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: Positi
 
 
 object EntityAttributesImpl {
-  def apply(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, position: GeneralPosition[Int], attractiveness: Int, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position, attractiveness, sex)
+  def apply(name: String, kind: EntityKinds.Value, height: Double, strong: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position, attractiveness, sex)
 
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
 
-  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Int, strong: Int, defense: Int, var position: GeneralPosition[Int], attractiveness: Int, sex: SexTypes.Value){
+  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Double, strong: Double, defense: Double, var position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value){
     override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "], " + attractiveness + ", " + sex + ")"
   }
 
@@ -92,11 +92,11 @@ object EntityAttributesImpl {
 case class EntityChoiceImpl(name: String, distance: Int)
 
 object WorldRulesImpl {
-  def apply(attackThreshold: Int, heightThresholds: (Int, Int), couplingThreshold: Int, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, couplingThreshold, compatibleHuntingKinds, compatibleCouplingKinds)
+  def apply(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, couplingThreshold, compatibleHuntingKinds, compatibleCouplingKinds)
   implicit def stringToEntityKinds(string: String): EntityKinds.Value = EntityKinds(Symbol(string))
   implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
   implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
-  case class WorldRulesImpl(attackThreshold: Int, heightThresholds: (Int, Int), couplingThreshold: Int, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)])
+  case class WorldRulesImpl(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)])
 }
 

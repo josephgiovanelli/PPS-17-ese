@@ -9,31 +9,31 @@ import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.utils.Point
 
 case class BrainInfo(position: Point,
-                     height: Int,
-                     strong: Int,
-                     defense: Int,
+                     height: Double,
+                     strong: Double,
+                     defense: Double,
                      kind: String,
-                     actionField: Int,
-                     visualField: Int,
-                     attractiveness: Int,
+                     actionField: Double,
+                     visualField: Double,
+                     attractiveness: Double,
                      gender: String
                     ) extends BaseEvent
 case class EntityPosition(position: Point) extends BaseEvent
 case class EatEntity(entityId: String) extends BaseEvent
 case class RequireDynamicParameters() extends BaseEvent
-case class RequireDynamicParametersResponse(speed: Int, energy: Int, fertility: Int) extends BaseEvent
+case class RequireDynamicParametersResponse(speed: Double, energy: Double, fertility: Double) extends BaseEvent
 
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
                           widthWorld: Int,
                           var position: Point,
-                          height: Int,
-                          strong: Int,
-                          defense: Int,
+                          height: Double,
+                          strong: Double,
+                          defense: Double,
                           kind: String,
-                          actionField: Int,
-                          visualField: Int,
-                          attractiveness: Int,
+                          actionField: Double,
+                          visualField: Double,
+                          attractiveness: Double,
                           gender: String
                          ) extends WriterComponent(entitySpecifications)  {
 
@@ -99,10 +99,10 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     )))
   }
 
-  private def nextMove(speed: Int, energy: Int, fertility: Int): Point = {
+  private def nextMove(speed: Double, energy: Double, fertility: Double): Point = {
 
     val start = System.currentTimeMillis()
-
+    val floorSpeed = speed.toInt
     val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.withNameOpt(gender).get)
     decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
     val partners = decisionSupport.discoverPartners(me)
@@ -117,7 +117,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         me.position = entityAttribute.position
         publish(EatEntity(entityAttribute name))
       } else {
-        (0 until speed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+        (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
       }
 
       position = Point(me.position.x, me.position.y)
@@ -125,10 +125,10 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     else {
       val direction = Direction(new Random().nextInt(Direction.values.size))
       direction match {
-        case Direction.DOWN => position = (position.x, position.y - speed)
-        case Direction.UP => position = (position.x, position.y + speed)
-        case Direction.LEFT => position = (position.x - speed, position.y)
-        case Direction.RIGHT => position = (position.x + speed, position.y)
+        case Direction.DOWN => position = (position.x, position.y - floorSpeed)
+        case Direction.UP => position = (position.x, position.y + floorSpeed)
+        case Direction.LEFT => position = (position.x - floorSpeed, position.y)
+        case Direction.RIGHT => position = (position.x + floorSpeed, position.y)
       }
     }
 

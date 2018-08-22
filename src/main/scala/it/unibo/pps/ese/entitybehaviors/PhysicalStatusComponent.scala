@@ -6,25 +6,25 @@ import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import scala.math.floor
 
 case class Dead() extends BaseEvent
-case class PhysicalStatusInfo(averageLife: Int,
-                               energyRequirements: Int,
-                               nutritiveValue: Int,
-                               endChildPhase: Int,
-                               endAdultPhase: Int,
+case class PhysicalStatusInfo(averageLife: Double,
+                               energyRequirements: Double,
+                               nutritiveValue: Double,
+                               endChildPhase: Double,
+                               endAdultPhase: Double,
                                percentageDecay: Double,
-                               speed: Int,
-                               fertility: Int
+                               speed: Double,
+                               fertility: Double
                              ) extends BaseEvent
 
 case class PhysicalStatusComponent(override val entitySpecifications: EntitySpecifications,
-                                   averageLife: Int,
-                                   energyRequirements: Int,
-                                   nutritiveValue: Int,
-                                   endChildPhase: Int,
-                                   endAdultPhase: Int,
+                                   averageLife: Double,
+                                   energyRequirements: Double,
+                                   nutritiveValue: Double,
+                                   endChildPhase: Double,
+                                   endAdultPhase: Double,
                                    percentageDecay: Double,
-                                   speed: Int,
-                                   fertility: Int
+                                   speed: Double,
+                                   fertility: Double
                                   ) extends WriterComponent(entitySpecifications)  {
 
   val MAX_ENERGY = 100
@@ -35,9 +35,9 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   }
 
   var currentYear: Int = 0
-  var currentEnergy: Int = MAX_ENERGY
+  var currentEnergy: Double = MAX_ENERGY
   var currentPhase: LifePhases.Value = LifePhases.CHILD
-  var currentSpeed: Int = speed
+  var currentSpeed: Double = speed
   var elapsedClocks: Int = 0
 
   override def initialize(): Unit = {
@@ -86,7 +86,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     currentYear += 1
     if (currentPhase == LifePhases.CHILD && currentYear > endChildPhase) currentPhase = LifePhases.ADULT
     else if (currentPhase == LifePhases.ADULT && currentYear > endAdultPhase) currentPhase = LifePhases.ELDERLY
-    else if (currentPhase == LifePhases.ELDERLY) currentSpeed = floor(speed * percentageDecay).toInt
+    else if (currentPhase == LifePhases.ELDERLY) currentSpeed = speed * percentageDecay
     if (currentYear == floor(averageLife * percentageDecay)) publish(Dead())
   }
 }
