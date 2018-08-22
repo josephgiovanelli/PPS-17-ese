@@ -52,6 +52,8 @@ object WorldBuilder {
     implicit def convertKind(dietType: DietType): String = if (dietType.dietName == "H") "herbivore" else "carnivorous"
 
     BrainComponent(entity specifications,
+      100,
+      100,
       position,
       animalInfo.animalQualities(Height).qualityValue.toInt,
       animalInfo.animalQualities(Strength).qualityValue.toInt,

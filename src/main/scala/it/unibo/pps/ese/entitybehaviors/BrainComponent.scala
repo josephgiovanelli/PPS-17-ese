@@ -24,6 +24,8 @@ case class RequireDynamicParameters() extends BaseEvent
 case class RequireDynamicParametersResponse(speed: Int, energy: Int, fertility: Int) extends BaseEvent
 
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
+                          heightWorld: Int,
+                          widthWorld: Int,
                           var position: Point,
                           height: Int,
                           strong: Int,
@@ -34,6 +36,20 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
                           attractiveness: Int,
                           gender: String
                          ) extends WriterComponent(entitySpecifications)  {
+
+
+
+  object Direction extends Enumeration {
+    val RIGHT, LEFT, UP, DOWN = Value
+  }
+
+  implicit def toPoint(tuple2: (Int, Int)): Point = {
+    def bound(i: Int, bound: Int): Int = if (i < 0) 0 else if (i > bound) bound else i
+    def boundWidth(x: Int): Int = bound(x, widthWorld)
+    def boundHeight(y: Int): Int = bound(y, heightWorld)
+    Point(boundWidth(tuple2._1), boundHeight(tuple2._2))
+  }
+
 
   val ENERGY_THRESHOLD = 60
   val MIN_PREYS_FOR_COUPLING = 3
@@ -92,7 +108,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     val partners = decisionSupport.discoverPartners(me)
     val preys = decisionSupport.discoverPreys(me)
     var targets: Stream[EntityChoiceImpl] = preys
-    if (energy > ENERGY_THRESHOLD && preys.size > MIN_PREYS_FOR_COUPLING && fertility > FERTILITY_THRESHOLD) targets = partners
+    if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) targets = partners
     if (targets.nonEmpty) {
       val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
       val entityAttribute = entityInVisualField(entityChoice.name)
@@ -107,15 +123,18 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       position = Point(me.position.x, me.position.y)
     }
     else {
-      if (new Random().nextBoolean()) position = Point(position.x + speed, position.y)
-      else position = Point(position.x, position.y + speed)
+      val direction = Direction(new Random().nextInt(Direction.values.size))
+      direction match {
+        case Direction.DOWN => position = (position.x, position.y - speed)
+        case Direction.UP => position = (position.x, position.y + speed)
+        case Direction.LEFT => position = (position.x - speed, position.y)
+        case Direction.RIGHT => position = (position.x + speed, position.y)
+      }
     }
 
     val stop = System.currentTimeMillis()
     println(stop - start)
 
-//    if (new Random().nextBoolean()) position = Point(position.x + speed, position.y)
-//          else position = Point(position.x, position.y + speed)
     decisionSupport.clearVisualField()
     position
   }
