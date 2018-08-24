@@ -46,7 +46,6 @@ object TestLauncher extends JFXApp {
     val view = View()
     stage = view
     controller attachView (view, frameRate = 30)
-
     controller.manage.play()
 //    println("Playing")
 //    Thread.sleep(1000)
@@ -62,6 +61,4 @@ object TestLauncher extends JFXApp {
 //
 //    println("Stopped")
 //    controller.exit()
-
-    while (true) {}
 }
