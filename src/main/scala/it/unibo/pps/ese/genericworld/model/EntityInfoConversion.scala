@@ -9,7 +9,7 @@ import scala.language.implicitConversions
 object EntityInfoConversion {
 
   implicit class ExampleComponentConversions(obj: EntityInfo) {
-    //def speed : Int = obj.selectDynamic("speed").asInstanceOf[Int]
+    def fakeSpeed : Int = obj.selectDynamic("fakeSpeed").asInstanceOf[Int]
   }
 
   implicit class BrainComponentConversions(obj: EntityInfo) {
@@ -21,7 +21,7 @@ object EntityInfoConversion {
     def actionField : Double = obj.selectDynamic("actionField").asInstanceOf[Double]
     def visualField : Double = obj.selectDynamic("visualField").asInstanceOf[Double]
     def attractiveness : Double = obj.selectDynamic("attractiveness").asInstanceOf[Double]
-    def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("attractiveness").asInstanceOf[String]).get
+    def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("gender").asInstanceOf[String]).get
   }
 
   implicit class PhysicalStatusConversions(obj: EntityInfo) {

@@ -38,25 +38,26 @@ object TestLauncher extends App {
 //    world addEntity entity4
 //    world addEntity entity1
 
-    val world = WorldBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 100, 100)
-    val view = new View
-    val controller = Controller(world, clockPeriod = 100 millis)
+    val world = WorldBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 1000, 1000)
+    val controller = Controller(world, clockPeriod = 32 millis)
+    val view = View(controller = controller manage)
     controller attachView (view, frameRate = 30)
 
-    controller.play()
-    println("Playing")
-    Thread.sleep(1000)
+    controller.manage.play()
+//    println("Playing")
+//    Thread.sleep(1000)
+//
+//    controller.pause()
+//    println("Paused")
+//    Thread.sleep(1000)
+//
+//    controller.play()
+//
+//    println("Playing")
+//    Thread.sleep(1000)
+//
+//    println("Stopped")
+//    controller.exit()
 
-    controller.pause()
-    println("Paused")
-    Thread.sleep(1000)
-
-    controller.play()
-
-    println("Playing")
-    Thread.sleep(1000)
-
-    println("Stopped")
-    controller.exit()
-
+    while (true) {}
 }

@@ -4,6 +4,9 @@ import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 
 import scala.math.floor
+import scala.util.{Failure, Success}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Dead() extends BaseEvent
 case class PhysicalStatusInfo(averageLife: Double,
@@ -52,18 +55,21 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         if (currentEnergy <= 0) publish(Dead())
         elapsedClocks += 1
         if (elapsedClocks == YEAR_TO_CLOCK) yearCallback()
-        publish(new ComputeNextStateResponse)
-      case RequireDynamicParameters() =>
-        publish(RequireDynamicParametersResponse(speed, currentEnergy, fertility))
+        publish(new ComputeNextStateAck)
+      case r: DynamicParametersRequest =>
+        publish(DynamicParametersResponse(r.id, speed, currentEnergy, fertility))
       case EatEntity(entityId) =>
-        publish(RequireEntitiesState(entitySpecifications id, x => x.entityId == entityId))
-      case EntitiesStateResponse(id, states) if id == entitySpecifications.id =>
-        import EntityInfoConversion._
-        currentEnergy += states.head.state.nutritiveValue
-        if(currentEnergy > MAX_ENERGY) currentEnergy = MAX_ENERGY
+        requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == entityId))
+          .onComplete {
+            case Success(result) =>
+              import EntityInfoConversion._
+              currentEnergy += result.state.head.state.nutritiveValue
+              if(currentEnergy > MAX_ENERGY) currentEnergy = MAX_ENERGY
+            case Failure(error) => throw error
+          }
       case GetInfo() =>
         publish(PhysicalStatusInfo(averageLife, energyRequirements, nutritiveValue, endChildPhase, endAdultPhase, percentageDecay, speed, fertility))
-        publish(new GetInfoResponse)
+        publish(new GetInfoAck)
       case _ => Unit
     }
   }

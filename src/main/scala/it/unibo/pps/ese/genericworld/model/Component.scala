@@ -1,8 +1,8 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.genericworld.model.support.{Consumer, Event, EventBus}
+import it.unibo.pps.ese.genericworld.model.support._
 
-import scala.reflect.ClassTag
+import scala.concurrent.Future
 
 trait Component {
   def initialize(): Unit
@@ -22,6 +22,7 @@ trait BusWriter extends NervousSystemComponent {
 
 trait BusReader extends NervousSystemComponent {
   def subscribe(consumer : Consumer) : Unit = nervousSystem subscribe consumer
+  def requireData[A <: RequestEvent, B <: ResponseEvent ](request: A): Future[B] = nervousSystem requireData[A, B] request
 }
 
 abstract class BaseComponent(override val entitySpecifications: EntitySpecifications) extends Component

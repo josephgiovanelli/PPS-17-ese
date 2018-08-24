@@ -1,21 +1,26 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.genericworld.model.World
+import it.unibo.pps.ese.genericworld.model.{EntityState, World}
 
 import scala.concurrent.duration.FiniteDuration
 
 sealed trait Controller {
   def attachView(view: View, frameRate: Int): Unit
+  def manage: ManageableController
+}
+
+trait ManageableController {
   def play(): Unit
   def pause(): Unit
   def exit(): Unit
+  def entityData(id: String): Option[EntityState]
 }
 
 object Controller {
 
   def apply(world: World, clockPeriod: FiniteDuration): Controller = BaseController(world, clockPeriod)
 
-  private case class BaseController(world: World, clockPeriod: FiniteDuration) extends Controller {
+  private case class BaseController(world: World, clockPeriod: FiniteDuration) extends Controller with ManageableController {
 
     val simulationLoop = SimulationLoop(world, clockPeriod)
     var stop = false
@@ -31,6 +36,9 @@ object Controller {
         }
       }) start()
 
+    override def manage: ManageableController = this
+
+    override def entityData(id: String): Option[EntityState] = (world entitiesState).find(x => x.entityId == id)
 
     override def play(): Unit = this synchronized {
       simulationLoop play()

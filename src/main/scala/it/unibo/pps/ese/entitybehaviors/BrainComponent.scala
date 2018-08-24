@@ -5,8 +5,12 @@ import java.util.Random
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.genericworld.model._
-import it.unibo.pps.ese.genericworld.model.support.BaseEvent
+import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.utils.Point
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 case class BrainInfo(position: Point,
                      height: Double,
@@ -20,8 +24,8 @@ case class BrainInfo(position: Point,
                     ) extends BaseEvent
 case class EntityPosition(position: Point) extends BaseEvent
 case class EatEntity(entityId: String) extends BaseEvent
-case class RequireDynamicParameters() extends BaseEvent
-case class RequireDynamicParametersResponse(speed: Double, energy: Double, fertility: Double) extends BaseEvent
+case class DynamicParametersRequest() extends RequestEvent
+case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double) extends ResponseEvent(id)
 
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
@@ -69,17 +73,29 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     import EntityInfoConversion._
     subscribe {
       case ComputeNextState() =>
-        publish(RequireEntitiesState(entitySpecifications id, x => distanceBetween(x.state.position, position) <= visualField))
-      case EntitiesStateResponse(id, state) if id == entitySpecifications.id =>
-        entityInVisualField = Map.empty
-        state map (x => EntityAttributesImpl(x.entityId, x.state.kind, x.state.height, x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y), x.state.attractiveness, x.state.gender)) foreach (x => entityInVisualField += (x.name -> x))
-        publish(new RequireDynamicParameters)
-      case RequireDynamicParametersResponse(speed, energy, fertility) =>
-        publish(EntityPosition(nextMove(speed, energy, fertility)))
-        publish(new ComputeNextStateResponse)
+
+        val dynamicData = requireData[DynamicParametersRequest, DynamicParametersResponse](
+          new DynamicParametersRequest)
+        val externalData = requireData[EntitiesStateRequest, EntitiesStateResponse](
+          EntitiesStateRequest(x => distanceBetween(x.state.position, position) <= visualField))
+
+        Future.sequence(Seq(dynamicData, externalData)).onComplete {
+          case Success(_) =>
+            val extData = externalData.value.get.get
+            entityInVisualField = Map.empty
+            extData.state map (x =>
+              EntityAttributesImpl(x.entityId, x.state.kind, x.state.height,
+              x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
+              x.state.attractiveness, x.state.gender)) foreach (x => entityInVisualField += (x.name -> x))
+
+            val data = dynamicData.value.get.get
+            publish(EntityPosition(nextMove(data speed, data energy, data fertility)))
+            publish(new ComputeNextStateAck)
+          case Failure(error) => throw error
+        }
       case GetInfo() =>
         publish(BrainInfo(position, height, strong, defense, kind, actionField, visualField, attractiveness, gender))
-        publish(new GetInfoResponse)
+        publish(new GetInfoAck)
       case _ => Unit
     }
   }
@@ -101,7 +117,6 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   private def nextMove(speed: Double, energy: Double, fertility: Double): Point = {
 
-    val start = System.currentTimeMillis()
     val floorSpeed = speed.toInt
     val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.withNameOpt(gender).get)
     decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
@@ -124,16 +139,13 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     }
     else {
       val direction = Direction(new Random().nextInt(Direction.values.size))
-      direction match {
-        case Direction.DOWN => position = (position.x, position.y - floorSpeed)
-        case Direction.UP => position = (position.x, position.y + floorSpeed)
-        case Direction.LEFT => position = (position.x - floorSpeed, position.y)
-        case Direction.RIGHT => position = (position.x + floorSpeed, position.y)
+      position = direction match {
+        case Direction.DOWN => Point(position.x, position.y - floorSpeed)
+        case Direction.UP => Point(position.x, position.y + floorSpeed)
+        case Direction.LEFT => Point(position.x - floorSpeed, position.y)
+        case Direction.RIGHT => Point(position.x + floorSpeed, position.y)
       }
     }
-
-    val stop = System.currentTimeMillis()
-    println(stop - start)
 
     decisionSupport.clearVisualField()
     position

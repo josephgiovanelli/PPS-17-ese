@@ -36,7 +36,7 @@ object WorldBuilder {
       .map(x => initializeEntity(x._1, x._2))
       .foreach(world addEntity)
 
-    Await.result(world.requireInfoUpdate, 1 second)
+    Await.result(world.requireInfoUpdate, Duration.Inf)
     world
   }
 
@@ -82,7 +82,7 @@ object WorldBuilder {
     import scala.util.Random
     require(n < x * y)
     Stream.continually((Random.nextInt(x), Random.nextInt(y))).scanLeft(Set[Point]()) {
-      (accum, el) => accum + Point(el._1, el._2)
+      (accumulator, el) => accumulator + Point(el._1, el._2)
     }.dropWhile(_.size < n).head
   }
 }

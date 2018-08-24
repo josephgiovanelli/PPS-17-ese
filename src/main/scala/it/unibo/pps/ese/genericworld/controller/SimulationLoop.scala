@@ -31,20 +31,13 @@ object SimulationLoop {
           val ret =
             for {
               b <- model.requireStateUpdate
-              //c <- model.requireInfoUpdate
-            } yield b
+              c <- model.requireInfoUpdate
+            } yield c
 
-          try {
-            Await.result(ret, period)
-          } catch {
-            case e: Exception => {
-              println("ciao")
-              println(e printStackTrace())
-            }
-          }
+          Await.result(ret, Duration.Inf)
         }
       }
-      timer.schedule(task, 0, period.toMillis)
+      timer.scheduleAtFixedRate(task, 0, period.toMillis)
       scheduledTask = Some(task)
     }
 
