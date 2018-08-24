@@ -34,4 +34,9 @@ object EntityInfoConversion {
     def speed : Double = obj.selectDynamic("speed").asInstanceOf[Double]
     def fertility: Double = obj.selectDynamic("fertility").asInstanceOf[Double]
   }
+
+  implicit class BaseInfoConversions(obj: EntityInfo) {
+    def species : String = obj.selectDynamic("species").asInstanceOf[String]
+    def reign : String = obj.selectDynamic("reign").asInstanceOf[String]
+  }
 }

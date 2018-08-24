@@ -7,7 +7,7 @@ import scala.concurrent.{Future, Promise}
 sealed trait NervousSystem {
   def publish(event: Event) : Unit
   def subscribe(handler: Event => Unit)
-  def requireData[A <: RequestEvent, B <: ResponseEvent ](request: A): Future[B]
+  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): Future[B]
   def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty]))
 }
 
@@ -23,7 +23,7 @@ object NervousSystem {
     _eventBus attach (ev => {
       val mapper = _eventsMappings find(e => e._1.getName == ev.getClass.getName)
       if (mapper isDefined) mapper get match {
-        case (_, map : (Event => Seq[EntityProperty])) => publish(NewState(map(ev)))
+        case (_, map : (Event => Seq[EntityProperty])) => publish(UpdateEntityState(map(ev)))
         case _ => Unit
       }
     })
@@ -34,7 +34,7 @@ object NervousSystem {
 
     override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit = _eventsMappings = mapper :: _eventsMappings
 
-    override def requireData[A <: RequestEvent, B <: ResponseEvent](request: A): Future[B] = {
+    override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): Future[B] = {
       val result = Promise[B]()
       lazy val consumer : Consumer = {
         case response: B if response.id == request.id =>

@@ -31,8 +31,8 @@ object SimulationLoop {
           val ret =
             for {
               b <- model.requireStateUpdate
-              c <- model.requireInfoUpdate
-            } yield c
+              //c <- model.requireInfoUpdate
+            } yield b
 
           Await.result(ret, Duration.Inf)
         }

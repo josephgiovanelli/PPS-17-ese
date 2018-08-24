@@ -30,6 +30,7 @@ object Controller {
       new Thread (() => {
         while(!stop) {
           normalizeFrameRate(() => {
+            import ViewHelpers.toViewData
             if (paused) this synchronized wait()
             view render (world entitiesState)
           }, frameRate)

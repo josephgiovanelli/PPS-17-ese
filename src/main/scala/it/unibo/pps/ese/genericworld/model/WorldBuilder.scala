@@ -24,7 +24,7 @@ object WorldBuilder {
       Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
     StaticRules.instance().setRules(worldRules)
 
-    val world = World()
+    val world = World(width, height)
 
     val data = new YamlLoader().loadSimulation(simulationConfigPath)
     val geneticsSimulator = GeneticsSimulator
@@ -42,6 +42,7 @@ object WorldBuilder {
 
   private def initializeEntity(animalInfo: AnimalInfo, position: Point) : Entity = {
     val entity = Entity("improved", randomUUID().toString)
+    entity addComponent initializeBaseInfoComponent(entity, animalInfo)
     entity addComponent initializeBrainComponent(entity, animalInfo, position)
     entity addComponent initializePhysicalComponent(entity, animalInfo)
     entity
@@ -76,6 +77,14 @@ object WorldBuilder {
       animalInfo.animalQualities(Decline).qualityValue,
       animalInfo.animalQualities(Speed).qualityValue,
       animalInfo.animalQualities(Fertility).qualityValue)
+  }
+
+  private def initializeBaseInfoComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
+    BaseInfoComponent(
+      entity specifications,
+      animalInfo.species.name,
+      animalInfo.species.reign.reignName
+    )
   }
 
   private def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {

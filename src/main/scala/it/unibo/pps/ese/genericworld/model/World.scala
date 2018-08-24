@@ -3,7 +3,11 @@ package it.unibo.pps.ese.genericworld.model
 import it.unibo.pps.ese.genericworld.model.support.Done
 import scala.concurrent.{ExecutionContext, Future}
 
+case class WorldInfo(width: Long, height: Long)
+
 sealed trait World {
+  def width: Long
+  def height: Long
   def addEntity(entity: Entity): Unit
   def removeEntity(id: String): Unit
   def entitiesState : Seq[EntityState]
@@ -17,6 +21,7 @@ sealed trait CachedWorld {
 }
 
 sealed trait InteractiveWorld extends CachedWorld {
+  def info: WorldInfo
   def entities : Seq[Entity]
   def addEntity(entity: Entity): Unit
   def removeEntity(id: String): Unit
@@ -47,13 +52,15 @@ sealed trait UpdatableWorld {
 
 object World {
 
-  def apply(): World = new BaseInteractiveWorld
+  def apply(width: Long, height: Long): World = BaseInteractiveWorld(width, height)
 
-  private class BaseInteractiveWorld extends World with InteractiveWorld with UpdatableWorld {
+  private case class BaseInteractiveWorld(width: Long, height: Long) extends World with InteractiveWorld with UpdatableWorld {
 
     private[this] var _entities : Seq[Entity] = Seq empty
+    private[this] def entities_=(entities : Seq[Entity]) : Unit = _entities = entities
 
-    protected def entities_=(entities : Seq[Entity]) : Unit = _entities = entities
+    override def info: WorldInfo = WorldInfo(width, height)
+
     override def entities: Seq[Entity] = _entities
 
     override def addEntity(entity: Entity): Unit = {
