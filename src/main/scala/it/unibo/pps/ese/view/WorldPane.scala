@@ -23,10 +23,11 @@ trait WorldPane extends ScrollPane with WorldView {
 }
 
 object WorldPane {
-  def apply(width: Int, height: Int, detailsPane: DetailsPane): WorldPane = new WorldPaneImpl(width, height, detailsPane)
+  def apply(mainComponent: MainComponent, detailsPane: DetailsPane, width: Int, height: Int): WorldPane =
+    new WorldPaneImpl(mainComponent, detailsPane, width, height)
 }
 
-private class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) extends WorldPane {
+private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPane, width: Int, height: Int) extends WorldPane {
 
   val selectionColor: Color = Color.Gold
 
@@ -50,7 +51,7 @@ private class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) e
 
   tooltip = new Tooltip()
   canvas.onMouseMoved = (e: MouseEvent) => {
-    val pos: Position = getEntityWorldViewPosition(e.x, e.y)
+    val pos: Position = getEntityViewPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
         tooltip().text = entity.name
@@ -69,10 +70,11 @@ private class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) e
       case Some(tuple) =>
         graphicsContext.fill = tuple._2.color
         graphicsContext.fillRect(tuple._1.x, tuple._1.y, entitySize(), entitySize())
+        mainComponent.getEntityDetails(tuple._2.id)
       case None =>
     }
 
-    val pos: Position = getEntityWorldViewPosition(e.x, e.y)
+    val pos: Position = getEntityViewPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
         currentSelected = Some(pos, entity)
@@ -82,7 +84,6 @@ private class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) e
       case None =>
         currentSelected = None
         detailsPane.clearDetails()
-
     }
 
 
@@ -93,7 +94,7 @@ private class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) e
       val value = if(e.deltaY>0) 1 else -1
       entitySize = if (entitySize()+value>=minZoom && entitySize()+value<=maxZoom) IntegerProperty(entitySize()+value)
         else entitySize
-      updateWorld(currentWorld.values.toList)
+      drawWorld(currentWorld.values.toList)
     }
   }*/
 
@@ -119,14 +120,14 @@ private class WorldPaneImpl(width: Int, heigth: Int, detailsPane: DetailsPane) e
     }
   }
 
-  private def getEntityWorldViewPosition(x: Double, y: Double): Position = {
+  private def getEntityViewPosition(x: Double, y: Double): Position = {
     val posx = x.toInt - (x.toInt%entitySize())
     val posy = y.toInt - (y.toInt%entitySize())
     Position(posx, posy)
   }
 
   private def getEntityRealPosition(x: Double, y: Double): Position = {
-    val pos: Position = getEntityWorldViewPosition(x, y)
+    val pos: Position = getEntityViewPosition(x, y)
     Position(pos.x/entitySize(), pos.y/entitySize())
   }
 

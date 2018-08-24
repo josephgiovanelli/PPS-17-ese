@@ -16,7 +16,7 @@ object ZoomPreferences {
 }
 
 
-private class MainScene(width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
+private class MainScene(mainComponent: MainComponent, width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
 
   val generationTextLabel: String = "Generation: "
 
@@ -38,7 +38,7 @@ private class MainScene(width: Double = 1200, height: Double = 800) extends Scen
 
   val worldContainerPane = new SplitPane()
   val detailsPane = DetailsPane()
-  val worldPane: WorldPane = WorldPane(worldWidth, worldHeigth, detailsPane)
+  val worldPane: WorldPane = WorldPane(mainComponent, detailsPane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal
