@@ -6,7 +6,7 @@ import java.util.UUID.randomUUID
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.entitybehaviors._
-import it.unibo.pps.ese.genericworld.controller.{Controller, View}
+import it.unibo.pps.ese.genericworld.controller.Controller
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
@@ -16,12 +16,15 @@ import it.unibo.pps.ese.genetics.entities.{Animal, AnimalInfo, DietType, Species
 import it.unibo.pps.ese.genetics.generators.SpeciesUtilities
 import it.unibo.pps.ese.genetics.generators.data.{InputDataAdapter, TranslatedAnimalData}
 import it.unibo.pps.ese.utils.Point
+import it.unibo.pps.ese.view.View
+import it.unibo.pps.ese.view.ViewLauncher.{stage, view}
+import scalafx.application.JFXApp
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.Await
 
-object TestLauncher extends App {
+object TestLauncher extends JFXApp {
 
 //    val entity1 = Entity("improved", "1")
 //    val component3 = BrainComponent(entity1 specifications, Point(7, 6), 6, 6, 6, "herbivore", 5, 20)
@@ -40,7 +43,8 @@ object TestLauncher extends App {
 
     val world = WorldBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 1000, 1000)
     val controller = Controller(world, clockPeriod = 32 millis)
-    val view = View(controller = controller manage)
+    val view = View()
+    stage = view
     controller attachView (view, frameRate = 30)
 
     controller.manage.play()

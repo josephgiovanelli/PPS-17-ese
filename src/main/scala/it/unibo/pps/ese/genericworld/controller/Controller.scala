@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.genericworld.controller
 
 import it.unibo.pps.ese.genericworld.model.{EntityState, World}
+import it.unibo.pps.ese.view.View
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -26,16 +27,18 @@ object Controller {
     var stop = false
     var paused = true
 
-    override def attachView(view: View, frameRate: Int): Unit =
+    override def attachView(view: View, frameRate: Int): Unit = {
+      import ViewHelpers.{ManageableObserver, toViewData}
+      view addObserver this
       new Thread (() => {
         while(!stop) {
           normalizeFrameRate(() => {
-            import ViewHelpers.toViewData
             if (paused) this synchronized wait()
-            view render (world entitiesState)
+            view updateWorld (0, world entitiesState)
           }, frameRate)
         }
       }) start()
+    }
 
     override def manage: ManageableController = this
 

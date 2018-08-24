@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.view
 
+import it.unibo.pps.ese.genericworld.controller.{EntityDetails, Observer}
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {

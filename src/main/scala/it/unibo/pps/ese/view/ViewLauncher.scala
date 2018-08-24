@@ -14,5 +14,5 @@ object ViewLauncher extends JFXApp {
   val view: View = View()
   stage = view
 
-  val controller: Controller = new Controller(view)
+  //val controller: Controller = new Controller(view)
 }
