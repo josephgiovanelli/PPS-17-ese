@@ -21,7 +21,7 @@ object SimulationLoop {
     private[this] val timer = new java.util.Timer()
     private[this] var scheduledTask = None: Option[java.util.TimerTask]
 
-    override def play(): Unit = this synchronized {
+    override def play(): Unit = {
 
       if (scheduledTask isDefined) throw new IllegalStateException("Loop already running")
 

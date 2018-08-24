@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.genericworld.model
 
+import java.util.concurrent.atomic.AtomicLong
+
 import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, Done, RequestEvent, ResponseEvent}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -25,12 +27,13 @@ sealed trait WorldBridge {
   def requireInfo(implicit context: ExecutionContext): Future[Done]
 }
 
-class WorldBridgeComponent(override val entitySpecifications: EntitySpecifications, world: InteractiveWorld) extends WriterComponent(entitySpecifications) with WorldBridge {
+class WorldBridgeComponent(override val entitySpecifications: EntitySpecifications,
+                           world: InteractiveWorld) extends WriterComponent(entitySpecifications) with WorldBridge {
 
   private var newStatePromise : Promise[Done] = Promise()
   private var requireInfoPromise : Promise[Done] = Promise()
-  private var newStateAccumulator : Long = 0
-  private var requireInfoAccumulator : Long = 0
+  private val newStateAccumulator : AtomicLong = new AtomicLong(0)
+  private val requireInfoAccumulator : AtomicLong = new AtomicLong(0)
 
   newStatePromise success new Done()
   requireInfoPromise success new Done()
@@ -43,20 +46,21 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
         (world queryableState) getFilteredState r.filter filterNot (x => x.entityId == entitySpecifications.id)))
     case CreateEntity(entity) => world addEntity entity
     case KillEntity(entityId) => world removeEntity entityId
-    case UpdateEntityState(properties) => properties foreach (e => (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
+    case UpdateEntityState(properties) => properties foreach (e =>
+      (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
     case ComputeNextStateAck() =>
-      newStateAccumulator += 1
-      if (newStateAccumulator == entitySpecifications.componentsCount - 1) newStatePromise success new Done()
+      if (newStateAccumulator.incrementAndGet == entitySpecifications.componentsCount - 1)
+        newStatePromise success new Done()
     case GetInfoAck() =>
-      requireInfoAccumulator += 1
-      if (requireInfoAccumulator == entitySpecifications.componentsCount - 1) requireInfoPromise success new Done()
+      if (requireInfoAccumulator.incrementAndGet == entitySpecifications.componentsCount - 1)
+        requireInfoPromise success new Done()
     case _ => Unit
   }
 
   override def computeNewState(implicit context: ExecutionContext): Future[Done] = {
     if (newStatePromise isCompleted) {
       newStatePromise = Promise()
-      newStateAccumulator = 0
+      newStateAccumulator.set(0)
       publish(ComputeNextState())
       newStatePromise future
     } else {
@@ -67,7 +71,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
   override def requireInfo(implicit context: ExecutionContext): Future[Done] = {
     if (requireInfoPromise isCompleted) {
       requireInfoPromise = Promise()
-      requireInfoAccumulator = 0
+      requireInfoAccumulator.set(0)
       publish(GetInfo())
       requireInfoPromise future
     } else {

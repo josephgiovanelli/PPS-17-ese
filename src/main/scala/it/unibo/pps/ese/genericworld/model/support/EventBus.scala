@@ -20,19 +20,20 @@ object EventBus {
 
     override def send(event: Event): Unit = {
       consumersRegistry foreach { f =>
-        f(event)
-//        Future{f(event)}
-//          .onComplete{
-//            case Success(_) => Unit
-//            case Failure(error) => throw error
-//          }
+        Future{f(event)}
+          .onComplete{
+            case Success(_) => Unit
+            case Failure(error) => throw error
+          }
       }
     }
 
-    override def attach(e : Consumer): Unit = {
+    override def attach(e : Consumer): Unit = this synchronized {
       consumersRegistry = e :: consumersRegistry
     }
 
-    override def detach(e: Consumer): Unit = consumersRegistry = consumersRegistry filterNot (e == _)
+    override def detach(e: Consumer): Unit = this synchronized {
+      consumersRegistry = consumersRegistry filterNot (e == _)
+    }
   }
 }

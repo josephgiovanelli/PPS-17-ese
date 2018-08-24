@@ -11,7 +11,7 @@ case class View(controller: ManageableController) {
   var frame : Int = 0
 
   def render(viewData: ViewData): Unit = {
-    (viewData entities) foreach(e => println("Frame: " + frame + ", Id: " + e.id
+    (viewData entities) take 1 foreach(e => println("Frame: " + frame + ", Id: " + e.id
       + ", Species: " + e.species + ", Position: " + e.position + ", Color: " + e.color))
     frame += 1
   }
