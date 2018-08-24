@@ -7,6 +7,7 @@ import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, Tooltip}
 import WorldPrefernces._
 import ZoomPreferences._
+import javafx.application.Platform
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.input.{KeyEvent, MouseEvent, ScrollEvent}
@@ -32,7 +33,7 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
   val selectionColor: Color = Color.Gold
 
   private var currentWorld: Map[Position, Entity] = Map()
-  private var currentSelected: Option[(Position, Entity)] = None
+  private var currentSelected: Option[String] = None
 
   private var worldViewWidth: DoubleProperty = DoubleProperty(worldWidth*entitySize())
   private var worldViewHeigth: DoubleProperty = DoubleProperty(worldHeigth*entitySize())
@@ -51,7 +52,7 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
 
   tooltip = new Tooltip()
   canvas.onMouseMoved = (e: MouseEvent) => {
-    val pos: Position = getEntityViewPosition(e.x, e.y)
+    val pos: Position = getEntityViewStartPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
         tooltip().text = entity.name
@@ -67,17 +68,19 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
 
   canvas.onMouseClicked = (e: MouseEvent) => {
     currentSelected match {
-      case Some(tuple) =>
-        graphicsContext.fill = tuple._2.color
-        graphicsContext.fillRect(tuple._1.x, tuple._1.y, entitySize(), entitySize())
-        mainComponent.getEntityDetails(tuple._2.id)
+      case Some(id) =>
+        val entity: Entity = getEntityById(id).get
+        graphicsContext.fill = entity.color
+        val position: Position = getEntityViewPosition(entity)
+        graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
+        mainComponent.getEntityDetails(entity.id)
       case None =>
     }
 
-    val pos: Position = getEntityViewPosition(e.x, e.y)
+    val pos: Position = getEntityViewStartPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
-        currentSelected = Some(pos, entity)
+        currentSelected = Some(entity.id)
         graphicsContext.fill = selectionColor
         graphicsContext.fillRect(pos.x, pos.y, entitySize(), entitySize())
         detailsPane.showDetails(entity)
@@ -104,30 +107,48 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
   }
 
   private def drawWorld(world: List[Entity]): Unit = {
-    currentWorld = Map() ++ world.map(e => (Position(e.position.x*entitySize(), e.position.y*entitySize()), e))
 
-    graphicsContext.clearRect(0, 0, worldViewWidth(), worldViewHeigth())
-    world foreach(e => {
-      graphicsContext.fill = e.color
-      graphicsContext.fillRect(e.position.x*entitySize(), e.position.y*entitySize(), entitySize(), entitySize())
-    })
-    currentSelected match {
-      case Some(tuple) =>
-        currentSelected = Some(Position(tuple._2.position.x * entitySize(), tuple._2.position.y * entitySize()), tuple._2)
-        graphicsContext.fill = selectionColor
-        graphicsContext.fillRect(currentSelected.get._1.x, currentSelected.get._1.y, entitySize(), entitySize())
-      case None =>
+    currentWorld = Map() ++ world.map(e => (Position(e.position.x * entitySize(), e.position.y * entitySize()), e))
+
+    Platform.runLater {
+      () => {
+
+        graphicsContext.clearRect(0, 0, worldViewWidth(), worldViewHeigth())
+        world foreach (e => {
+          graphicsContext.fill = e.color
+          graphicsContext.fillRect(e.position.x * entitySize(), e.position.y * entitySize(), entitySize(), entitySize())
+        })
+        currentSelected match {
+          case Some(id) =>
+            val entity: Entity = getEntityById(id).get
+            val position: Position = getEntityViewPosition(entity)
+            currentSelected = Some(entity.id)
+            graphicsContext.fill = selectionColor
+            graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
+          case None =>
+        }
+      }
     }
+
+
   }
 
-  private def getEntityViewPosition(x: Double, y: Double): Position = {
+  private def getEntityById(id: String): Option[Entity] = {
+    currentWorld.values.find(e => e.id==id)
+  }
+
+  private def getEntityViewPosition(entity: Entity): Position = {
+    Position(entity.position.x*entitySize(), entity.position.y*entitySize())
+  }
+
+  private def getEntityViewStartPosition(x: Double, y: Double): Position = {
     val posx = x.toInt - (x.toInt%entitySize())
     val posy = y.toInt - (y.toInt%entitySize())
     Position(posx, posy)
   }
 
   private def getEntityRealPosition(x: Double, y: Double): Position = {
-    val pos: Position = getEntityViewPosition(x, y)
+    val pos: Position = getEntityViewStartPosition(x, y)
     Position(pos.x/entitySize(), pos.y/entitySize())
   }
 
