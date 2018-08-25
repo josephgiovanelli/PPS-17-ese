@@ -22,8 +22,13 @@ case class BrainInfo(position: Point,
                      attractiveness: Double,
                      gender: String
                     ) extends BaseEvent
+
+object ActionKind extends Enumeration {
+  val EAT, COUPLE = Value
+}
+
 case class EntityPosition(position: Point) extends BaseEvent
-case class EatEntity(entityId: String) extends BaseEvent
+case class InteractionEntity(entityId: String, action: ActionKind.Value) extends BaseEvent
 case class DynamicParametersRequest() extends RequestEvent
 case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double) extends ResponseEvent(id)
 
@@ -46,6 +51,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   object Direction extends Enumeration {
     val RIGHT, LEFT, UP, DOWN = Value
   }
+
 
   implicit def toPoint(tuple2: (Int, Int)): Point = {
     def bound(i: Int, bound: Int): Int = if (i < 0) 0 else if (i > bound) bound else i
@@ -123,14 +129,15 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     val partners = decisionSupport.discoverPartners(me)
     val preys = decisionSupport.discoverPreys(me)
     var targets: Stream[EntityChoiceImpl] = preys
-    if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) targets = partners
+    var action: ActionKind.Value = ActionKind.EAT
+    if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
     if (targets.nonEmpty) {
       val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
       val entityAttribute = entityInVisualField(entityChoice.name)
 
       if (entityChoice.distance < actionField) {
         me.position = entityAttribute.position
-        publish(EatEntity(entityAttribute name))
+        publish(InteractionEntity(entityAttribute name, action))
       } else {
         (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
       }
@@ -140,10 +147,10 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     else {
       val direction = Direction(new Random().nextInt(Direction.values.size))
       position = direction match {
-        case Direction.DOWN => Point(position.x, position.y - floorSpeed)
-        case Direction.UP => Point(position.x, position.y + floorSpeed)
-        case Direction.LEFT => Point(position.x - floorSpeed, position.y)
-        case Direction.RIGHT => Point(position.x + floorSpeed, position.y)
+        case Direction.DOWN => (position.x, position.y - floorSpeed)
+        case Direction.UP => (position.x, position.y + floorSpeed)
+        case Direction.LEFT => (position.x - floorSpeed, position.y)
+        case Direction.RIGHT => (position.x + floorSpeed, position.y)
       }
     }
 
