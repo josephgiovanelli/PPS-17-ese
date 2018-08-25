@@ -14,12 +14,11 @@
 |         | Realizzare la visualizzazione del mondo| Luca | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
 |         | Organizzare la struttura generale della View| Luca | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
 | Ogni essere vivente ha un proprio genoma che ne identifica le caratteristiche
-|         | Codificare cromosomi| Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
-|         | Implementare creazione pool di individui a partire dai valori in input | Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
-|         | Implementare creazione pool di individui a partire dai valori in input | Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
-|         | Codificare genoma piante ed animali | Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
-|         | Definire interfaccia comune per le qualità | Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
-|         | Implementare traduzione da geni a qualità e fenotipo | Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
+|         | Codificare cromosomi| Diego             |  20  | 10 | 0 | 0 | 0 | 0 | 0 |
+|         | Implementare creazione pool di individui a partire dai valori in input | Diego             |  25  | 25  | 25 | 20 | 5 | 0 | 0 |
+|         | Implementare traduzione da geni a qualità e fenotipo | Diego             |  25  | 25  | 10 | 5 | 0 | 0 | 0 |
+|         | Codificare genoma piante ed animali | Diego             |  10  | 10 | 5 | 5 | 5 | 0 | 0 |
+|         | Definire interfaccia comune per le qualità | Diego             |  5  | 0  | 0 | 0 | 0 | 0 | 0 |
 |         | Codificare geni | Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
 | I vari esseri interagiscono tra loro e la simulazione procede temporalmente
 |         | Definire struttura generica del modello di simulazione | Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
