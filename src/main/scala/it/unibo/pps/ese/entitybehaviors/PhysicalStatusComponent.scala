@@ -9,6 +9,7 @@ import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Dead() extends BaseEvent
+case class MealInformation(eatenEnergy: Double)() extends BaseEvent
 case class PhysicalStatusInfo(averageLife: Double,
                                energyRequirements: Double,
                                nutritiveValue: Double,
@@ -58,13 +59,16 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         publish(new ComputeNextStateAck)
       case r: DynamicParametersRequest =>
         publish(DynamicParametersResponse(r.id, speed, currentEnergy, fertility))
-      case EatEntity(entityId) =>
+      case InteractionEntity(entityId, action) if action == ActionKind.EAT =>
         requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == entityId))
           .onComplete {
             case Success(result) =>
               import EntityInfoConversion._
-              currentEnergy += result.state.head.state.nutritiveValue
-              if(currentEnergy > MAX_ENERGY) currentEnergy = MAX_ENERGY
+              val necessaryEnergy = MAX_ENERGY - currentEnergy
+              val eatenEnergy = if (result.state.head.state.nutritiveValue > necessaryEnergy)
+                necessaryEnergy else result.state.head.state.nutritiveValue
+              currentEnergy += eatenEnergy
+              publish(MealInformation(eatenEnergy))
             case Failure(error) => throw error
           }
       case GetInfo() =>
