@@ -31,7 +31,7 @@ object ViewHelpers {
 
   implicit def toPosition(point: Point): Position = Position(point x, point y)
 
-  implicit def intRoRgbColor(i: Int): Color = Color.rgb((i >> 24) & 0xFF, (i >> 16) & 0xFF, (i >> 8) & 0xFF, (i & 0xFF) / 255.0)
+  implicit def intRoRgbColor(i: Int): Color = Color.rgb((i >> 24) & 0xFF, (i >> 16) & 0xFF, (i >> 8) & 0xFF, 1.0)
 
   implicit def toEntityViewData(data: EntityState): Entity =
     Entity(data.entityId, data.state.species, toPosition(data.state.position), data.state.species.hashCode)

@@ -11,11 +11,15 @@ sealed trait NervousSystem {
   def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty]))
 }
 
+sealed trait ManageableNervousSystem extends NervousSystem {
+  def dispose(): Unit
+}
+
 object NervousSystem {
 
-  def apply(): NervousSystem = new SnifferNervousSystem()
+  def apply(): ManageableNervousSystem = new SnifferNervousSystem()
 
-  private class SnifferNervousSystem extends NervousSystem {
+  private class SnifferNervousSystem extends ManageableNervousSystem {
 
     private[this] val _eventBus = EventBus()
     private[this] var _eventsMappings : List[(Class[_], _ => Seq[EntityProperty])]= List empty
@@ -45,6 +49,10 @@ object NervousSystem {
       _eventBus attach consumer
       _eventBus send request
       result future
+    }
+
+    override def dispose(): Unit = {
+      _eventsMappings = List empty
     }
   }
 }

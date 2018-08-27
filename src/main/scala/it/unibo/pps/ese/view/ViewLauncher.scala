@@ -5,8 +5,8 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 
 object WorldPrefernces {
-  val worldWidth: Int = 1000
-  val worldHeigth: Int = 1000
+  val worldWidth: Int = 500
+  val worldHeigth: Int = 500
 }
 
 object ViewLauncher extends JFXApp {

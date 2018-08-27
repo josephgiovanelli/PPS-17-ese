@@ -25,7 +25,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
   private def configureMappings(): Unit = {
     addMapping[BaseInfo]((classOf[BaseInfo], ev => Seq(
       EntityProperty("species", ev species),
-      EntityProperty("reign", ev reign)
+      EntityProperty("reign", ev reign),
+      EntityProperty("kind", ev species)
     )))
   }
 }

@@ -5,6 +5,7 @@ sealed trait Entity {
   def getComponents : Seq[Component]
   def addComponent(component : Component) : Unit
   def specifications : EntitySpecifications
+  def dispose(): Unit
 }
 
 sealed trait EntitySpecifications {
@@ -14,7 +15,7 @@ sealed trait EntitySpecifications {
 
 sealed trait NervousSystemExtension {
   private[this] val _nervousSystem = NervousSystem()
-  def nervousSystem : NervousSystem = _nervousSystem
+  def nervousSystem : ManageableNervousSystem = _nervousSystem
 }
 
 object Entity {
@@ -36,6 +37,8 @@ object Entity {
     override def componentsCount: Long = getComponents size
 
     override def specifications: EntitySpecifications = this
+
+    override def dispose(): Unit = Unit
   }
 
   private class ImprovedEntity(id: String) extends BaseEntity(id) {
@@ -48,5 +51,7 @@ object Entity {
       super.addComponent(component)
       component initialize()
     }
+
+    override def dispose(): Unit = nervousSystem dispose()
   }
 }

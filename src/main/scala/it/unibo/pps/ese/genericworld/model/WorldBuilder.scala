@@ -7,8 +7,8 @@ import it.unibo.pps.ese.entitybehaviors.{BrainComponent, PhysicalStatusComponent
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType}
-import it.unibo.pps.ese.genetics.entities.QualityType._
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo}
+import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
 import it.unibo.pps.ese.utils.Point
 
 import scala.concurrent.Await
@@ -19,9 +19,10 @@ object WorldBuilder {
 
   def buildWorldFromSimulationData(simulationConfigPath: String, height: Int, width: Int): World = {
 
-    StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(3, (0, 5), 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
-      Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
+    StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(0, (0, Integer.MAX_VALUE), 0,
+      Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
+      Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
     StaticRules.instance().setRules(worldRules)
 
     val world = World(width, height)
@@ -33,6 +34,12 @@ object WorldBuilder {
     geneticsSimulator.speciesList
       .flatMap(x => initializedSimulation.getAllAnimals(x))
       .zip(distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
+      .map(x => initializeEntity(x._1, x._2))
+      .foreach(world addEntity)
+
+    geneticsSimulator.plantSpeciesList
+      .flatMap(x => initializedSimulation.getAllPlant(x))
+      .zip(distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
       .map(x => initializeEntity(x._1, x._2))
       .foreach(world addEntity)
 
@@ -48,18 +55,26 @@ object WorldBuilder {
     entity
   }
 
+
+  private def initializeEntity(plantInfo: PlantInfo, position: Point) : Entity = {
+    val entity = Entity("improved", randomUUID().toString)
+    entity addComponent initializeBaseInfoComponent(entity, plantInfo)
+    entity addComponent initializePhysicalComponent(entity, plantInfo, position)
+    entity
+  }
+
   private def initializeBrainComponent(entity: Entity, animalInfo: AnimalInfo, position: Point) : Component = {
 
     implicit def convertKind(dietType: DietType): String = if (dietType.dietName == "H") "herbivore" else "carnivorous"
 
     BrainComponent(entity specifications,
-      100,
-      100,
+      500,
+      500,
       position,
       animalInfo.qualities(Height).qualityValue,
       animalInfo.qualities(Strength).qualityValue,
       animalInfo.qualities(ResistenceToAttack).qualityValue,
-      animalInfo.dietType,
+      animalInfo.species.name,
       animalInfo.qualities(RangeOfAction).qualityValue,
       animalInfo.qualities(FieldOfView).qualityValue,
       animalInfo.qualities(Attractiveness).qualityValue,
@@ -79,11 +94,24 @@ object WorldBuilder {
       animalInfo.qualities(Fertility).qualityValue)
   }
 
-  private def initializeBaseInfoComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
+  private def initializeBaseInfoComponent(entity: Entity, entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo) : Component = {
     BaseInfoComponent(
       entity specifications,
-      animalInfo.species.name,
-      animalInfo.species.reign.reignName
+      entityInfo.species.name,
+      entityInfo.species.reign.reignName
+    )
+  }
+
+  private def initializePhysicalComponent(entity: Entity, plantInfo: PlantInfo, position: Point) : Component = {
+    PlantPhysicalComponent(
+      entity specifications,
+      position,
+      plantInfo.qualities(Height).qualityValue,
+      plantInfo.qualities(NutritionalValue).qualityValue,
+      plantInfo.qualities(Availability).qualityValue,
+      plantInfo.qualities(Attractiveness).qualityValue,
+      plantInfo.qualities(Hardness).qualityValue,
+      plantInfo.gender.toString.toLowerCase
     )
   }
 

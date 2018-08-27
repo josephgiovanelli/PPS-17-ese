@@ -33,7 +33,9 @@ object EntitiesStateCache {
       EntityState(entityId, _entitiesRepository getById entityId getOrElse new EntityInfo)
     }
 
-    override def deleteEntityState(entityId: String): Unit = this synchronized _entitiesRepository deleteById entityId
+    override def deleteEntityState(entityId: String): Unit = this synchronized {
+      _entitiesRepository deleteById entityId
+    }
 
     override def getFilteredState(filter: EntityState => Boolean): Seq[EntityState] = this synchronized {
       val entityStates = (_entitiesRepository getAll) map(x => EntityState(x._1, x._2))

@@ -1,15 +1,13 @@
 package it.unibo.pps.ese.entitybehaviors
 
 import it.unibo.pps.ese.genericworld.model._
-import it.unibo.pps.ese.genericworld.model.support.BaseEvent
+import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, InteractionEvent}
 
 import scala.math.floor
 import scala.util.{Failure, Success}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class Dead() extends BaseEvent
-case class MealInformation(eatenEnergy: Double)() extends BaseEvent
+case class MealInformation(entityId: String, eatenEnergy: Double) extends InteractionEvent(entityId)
 case class PhysicalStatusInfo(averageLife: Double,
                                energyRequirements: Double,
                                nutritiveValue: Double,
@@ -31,7 +29,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
                                    fertility: Double
                                   ) extends WriterComponent(entitySpecifications)  {
 
-  val MAX_ENERGY = 100
+  val MAX_ENERGY = 10000
   val YEAR_TO_CLOCK = 10
 
   object LifePhases extends Enumeration {
@@ -53,12 +51,12 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     subscribe {
       case ComputeNextState() =>
         currentEnergy -= energyRequirements
-        if (currentEnergy <= 0) publish(Dead())
+        if (currentEnergy <= 0) publish(Kill(entitySpecifications id))
         elapsedClocks += 1
         if (elapsedClocks == YEAR_TO_CLOCK) yearCallback()
         publish(new ComputeNextStateAck)
       case r: DynamicParametersRequest =>
-        publish(DynamicParametersResponse(r.id, speed, currentEnergy, fertility))
+        publish(DynamicParametersResponse(r.id, currentSpeed, currentEnergy, fertility))
       case InteractionEntity(entityId, action) if action == ActionKind.EAT =>
         requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == entityId))
           .onComplete {
@@ -68,9 +66,13 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
               val eatenEnergy = if (result.state.head.state.nutritiveValue > necessaryEnergy)
                 necessaryEnergy else result.state.head.state.nutritiveValue
               currentEnergy += eatenEnergy
-              publish(MealInformation(eatenEnergy))
+              publish(MealInformation(entityId, eatenEnergy))
+              //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")
             case Failure(error) => throw error
           }
+      case MealInformation(targetId, _) if entitySpecifications.id == targetId =>
+        println("OMG!!1!!1! I've been killed! (Id : " + entitySpecifications.id +")")
+        publish(Kill(entitySpecifications id))
       case GetInfo() =>
         publish(PhysicalStatusInfo(averageLife, energyRequirements, nutritiveValue, endChildPhase, endAdultPhase, percentageDecay, speed, fertility))
         publish(new GetInfoAck)
@@ -97,6 +99,6 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     if (currentPhase == LifePhases.CHILD && currentYear > endChildPhase) currentPhase = LifePhases.ADULT
     else if (currentPhase == LifePhases.ADULT && currentYear > endAdultPhase) currentPhase = LifePhases.ELDERLY
     else if (currentPhase == LifePhases.ELDERLY) currentSpeed = speed * percentageDecay
-    if (currentYear == floor(averageLife * percentageDecay)) publish(Dead())
+    if (currentYear == floor(averageLife * percentageDecay)) publish(Kill(entitySpecifications id))
   }
 }
