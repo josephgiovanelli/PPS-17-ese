@@ -2,11 +2,11 @@ package it.unibo.pps.ese.genericworld.model
 
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 
-case class BaseInfo(species: String, reign: String) extends BaseEvent
+case class BaseInfo(species: String, reign: ReignType.Value) extends BaseEvent
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
                         species: String,
-                        reign: String) extends WriterComponent(entitySpecifications) {
+                        reign: ReignType.Value) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()

@@ -7,7 +7,7 @@ import it.unibo.pps.ese.entitybehaviors.{BrainComponent, PhysicalStatusComponent
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo}
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Reign}
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
 import it.unibo.pps.ese.utils.Point
 
@@ -15,12 +15,16 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
+object ReignType extends Enumeration {
+  val ANIMAL, PLANT = Value
+}
+
 object WorldBuilder {
 
   def buildWorldFromSimulationData(simulationConfigPath: String, height: Int, width: Int): World = {
 
     StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(0, (0, Integer.MAX_VALUE), 0,
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (0, Integer.MAX_VALUE), 0,
       Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
       Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
     StaticRules.instance().setRules(worldRules)
@@ -95,10 +99,13 @@ object WorldBuilder {
   }
 
   private def initializeBaseInfoComponent(entity: Entity, entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo) : Component = {
+
+    implicit def convertReign(reign: Reign): ReignType.Value = if (reign.reignName == "A") ReignType.ANIMAL else ReignType.PLANT
+
     BaseInfoComponent(
       entity specifications,
       entityInfo.species.name,
-      entityInfo.species.reign.reignName
+      entityInfo.species.reign
     )
   }
 
@@ -109,7 +116,6 @@ object WorldBuilder {
       plantInfo.qualities(Height).qualityValue,
       plantInfo.qualities(NutritionalValue).qualityValue,
       plantInfo.qualities(Availability).qualityValue,
-      plantInfo.qualities(Attractiveness).qualityValue,
       plantInfo.qualities(Hardness).qualityValue,
       plantInfo.gender.toString.toLowerCase
     )

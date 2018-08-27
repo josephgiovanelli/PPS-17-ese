@@ -76,6 +76,13 @@ case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: Positi
   def sameOrdinate(generalPosition: GeneralPosition[PositionMeasure]): Int = if (y == generalPosition.y) 0 else if (y > generalPosition.y) 1 else -1
 }
 
+object AnimalAttributes {
+  def apply(name: String, kind: EntityKinds.Value, height: Double, strong: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position, attractiveness, sex)
+}
+
+object PlantAttributes {
+  def apply(name: String, kind: EntityKinds.Value, height: Double, defense: Double, position: GeneralPosition[Int], sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, 0, defense, position, 0, sex)
+}
 
 object EntityAttributesImpl {
   def apply(name: String, kind: EntityKinds.Value, height: Double, strong: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position, attractiveness, sex)

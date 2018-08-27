@@ -85,14 +85,16 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         val externalData = requireData[EntitiesStateRequest, EntitiesStateResponse](
           EntitiesStateRequest(x => distanceBetween(x.state.position, position) <= visualField))
 
+        def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.kind == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.kind, x.state.height,
+          x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
+          x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.kind, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
+
+
         Future.sequence(Seq(dynamicData, externalData)).onComplete {
           case Success(_) =>
             val extData = externalData.value.get.get
             entityInVisualField = Map.empty
-            extData.state map (x =>
-              EntityAttributesImpl(x.entityId, x.state.kind, x.state.height,
-              x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
-              x.state.attractiveness, x.state.gender)) foreach (x => entityInVisualField += (x.name -> x))
+            extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
 
             val data = dynamicData.value.get.get
             publish(EntityPosition(nextMove(data speed, data energy, data fertility)))
@@ -124,7 +126,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   private def nextMove(speed: Double, energy: Double, fertility: Double): Point = {
 
     val floorSpeed = speed.toInt
-    val me: EntityAttributesImpl = EntityAttributesImpl(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.withNameOpt(gender).get)
+    val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.withNameOpt(gender).get)
     decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
     val partners = decisionSupport.discoverPartners(me)
     val preys = decisionSupport.discoverPreys(me)

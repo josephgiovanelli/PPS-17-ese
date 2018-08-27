@@ -5,7 +5,6 @@ import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.utils.Point
 
 case class PlantPhysicalInfo(position: Point, height: Double, nutritionalValue: Double, availability: Double,
-                             attractiveness: Double,
                              hardness: Double,
                              gender: String) extends BaseEvent
 
@@ -14,7 +13,6 @@ case class PlantPhysicalComponent(override val entitySpecifications: EntitySpeci
                              height: Double,
                              var nutritionalValue: Double,
                              availability: Double,
-                             attractiveness: Double,
                              hardness: Double,
                              gender:String) extends WriterComponent(entitySpecifications) {
 
@@ -36,7 +34,7 @@ case class PlantPhysicalComponent(override val entitySpecifications: EntitySpeci
     case ComputeNextState() =>
       publish(new ComputeNextStateAck)
     case GetInfo() =>
-      publish(PlantPhysicalInfo(position, height, nutritionalValue, availability, attractiveness, hardness, gender))
+      publish(PlantPhysicalInfo(position, height, nutritionalValue, availability, hardness, gender))
       publish(new GetInfoAck)
     case _ => Unit
   }
@@ -47,9 +45,7 @@ case class PlantPhysicalComponent(override val entitySpecifications: EntitySpeci
       EntityProperty("height", ev height),
       EntityProperty("nutritiveValue", ev nutritionalValue),
       EntityProperty("availability", ev availability),
-      EntityProperty("attractiveness", ev attractiveness),
       EntityProperty("defense", ev hardness),
-      EntityProperty("strong", 0.0),
       EntityProperty("gender", ev gender)
     )))
   }
