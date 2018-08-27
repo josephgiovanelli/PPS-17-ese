@@ -2,6 +2,7 @@ package it.unibo.pps.ese.genericworld.model
 
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityKinds, SexTypes}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds.EntityKinds
+import it.unibo.pps.ese.genetics.entities.Reign
 import it.unibo.pps.ese.utils.Point
 
 import scala.language.implicitConversions
@@ -13,8 +14,7 @@ object EntityInfoConversion {
   }
 
   implicit class BrainComponentConversions(obj: EntityInfo) {
-    def position : Point = obj.selectDynamic("position").asInstanceOf[Point]
-    def kind : EntityKinds = EntityKinds(Symbol(obj.selectDynamic("kind").asInstanceOf[String]))
+    def position : Point = (obj selectDynamic "position").asInstanceOf[Point]
     def height : Double = obj.selectDynamic("height").asInstanceOf[Double]
     def strong : Double = obj.selectDynamic("strong").asInstanceOf[Double]
     def defense : Double = obj.selectDynamic("defense").asInstanceOf[Double]
@@ -27,7 +27,7 @@ object EntityInfoConversion {
   implicit class PhysicalStatusConversions(obj: EntityInfo) {
     def averageLife : Double = obj.selectDynamic("averageLife").asInstanceOf[Double]
     def energyRequirements : Double = obj.selectDynamic("energyRequirements").asInstanceOf[Double]
-    def nutritiveValue : Double = obj.selectDynamic("nutritiveValue").asInstanceOf[Double]
+    def nutritiveValue : Double = obj.selectDynamic("nutritionalValue").asInstanceOf[Double]
     def endChildPhase : Double = obj.selectDynamic("endChildPhase").asInstanceOf[Double]
     def endAdultPhase : Double = obj.selectDynamic("endAdultPhase").asInstanceOf[Double]
     def percentageDecay : Double = obj.selectDynamic("percentageDecay").asInstanceOf[Double]
@@ -36,7 +36,7 @@ object EntityInfoConversion {
   }
 
   implicit class BaseInfoConversions(obj: EntityInfo) {
-    def species : String = obj.selectDynamic("species").asInstanceOf[String]
-    def reign : String = obj.selectDynamic("reign").asInstanceOf[String]
+    def species : EntityKinds = EntityKinds(Symbol(obj.selectDynamic("species").asInstanceOf[String]))
+    def reign : ReignType.Value = obj.selectDynamic("reign").asInstanceOf[ReignType.Value]
   }
 }

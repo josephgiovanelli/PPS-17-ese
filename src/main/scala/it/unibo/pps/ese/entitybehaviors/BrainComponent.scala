@@ -9,18 +9,14 @@ import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, RequestEvent, Res
 import it.unibo.pps.ese.utils.Point
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
-case class BrainInfo(position: Point,
-                     height: Double,
-                     strong: Double,
-                     defense: Double,
-                     kind: String,
+case class BrainInfo(strong: Double,
                      actionField: Double,
                      visualField: Double,
-                     attractiveness: Double,
-                     gender: String
+                     attractiveness: Double
                     ) extends BaseEvent
 
 object ActionKind extends Enumeration {
@@ -35,15 +31,10 @@ case class DynamicParametersResponse(override val id: String, speed: Double, ene
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
                           widthWorld: Int,
-                          var position: Point,
-                          height: Double,
                           strong: Double,
-                          defense: Double,
-                          kind: String,
                           actionField: Double,
                           visualField: Double,
-                          attractiveness: Double,
-                          gender: String
+                          attractiveness: Double
                          ) extends WriterComponent(entitySpecifications)  {
 
 
@@ -82,13 +73,16 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
         val dynamicData = requireData[DynamicParametersRequest, DynamicParametersResponse](
           new DynamicParametersRequest)
-        val externalData = requireData[EntitiesStateRequest, EntitiesStateResponse](
-          EntitiesStateRequest(x => distanceBetween(x.state.position, position) <= visualField))
 
-        def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.kind == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.kind, x.state.height,
+        val externalData = for {
+          baseInfo <- requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest)
+          external <- requireData[EntitiesStateRequest, EntitiesStateResponse](
+            EntitiesStateRequest(x => distanceBetween(x.state.position, baseInfo position) <= visualField))
+        } yield external
+
+        def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
           x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
-          x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.kind, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
-
+          x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
 
         Future.sequence(Seq(dynamicData, externalData)).onComplete {
           case Success(_) =>
@@ -97,12 +91,15 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
 
             val data = dynamicData.value.get.get
-            publish(EntityPosition(nextMove(data speed, data energy, data fertility)))
-            publish(new ComputeNextStateAck)
+
+            nextMove(data speed, data energy, data fertility) onComplete (r => {
+              publish(EntityPosition(r.get))
+              publish(new ComputeNextStateAck)
+            })
           case Failure(error) => throw error
         }
       case GetInfo() =>
-        publish(BrainInfo(position, height, strong, defense, kind, actionField, visualField, attractiveness, gender))
+        publish(BrainInfo(strong, actionField, visualField, attractiveness))
         publish(new GetInfoAck)
       case _ => Unit
     }
@@ -111,53 +108,52 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   private def configureMappings(): Unit = {
     addMapping[EntityPosition]((classOf[EntityPosition], ev => Seq(EntityProperty("position", ev position))))
     addMapping[BrainInfo]((classOf[BrainInfo], ev => Seq(
-      EntityProperty("height", ev height),
-      EntityProperty("position", ev position),
       EntityProperty("strong", ev strong),
-      EntityProperty("defense", ev defense),
-      EntityProperty("kind", ev kind),
       EntityProperty("actionField", ev actionField),
       EntityProperty("visualField", ev visualField),
-      EntityProperty("attractiveness", ev attractiveness),
-      EntityProperty("gender", ev gender)
+      EntityProperty("attractiveness", ev attractiveness)
     )))
   }
 
-  private def nextMove(speed: Double, energy: Double, fertility: Double): Point = {
+  private def nextMove(speed: Double, energy: Double, fertility: Double): Future[Point] = {
 
-    val floorSpeed = speed.toInt
-    val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id, EntityKinds(Symbol(kind)), height, strong, defense, (position.x, position.y), attractiveness, SexTypes.withNameOpt(gender).get)
-    decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
-    val partners = decisionSupport.discoverPartners(me)
-    val preys = decisionSupport.discoverPreys(me)
-    var targets: Stream[EntityChoiceImpl] = preys
-    var action: ActionKind.Value = ActionKind.EAT
-    if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
-    if (targets.nonEmpty) {
-      val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
-      val entityAttribute = entityInVisualField(entityChoice.name)
+    requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest) map (data => {
+      var position = data position
+      val floorSpeed = speed.toInt
+      val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id,
+        EntityKinds(Symbol(data species)), data height, strong, data defense, (data.position.x, data.position.y),
+        attractiveness, SexTypes.withNameOpt(data gender).get)
+      decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
+      val partners = decisionSupport.discoverPartners(me)
+      val preys = decisionSupport.discoverPreys(me)
+      var targets: Stream[EntityChoiceImpl] = preys
+      var action: ActionKind.Value = ActionKind.EAT
+      if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
+      if (targets.nonEmpty) {
+        val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
+        val entityAttribute = entityInVisualField(entityChoice.name)
 
-      if (entityChoice.distance < actionField) {
-        me.position = entityAttribute.position
-        publish(InteractionEntity(entityAttribute name, action))
-      } else {
-        (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+        if (entityChoice.distance < actionField) {
+          me.position = entityAttribute.position
+          publish(InteractionEntity(entityAttribute name, action))
+        } else {
+          (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+        }
+
+        position = Point(me.position.x, me.position.y)
       }
-
-      position = Point(me.position.x, me.position.y)
-    }
-    else {
-      val direction = Direction(new Random().nextInt(Direction.values.size))
-      position = direction match {
-        case Direction.DOWN => (position.x, position.y - floorSpeed)
-        case Direction.UP => (position.x, position.y + floorSpeed)
-        case Direction.LEFT => (position.x - floorSpeed, position.y)
-        case Direction.RIGHT => (position.x + floorSpeed, position.y)
+      else {
+        val direction = Direction(new Random().nextInt(Direction.values.size))
+        position = direction match {
+          case Direction.DOWN => (position.x, position.y - floorSpeed)
+          case Direction.UP => (position.x, position.y + floorSpeed)
+          case Direction.LEFT => (position.x - floorSpeed, position.y)
+          case Direction.RIGHT => (position.x + floorSpeed, position.y)
+        }
       }
-    }
-
-    decisionSupport.clearVisualField()
-    position
+      decisionSupport.clearVisualField()
+      position
+    })
   }
 
   private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt

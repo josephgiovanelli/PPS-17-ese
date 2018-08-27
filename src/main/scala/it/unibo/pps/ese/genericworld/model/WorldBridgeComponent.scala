@@ -50,7 +50,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     case r: InteractionEvent if r.id != entitySpecifications.id =>
       if (!disposed) world interact InteractionEnvelope(entitySpecifications id, r id, r)
     case UpdateEntityState(properties) => properties foreach (e =>
-      (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
+      if (!disposed) (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
     case Kill(entityId)  =>
       if (!disposed) world removeEntity entityId
     case Create(partnerId)  =>

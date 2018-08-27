@@ -23,14 +23,15 @@ object NervousSystem {
 
     private[this] val _eventBus = EventBus()
     private[this] var _eventsMappings : List[(Class[_], _ => Seq[EntityProperty])]= List empty
-
-    _eventBus attach (ev => {
+    private[this] val _mapper : Consumer = ev => {
       val mapper = _eventsMappings find(e => e._1.getName == ev.getClass.getName)
       if (mapper isDefined) mapper get match {
-        case (_, map : (Event => Seq[EntityProperty])) => publish(UpdateEntityState(map(ev)))
+        case (_, map: (Event => Seq[EntityProperty])) => publish(UpdateEntityState(map(ev)))
         case _ => Unit
       }
-    })
+    }
+
+    _eventBus attach _mapper
 
     override def publish(event: Event) : Unit = _eventBus send event
 
@@ -52,6 +53,7 @@ object NervousSystem {
     }
 
     override def dispose(): Unit = {
+      _eventBus detach _mapper
       _eventsMappings = List empty
     }
   }

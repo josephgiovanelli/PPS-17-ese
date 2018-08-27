@@ -10,7 +10,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 case class MealInformation(entityId: String, eatenEnergy: Double) extends InteractionEvent(entityId)
 case class PhysicalStatusInfo(averageLife: Double,
                                energyRequirements: Double,
-                               nutritiveValue: Double,
                                endChildPhase: Double,
                                endAdultPhase: Double,
                                percentageDecay: Double,
@@ -21,7 +20,6 @@ case class PhysicalStatusInfo(averageLife: Double,
 case class PhysicalStatusComponent(override val entitySpecifications: EntitySpecifications,
                                    averageLife: Double,
                                    energyRequirements: Double,
-                                   nutritiveValue: Double,
                                    endChildPhase: Double,
                                    endAdultPhase: Double,
                                    percentageDecay: Double,
@@ -71,10 +69,10 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
             case Failure(error) => throw error
           }
       case MealInformation(targetId, _) if entitySpecifications.id == targetId =>
-        println("OMG!!1!!1! I've been killed! (Id : " + entitySpecifications.id +")")
+        //println("OMG!!1!!1! I've been killed! (Id : " + entitySpecifications.id +")")
         publish(Kill(entitySpecifications id))
       case GetInfo() =>
-        publish(PhysicalStatusInfo(averageLife, energyRequirements, nutritiveValue, endChildPhase, endAdultPhase, percentageDecay, speed, fertility))
+        publish(PhysicalStatusInfo(averageLife, energyRequirements, endChildPhase, endAdultPhase, percentageDecay, speed, fertility))
         publish(new GetInfoAck)
       case _ => Unit
     }
@@ -84,7 +82,6 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     addMapping[PhysicalStatusInfo]((classOf[PhysicalStatusInfo], ev => Seq(
       EntityProperty("averageLife", ev averageLife),
       EntityProperty("energyRequirements", ev energyRequirements),
-      EntityProperty("nutritiveValue", ev nutritiveValue),
       EntityProperty("endChildPhase", ev endChildPhase),
       EntityProperty("endAdultPhase", ev endAdultPhase),
       EntityProperty("percentageDecay", ev percentageDecay),

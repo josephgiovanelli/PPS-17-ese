@@ -53,8 +53,8 @@ object WorldBuilder {
 
   private def initializeEntity(animalInfo: AnimalInfo, position: Point) : Entity = {
     val entity = Entity("improved", randomUUID().toString)
-    entity addComponent initializeBaseInfoComponent(entity, animalInfo)
-    entity addComponent initializeBrainComponent(entity, animalInfo, position)
+    entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
+    entity addComponent initializeBrainComponent(entity, animalInfo)
     entity addComponent initializePhysicalComponent(entity, animalInfo)
     entity
   }
@@ -62,27 +62,22 @@ object WorldBuilder {
 
   private def initializeEntity(plantInfo: PlantInfo, position: Point) : Entity = {
     val entity = Entity("improved", randomUUID().toString)
-    entity addComponent initializeBaseInfoComponent(entity, plantInfo)
-    entity addComponent initializePhysicalComponent(entity, plantInfo, position)
+    entity addComponent initializeBaseInfoComponent(entity, plantInfo, position)
+    entity addComponent initializePhysicalComponent(entity, plantInfo)
     entity
   }
 
-  private def initializeBrainComponent(entity: Entity, animalInfo: AnimalInfo, position: Point) : Component = {
+  private def initializeBrainComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
 
     implicit def convertKind(dietType: DietType): String = if (dietType.dietName == "H") "herbivore" else "carnivorous"
 
     BrainComponent(entity specifications,
       500,
       500,
-      position,
-      animalInfo.qualities(Height).qualityValue,
       animalInfo.qualities(Strength).qualityValue,
-      animalInfo.qualities(ResistenceToAttack).qualityValue,
-      animalInfo.species.name,
       animalInfo.qualities(RangeOfAction).qualityValue,
       animalInfo.qualities(FieldOfView).qualityValue,
-      animalInfo.qualities(Attractiveness).qualityValue,
-      animalInfo.gender.toString.toLowerCase)
+      animalInfo.qualities(Attractiveness).qualityValue)
   }
 
   private def initializePhysicalComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
@@ -90,7 +85,6 @@ object WorldBuilder {
       entity specifications,
       animalInfo.qualities(Life).qualityValue.toInt,
       animalInfo.qualities(EnergyRequirements).qualityValue,
-      animalInfo.qualities(NutritionalValue).qualityValue,
       animalInfo.qualities(Maturity).qualityValue,
       animalInfo.qualities(Oldness).qualityValue,
       animalInfo.qualities(Decline).qualityValue,
@@ -98,27 +92,29 @@ object WorldBuilder {
       animalInfo.qualities(Fertility).qualityValue)
   }
 
-  private def initializeBaseInfoComponent(entity: Entity, entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo) : Component = {
+  private def initializeBaseInfoComponent(entity: Entity, entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo, position: Point) : Component = {
 
     implicit def convertReign(reign: Reign): ReignType.Value = if (reign.reignName == "A") ReignType.ANIMAL else ReignType.PLANT
+    implicit def convertDefense(entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo): Double =
+      if (convertReign(entityInfo.species.reign) == ReignType.ANIMAL) entityInfo.qualities(ResistenceToAttack).qualityValue
+      else entityInfo.qualities(Hardness).qualityValue
 
     BaseInfoComponent(
       entity specifications,
       entityInfo.species.name,
-      entityInfo.species.reign
+      entityInfo.species.reign,
+      entityInfo.gender.toString.toLowerCase,
+      position,
+      entityInfo.qualities(Height).qualityValue,
+      entityInfo.qualities(NutritionalValue).qualityValue,
+      entityInfo
     )
   }
 
-  private def initializePhysicalComponent(entity: Entity, plantInfo: PlantInfo, position: Point) : Component = {
+  private def initializePhysicalComponent(entity: Entity, plantInfo: PlantInfo) : Component = {
     PlantPhysicalComponent(
       entity specifications,
-      position,
-      plantInfo.qualities(Height).qualityValue,
-      plantInfo.qualities(NutritionalValue).qualityValue,
-      plantInfo.qualities(Availability).qualityValue,
-      plantInfo.qualities(Hardness).qualityValue,
-      plantInfo.gender.toString.toLowerCase
-    )
+      plantInfo.qualities(Availability).qualityValue)
   }
 
   private def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {

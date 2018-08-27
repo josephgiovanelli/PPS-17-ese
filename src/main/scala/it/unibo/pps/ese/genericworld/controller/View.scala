@@ -34,10 +34,10 @@ object ViewHelpers {
   implicit def intRoRgbColor(i: Int): Color = Color.rgb((i >> 24) & 0xFF, (i >> 16) & 0xFF, (i >> 8) & 0xFF, 1.0)
 
   implicit def toEntityViewData(data: EntityState): Entity =
-    Entity(data.entityId, data.state.species, toPosition(data.state.position), data.state.species.hashCode)
+    Entity(data.entityId, data.state.species.toString, toPosition(data.state.position), data.state.species.toString.hashCode)
 
   implicit def toEntityViewDetails(data: EntityState): EntityDetails =
-    EntityDetails(data.entityId, data.state.species, toPosition(data.state.position))
+    EntityDetails(data.entityId, data.state.species.toString, toPosition(data.state.position))
 
   implicit def toViewData(data: Seq[EntityState]): List[Entity] =
     (data map toEntityViewData).toList

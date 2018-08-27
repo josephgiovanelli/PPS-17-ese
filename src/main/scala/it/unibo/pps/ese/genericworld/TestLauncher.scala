@@ -42,7 +42,7 @@ object TestLauncher extends JFXApp {
 //    world addEntity entity1
 
     val world = WorldBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
-    val controller = Controller(world, clockPeriod = 32 millis)
+    val controller = Controller(world, clockPeriod = 250 millis)
     val view = View()
     stage = view
     controller attachView (view, frameRate = 30)
