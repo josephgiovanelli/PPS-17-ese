@@ -8,7 +8,7 @@ properties:
       height: 0.5
   muscolatura:
     conversionMap:
-      speed: 0.5
+      speed: 4.0
       ResistenceToAttack: 4.0
   tutte:
     conversionMap:

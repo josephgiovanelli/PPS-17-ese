@@ -27,7 +27,7 @@ class TestLoadingSimulation extends FunSuite{
     val gatto:AnimalInfo = geneticsSimulator.newAnimal("Gatto")
     assert(gatto.species==Species(Animal,"Gatto"))
     assert(gatto.dietType==Carnivorous)
-    val qualities = gatto.animalQualities
+    val qualities = gatto.qualities
 
     if(gatto.gender == Male){
       assert(!(qualities contains Fecundity))
@@ -44,7 +44,7 @@ class TestLoadingSimulation extends FunSuite{
 //    assert(geneticsSimulator.obtainMutantAlleles("Gatto").isEmpty)
 
     assert(geneticsSimulator.plantSpeciesList.contains("ErbaGatta"))
-    assert(geneticsSimulator.newPlant("ErbaGatta").availability==4.0)
+    assert(geneticsSimulator.newPlant("ErbaGatta").qualities(QualityType.Availability).qualityValue==4.0)
 
     assertThrows[IllegalStateException](geneticsSimulator.beginSimulation(data))
 
@@ -86,7 +86,7 @@ class TestLoadingSimulation extends FunSuite{
     println(child)
     assert(geneticsSimulator.obtainMutantAlleles("Gatto",
       sm(ChromosomeType.STRUCTURAL_ANIMAL).geneList.head).nonEmpty)
-    println(female.animalQualities.values.size)
+    println(female.qualities.values.size)
 
   }
 }

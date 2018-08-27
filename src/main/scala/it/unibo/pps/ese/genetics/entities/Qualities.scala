@@ -21,7 +21,10 @@ import enumeratum._
     case object Maturity extends QualityType
     case object Oldness extends QualityType
     case object Decline extends QualityType
+    case object Availability extends QualityType
+    case object Hardness extends QualityType
     def maleSexualQualities:Seq[QualityType] = List(Fertility)
+    def plantQualities:Seq[QualityType] = List(Availability,Attractiveness,Height,NutritionalValue,Hardness)
     def femaleSexualQualities:Seq[QualityType] = List(Fertility,Fecundity)
   }
 
@@ -42,7 +45,6 @@ import enumeratum._
       override def toString: String = qualityType.toString+": "+qualityValue
     }
   }
-
 
   object QualityValueConstraints{
     implicit def qualityTypeToConstraint(qualityType: QualityType):Double=>Boolean = {

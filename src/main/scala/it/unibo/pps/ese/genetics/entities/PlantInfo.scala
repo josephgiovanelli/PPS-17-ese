@@ -1,26 +1,25 @@
 package it.unibo.pps.ese.genetics.entities
 
 import it.unibo.pps.ese.controller.loader.data.PlantData
+import it.unibo.pps.ese.genetics.{Utilities, entities}
 import it.unibo.pps.ese.genetics.dna.Genome
 
-trait PlantInfo extends PlantData{
+trait PlantInfo extends EntityInfo{
   def genome:Genome
 }
 object PlantInfo{
   def apply(plantData: PlantData,genome: Genome): PlantInfo = PlantInfoImpl(plantData,genome)
   case class PlantInfoImpl(plantData: PlantData,genome: Genome) extends PlantInfo{
-    override def name: String = plantData.name
+    override val species: Species = Species(Plant,plantData.name)
 
-    override def geneLength: Int = plantData.geneLength
+    override val gender: Gender = Utilities.pickRandomElement(Male,Female)
 
-    override def alleleLength: Int = plantData.alleleLength
-
-    override def reign: String = plantData.reign
-
-    override def height: Double = plantData.height
-
-    override def nutritionalValue: Double = plantData.nutritionalValue
-
-    override def availability: Double = plantData.availability
+    override val qualities: Map[QualityType, Quality] = Map(
+      QualityType.Height |->| plantData.height,
+      QualityType.NutritionalValue |->| plantData.nutritionalValue,
+      QualityType.Attractiveness |->| plantData.attractiveness,
+      QualityType.Hardness |->| plantData.hardness,
+      QualityType.Availability |->| plantData.availability
+    )
   }
 }

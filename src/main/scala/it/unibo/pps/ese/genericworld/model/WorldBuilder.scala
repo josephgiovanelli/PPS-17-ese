@@ -56,27 +56,27 @@ object WorldBuilder {
       100,
       100,
       position,
-      animalInfo.animalQualities(Height).qualityValue,
-      animalInfo.animalQualities(Strength).qualityValue,
-      animalInfo.animalQualities(ResistenceToAttack).qualityValue,
+      animalInfo.qualities(Height).qualityValue,
+      animalInfo.qualities(Strength).qualityValue,
+      animalInfo.qualities(ResistenceToAttack).qualityValue,
       animalInfo.dietType,
-      animalInfo.animalQualities(RangeOfAction).qualityValue,
-      animalInfo.animalQualities(FieldOfView).qualityValue,
-      animalInfo.animalQualities(Attractiveness).qualityValue,
+      animalInfo.qualities(RangeOfAction).qualityValue,
+      animalInfo.qualities(FieldOfView).qualityValue,
+      animalInfo.qualities(Attractiveness).qualityValue,
       animalInfo.gender.toString.toLowerCase)
   }
 
   private def initializePhysicalComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
     PhysicalStatusComponent(
       entity specifications,
-      animalInfo.animalQualities(Life).qualityValue.toInt,
-      animalInfo.animalQualities(EnergyRequirements).qualityValue,
-      animalInfo.animalQualities(NutritionalValue).qualityValue,
-      animalInfo.animalQualities(Maturity).qualityValue,
-      animalInfo.animalQualities(Oldness).qualityValue,
-      animalInfo.animalQualities(Decline).qualityValue,
-      animalInfo.animalQualities(Speed).qualityValue,
-      animalInfo.animalQualities(Fertility).qualityValue)
+      animalInfo.qualities(Life).qualityValue.toInt,
+      animalInfo.qualities(EnergyRequirements).qualityValue,
+      animalInfo.qualities(NutritionalValue).qualityValue,
+      animalInfo.qualities(Maturity).qualityValue,
+      animalInfo.qualities(Oldness).qualityValue,
+      animalInfo.qualities(Decline).qualityValue,
+      animalInfo.qualities(Speed).qualityValue,
+      animalInfo.qualities(Fertility).qualityValue)
   }
 
   private def initializeBaseInfoComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {

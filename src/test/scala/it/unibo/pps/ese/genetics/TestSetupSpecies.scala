@@ -112,19 +112,19 @@ class TestSetupSpecies extends FunSuite{
     val animalFeature:AnimalInfo = speciesSetup.translateGenome(animalGenome)
     println(animalFeature)
     if(animalFeature.gender == Male){
-      assert(!(animalFeature.animalQualities contains Fecundity))
+      assert(!(animalFeature.qualities contains Fecundity))
     }else{
-      assert(animalFeature.animalQualities contains Fertility)
-      assert(animalFeature.animalQualities contains Fecundity)
-      assert(animalFeature.animalQualities(Fertility).qualityValue==2.0)
-      assert(animalFeature.animalQualities(Fecundity).qualityValue==3.0)
+      assert(animalFeature.qualities contains Fertility)
+      assert(animalFeature.qualities contains Fecundity)
+      assert(animalFeature.qualities(Fertility).qualityValue==2.0)
+      assert(animalFeature.qualities(Fecundity).qualityValue==3.0)
     }
     val speed:Double = animalFeature
-      .animalQualities(Speed)
+      .qualities(Speed)
       .qualityValue
     assert(speed==6.0||speed==9.0)
     val qualityValue:Double = animalFeature
-      .animalQualities(Life)
+      .qualities(Life)
       .qualityValue
     assert(qualityValue==2.0 || qualityValue == 3.0)
     println(animalGenome)

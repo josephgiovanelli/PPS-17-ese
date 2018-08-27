@@ -4,5 +4,5 @@ allelesPath: it/unibo/pps/ese/controller/loader/struct2/oAll
 properties:
   view:
     conversionMap:
-      fieldofview: 1.0
+      fieldofview: 100.0
       Attractiveness : 5.0
