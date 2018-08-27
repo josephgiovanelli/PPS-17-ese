@@ -7,5 +7,7 @@ case class Plant(name: String,
                  alleleLength: Int,
                  reign: String,
                  height: Double,
+                 attractiveness: Double,
+                 hardness: Double,
                  nutritionalValue: Double,
                  availability: Double) extends PlantData
