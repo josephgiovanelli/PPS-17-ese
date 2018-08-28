@@ -50,4 +50,16 @@ package object dna {
   implicit class RichChromosomeMap(aC:Map[ChromosomeType,ChromosomeCouple]){
     def |%-%|(scc: SexualChromosomeCouple):AnimalGenome=dna.AnimalGenome(aC,scc)
   }
+  implicit class RichGenome(genome: AnimalGenome){
+    def coupledGene:Map[ChromosomeType,List[(MGene,MGene)]] = {
+      genome.firstGenomeSequence.values.map(c=> {
+        val geneCouples:List[(MGene,MGene)] = c.geneList.map(g=>{
+          val specular = genome.secondGenomeSequence(c.chromosomeType).geneList.find(_.geneId==g.geneId).get
+          (g,specular)
+        }).toList
+        c.chromosomeType->geneCouples
+      }
+      ).toMap
+    }
+  }
 }

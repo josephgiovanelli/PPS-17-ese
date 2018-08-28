@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genetics.dna
 object ProteinoGenicAmminoacid extends Enumeration {
     type ProteinoGenicAmminoacid = Value
     protected case class Val(shortName: Char, name: String) extends super.Val{
-      override def toString(): String =super.toString()+ ": { "+shortName+", "+name+" }"
+      override def toString(): String =shortName.toString
     }
 
     implicit def valueToAmminoacidVal(x: Value): Val = x.asInstanceOf[Val]
