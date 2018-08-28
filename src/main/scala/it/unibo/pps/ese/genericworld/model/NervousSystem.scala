@@ -9,6 +9,7 @@ sealed trait NervousSystem {
   def subscribe(handler: Event => Unit)
   def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): Future[B]
   def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty]))
+  def notifyOnTasksEnd(): Future[Done]
 }
 
 sealed trait ManageableNervousSystem extends NervousSystem {
@@ -56,5 +57,7 @@ object NervousSystem {
       _eventBus detach _mapper
       _eventsMappings = List empty
     }
+
+    override def notifyOnTasksEnd(): Future[Done] = _eventBus notifyOnTasksEnd()
   }
 }

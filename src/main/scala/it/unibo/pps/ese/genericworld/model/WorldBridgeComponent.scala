@@ -33,13 +33,11 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
                            world: InteractiveWorld) extends WriterComponent(entitySpecifications) with WorldBridge {
 
   private var disposed = false
-  private var newStatePromise : Promise[Done] = Promise()
-  private var requireInfoPromise : Promise[Done] = Promise()
-  private val newStateAccumulator : AtomicLong = new AtomicLong(0)
-  private val requireInfoAccumulator : AtomicLong = new AtomicLong(0)
+  private var jobCompleted = true
+  private var runningJobPromise : Promise[Done] = Promise()
+  private val runningJobAccumulator : AtomicLong = new AtomicLong(0)
 
-  newStatePromise success new Done()
-  requireInfoPromise success new Done()
+  runningJobPromise success new Done()
 
   override def initialize(): Unit = subscribe {
     case r: WorldInfoRequest =>
@@ -58,42 +56,46 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
       //and then call
       //world addEntity newEntity
     case ComputeNextStateAck() =>
-      if (newStateAccumulator.incrementAndGet == entitySpecifications.componentsCount - 1)
-        newStatePromise success new Done()
+      runningJobAccumulator.incrementAndGet
+      checkRunningJobCompletion()
     case GetInfoAck() =>
-      if (requireInfoAccumulator.incrementAndGet == entitySpecifications.componentsCount - 1)
-        requireInfoPromise success new Done()
+      runningJobAccumulator.incrementAndGet
+      checkRunningJobCompletion()
     case _ => Unit
   }
 
-  override def computeNewState(implicit context: ExecutionContext): Future[Done] = {
-    if (disposed) Future {new Done}
-    if (newStatePromise isCompleted) {
-      newStatePromise = Promise()
-      newStateAccumulator.set(0)
-      publish(ComputeNextState())
-      newStatePromise future
-    } else {
-      failurePromise()
-    }
-  }
+  override def computeNewState(implicit context: ExecutionContext): Future[Done] = startNewJob(ComputeNextState())
 
-  override def requireInfo(implicit context: ExecutionContext): Future[Done] = {
-    if (disposed) Future {new Done}
-    if (requireInfoPromise isCompleted) {
-      requireInfoPromise = Promise()
-      requireInfoAccumulator.set(0)
-      publish(GetInfo())
-      requireInfoPromise future
-    } else {
-      failurePromise()
-    }
-  }
+  override def requireInfo(implicit context: ExecutionContext): Future[Done] = startNewJob(GetInfo())
 
   override def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Unit =
     publish(envelope.message)
 
   override def dispose(): Unit = disposed = true
+
+  private def startNewJob(event: Event)(implicit context: ExecutionContext): Future[Done] = {
+    if (disposed) Future {new Done}
+    if ((runningJobPromise isCompleted) && jobCompleted) {
+      jobCompleted = false
+      nervousSystem notifyOnTasksEnd() onComplete (_ => {
+        jobCompleted = true
+        checkRunningJobCompletion()
+      })
+      runningJobPromise = Promise()
+      runningJobAccumulator.set(0)
+      publish(event)
+      runningJobPromise future
+    } else {
+      failurePromise()
+    }
+  }
+
+  private def checkRunningJobCompletion(): Unit = this synchronized {
+    if (!(runningJobPromise isCompleted)
+      && runningJobAccumulator.get() == entitySpecifications.componentsCount - 1
+      && jobCompleted)
+      runningJobPromise success new Done()
+  }
 
   private def failurePromise() : Future[Done] = {
     val result = Promise[Done]()

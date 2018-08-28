@@ -61,8 +61,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
             case Success(result) =>
               import EntityInfoConversion._
               val necessaryEnergy = MAX_ENERGY - currentEnergy
-              val eatenEnergy = if (result.state.head.state.nutritiveValue > necessaryEnergy)
-                necessaryEnergy else result.state.head.state.nutritiveValue
+              val eatenEnergy = if (result.state.head.state.nutritionalValue > necessaryEnergy)
+                necessaryEnergy else result.state.head.state.nutritionalValue
               currentEnergy += eatenEnergy
               publish(MealInformation(entityId, eatenEnergy))
               //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")

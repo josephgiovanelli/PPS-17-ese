@@ -27,7 +27,7 @@ object EntityInfoConversion {
   implicit class PhysicalStatusConversions(obj: EntityInfo) {
     def averageLife : Double = obj.selectDynamic("averageLife").asInstanceOf[Double]
     def energyRequirements : Double = obj.selectDynamic("energyRequirements").asInstanceOf[Double]
-    def nutritiveValue : Double = obj.selectDynamic("nutritionalValue").asInstanceOf[Double]
+    def nutritionalValue : Double = obj.selectDynamic("nutritionalValue").asInstanceOf[Double]
     def endChildPhase : Double = obj.selectDynamic("endChildPhase").asInstanceOf[Double]
     def endAdultPhase : Double = obj.selectDynamic("endAdultPhase").asInstanceOf[Double]
     def percentageDecay : Double = obj.selectDynamic("percentageDecay").asInstanceOf[Double]
