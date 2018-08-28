@@ -1,6 +1,9 @@
 language: scala
 scala:
 - 2.12.6
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION test
+  - sbt ++$TRAVIS_SCALA_VERSION assembly
 deploy:
   provider: releases
   api_key:
