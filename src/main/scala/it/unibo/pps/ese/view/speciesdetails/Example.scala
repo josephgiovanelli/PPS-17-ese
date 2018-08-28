@@ -35,10 +35,8 @@ object Example extends JFXApp { app =>
     scene.setFill(Color.color(0.2, 0.2, 0.2, 1.0));
 
     val hbox = new HBox()
-    hbox.setLayoutX(50);
+    hbox.setLayoutX(20);
     hbox.setLayoutY(200);
-  val leftTextPane = new Text("")
-  val rightTextPane = new Text("")
   import CreateDna._
   val moleculeXform = createMoleculeFormComplete(0.0,0.0,0.0,180,None,None)
   val moleculeXform2 = createMoleculeFormComplete(20,20,-15,165,Some(ChromosomeType.COMMON),Some(iteratorCommon))
@@ -83,37 +81,16 @@ object Example extends JFXApp { app =>
   val phongMaterial = new PhongMaterial(Color.color(1.0, 0.7, 0.8));
   val cylinder1 = new Group()
   cylinder1.children += moleculeGroup
-  val cylinder2 = new Cylinder(100, 200);
-  cylinder2.setMaterial(phongMaterial);
 
-//  val cylinder1 = new Cylinder(100, 200);
-//    cylinder1.setMaterial(phongMaterial);
-//    val noMsaa = createSubScene("MSAA = false", cylinder2,
-//      Color.Transparent,
-//      new PerspectiveCamera(), false);
-//    hbox.getChildren().add(noMsaa);
-  val textTitle:String = "Common Chromosome 1\n" +
-    "Gene Id: CCBA\n" +
-    "Allele Id: AD\n" +
-    "Affect: Speed,Strenght\n" +
-    "Dominance Level: 5.0\n" +
-    "Probability: 30%\n" +
-    "Active: Yes\n"
-  val lS = createTextSubScene(textTitle,Color.Transparent,leftTextPane)
+  val lS = new GeneDetailsScene(300,400,Left)
   hbox.children += lS
   val msaa = createSubScene("", cylinder1,
     Color.Transparent,
     new PerspectiveCamera(), true);
   hbox.getChildren().add(msaa);
 
-  val textTitle2:String = "Common Chromosome 1\n" +
-    "Gene Id: CCBA\n" +
-    "Allele Id: AB\n" +
-    "Affect: Speed,Strenght\n" +
-    "Dominance Level: 4.0\n" +
-    "Probability: 40%\n" +
-    "Active: No\n"
-  val rS = createTextSubScene(textTitle2,Color.Transparent,rightTextPane)
+  val rS = new GeneDetailsScene(300,400,Right)
+  //  val rS = createTextSubScene(textTitle2,Color.Transparent,rightTextPane)
   hbox.children += rS
 //  val msaa2 = createSubScene("MSAA = true", cylinder2,
 //    Color.Transparent,
@@ -125,7 +102,6 @@ object Example extends JFXApp { app =>
     slider.setTranslateX(400);
     slider.setTranslateY(625);
     cylinder1.rotateProperty().bind(slider.valueProperty());
-    cylinder2.rotateProperty().bind(slider.valueProperty());
     root.getChildren().addAll(hbox, slider);
 
     stage.setScene(scene);
@@ -134,8 +110,8 @@ object Example extends JFXApp { app =>
   def setTitle (str:String,text: Text):Parent= {
     val vbox = new VBox()
     text.setText(str)
-    text.setFont(Font.font("Times New Roman", 24))
-    text.setFill(Color.Wheat)
+    text.setFont(Font.font("Calibri", 24))
+    text.setFill(Color.web("67809F"))
     vbox.getChildren().add(text)
     vbox
   }
@@ -144,7 +120,7 @@ object Example extends JFXApp { app =>
      fillPaint:Paint,  camera:Camera, msaa:Boolean):SubScene={
     val root = new Group();
 
-    val light = new PointLight(Color.White);
+    val light = new PointLight(Color.WhiteSmoke);
     light.setTranslateX(50);
     light.setTranslateY(-300);
     light.setTranslateZ(-400);
@@ -153,12 +129,11 @@ object Example extends JFXApp { app =>
     light2.setTranslateY(0);
     light2.setTranslateZ(-400);
 
-    val ambientLight = new AmbientLight(Color.White);
+    val ambientLight = new AmbientLight(Color.WhiteSmoke);
     node.setRotationAxis(Rotate.YAxis);
-    node.setTranslateX(125);
+    node.setTranslateX(150);
     node.setTranslateY(200);
-    root.getChildren().addAll(setTitle(title,new Text()), ambientLight,
-      light, light2, node);
+    root.getChildren().addAll(setTitle(title,new Text()), node);
 
     val subScene = new SubScene(root, 400, 500, true,SceneAntialiasing.Balanced);
     subScene.setFill(fillPaint);
@@ -166,77 +141,107 @@ object Example extends JFXApp { app =>
 
      subScene
   }
-  def createTextSubScene( title:String,fillPaint:Paint,text:Text):SubScene={
-    val root = new Group();
-
-    root.getChildren().addAll(setTitle(title,text));
-
-    val subScene = new SubScene(root, 300, 400, true,SceneAntialiasing.Balanced);
-    subScene.setFill(fillPaint);
-    subScene
-  }
+//  def createTextSubScene( title:String,fillPaint:Paint,text:Text):SubScene={
+//    val root = new Group();
+//
+//    root.getChildren().addAll(setTitle(title,text));
+//
+//    val subScene = new SubScene(root, 300, 400, true,SceneAntialiasing.Balanced);
+//    subScene.setFill(fillPaint);
+//    subScene
+//  }
   object CreateDna{
     val blueMaterial = new PhongMaterial {
-      diffuseColor = Color.DarkBlue
-      specularColor = Color.Blue
+      diffuseColor = Color.web("1abc9c")
+      specularColor = Color.web("16a085")
     }
     val greyMaterial = new PhongMaterial {
-      diffuseColor = Color.DarkGrey
-      specularColor = Color.Grey
+      diffuseColor = Color.web("95a5a6")
+      specularColor = Color.web("7f8c8d")
+    }
+    val whiteMaterial = new PhongMaterial{
+      diffuseColor = Color.web("ecf0f1")
+      specularColor = Color.web("bdc3c7")
     }
     def createHydrogenSpereCouple(tY:Double,chromosomeType: Option[ChromosomeType],geneCouple:Option[(MGene,MGene)]):(Sphere,Sphere) = {
       val size:Double = 15.0
-      val textTitle1:String = if (chromosomeType.nonEmpty && geneCouple.nonEmpty) {
-        val cType = chromosomeType.get
-        val gCouple:(MGene,MGene) = geneCouple.get
-        val alleleID:String = gCouple._1 match {
-          case GeneWithAllelicForms(g,a,t) =>a.toString()
-          case BasicGene(g,t)=>""
-        }
-            cType.toString+" 1\n" +
-            "Gene Id: "+gCouple._1.geneId+"\n" +
-            "Allele Id: "+alleleID+"\n" +
-            "Affect: Speed,Strenght\n" +
-            "Dominance Level: 4.0\n" +
-            "Probability: 40%\n" +
-            "Active: No\n"
-      }else{
-        "Empty Gene"
-      }
-      val textTitle2:String = if (chromosomeType.nonEmpty && geneCouple.nonEmpty) {
-        val cType = chromosomeType.get
-        val gCouple:(MGene,MGene) = geneCouple.get
-        val alleleID:String = gCouple._2 match {
-          case GeneWithAllelicForms(g,a,t) =>a.toString()
-          case BasicGene(g,t)=>""
-        }
-        cType.toString+" 1\n" +
-          "Gene Id: "+gCouple._2.geneId+"\n" +
-          "Allele Id: "+alleleID+"\n" +
-          "Affect: Speed,Strenght\n" +
-          "Dominance Level: 4.0\n" +
-          "Probability: 40%\n" +
-          "Active: No\n"
-      }else{
-        "Empty Gene"
-      }
+
       val hydrogen1Sphere = new Sphere(size) {
-        material = blueMaterial
+        material = if (geneCouple.nonEmpty) blueMaterial else whiteMaterial
         translateY = tY
       }
 
       val hydrogen2Sphere = new Sphere(size) {
-        material = greyMaterial
+        material = if (geneCouple.nonEmpty) greyMaterial else whiteMaterial
         translateY = tY
       }
       hydrogen1Sphere.onMouseClicked = (me:MouseEvent) =>{
-        leftTextPane.setText(textTitle1)
-        rightTextPane.setText(textTitle2)
+        if(chromosomeType.nonEmpty && geneCouple.nonEmpty){
+          val cType = chromosomeType.get
+          val gCouple:(MGene,MGene) = geneCouple.get
+          val alleleID1:String = gCouple._1 match {
+            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+            case BasicGene(g,t)=>""
+          }
+          val alleleID2:String = gCouple._2 match {
+            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+            case BasicGene(g,t)=>""
+          }
+          lS.setGeneDetails(
+            chromosomeName = cType.toString+" 1",
+            geneId = gCouple._1.geneId.mkString(","),
+            alleleId = alleleID1,
+            affectedQualities = List("Speed"),
+            dominanceLevel = "5.0",
+            probability = "40",
+            active = "Yes"
+          )
+          rS.setGeneDetails(
+            chromosomeName = cType.toString+" 2",
+            geneId = gCouple._2.geneId.mkString(","),
+            alleleId = alleleID2,
+            affectedQualities = List("Speed"),
+            dominanceLevel = "5.0",
+            probability = "40",
+            active = "No"
+          )
+        }
         println("Cliccato")
       }
+
       hydrogen2Sphere.onMouseClicked = (me:MouseEvent) =>{
-        leftTextPane.setText(textTitle1)
-        rightTextPane.setText(textTitle2)
+        if(chromosomeType.nonEmpty && geneCouple.nonEmpty){
+          val cType = chromosomeType.get
+          val gCouple:(MGene,MGene) = geneCouple.get
+          val alleleID1:String = gCouple._1 match {
+            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+            case BasicGene(g,t)=>""
+          }
+          val alleleID2:String = gCouple._2 match {
+            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+            case BasicGene(g,t)=>""
+          }
+          lS.setGeneDetails(
+            chromosomeName = cType.toString+" 1",
+            geneId = gCouple._1.geneId.mkString(","),
+            alleleId = alleleID1,
+            affectedQualities = List("Speed"),
+            dominanceLevel = "5.0",
+            probability = "40",
+            active = "Yes"
+          )
+          rS.setGeneDetails(
+            chromosomeName = cType.toString+" 2",
+            geneId = gCouple._2.geneId.mkString(","),
+            alleleId = alleleID2,
+            affectedQualities = List("Speed"),
+            dominanceLevel = "5.0",
+            probability = "40",
+            active = "No"
+          )
+        }
+//        leftTextPane.setText(textTitle1)
+//        rightTextPane.setText(textTitle2)
         println("Cliccato")
       }
       (hydrogen1Sphere,hydrogen2Sphere)
