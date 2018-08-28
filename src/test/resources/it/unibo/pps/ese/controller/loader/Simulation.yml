@@ -1,0 +1,6 @@
+animals:
+  it/unibo/pps/ese/controller/loader/Animal.yml: 50
+  it/unibo/pps/ese/controller/loader/Animal2.yml: 60
+
+plants:
+  it/unibo/pps/ese/controller/loader/Plant.yml: 10
