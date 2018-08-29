@@ -3,13 +3,10 @@ package it.unibo.pps.ese.view.configuration
 import it.unibo.pps.ese.view.{MainComponent, ViewType}
 
 import scalafx.Includes._
-import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.geometry.Insets
-import scalafx.scene.{Node, Scene}
-import scalafx.scene.control.ButtonBar.ButtonData
+import scalafx.scene.{Scene}
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, GridPane, HBox, VBox}
+import scalafx.scene.layout.{BorderPane,VBox}
 import scalafx.stage.Window
 
 trait ConfigurationView {
@@ -17,11 +14,11 @@ trait ConfigurationView {
 
 case class Result(username: String, password: String)
 
-class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(500, 500) with ConfigurationView {
+class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350) with ConfigurationView {
 
 
   val ROW_HEIGHT = 26
-  val MIN_HEIGHT = 3
+  val MIN_ELEM = 5
 
   /*val currentWindow: scalafx.stage.Window = this.window()
   val dialog = LoginDialog(currentWindow)
@@ -38,23 +35,22 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(500, 500
     }
   }
 
-  val choices2 = ObservableBuffer[(String, TextField)](("a", new TextField()), ("b", new TextField()))
+  val choices2 = ObservableBuffer[String]("a", "b")
 
-  val lista2 = new ListView[(String, TextField)] {
+  val lista2 = new ListView[String] {
     items = choices2
     selectionModel().selectedItem.onChange {
       (_, _, newValue) => println("Selection Changed: " + newValue)
     }
   }
 
-
-  lista.prefHeight <== MIN_HEIGHT * ROW_HEIGHT
-  lista2.prefHeight <== MIN_HEIGHT * ROW_HEIGHT
+  lista.prefHeight = MIN_ELEM * ROW_HEIGHT
+  lista2.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val button = new Button("Add")
   val button2 = new Button("Add")
-  button.onAction = _ =>   animals += ("f" -> new TextField())
-  button2.onAction = _ => choices2.insert(2, ("d", new TextField()))
+  button.onAction = _ =>   choices.insert(choices.size, "d")
+  button2.onAction = _ => choices2.insert(choices2.size, "d")
 
   val animalPane = new BorderPane()
   animalPane.left = new Label("Animal")
@@ -64,43 +60,12 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(500, 500
   plantPane.left = new Label("Plant")
   plantPane.right = button2
 
-  var animals: Map[String, TextField] = Map.empty
-  animals += ("a" -> new TextField())
-  animals += ("b" -> new TextField())
-  animals += ("c" -> new TextField())
-  animals += ("d" -> new TextField())
-  animals += ("e" -> new TextField())
-
-  val expContent = new GridPane {
-    maxWidth = 100
-    maxHeight = 50
-    var count = 0
-    animals.toIndexedSeq.foreach(animal => {
-      add(new Label(animal._1), 0, count)
-      add(animal._2, 1, count)
-      count += 1
-    })
-  }
-
-  val vBox : VBox = new VBox()
-  vBox.children = animals map (animal => new HBox(new Label(animal._1), animal._2))
-
-  val scrollPane = new ScrollPane {
-    prefHeight = 500
-    prefWidth = 500
-    content = vBox
-    styleClass += "noborder-scroll-pane"
-  }
+  val confirmButton = new Button("Confirm")
 
 
-  content = new ScrollPane {
-    prefHeight = 500
-    prefWidth = 500
-    content = new VBox() {
-      children ++= Seq(animalPane, lista, plantPane, lista2)
-      styleClass += "sample-page"
-    }
-    styleClass += "noborder-scroll-pane"
+  content = new VBox() {
+    children ++= Seq(animalPane, lista, plantPane, lista2, confirmButton)
+    styleClass += "sample-page"
   }
 
 
