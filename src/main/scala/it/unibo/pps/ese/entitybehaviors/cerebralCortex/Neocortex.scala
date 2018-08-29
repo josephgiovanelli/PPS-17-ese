@@ -5,8 +5,8 @@ import it.unibo.pps.ese.view.Position
 
 
 trait Neocortex {
-  def addMemory(memoryType: MemoryType, memory: Memory)
-  def getMemeory(memoryType: MemoryType, position: Position): Option[Memory]
+  def addMemory(memoryType: MemoryType, memory: LongTermMemory)
+  def getMemeory(memoryType: MemoryType, position: Position): Option[LongTermMemory]
 }
 
 object Neocortex {
@@ -16,13 +16,13 @@ object Neocortex {
 
 private class NeocortexImpl extends Neocortex {
 
-  val memories: Map[MemoryType, Memory] = Map()
+  val memories: Map[MemoryType, LongTermMemory] = Map()
 
-  override def addMemory(memoryType: MemoryType, memory: Memory): Unit = {
+  override def addMemory(memoryType: MemoryType, memory: LongTermMemory): Unit = {
     memories(memoryType) = memory
   }
 
-  override def getMemeory(memoryType: MemoryType, position: Position): Option[Memory] = {
+  override def getMemeory(memoryType: MemoryType, position: Position): Option[LongTermMemory] = {
     memories.find(e => e._1==memoryType && e._2.locationalField.containsPosition(position)) match {
       case Some(tuple) => Some(tuple._2)
       case None => None

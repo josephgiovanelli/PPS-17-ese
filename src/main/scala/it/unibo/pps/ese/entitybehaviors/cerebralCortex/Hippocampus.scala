@@ -13,6 +13,7 @@ object Location {
 }
 
 trait Hippocampus {
+  def updateTime()
   def notifyEvent(memoryType: MemoryType, position: Position)
 
   def computeDirection(memoryType: MemoryType, currentPosition: Position)
@@ -24,10 +25,14 @@ object Hippocampus {
 
 class HippocampusImpl(neocortex: Neocortex) extends Hippocampus {
 
+  val memories: Map[MemoryType, ShortTermMemory] = Map()
+
   override def notifyEvent(memoryType: MemoryType, position: Position): Unit = {
     neocortex.getMemeory(memoryType, position)
 
   }
 
   override def computeDirection(memoryType: MemoryType, currentPosition: Position): Unit = ???
+
+  override def updateTime(): Unit = ???
 }
