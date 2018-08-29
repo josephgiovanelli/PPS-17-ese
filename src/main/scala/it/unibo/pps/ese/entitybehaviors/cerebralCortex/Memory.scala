@@ -1,12 +1,10 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Location.LocationalField
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.Score
 
 object Memory {
   type Score = Double
 
-  private trait Memory {
+  trait Memory {
     def locationalField: LocationalField
     def score: Score
     def score_=(score: Score): Unit

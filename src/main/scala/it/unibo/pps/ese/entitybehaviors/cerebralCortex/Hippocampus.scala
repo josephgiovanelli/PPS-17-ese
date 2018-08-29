@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Location.LocationalField
+
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.view.Position
@@ -32,11 +32,13 @@ object Hippocampus {
     val longTermThreshold = 100
 
     val memories: ShortTermMeories = Map()
+    var searchMemories: ShortTermMeories = Map()
 
 
     override def notifyEvent(memoryType: MemoryType, position: Position): Unit = {
-      neocortex.getMemeory(memoryType, position) match {
-        case Some(longTermMemory) => {
+      searchMemories = memories.clone()
+      neocortex.getMemeories(memoryType) match {
+        case Some(list) => {
 
         }
         case None => {
@@ -46,16 +48,33 @@ object Hippocampus {
     }
 
     override def computeDirection(memoryType: MemoryType, currentPosition: Position): Unit = {
+      neocortex.getMemeories(memoryType) match {
+        case Some(list) => {
 
+        }
+        case None =>
+      }
+      getBestMemory(currentPosition)
     }
 
     override def updateTime(): Unit = {
-      memories.foreach(t => t._2.elapsedTime+=1)
+      for (memory <- memories.values) {
+        memory.elapsedTime+=1
+      }
       memories.retain((k,v) => v.elapsedTime>=shortTermMemoryMaxTime)
     }
 
     private def computeGain: Double = {
       eventGainMin + (eventGainMax-eventGainMin)*eventGain.nextDouble()
     }
+
+    private def getBestMemory(position: Position): ShortTermMemory = {
+      searchMemories.maxBy(t => getMemoryCoefficient(t._2, position))._2
+    }
+
+    private def getMemoryCoefficient(memory: ShortTermMemory, position: Position): Double = {
+      memory.score/memory.locationalField.distanceFromPosition(position)
+    }
+
   }
 }

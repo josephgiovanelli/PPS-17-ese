@@ -9,7 +9,7 @@ import scala.collection.mutable.Map
 
 trait Neocortex {
   def addMemory(memoryType: MemoryType, memory: LongTermMemory)
-  def getMemeory(memoryType: MemoryType, position: Position): Option[LongTermMemory]
+  def getMemeories(memoryType: MemoryType): Option[List[LongTermMemory]]
 }
 
 object Neocortex {
@@ -19,19 +19,15 @@ object Neocortex {
 
 private class NeocortexImpl extends Neocortex {
 
-  type LongTermMemories = Map[MemoryType, ShortTermMemory]
+  type LongTermMemories = Map[MemoryType, List[LongTermMemory]]
 
   val memories: LongTermMemories = Map()
 
   override def addMemory(memoryType: MemoryType, memory: LongTermMemory): Unit = {
-    memories(memoryType) = memory
+    memories.getOrElse(memoryType, List()).+:(memory)
   }
 
-  override def getMemeory(memoryType: MemoryType, position: Position): Option[LongTermMemory] = {
-    memories.find(e => e._1==memoryType && e._2.locationalField.containsPosition(position)) match {
-      case Some(tuple) => Some(tuple._2)
-      case None => None
-    }
-
+  override def getMemeories(memoryType: MemoryType): Option[List[LongTermMemory]] = {
+    memories.get(memoryType)
   }
 }

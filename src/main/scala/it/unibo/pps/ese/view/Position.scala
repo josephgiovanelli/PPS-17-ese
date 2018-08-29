@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view
 
-case class Position(var x: Double, var y: Double) {
+case class Position(x: Double, y: Double) {
   def >=(that: Position): Boolean = {
     x>=that.x && y>=that.y
   }
@@ -15,5 +15,10 @@ case class Position(var x: Double, var y: Double) {
 
   def -(value: Double): Position = {
     Position(x-value, y-value)
+  }
+
+  def |-|(position: Position): Double = {
+    import Math._
+    sqrt(pow(position.x-x, 2) + pow(position.y-y, 2))
   }
 }
