@@ -12,7 +12,8 @@ case class BaseInfoResponse(override val id: String,
                             height: Double,
                             nutritionalValue: Double,
                             defense: Double,
-                            gender:String) extends ResponseEvent(id)
+                            gender:String,
+                            var moved: Boolean) extends ResponseEvent(id)
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
                         species: String,
@@ -21,7 +22,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
                         var position: Point,
                         height: Double,
                         var nutritionalValue: Double,
-                        defense: Double) extends WriterComponent(entitySpecifications) {
+                        defense: Double,
+                        var moved: Boolean = false) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()
@@ -32,17 +34,20 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
     case EntityPosition(newPosition) =>
       this synchronized {
         position = newPosition
+        moved = true
       }
     case EntityNutritionalValue(newNutritionalValue) =>
       this synchronized {
         nutritionalValue = newNutritionalValue
       }
     case r: BaseInfoRequest =>
-      publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender))
+      publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, moved))
     case ComputeNextState() =>
       publish(new ComputeNextStateAck)
+    case EraEnd() =>
+      moved = false
     case GetInfo() =>
-      publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender))
+      publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, moved))
       publish(new GetInfoAck)
     case _ => Unit
   }

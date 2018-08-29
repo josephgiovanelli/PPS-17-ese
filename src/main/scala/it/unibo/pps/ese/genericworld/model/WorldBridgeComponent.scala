@@ -16,6 +16,8 @@ case class EntitiesStateResponse(override val id: String, state: Seq[EntityState
 case class ComputeNextState() extends BaseEvent
 case class ComputeNextStateAck() extends BaseEvent
 
+case class EraEnd() extends BaseEvent
+
 case class Kill(entityId: String) extends BaseEvent
 case class Create(partnerId: String) extends BaseEvent
 
