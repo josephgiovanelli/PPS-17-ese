@@ -6,9 +6,11 @@ import it.unibo.pps.ese.controller.loader.data.{AnimalData, DefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.SimulationDataImpl
 import it.unibo.pps.ese.view.configuration.dialogs.LoginDialog
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
+import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.{MainComponent, ViewType}
 
 import scalafx.Includes._
+import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.Scene
 import scalafx.scene.control._
@@ -27,63 +29,66 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
   val MIN_ELEM = 5
 
   val currentWindow: scalafx.stage.Window = this.window()
-  /*val dialog = LoginDialog(currentWindow)
-  dialog.showAndWait()*/
-
-  val animalBeans = Animal("Gatto", 3, 3, "A", "C", "", null, null)
-  //simulationDataImpl.animals += (animal -> 0)
 
 
+  /*val animalBeans = Animal("Gatto", 3, 3, "A", "C", "", null, null)
   val effect: Map[String, Double] = Map("life" -> 2)
   val aaa = Allele("aaa", "zzz", 5, 5, 1, effect)
   val life = DefaultGeneData(RegulationDefaultGenes.LIFE, "aaa", Seq(aaa))
   val chromosome = Seq(life)
-
   val animal = AnimalData(animalBeans, Iterable.empty, chromosome, Iterable.empty)
+  val simulationDataImpl = SimulationDataImpl(Map(animal -> 0), Map())*/
 
-  val simulationDataImpl = SimulationDataImpl(Map(animal -> 0), Map())
 
-
-  val choices = ObservableBuffer[String]("a", "b")
-
-  val lista = new ListView[String] {
-    items = choices
-    selectionModel().selectedItem.onChange {
-      (_, _, newValue) => println("Selection Changed: " + newValue)
-    }
+  val animalsName: ObservableBuffer[String] = ObservableBuffer[String]()
+  val animalsListView: ListView[String] = new ListView[String] {
+    items = animalsName
+    selectionModel().selectedItem.onChange( (_, _, value) => {
+        if (selectionModel().getSelectedIndex != -1) {
+          AnimalDialog(currentWindow).showAndWait()
+          Platform.runLater(selectionModel().clearSelection())
+        }
+      })
   }
 
-  val choices2 = ObservableBuffer[String]("a", "b")
-
-  val lista2 = new ListView[String] {
-    items = choices2
-    selectionModel().selectedItem.onChange {
-      (_, _, newValue) => println("Selection Changed: " + newValue)
-    }
+  val plantsName: ObservableBuffer[String] = ObservableBuffer[String]()
+  val plantsListView: ListView[String] = new ListView[String] {
+    items = plantsName
+    selectionModel().selectedItem.onChange( (_, _, value) => {
+      if (selectionModel().getSelectedIndex != -1) {
+        PlantDialog(currentWindow, Some(value)).showAndWait()
+        Platform.runLater(selectionModel().clearSelection())
+      }
+    })
   }
 
-  lista.prefHeight = MIN_ELEM * ROW_HEIGHT
-  lista2.prefHeight = MIN_ELEM * ROW_HEIGHT
+  animalsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+  plantsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
-  val button = new Button("Add")
-  val button2 = new Button("Add")
-  button.onAction = _ =>   choices.insert(choices.size, "d")
-  button2.onAction = _ => choices2.insert(choices2.size, "d")
+  val animalsAddButton = new Button("Add")
+  val plantsAddButton = new Button("Add")
+  animalsAddButton.onAction = _ => animalsName.insert(animalsName.size, "d")
+  plantsAddButton.onAction = _ => PlantDialog(currentWindow).showAndWait() match {
+    case Some(name) => {
+      plantsName.insert(plantsName.size, name.toString)
+    }
+    case None => println("Dialog returned: None")
+  }
 
-  val animalPane = new BorderPane()
-  animalPane.left = new Label("Animal")
-  animalPane.right = button
+  val animalsPane = new BorderPane()
+  animalsPane.left = new Label("Animals")
+  animalsPane.right = animalsAddButton
 
-  val plantPane = new BorderPane()
-  plantPane.left = new Label("Plant")
-  plantPane.right = button2
+  val plantsPane = new BorderPane()
+  plantsPane.left = new Label("Plants")
+  plantsPane.right = plantsAddButton
 
   val confirmButton = new Button("Confirm")
-  confirmButton.onAction = _ =>  AnimalDialog(currentWindow, this).showAndThenPrint()
+  //confirmButton.onAction = _ =>  AnimalDialog(currentWindow).showAndThenPrint()
 
 
   content = new VBox() {
-    children ++= Seq(animalPane, lista, plantPane, lista2, confirmButton)
+    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, confirmButton)
     styleClass += "sample-page"
   }
 
@@ -127,6 +132,10 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
       contentText = "Choose your letter:"
     }
     dialog2.showAndWait()
+  }
+
+  def prova(string: String): Unit = {
+
   }
 
 }

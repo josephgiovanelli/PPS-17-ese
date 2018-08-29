@@ -10,7 +10,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.GridPane
 import scalafx.stage.Window
 
-case class AnimalDialog(window: Window, configurationView: ConfigurationView) extends Dialog[AnimalBaseInfo] {
+case class AnimalDialog(window: Window) extends Dialog {
   initOwner(window)
   title = "Animal Dialog"
   headerText = "Create an animal"
@@ -73,18 +73,18 @@ case class AnimalDialog(window: Window, configurationView: ConfigurationView) ex
 
   // When the login button is clicked, convert the result to
   // a username-password-pair.
-  resultConverter = dialogButton =>
+  /*resultConverter = dialogButton =>
     if (dialogButton == okButtonType)
       AnimalBaseInfo(name.text.get, geneLength.text.get.toInt, alleleLength.text.get.toInt, reign.text.get, tipology.text.get)
     else
-      null
+      null*/
 
 
-  def showAndThenPrint() = {
+  /*def showAndThenPrint() = {
     this.showAndWait() match {
       case Some(AnimalBaseInfo(n, g, a, r, t)) => {
         println("AnimalBaseInfo(" + n + ", " + g + ", " + a + ", " + r + ", " + t + ")")
-        ChromosomeDialog(window, configurationView).showAndWait() match {
+        ChromosomeDialog(window).showAndWait() match {
           case Some(AnimalChromosomeInfo(st, re, se)) => {
             println("AnimalChromosomeInfo(" + st + ", " + re + ", " + se + ")")
           }
@@ -93,6 +93,6 @@ case class AnimalDialog(window: Window, configurationView: ConfigurationView) ex
       }
       case None => println("Dialog returned: None")
     }
-  }
+  }*/
 
 }

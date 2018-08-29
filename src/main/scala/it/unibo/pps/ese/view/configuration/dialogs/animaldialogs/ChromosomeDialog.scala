@@ -3,8 +3,8 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 import it.unibo.pps.ese.controller.loader.RegulationDefaultGenes
 import it.unibo.pps.ese.controller.loader.beans.Allele
 import it.unibo.pps.ese.controller.loader.data.{CustomGeneData, DefaultGeneData}
-import it.unibo.pps.ese.view.configuration.ConfigurationView
-import it.unibo.pps.ese.view.configuration.dialogs.LoginDialog
+import it.unibo.pps.ese.view.configuration.{ConfigurationView, Result}
+import it.unibo.pps.ese.view.configuration.dialogs.{AnimalChromosomeInfo, LoginDialog}
 
 import scala.collection.mutable.ListBuffer
 import scalafx.Includes._
@@ -14,7 +14,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
 
-case class ChromosomeDialog(window: Window, configurationView: ConfigurationView) extends Dialog[AnimalChromosomeInfo] {
+case class ChromosomeDialog(window: Window) extends Dialog[AnimalChromosomeInfo] {
 
   val ROW_HEIGHT = 26
   val MIN_ELEM = 3
@@ -55,7 +55,10 @@ case class ChromosomeDialog(window: Window, configurationView: ConfigurationView
   }
   val button3 = new Button("Add")
   button3.onAction = _ => {
-    LoginDialog(window).showAndThenPrint()
+    LoginDialog(window).showAndWait() match {
+      case Some(Result(a, b)) => println((a, b))
+      case None => println("ciao")
+    }
   }
 
   val structuralPane = new BorderPane()

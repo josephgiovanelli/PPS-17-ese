@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 import it.unibo.pps.ese.view.configuration.Result
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.ChromosomeDialog
 
 import scalafx.Includes._
 import scalafx.application.Platform
