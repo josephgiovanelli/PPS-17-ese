@@ -1,7 +1,10 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, ShortTermMemory}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.view.Position
+
+import scala.collection.mutable.Map
 
 
 trait Neocortex {
@@ -16,7 +19,9 @@ object Neocortex {
 
 private class NeocortexImpl extends Neocortex {
 
-  val memories: Map[MemoryType, LongTermMemory] = Map()
+  type LongTermMemories = Map[MemoryType, ShortTermMemory]
+
+  val memories: LongTermMemories = Map()
 
   override def addMemory(memoryType: MemoryType, memory: LongTermMemory): Unit = {
     memories(memoryType) = memory
