@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.genericworld.controller.{EntityDetails, Observer}
+import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
+
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
@@ -20,10 +22,11 @@ object View {
 private class ViewImpl extends View with MainComponent {
 
   var observers: List[Observer] = Nil
+  var configurationView: ConfigurationView = null
   var mainView: WorldView = new MainScene(this)
   var currentView: ViewType.Value = ViewType.MainView
 
-  setScene(ViewType.MainView)
+  setScene(ViewType.ConfigurationView)
 
   override def addObserver(observer: Observer): Unit = {
     observers = observer :: observers
@@ -36,7 +39,11 @@ private class ViewImpl extends View with MainComponent {
         val v = new MainScene(this)
         mainView = v
         this.scene = v
-      case _ =>
+      case ViewType.ConfigurationView => {
+        val v = new ConfigurationViewImpl(this)
+        configurationView = v
+        this.scene = v
+      }
     }
   }
 
