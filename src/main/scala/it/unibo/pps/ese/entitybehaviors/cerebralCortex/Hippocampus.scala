@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.view.Position
 
 
@@ -11,6 +12,22 @@ object Location {
   }
 }
 
-class Hippocampus {
+trait Hippocampus {
+  def notifyEvent(memoryType: MemoryType, position: Position)
 
+  def computeDirection(memoryType: MemoryType, currentPosition: Position)
+}
+
+object Hippocampus {
+  def apply(neocortex: Neocortex): Hippocampus = new HippocampusImpl(neocortex)
+}
+
+class HippocampusImpl(neocortex: Neocortex) extends Hippocampus {
+
+  override def notifyEvent(memoryType: MemoryType, position: Position): Unit = {
+    neocortex.getMemeory(memoryType, position)
+
+  }
+
+  override def computeDirection(memoryType: MemoryType, currentPosition: Position): Unit = ???
 }
