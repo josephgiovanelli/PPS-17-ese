@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs.plantdialogs
 
-import it.unibo.pps.ese.view.configuration.ConfigurationView
+import javafx.scene.Node
+
 import it.unibo.pps.ese.view.configuration.dialogs.{EntitiesInfo, PlantInfo}
 
 import scalafx.Includes._
@@ -21,25 +22,25 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
   dialogPane().buttonTypes = Seq(okButtonType)
 
   // Create the username and password labels and fields.
-  val name = new TextField() {
+  val name: TextField = new TextField() {
     promptText = "Name"
   }
-  val heightPlant = new TextField() {
+  val heightPlant: TextField = new TextField() {
     promptText = "Height"
   }
-  val nutritionalValue = new TextField() {
+  val nutritionalValue: TextField = new TextField() {
     promptText = "Nutritional Value"
   }
-  val hardness = new TextField() {
+  val hardness: TextField = new TextField() {
     promptText = "Hardness"
   }
-  val availability = new TextField() {
+  val availability: TextField = new TextField() {
     promptText = "Availability"
   }
 
   val requiredField = Seq(name, heightPlant, nutritionalValue, hardness, availability)
 
-  val grid = new GridPane() {
+  val grid: GridPane = new GridPane() {
     hgap = 10
     vgap = 10
     padding = Insets(20, 100, 10, 10)
@@ -58,7 +59,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
 
   // Enable/Disable login button depending on whether a username was
   // entered.
-  val okButton = dialogPane().lookupButton(okButtonType)
+  val okButton: Node = dialogPane().lookupButton(okButtonType)
   okButton.disable = true
 
   requiredField.foreach(subject => {

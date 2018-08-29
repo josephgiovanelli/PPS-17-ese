@@ -1,6 +1,9 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
+import javafx.scene.Node
+
 import it.unibo.pps.ese.view.configuration.ConfigurationView
+import it.unibo.pps.ese.view.configuration.dialogs.{AnimalBaseInfo, EntitiesInfo}
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -10,7 +13,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.GridPane
 import scalafx.stage.Window
 
-case class AnimalDialog(window: Window) extends Dialog {
+case class AnimalDialog(window: Window, key: Option[String] = None) extends Dialog[String] {
   initOwner(window)
   title = "Animal Dialog"
   headerText = "Create an animal"
@@ -20,23 +23,23 @@ case class AnimalDialog(window: Window) extends Dialog {
   dialogPane().buttonTypes = Seq(okButtonType)
 
   // Create the username and password labels and fields.
-  val name = new TextField() {
+  val name: TextField = new TextField() {
     promptText = "Name"
   }
-  val geneLength = new TextField() {
+  val geneLength: TextField = new TextField() {
     promptText = "Gene Length"
   }
-  val alleleLength = new TextField() {
+  val alleleLength: TextField = new TextField() {
     promptText = "Allele Length"
   }
-  val reign = new TextField() {
+  val reign: TextField = new TextField() {
     promptText = "Reign"
   }
-  val tipology = new TextField() {
-    promptText = "Tipology"
+  val typology: TextField = new TextField() {
+    promptText = "Typology"
   }
 
-  val requiredField = Seq(name, geneLength, alleleLength, reign, tipology)
+  val requiredField = Seq(name, geneLength, alleleLength, reign, typology)
 
   val grid = new GridPane() {
     hgap = 10
@@ -51,13 +54,13 @@ case class AnimalDialog(window: Window) extends Dialog {
     add(alleleLength, 1, 2)
     add(new Label("Reign"), 0, 3)
     add(reign, 1, 3)
-    add(new Label("Tipology"), 0, 4)
-    add(tipology, 1, 4)
+    add(new Label("Typology"), 0, 4)
+    add(typology, 1, 4)
   }
 
   // Enable/Disable login button depending on whether a username was
   // entered.
-  val okButton = dialogPane().lookupButton(okButtonType)
+  val okButton: Node = dialogPane().lookupButton(okButtonType)
   okButton.disable = true
 
   requiredField.foreach(subject => {
@@ -73,11 +76,28 @@ case class AnimalDialog(window: Window) extends Dialog {
 
   // When the login button is clicked, convert the result to
   // a username-password-pair.
-  /*resultConverter = dialogButton =>
-    if (dialogButton == okButtonType)
-      AnimalBaseInfo(name.text.get, geneLength.text.get.toInt, alleleLength.text.get.toInt, reign.text.get, tipology.text.get)
+
+  if (key.isDefined) {
+    val animalInfo = EntitiesInfo.instance().getAnimalInfo(key.get) match {
+      case Some((basicInfo, _)) => basicInfo
+      case None => throw new IllegalStateException()
+    }
+    name.editable = false
+    name.text.value = key.get
+    geneLength.text.value = animalInfo.geneLength.toString
+    alleleLength.text.value = animalInfo.alleleLength.toString
+    reign.text.value = animalInfo.reign.toString
+    typology.text.value = animalInfo.typology.toString
+  }
+
+  resultConverter = dialogButton =>
+    if (dialogButton == okButtonType) {
+      EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt, alleleLength.text.value.toInt, reign.text.value, typology.text.value))
+      ChromosomeDialog(window, key).showAndWait()
+      name.text.value
+    }
     else
-      null*/
+      null
 
 
   /*def showAndThenPrint() = {

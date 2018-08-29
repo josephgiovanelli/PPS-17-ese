@@ -14,30 +14,30 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
 
-case class ChromosomeDialog(window: Window) extends Dialog[AnimalChromosomeInfo] {
+case class ChromosomeDialog(window: Window, key: Option[String] = None) extends Dialog[AnimalChromosomeInfo] {
 
   val ROW_HEIGHT = 26
   val MIN_ELEM = 3
 
   initOwner(window)
-  title = "Animal Dialog"
-  headerText = "Create an animal"
+  title = "Chromosome Dialog"
+  headerText = "Define animal chromosome"
 
   // Set the button types.
   val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
   dialogPane().buttonTypes = Seq(okButtonType)
 
   val structuralChromosome: ListBuffer[CustomGeneData] = ListBuffer()
-  val structuralName = ObservableBuffer[String]()
+  val structuralName: ObservableBuffer[String] = ObservableBuffer[String]()
   val structuralChromosomeList = new ListView[String](structuralName)
 
   val regulationChromosome: ListBuffer[DefaultGeneData] = ListBuffer()
-  val regulationName = ObservableBuffer[String]()
+  val regulationName: ObservableBuffer[String] = ObservableBuffer[String]()
   val regulationChromosomeList = new ListView[String](regulationName)
 
 
   val sexualChromosome: ListBuffer[DefaultGeneData] = ListBuffer()
-  val sexualName = ObservableBuffer[String]()
+  val sexualName: ObservableBuffer[String] = ObservableBuffer[String]()
   val sexualChromosomeList = new ListView[String](sexualName)
 
   structuralChromosomeList.prefHeight = MIN_ELEM * ROW_HEIGHT

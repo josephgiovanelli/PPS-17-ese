@@ -45,7 +45,7 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
     items = animalsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
         if (selectionModel().getSelectedIndex != -1) {
-          AnimalDialog(currentWindow).showAndWait()
+          AnimalDialog(currentWindow, Some(value)).showAndWait()
           Platform.runLater(selectionModel().clearSelection())
         }
       })
@@ -67,7 +67,12 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
 
   val animalsAddButton = new Button("Add")
   val plantsAddButton = new Button("Add")
-  animalsAddButton.onAction = _ => animalsName.insert(animalsName.size, "d")
+  animalsAddButton.onAction = _ => AnimalDialog(currentWindow).showAndWait() match {
+    case Some(name) => {
+      animalsName.insert(plantsName.size, name.toString)
+    }
+    case None => println("Dialog returned: None")
+  }
   plantsAddButton.onAction = _ => PlantDialog(currentWindow).showAndWait() match {
     case Some(name) => {
       plantsName.insert(plantsName.size, name.toString)
