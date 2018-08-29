@@ -11,5 +11,4 @@ deploy:
   file: "${HOME}/build/${TRAVIS_REPO_SLUG}/target/libs/PPS-17-ese_fatjar.jar"
   on:
     tags: true
-    branch: master
     repo: KaikiKM/PPS-17-ese
