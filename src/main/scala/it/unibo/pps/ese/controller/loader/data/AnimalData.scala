@@ -22,6 +22,16 @@ object AnimalData {
       sexualChromosome)
   }
 
+  def apply(name: String,
+            geneLength: Int,
+            alleleLength: Int,
+            reign: String,
+            typology: String,
+            structuralChromosome: Iterable[CustomGeneData],
+            regulationChromosome: Iterable[DefaultGeneData],
+            sexualChromosome: Iterable[DefaultGeneData]): AnimalData =
+    new AnimalDataImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome, sexualChromosome)
+
   private class AnimalDataImpl(val name: String,
                                val geneLength: Int,
                                val alleleLength: Int,

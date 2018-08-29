@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.view.configuration
+package it.unibo.pps.ese.view.configuration.dialogs
 
-
+import it.unibo.pps.ese.view.configuration.Result
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -63,11 +63,10 @@ case class LoginDialog(window: Window) extends Dialog[Result] {
       null
 
 
-  def showAndThen(toDo: Unit) = {
+  def showAndThenPrint() = {
     this.showAndWait() match {
       case Some(Result(u, p)) => {
         println("Username=" + u + ", Password=" + p)
-        toDo
       }
       case None => println("Dialog returned: None")
     }

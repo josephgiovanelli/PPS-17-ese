@@ -1,12 +1,18 @@
 package it.unibo.pps.ese.view.configuration
 
+import it.unibo.pps.ese.controller.loader.RegulationDefaultGenes
+import it.unibo.pps.ese.controller.loader.beans.{Allele, Animal}
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, DefaultGeneData}
+import it.unibo.pps.ese.controller.loader.data.SimulationData.SimulationDataImpl
+import it.unibo.pps.ese.view.configuration.dialogs.LoginDialog
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.{MainComponent, ViewType}
 
 import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
-import scalafx.scene.{Scene}
+import scalafx.scene.Scene
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane,VBox}
+import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
 
 trait ConfigurationView {
@@ -20,10 +26,22 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
   val ROW_HEIGHT = 26
   val MIN_ELEM = 5
 
-  /*val currentWindow: scalafx.stage.Window = this.window()
-  val dialog = LoginDialog(currentWindow)
+  val currentWindow: scalafx.stage.Window = this.window()
+  /*val dialog = LoginDialog(currentWindow)
   dialog.showAndWait()*/
 
+  val animalBeans = Animal("Gatto", 3, 3, "A", "C", "", null, null)
+  //simulationDataImpl.animals += (animal -> 0)
+
+
+  val effect: Map[String, Double] = Map("life" -> 2)
+  val aaa = Allele("aaa", "zzz", 5, 5, 1, effect)
+  val life = DefaultGeneData(RegulationDefaultGenes.LIFE, "aaa", Seq(aaa))
+  val chromosome = Seq(life)
+
+  val animal = AnimalData(animalBeans, Iterable.empty, chromosome, Iterable.empty)
+
+  val simulationDataImpl = SimulationDataImpl(Map(animal -> 0), Map())
 
 
   val choices = ObservableBuffer[String]("a", "b")
@@ -61,12 +79,14 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
   plantPane.right = button2
 
   val confirmButton = new Button("Confirm")
+  confirmButton.onAction = _ =>  AnimalDialog(currentWindow, this).showAndThenPrint()
 
 
   content = new VBox() {
     children ++= Seq(animalPane, lista, plantPane, lista2, confirmButton)
     styleClass += "sample-page"
   }
+
 
 
   //val result = createDialog1(currentWindow)
