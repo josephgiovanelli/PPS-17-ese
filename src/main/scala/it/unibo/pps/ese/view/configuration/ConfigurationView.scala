@@ -1,9 +1,5 @@
 package it.unibo.pps.ese.view.configuration
 
-import it.unibo.pps.ese.controller.loader.RegulationDefaultGenes
-import it.unibo.pps.ese.controller.loader.beans.{Allele, Animal}
-import it.unibo.pps.ese.controller.loader.data.{AlleleData, AnimalData, DefaultGeneData}
-import it.unibo.pps.ese.controller.loader.data.SimulationData.SimulationDataImpl
 import it.unibo.pps.ese.view.configuration.dialogs.{DefaultGeneInfo, LoginDialog}
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog

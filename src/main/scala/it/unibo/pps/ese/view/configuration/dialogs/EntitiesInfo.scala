@@ -4,8 +4,8 @@ import it.unibo.pps.ese.controller.loader.DefaultGene
 import it.unibo.pps.ese.controller.loader.data.AlleleData
 
 case class AnimalBaseInfo(geneLength: Int, alleleLength: Int, reign: String, typology: String)
-case class AnimalChromosomeInfo(structuralChromosome: Iterable[CustomGeneInfo], regulationChromosome: Iterable[DefaultGeneInfo],
-                                sexualChromosome: Iterable[DefaultGeneInfo])
+case class AnimalChromosomeInfo(var structuralChromosome: Map[String, CustomGeneInfo], var regulationChromosome: Map[String, DefaultGeneInfo],
+                                var sexualChromosome: Map[String, DefaultGeneInfo])
 
 case class PlantInfo(height: Double, nutritionalValue: Double, hardness: Double, availability: Double)
 class GeneInfo(val id: String, val name: String, val properties: Map[String, Class[_]], val alleles: Set[AlleleData])
@@ -38,7 +38,7 @@ object EntitiesInfo {
 
     def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit = {
       val animalChromosomeInfo = if (animals.get(id).isDefined) animals(id)._2
-                                 else AnimalChromosomeInfo(Iterable.empty, Iterable.empty, Iterable.empty)
+                                 else AnimalChromosomeInfo(Map.empty, Map.empty, Map.empty)
       animals += (id -> (animalBaseInfo, animalChromosomeInfo))
     }
 

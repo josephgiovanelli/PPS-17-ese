@@ -1,9 +1,10 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
-import it.unibo.pps.ese.controller.loader.RegulationDefaultGenes
-import it.unibo.pps.ese.controller.loader.beans.Allele
+import javafx.scene.Node
+
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.CustomGeneDialog
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -13,7 +14,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
 
-case class ChromosomeDialog(window: Window, key: Option[String] = None) extends Dialog[Unit] {
+case class ChromosomeDialog(window: Window, animal: String) extends Dialog[Unit] {
 
   val ROW_HEIGHT = 26
   val MIN_ELEM = 3
@@ -26,25 +27,26 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
   val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
   dialogPane().buttonTypes = Seq(okButtonType)
 
-  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(key.get) match {
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
     case Some((_, chromosomeInfo)) => chromosomeInfo
     case None => throw new IllegalStateException()
   }
 
-  val structuralChromosome: Iterable[CustomGeneInfo] = currentAnimalChromosome.structuralChromosome
-  val structuralName: ObservableBuffer[String] = ObservableBuffer[String](structuralChromosome map ( x => x.name) toSeq)
+  val structuralChromosome: Map[String, CustomGeneInfo] = currentAnimalChromosome.structuralChromosome
+  val structuralName: ObservableBuffer[String] = ObservableBuffer[String](structuralChromosome.keySet toSeq)
   val structuralChromosomeListView: ListView[String] = new ListView[String] {
     items = structuralName
     selectionModel().selectedItem.onChange( (_, _, value) => {
+      println((selectionModel().getSelectedIndex, value))
       if (selectionModel().getSelectedIndex != -1) {
-        PlantDialog(window, Some(value)).showAndWait()
+        CustomGeneDialog(window, animal, Some(value)).showAndWait()
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-  var regulationChromosome: Iterable[DefaultGeneInfo] = currentAnimalChromosome.regulationChromosome
-  val regulationName: ObservableBuffer[String] = ObservableBuffer[String](regulationChromosome map ( x => x.name) toSeq)
+  var regulationChromosome: Map[String, DefaultGeneInfo] = currentAnimalChromosome.regulationChromosome
+  val regulationName: ObservableBuffer[String] = ObservableBuffer[String](regulationChromosome.keySet toSeq)
   val regulationChromosomeListView: ListView[String] = new ListView[String] {
     items = regulationName
     selectionModel().selectedItem.onChange( (_, _, value) => {
@@ -56,8 +58,8 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
   }
 
 
-  val sexualChromosome: Iterable[DefaultGeneInfo] = currentAnimalChromosome.sexualChromosome
-  val sexualName: ObservableBuffer[String] = ObservableBuffer[String](sexualChromosome map ( x => x.name) toSeq)
+  val sexualChromosome: Map[String, DefaultGeneInfo] = currentAnimalChromosome.sexualChromosome
+  val sexualName: ObservableBuffer[String] = ObservableBuffer[String](sexualChromosome.keySet toSeq)
   val sexualChromosomeListView: ListView[String] = new ListView[String] {
     items = sexualName
     selectionModel().selectedItem.onChange( (_, _, value) => {
@@ -73,7 +75,7 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
   sexualChromosomeListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val structuralButton = new Button("Add")
-  structuralButton.onAction = _ => PlantDialog(window).showAndWait() match {
+  structuralButton.onAction = _ => CustomGeneDialog(window, animal, None).showAndWait() match {
     case Some(name) => {
       structuralName.insert(structuralName.size, name.toString)
     }
@@ -123,7 +125,7 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
 
   // Enable/Disable login button depending on whether a username was
   // entered.
-  val okButton = dialogPane().lookupButton(okButtonType)
+  val okButton: Node = dialogPane().lookupButton(okButtonType)
   okButton.disable = false
 
 
@@ -139,7 +141,7 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType)
-      EntitiesInfo.instance().setAnimalChromosomeInfo(key.get, AnimalChromosomeInfo(structuralChromosome,
+      EntitiesInfo.instance().setAnimalChromosomeInfo(animal, AnimalChromosomeInfo(structuralChromosome,
         regulationChromosome, sexualChromosome))
 
 }

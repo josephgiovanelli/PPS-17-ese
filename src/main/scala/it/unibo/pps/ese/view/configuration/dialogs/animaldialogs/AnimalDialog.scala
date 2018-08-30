@@ -2,7 +2,6 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
 import javafx.scene.Node
 
-import it.unibo.pps.ese.view.configuration.ConfigurationView
 import it.unibo.pps.ese.view.configuration.dialogs.{AnimalBaseInfo, EntitiesInfo}
 
 import scalafx.Includes._
@@ -13,7 +12,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.GridPane
 import scalafx.stage.Window
 
-case class AnimalDialog(window: Window, key: Option[String] = None) extends Dialog[String] {
+case class AnimalDialog(window: Window, animal: Option[String] = None) extends Dialog[String] {
   initOwner(window)
   title = "Animal Dialog"
   headerText = "Create an animal"
@@ -77,13 +76,13 @@ case class AnimalDialog(window: Window, key: Option[String] = None) extends Dial
   // When the login button is clicked, convert the result to
   // a username-password-pair.
 
-  if (key.isDefined) {
-    val animalInfo = EntitiesInfo.instance().getAnimalInfo(key.get) match {
+  if (animal.isDefined) {
+    val animalInfo = EntitiesInfo.instance().getAnimalInfo(animal.get) match {
       case Some((basicInfo, _)) => basicInfo
       case None => throw new IllegalStateException()
     }
     name.editable = false
-    name.text.value = key.get
+    name.text.value = animal.get
     geneLength.text.value = animalInfo.geneLength.toString
     alleleLength.text.value = animalInfo.alleleLength.toString
     reign.text.value = animalInfo.reign.toString
@@ -93,7 +92,7 @@ case class AnimalDialog(window: Window, key: Option[String] = None) extends Dial
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
       EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt, alleleLength.text.value.toInt, reign.text.value, typology.text.value))
-      ChromosomeDialog(window, if (key.isEmpty) Some(name.text.value) else key).showAndWait()
+      ChromosomeDialog(window, if (animal.isEmpty) name.text.value else animal.get).showAndWait()
       name.text.value
     }
     else
