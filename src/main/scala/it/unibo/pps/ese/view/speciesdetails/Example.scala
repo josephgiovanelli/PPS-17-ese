@@ -30,6 +30,9 @@ object Example extends JFXApp { app =>
   val iteratorStructural = coupledGene(ChromosomeType.STRUCTURAL_ANIMAL).iterator
   val iteratorLifeCycle = coupledGene(ChromosomeType.LIFE_CYCLE).iterator
   val iteratorFeeding = coupledGene(ChromosomeType.FEEDING).iterator
+  val ballSize:Double = 15.0
+  val cylinderRadius:Double = 3.0
+  val cylinderHeight:Double = 60.0
     stage = new JFXApp.PrimaryStage()
     val root = new Group();
     val scene = new Scene(root, 1000, 800);
@@ -39,65 +42,42 @@ object Example extends JFXApp { app =>
     hbox.setLayoutX(20);
     hbox.setLayoutY(200);
   import CreateDna._
-  val moleculeXform = createMoleculeFormComplete(0.0,0.0,0.0,180,None,None)
-  val moleculeXform2 = createMoleculeFormComplete(20,20,-15,165,Some(ChromosomeType.COMMON),Some(iteratorCommon))
-  val moleculeXform3 = createMoleculeFormComplete(-20,-20,15,195,Some(ChromosomeType.COMMON),Some(iteratorCommon))
-  val moleculeXform4 = createMoleculeFormComplete(40,40,-30,150,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))
-  val moleculeXform5 = createMoleculeFormComplete(60,60,-45,135,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))
-  val moleculeXform6 = createMoleculeFormComplete(80,80,-60,120,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))
-  val moleculeXform7 = createMoleculeFormComplete(100,100,-75,105,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))
-  val moleculeXform8 = createMoleculeFormComplete(-40,-40,30,210,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))
-  val moleculeXform9 = createMoleculeFormComplete(-60,-60,45,225,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))
-  val moleculeXform10 = createMoleculeFormComplete(-80,-80,60,240,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))
-  val moleculeXform11 = createMoleculeFormComplete(-100,-100,75,255,Some(ChromosomeType.FEEDING),Some(iteratorFeeding))
-  val moleculeXform12 = createMoleculeFormComplete(-120,-120,90,270,None,None)
-  val moleculeXform13 = createMoleculeFormComplete(-140,-140,105,285,None,None)
-  val moleculeXform14 = createMoleculeFormComplete(-160,-160,120,300,None,None)
-  val moleculeXform15 = createMoleculeFormComplete(120,120,-90,90,None,None)
-  val moleculeXform16 = createMoleculeFormComplete(140,140,-105,75,None,None)
-  val moleculeXform17 = createMoleculeFormComplete(160,160,-120,60,None,None)
-  val moleculeXform18 = createMoleculeFormComplete(180,180,-135,45,None,None)
-
-  private final val moleculeGroup = new Group()
-  moleculeGroup.children += moleculeXform
-  moleculeGroup.children += moleculeXform2
-  moleculeGroup.children += moleculeXform3
-  moleculeGroup.children += moleculeXform4
-  moleculeGroup.children += moleculeXform5
-  moleculeGroup.children += moleculeXform6
-  moleculeGroup.children += moleculeXform7
-  moleculeGroup.children += moleculeXform8
-  moleculeGroup.children += moleculeXform9
-  moleculeGroup.children += moleculeXform10
-  moleculeGroup.children += moleculeXform11
-  moleculeGroup.children += moleculeXform12
-  moleculeGroup.children += moleculeXform13
-  moleculeGroup.children += moleculeXform14
-  moleculeGroup.children += moleculeXform15
-  moleculeGroup.children += moleculeXform16
-  moleculeGroup.children += moleculeXform17
-  moleculeGroup.children += moleculeXform18
-
+  val molecules:Seq[Xform] =  createMoleculeFormComplete(0.0,0.0,0.0,180,None,None) ::
+  createMoleculeFormComplete(20,20,-15,165,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
+  createMoleculeFormComplete(-20,-20,15,195,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
+  createMoleculeFormComplete(40,40,-30,150,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
+  createMoleculeFormComplete(60,60,-45,135,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
+  createMoleculeFormComplete(80,80,-60,120,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+  createMoleculeFormComplete(100,100,-75,105,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+  createMoleculeFormComplete(-40,-40,30,210,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+  createMoleculeFormComplete(-60,-60,45,225,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+  createMoleculeFormComplete(-80,-80,60,240,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+  createMoleculeFormComplete(-100,-100,75,255,Some(ChromosomeType.FEEDING),Some(iteratorFeeding))::
+  createMoleculeFormComplete(-120,-120,90,270,None,None)::
+  createMoleculeFormComplete(-140,-140,105,285,None,None)::
+  createMoleculeFormComplete(-160,-160,120,300,None,None)::
+  createMoleculeFormComplete(120,120,-90,90,None,None)::
+  createMoleculeFormComplete(140,140,-105,75,None,None)::
+  createMoleculeFormComplete(160,160,-120,60,None,None)::
+  createMoleculeFormComplete(180,180,-135,45,None,None)::
+  List()
+  
+  private val moleculeGroup = new Group()
+  moleculeGroup.children ++= molecules
 
   val phongMaterial = new PhongMaterial(Color.color(1.0, 0.7, 0.8));
   val cylinder1 = new Group()
   cylinder1.children += moleculeGroup
 
-  val lS = new GeneDetailsScene(300,400,Left)
+  val lS = new GeneDetailsScene(300,600,Left)
   hbox.children += lS
   val msaa = createSubScene("", cylinder1,
     Color.Transparent,
     new PerspectiveCamera(), true);
   hbox.getChildren().add(msaa);
 
-  val rS = new GeneDetailsScene(300,400,Right)
-  //  val rS = createTextSubScene(textTitle2,Color.Transparent,rightTextPane)
+  val rS = new GeneDetailsScene(300,600,Right)
   hbox.children += rS
-//  val msaa2 = createSubScene("MSAA = true", cylinder2,
-//    Color.Transparent,
-//    new PerspectiveCamera(), true);
-//  hbox.getChildren().add(msaa2);
-
   val slider = new Slider(0, 360, 0);
     slider.setBlockIncrement(1);
     slider.setTranslateX(400);
@@ -121,16 +101,6 @@ object Example extends JFXApp { app =>
      fillPaint:Paint,  camera:Camera, msaa:Boolean):SubScene={
     val root = new Group();
 
-    val light = new PointLight(Color.WhiteSmoke);
-    light.setTranslateX(50);
-    light.setTranslateY(-300);
-    light.setTranslateZ(-400);
-    val light2 = new PointLight(Color.color(0.6, 0.3, 0.4));
-    light2.setTranslateX(400);
-    light2.setTranslateY(0);
-    light2.setTranslateZ(-400);
-
-    val ambientLight = new AmbientLight(Color.WhiteSmoke);
     node.setRotationAxis(Rotate.YAxis);
     node.setTranslateX(150);
     node.setTranslateY(200);
@@ -142,15 +112,6 @@ object Example extends JFXApp { app =>
 
      subScene
   }
-//  def createTextSubScene( title:String,fillPaint:Paint,text:Text):SubScene={
-//    val root = new Group();
-//
-//    root.getChildren().addAll(setTitle(title,text));
-//
-//    val subScene = new SubScene(root, 300, 400, true,SceneAntialiasing.Balanced);
-//    subScene.setFill(fillPaint);
-//    subScene
-//  }
   object CreateDna{
     val blueMaterial = new PhongMaterial {
       diffuseColor = Color.web("1abc9c")
@@ -165,7 +126,7 @@ object Example extends JFXApp { app =>
       specularColor = Color.web("bdc3c7")
     }
     def createHydrogenSpereCouple(tY:Double,chromosomeType: Option[ChromosomeType],geneCouple:Option[(MGene,MGene)]):(Sphere,Sphere) = {
-      val size:Double = 15.0
+      val size:Double = ballSize
 
       val hydrogen1Sphere = new Sphere(size) {
         material = if (geneCouple.nonEmpty) blueMaterial else whiteMaterial
@@ -176,18 +137,10 @@ object Example extends JFXApp { app =>
         material = if (geneCouple.nonEmpty) greyMaterial else whiteMaterial
         translateY = tY
       }
-      hydrogen1Sphere.onMouseClicked = (me:MouseEvent) =>{
+      val clickListener:MouseEvent=>Unit = (me:MouseEvent) =>{
         if(chromosomeType.nonEmpty && geneCouple.nonEmpty){
           val cType = chromosomeType.get
           val gCouple:(MGene,MGene) = geneCouple.get
-//          val alleleID1:String = gCouple._1 match {
-//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-//            case BasicGene(g,t)=>""
-//          }
-//          val alleleID2:String = gCouple._2 match {
-//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-//            case BasicGene(g,t)=>""
-//          }
           val geneStats1:GeneStats = geneticsSimulator.getGeneStats(gCouple._1,animalInfo)
           val geneStats2:GeneStats = geneticsSimulator.getGeneStats(gCouple._2,animalInfo)
 
@@ -203,39 +156,14 @@ object Example extends JFXApp { app =>
         }
         println("Cliccato")
       }
+      hydrogen1Sphere.onMouseClicked = clickListener
 
-      hydrogen2Sphere.onMouseClicked = (me:MouseEvent) =>{
-        if(chromosomeType.nonEmpty && geneCouple.nonEmpty){
-          val cType = chromosomeType.get
-          val gCouple:(MGene,MGene) = geneCouple.get
-//          val alleleID1:String = gCouple._1 match {
-//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-//            case BasicGene(g,t)=>""
-//          }
-//          val alleleID2:String = gCouple._2 match {
-//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-//            case BasicGene(g,t)=>""
-//          }
-          val geneStats1:GeneStats = geneticsSimulator.getGeneStats(gCouple._1,animalInfo)
-          val geneStats2:GeneStats = geneticsSimulator.getGeneStats(gCouple._2,animalInfo)
-
-          lS.visualizeGeneStats(
-            cName = cType.toString+" 1",
-            geneStats = geneStats1
-          )
-
-          rS.visualizeGeneStats(
-            cName = cType.toString+" 2",
-            geneStats = geneStats2
-          )
-        }
-        println("Cliccato")
-      }
+      hydrogen2Sphere.onMouseClicked = clickListener
       (hydrogen1Sphere,hydrogen2Sphere)
     }
 
     def createCylinderCouple(tX:Double,tY:Double,r:Double):(Cylinder,Cylinder) = {
-      val cSize:(Double,Double) = (3,60)
+      val cSize:(Double,Double) = (cylinderRadius,cylinderHeight)
       val bc1 = new Cylinder(cSize._1, cSize._2) {
         material = greyMaterial
         translateX = tX
@@ -264,7 +192,7 @@ object Example extends JFXApp { app =>
             children ++= Seq(
               new Xform {
                 children += s1
-                t.x = 60
+                t.x = Example.cylinderHeight
               },
               c1
             )
@@ -275,7 +203,7 @@ object Example extends JFXApp { app =>
             children ++= Seq(
               new Xform {
                 children += s2
-                t.x = 60
+                t.x = Example.cylinderHeight
               },
               c2
             )
@@ -292,7 +220,7 @@ object Example extends JFXApp { app =>
           geneCouple = Some(element)
         }
       }
-      val b1 = createCylinderCouple(30.0,cylinderY,90.0)
+      val b1 = createCylinderCouple(cylinderHeight/2,cylinderY,90.0)
       val c1 = createHydrogenSpereCouple(sphereY,chromosomeType,geneCouple)
       createMoleculeForm(r1,r2,c1._1,c1._2,b1._1,b1._2)
     }

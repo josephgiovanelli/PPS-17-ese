@@ -45,7 +45,7 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
     }
     val vbox = new VBox()
     vbox.setStyle(cssLayout);
-    textLabel.setMaxWidth(width*0.8)
+    textLabel.setMaxWidth(width*0.85)
     vbox.getChildren().add(textLabel)
 
     vbox
@@ -62,6 +62,7 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
         geneId= g.geneId.mkString(","),
         alleleId= g.alleleCode.mkString(","),
         affectedQualities = aq.map(_.toString),
+        features= featuresToString(f),
         dominanceLevel = d.toString,
         probability = p.toString,
         active = if(a) "Yes" else "No"
@@ -80,22 +81,26 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
     }
     def toText:Text = {
       val text = new Text(string)
-      text.setFill(Color.web("67809F"))
+      text.setFill(Color.White)
       text.setFont(Font.font("Calibri", 24))
       text
     }
   }
-  private def setGeneDetails(chromosomeName: String, geneId: String,alleleId:String, affectedQualities: Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
+  private def setGeneDetails(chromosomeName: String, geneId: String,alleleId:String, affectedQualities: Seq[String],features:Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
     val style:String = "-fx-font-weight: 900"
     val allText:Seq[Text] = (chromosomeName+"\n").setStyle(style) ::
       "Gene Id: ".setStyle(style)::(geneId+"\n").toText   ::
       "Allele Id: ".setStyle(style)::(alleleId+"\n").toText ::
-      "Affect: ".setStyle(style)::(affectedQualities.toSet.mkString(", ")+"\n").toText ::
+      "Affect:\n".setStyle(style)::(affectedQualities.toSet.mkString(", ")+"\n").toText ::
+      "Features:\n".setStyle(style)::(features.mkString(",\n")+"\n").toText ::
       "Dominance Level: ".setStyle(style)::(dominanceLevel+"\n").toText ::
       "Probability: ".setStyle(style)::(probability+"\n").toText ::
       "Active: ".setStyle(style)::(active+"\n").toText :: List()
     textLabel.children.clear()
     textLabel.children.addAll(allText.asJava)
+  }
+  private def featuresToString(features: Seq[(String,Double)]):Seq[String] = {
+    features.map(e =>e._1+": "+e._2)
   }
   private def setBasicGeneDetails(chromosomeName: String,geneId:String,identifiedThing:String): Unit ={
     val style:String = "-fx-font-weight: 900"
