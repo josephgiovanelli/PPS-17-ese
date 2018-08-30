@@ -93,7 +93,7 @@ case class AnimalDialog(window: Window, key: Option[String] = None) extends Dial
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
       EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt, alleleLength.text.value.toInt, reign.text.value, typology.text.value))
-      ChromosomeDialog(window, key).showAndWait()
+      ChromosomeDialog(window, if (key.isEmpty) Some(name.text.value) else key).showAndWait()
       name.text.value
     }
     else
