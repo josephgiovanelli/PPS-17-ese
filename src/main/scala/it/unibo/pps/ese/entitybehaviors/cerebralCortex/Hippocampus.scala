@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.view.Position
@@ -17,10 +16,16 @@ trait Hippocampus {
 object Hippocampus {
 
   val locationalFieldSize = 5
+  var worldWidth: Int = 0
+  var worldHeight: Int = 0
 
-  def apply(neocortex: Neocortex): Hippocampus = new HippocampusImpl(neocortex)
+  def apply(worldWidth: Int, worldHeight: Int, neocortex: Neocortex): Hippocampus = {
+    this.worldWidth=worldWidth
+    this.worldHeight=worldHeight
+    new HippocampusImpl(worldWidth, worldHeight, neocortex)
+  }
 
-  private class HippocampusImpl(neocortex: Neocortex) extends Hippocampus {
+  private class HippocampusImpl(worldWidth: Int, worldHeight: Int, neocortex: Neocortex) extends Hippocampus {
 
     type ShortTermMeories = Map[MemoryType, ShortTermMemory]
 
@@ -58,9 +63,7 @@ object Hippocampus {
     }
 
     override def updateTime(): Unit = {
-      for (memory <- memories.values) {
-        memory.elapsedTime+=1
-      }
+      memories.foreach(e => e._2.incrementElapsedTime())
       memories.retain((k,v) => v.elapsedTime>=shortTermMemoryMaxTime)
     }
 

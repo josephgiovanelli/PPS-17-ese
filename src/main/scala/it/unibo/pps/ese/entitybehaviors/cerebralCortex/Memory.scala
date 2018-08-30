@@ -1,10 +1,9 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-
 object Memory {
   type Score = Double
 
-  trait Memory {
+  protected sealed trait Memory {
     def locationalField: LocationalField
     def score: Score
     def score_=(score: Score): Unit

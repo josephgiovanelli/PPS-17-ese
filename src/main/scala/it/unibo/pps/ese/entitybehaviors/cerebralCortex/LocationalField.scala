@@ -2,27 +2,50 @@ package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
 import it.unibo.pps.ese.view.Position
 import Hippocampus.locationalFieldSize
+import it.unibo.pps.ese.utils.Point
+import Hippocampus.{worldWidth, worldHeight}
 
 trait LocationalField {
+  def topLeftPosition: Position
+  def bottomRightPosition: Position
+  def centerPosition: Position
   def distanceFromPosition(position: Position): Double
 }
 
 object LocationalField {
 
-  def apply(topLeftPosition: Position, bottomRightPosition: Position): LocationalField = LocationalFieldImpl(topLeftPosition, bottomRightPosition)
+  def apply(centerPosition: Position): LocationalField = LocationalFieldImpl(centerPosition)
 
-  private case class LocationalFieldImpl(topLeftPosition: Position, bottomRightPosition: Position) extends LocationalField {
+  private case class LocationalFieldImpl(var centerPosition: Position) extends LocationalField {
 
-    val centerPosition = Position(topLeftPosition.x+locationalFieldSize, topLeftPosition.y+locationalFieldSize)
+    var x: Double = centerPosition.x
+    var y: Double = centerPosition.y
+
+    if(x<locationalFieldSize) x=locationalFieldSize
+    if(x>worldWidth-locationalFieldSize) x=worldWidth-locationalFieldSize
+    if(y<locationalFieldSize) y=locationalFieldSize
+    if(y>worldHeight-locationalFieldSize) y=worldHeight-locationalFieldSize
+
+    val topLeftPosition: Position = centerPosition-locationalFieldSize
+    val bottomRightPosition: Position = centerPosition+locationalFieldSize
 
     def containsPosition(position: Position): Boolean = {
-      position >= topLeftPosition && position <= bottomRightPosition
+      position >=&& topLeftPosition && position <=&& bottomRightPosition
     }
 
-    override def distanceFromPosition(position: Position): Double = ???
+    override def distanceFromPosition(position: Position): Double = {
+      centerPosition |-| position
+    }
   }
 
   implicit def positionToLocationalField(position: Position): LocationalField = {
-    LocationalFieldImpl(position-locationalFieldSize, position+locationalFieldSize)
+    LocationalFieldImpl(position)
+  }
+
+  implicit def bound(tuple2: (Int, Int)): Point = {
+    def bound(i: Int, bound: Int): Int = if (i < 0) 0 else if (i > bound) bound else i
+    def boundWidth(x: Int): Int = bound(x, worldWidth)
+    def boundHeight(y: Int): Int = bound(y, worldHeight)
+    Point(boundWidth(tuple2._1), boundHeight(tuple2._2))
   }
 }
