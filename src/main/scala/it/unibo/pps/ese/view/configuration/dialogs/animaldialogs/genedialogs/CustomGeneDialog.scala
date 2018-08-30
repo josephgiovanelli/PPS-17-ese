@@ -3,6 +3,8 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
 import javafx.scene.Node
 
+import it.unibo.pps.ese.view.configuration.dialogs.ConversionMap
+
 import it.unibo.pps.ese.controller.loader.data.AlleleData
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.dialogs._
@@ -36,8 +38,6 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   var currentStructuralChromosome: Map[String, CustomGeneInfo] = currentAnimalChromosome.structuralChromosome
 
-  if (gene.isDefined) println((animal, gene.get))
-
   val idGene: TextField = new TextField() {
     promptText = "Id"
   }
@@ -58,20 +58,28 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     add(nameGene, 1, 1)
   }
 
-  val properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get).properties else Map.empty
+  var properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get).properties else Map.empty
+  var alleles: Set[AlleleData] = if (gene.isDefined) currentStructuralChromosome(gene.get).alleles else Set.empty
+  var conversionMap: Map[String, Map[String, Double]] = Map.empty
+
   val propertiesName: ObservableBuffer[String] = ObservableBuffer[String](properties.keySet toSeq)
   val propertiesListView: ListView[String] = new ListView[String] {
     items = propertiesName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        PlantDialog(window, Some(value)).showAndWait()
+        PropertiesDialog(window, animal, gene,  Some(value)).showAndWait() match {
+          case Some(ConversionMap(propertyName, map)) => {
+            conversionMap += (propertyName -> map)
+          }
+          case None => println("Dialog returned: None")
+        }
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-  var alleles: Set[AlleleData] = if (gene.isDefined) currentStructuralChromosome(gene.get).alleles else Set.empty
-  val allelesName: ObservableBuffer[String] = ObservableBuffer[String](alleles map (x => x.id) toSeq)
+
+  /*val allelesName: ObservableBuffer[String] = ObservableBuffer[String](alleles map (x => x.id) toSeq)
   val allelesListView: ListView[String] = new ListView[String] {
     items = allelesName
     selectionModel().selectedItem.onChange( (_, _, value) => {
@@ -80,34 +88,36 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
         Platform.runLater(selectionModel().clearSelection())
       }
     })
-  }
+  }*/
 
 
   propertiesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
-  allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+  //allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val propertiesButton = new Button("Add")
-  propertiesButton.onAction = _ => PlantDialog(window).showAndWait() match {
-    case Some(name) => {
-      propertiesName.insert(propertiesName.size, name.toString)
+  propertiesButton.onAction = _ => PropertiesDialog(window, animal, None,  None).showAndWait() match {
+    case Some(ConversionMap(propertyName, map)) => {
+      conversionMap += (propertyName -> map)
+      properties += (propertyName -> Double.getClass)
+      propertiesName.insert(propertiesName.size, propertyName)
     }
     case None => println("Dialog returned: None")
   }
-  val allelesButton = new Button("Add")
+  /*val allelesButton = new Button("Add")
   allelesButton.onAction = _ => PlantDialog(window).showAndWait() match {
     case Some(name) => {
       allelesName.insert(allelesName.size, name.toString)
     }
     case None => println("Dialog returned: None")
-  }
+  }*/
 
   val propertiesPane = new BorderPane()
-  propertiesPane.left = new Label("Properties")
+  propertiesPane.left = new Label("ConversionMap")
   propertiesPane.right = propertiesButton
 
-  val allelesPane = new BorderPane()
+  /*val allelesPane = new BorderPane()
   allelesPane.left = new Label("Alleles")
-  allelesPane.right = allelesButton
+  allelesPane.right = allelesButton*/
 
 
   // Enable/Disable login button depending on whether a username was
@@ -117,7 +127,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
 
   dialogPane().content = new VBox() {
-    children ++= Seq(grid, propertiesPane, propertiesListView, allelesPane, allelesListView)
+    children ++= Seq(grid, propertiesPane, propertiesListView/*, allelesPane, allelesListView*/)
     styleClass += "sample-page"
   }
   if (gene.isDefined) {
@@ -132,7 +142,8 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
-      currentStructuralChromosome += (nameGene.text.value -> CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, alleles, Map.empty))
+      currentStructuralChromosome += (nameGene.text.value -> CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, conversionMap))
+      println(currentStructuralChromosome)
       currentAnimalChromosome.structuralChromosome = currentStructuralChromosome
       EntitiesInfo.instance().setAnimalChromosomeInfo(animal, currentAnimalChromosome)
       nameGene.text.value

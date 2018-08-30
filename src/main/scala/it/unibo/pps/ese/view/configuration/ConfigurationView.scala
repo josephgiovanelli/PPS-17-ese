@@ -96,8 +96,6 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
     styleClass += "sample-page"
   }
 
-
-
   //val result = createDialog1(currentWindow)
 
   /*result match {

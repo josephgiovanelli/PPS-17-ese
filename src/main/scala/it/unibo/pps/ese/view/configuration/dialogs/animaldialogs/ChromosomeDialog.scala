@@ -14,7 +14,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
 
-case class ChromosomeDialog(window: Window, animal: String) extends Dialog[Unit] {
+case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
 
   val ROW_HEIGHT = 26
   val MIN_ELEM = 3
@@ -32,12 +32,10 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog[Unit]
     case None => throw new IllegalStateException()
   }
 
-  val structuralChromosome: Map[String, CustomGeneInfo] = currentAnimalChromosome.structuralChromosome
-  val structuralName: ObservableBuffer[String] = ObservableBuffer[String](structuralChromosome.keySet toSeq)
+  val structuralName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.structuralChromosome.keySet toSeq)
   val structuralChromosomeListView: ListView[String] = new ListView[String] {
     items = structuralName
     selectionModel().selectedItem.onChange( (_, _, value) => {
-      println((selectionModel().getSelectedIndex, value))
       if (selectionModel().getSelectedIndex != -1) {
         CustomGeneDialog(window, animal, Some(value)).showAndWait()
         Platform.runLater(selectionModel().clearSelection())
@@ -45,8 +43,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog[Unit]
     })
   }
 
-  var regulationChromosome: Map[String, DefaultGeneInfo] = currentAnimalChromosome.regulationChromosome
-  val regulationName: ObservableBuffer[String] = ObservableBuffer[String](regulationChromosome.keySet toSeq)
+  val regulationName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.regulationChromosome.keySet toSeq)
   val regulationChromosomeListView: ListView[String] = new ListView[String] {
     items = regulationName
     selectionModel().selectedItem.onChange( (_, _, value) => {
@@ -58,8 +55,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog[Unit]
   }
 
 
-  val sexualChromosome: Map[String, DefaultGeneInfo] = currentAnimalChromosome.sexualChromosome
-  val sexualName: ObservableBuffer[String] = ObservableBuffer[String](sexualChromosome.keySet toSeq)
+  val sexualName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.sexualChromosome.keySet toSeq)
   val sexualChromosomeListView: ListView[String] = new ListView[String] {
     items = sexualName
     selectionModel().selectedItem.onChange( (_, _, value) => {
@@ -135,13 +131,5 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog[Unit]
     styleClass += "sample-page"
   }
 
-
-  // When the login button is clicked, convert the result to
-  // a username-password-pair.
-
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType)
-      EntitiesInfo.instance().setAnimalChromosomeInfo(animal, AnimalChromosomeInfo(structuralChromosome,
-        regulationChromosome, sexualChromosome))
 
 }
