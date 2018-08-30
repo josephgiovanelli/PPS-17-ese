@@ -5,6 +5,7 @@ import javafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
+import it.unibo.pps.ese.view.speciesdetails.SpeciesDetailsPane
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
 import scalafx.scene.paint.Color
@@ -37,7 +38,7 @@ private class MainScene(mainComponent: MainComponent, width: Double = 1200, heig
   worldTab.closable = false
 
   val worldContainerPane = new SplitPane()
-  val detailsPane = DetailsPane()
+  val detailsPane = DetailsPane(mainComponent)
   val worldPane: WorldPane = WorldPane(mainComponent, detailsPane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
@@ -69,9 +70,13 @@ private class MainScene(mainComponent: MainComponent, width: Double = 1200, heig
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
 
-  val simulationPane = new TabPane()
-  simulationPane.tabs = List(worldTab, statisticsTab)
+  val genomeTab = new Tab()
+  genomeTab.text = "Genome"
+  genomeTab.closable = false
+  genomeTab.content = new SpeciesDetailsPane()
 
+  val simulationPane = new TabPane()
+  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab)
   val mainPane = new BorderPane()
   mainPane.top = topPane
   mainPane.center = simulationPane

@@ -34,7 +34,7 @@ object GeneticsSimulator extends GeneticsSimulator{
     initializedSimulation
   }
   private[this] def _checkState():Unit = {
-    if (started) throw new IllegalStateException() else started = true
+//    if (started) throw new IllegalStateException() else started = true
   }
   override def speciesList: Seq[String] = speciesSetup.keySet.toSeq
 

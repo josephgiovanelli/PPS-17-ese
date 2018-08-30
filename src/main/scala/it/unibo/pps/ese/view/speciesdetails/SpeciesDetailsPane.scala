@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.view.speciesdetails
 
+
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, ChromosomeType, GeneWithAllelicForms, MGene}
@@ -11,15 +12,17 @@ import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.scene._
 import scalafx.animation.Timeline
-import scalafx.geometry.Point3D
+import scalafx.geometry.{Insets, Point3D}
 import scalafx.scene.control.Slider
 import scalafx.scene.paint.{Color, Paint, PhongMaterial}
 import scalafx.scene.transform.Rotate
 import scalafx.scene.shape._
 import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
-import scalafx.scene.layout.{HBox, Pane, VBox}
+import scalafx.scene.layout._
 
-object Example extends JFXApp { app =>
+class SpeciesDetailsPane extends Pane {
+  this.prefWidth = 1000
+  this.prefHeight = 800
   val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
   val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
   geneticsSimulator.beginSimulation(data)
@@ -33,34 +36,35 @@ object Example extends JFXApp { app =>
   val ballSize:Double = 15.0
   val cylinderRadius:Double = 3.0
   val cylinderHeight:Double = 60.0
-    stage = new JFXApp.PrimaryStage()
-    val root = new Group();
-    val scene = new Scene(root, 1000, 800);
-    scene.setFill(Color.color(0.2, 0.2, 0.2, 1.0))
+  val root = new Group();
 
-    val hbox = new HBox()
-    hbox.setLayoutX(20);
-    hbox.setLayoutY(200);
+  this.children += root
+//  val scene = new Scene(root, 1000, 800);
+  this.setBackground(new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty))));
+
+  val hbox = new HBox()
+  hbox.setLayoutX(20);
+  hbox.setLayoutY(200);
   import CreateDna._
   val molecules:Seq[Xform] =  createMoleculeFormComplete(0.0,0.0,0.0,180,None,None) ::
-  createMoleculeFormComplete(20,20,-15,165,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
-  createMoleculeFormComplete(-20,-20,15,195,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
-  createMoleculeFormComplete(40,40,-30,150,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
-  createMoleculeFormComplete(60,60,-45,135,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
-  createMoleculeFormComplete(80,80,-60,120,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-  createMoleculeFormComplete(100,100,-75,105,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-  createMoleculeFormComplete(-40,-40,30,210,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-  createMoleculeFormComplete(-60,-60,45,225,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-  createMoleculeFormComplete(-80,-80,60,240,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-  createMoleculeFormComplete(-100,-100,75,255,Some(ChromosomeType.FEEDING),Some(iteratorFeeding))::
-  createMoleculeFormComplete(-120,-120,90,270,None,None)::
-  createMoleculeFormComplete(-140,-140,105,285,None,None)::
-  createMoleculeFormComplete(-160,-160,120,300,None,None)::
-  createMoleculeFormComplete(120,120,-90,90,None,None)::
-  createMoleculeFormComplete(140,140,-105,75,None,None)::
-  createMoleculeFormComplete(160,160,-120,60,None,None)::
-  createMoleculeFormComplete(180,180,-135,45,None,None)::
-  List()
+    createMoleculeFormComplete(20,20,-15,165,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
+    createMoleculeFormComplete(-20,-20,15,195,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
+    createMoleculeFormComplete(40,40,-30,150,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
+    createMoleculeFormComplete(60,60,-45,135,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
+    createMoleculeFormComplete(80,80,-60,120,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+    createMoleculeFormComplete(100,100,-75,105,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+    createMoleculeFormComplete(-40,-40,30,210,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+    createMoleculeFormComplete(-60,-60,45,225,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+    createMoleculeFormComplete(-80,-80,60,240,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
+    createMoleculeFormComplete(-100,-100,75,255,Some(ChromosomeType.FEEDING),Some(iteratorFeeding))::
+    createMoleculeFormComplete(-120,-120,90,270,None,None)::
+    createMoleculeFormComplete(-140,-140,105,285,None,None)::
+    createMoleculeFormComplete(-160,-160,120,300,None,None)::
+    createMoleculeFormComplete(120,120,-90,90,None,None)::
+    createMoleculeFormComplete(140,140,-105,75,None,None)::
+    createMoleculeFormComplete(160,160,-120,60,None,None)::
+    createMoleculeFormComplete(180,180,-135,45,None,None)::
+    List()
 
   private val moleculeGroup = new Group()
   moleculeGroup.children ++= molecules
@@ -79,15 +83,11 @@ object Example extends JFXApp { app =>
   val rS = new GeneDetailsScene(300,600,Right)
   hbox.children += rS
   val slider = new Slider(0, 360, 0);
-    slider.setBlockIncrement(1);
-    slider.setTranslateX(400);
-    slider.setTranslateY(625);
-    cylinder1.rotateProperty().bind(slider.valueProperty());
-    root.getChildren().addAll(hbox, slider);
-
-    stage.setScene(scene);
-    stage.show();
-
+  slider.setBlockIncrement(1);
+  slider.setTranslateX(400);
+  slider.setTranslateY(625);
+  cylinder1.rotateProperty().bind(slider.valueProperty());
+  root.getChildren().addAll(hbox, slider);
   def setTitle (str:String,text: Text):Parent= {
     val vbox = new VBox()
     text.setText(str)
@@ -98,7 +98,7 @@ object Example extends JFXApp { app =>
   }
 
   def createSubScene( title:String,  node:Node,
-     fillPaint:Paint,  camera:Camera, msaa:Boolean):SubScene={
+                      fillPaint:Paint,  camera:Camera, msaa:Boolean):SubScene={
     val father = new Group();
 
     node.setRotationAxis(Rotate.YAxis);
@@ -110,7 +110,7 @@ object Example extends JFXApp { app =>
     subScene.setFill(fillPaint);
     subScene.setCamera(camera);
 
-     subScene
+    subScene
   }
   object CreateDna{
     val blueMaterial = new PhongMaterial {
@@ -192,7 +192,7 @@ object Example extends JFXApp { app =>
             children ++= Seq(
               new Xform {
                 children += s1
-                t.x = Example.cylinderHeight
+                t.x = cylinderHeight
               },
               c1
             )
@@ -203,7 +203,7 @@ object Example extends JFXApp { app =>
             children ++= Seq(
               new Xform {
                 children += s2
-                t.x = Example.cylinderHeight
+                t.x = cylinderHeight
               },
               c2
             )

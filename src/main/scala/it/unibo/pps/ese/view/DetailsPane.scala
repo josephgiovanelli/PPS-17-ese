@@ -1,7 +1,9 @@
 package it.unibo.pps.ese.view
 
-import scalafx.scene.control.{Label, ScrollPane}
+import scalafx.scene.control.{Button, Label, ScrollPane}
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.BorderPane
+import scalafx.Includes._
 
 trait DetailsPane extends ScrollPane {
 
@@ -10,15 +12,19 @@ trait DetailsPane extends ScrollPane {
 }
 
 object DetailsPane {
-  def apply(): DetailsPane = new DetailsPaneImpl()
+  def apply(mainComponent: MainComponent): DetailsPane = new DetailsPaneImpl(mainComponent)
 }
 
-class DetailsPaneImpl extends DetailsPane {
+class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 
   val nameLabel = Label("")
   val mainPane = new BorderPane()
   mainPane.center = nameLabel
-
+  val button:Button = new Button("Genome")
+  mainPane.bottom = button
+//  button.onMouseClicked = (me:MouseEvent) => {
+//    mainComponent.setScene(ViewType.GenomeView)
+//  }
   content = mainPane
 
   override def showDetails(e: Entity): Unit = {

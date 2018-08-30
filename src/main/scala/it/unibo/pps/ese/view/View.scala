@@ -54,5 +54,5 @@ private class ViewImpl extends View with MainComponent {
 
 object ViewType extends Enumeration {
   type ViewType = Value
-  val MainView, ConfigurationView = Value
+  val MainView, ConfigurationView, GenomeView = Value
 }
