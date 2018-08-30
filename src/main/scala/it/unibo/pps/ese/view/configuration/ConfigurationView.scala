@@ -2,9 +2,9 @@ package it.unibo.pps.ese.view.configuration
 
 import it.unibo.pps.ese.controller.loader.RegulationDefaultGenes
 import it.unibo.pps.ese.controller.loader.beans.{Allele, Animal}
-import it.unibo.pps.ese.controller.loader.data.{AnimalData, DefaultGeneData}
+import it.unibo.pps.ese.controller.loader.data.{AlleleData, AnimalData, DefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.SimulationDataImpl
-import it.unibo.pps.ese.view.configuration.dialogs.LoginDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{DefaultGeneInfo, LoginDialog}
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.{MainComponent, ViewType}
@@ -30,6 +30,9 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
 
   val currentWindow: scalafx.stage.Window = this.window()
 
+  /*val effect: Map[String, Double] = Map("life" -> 2)
+  val aaa = Allele("aaa", "zzz", 5, 5, 1, effect)
+  println(DefaultGeneInfo(RegulationDefaultGenes.LIFE, "aaa", Set(aaa)))*/
 
   /*val animalBeans = Animal("Gatto", 3, 3, "A", "C", "", null, null)
   val effect: Map[String, Double] = Map("life" -> 2)
@@ -69,7 +72,7 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
   val plantsAddButton = new Button("Add")
   animalsAddButton.onAction = _ => AnimalDialog(currentWindow).showAndWait() match {
     case Some(name) => {
-      animalsName.insert(plantsName.size, name.toString)
+      animalsName.insert(animalsName.size, name.toString)
     }
     case None => println("Dialog returned: None")
   }

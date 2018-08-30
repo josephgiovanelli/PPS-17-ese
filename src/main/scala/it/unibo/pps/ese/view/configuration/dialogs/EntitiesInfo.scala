@@ -1,12 +1,17 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
-import it.unibo.pps.ese.controller.loader.data.{CustomGeneData, DefaultGeneData}
+import it.unibo.pps.ese.controller.loader.DefaultGene
+import it.unibo.pps.ese.controller.loader.data.AlleleData
 
 case class AnimalBaseInfo(geneLength: Int, alleleLength: Int, reign: String, typology: String)
-case class AnimalChromosomeInfo(structuralChromosome: Iterable[CustomGeneData], regulationChromosome: Iterable[DefaultGeneData],
-                                sexualChromosome: Iterable[DefaultGeneData])
+case class AnimalChromosomeInfo(structuralChromosome: Iterable[CustomGeneInfo], regulationChromosome: Iterable[DefaultGeneInfo],
+                                sexualChromosome: Iterable[DefaultGeneInfo])
 
 case class PlantInfo(height: Double, nutritionalValue: Double, hardness: Double, availability: Double)
+class GeneInfo(val id: String, val name: String, val properties: Map[String, Class[_]], val alleles: Set[AlleleData])
+case class DefaultGeneInfo(defaultGene: DefaultGene, override val id: String, override val alleles: Set[AlleleData])
+  extends GeneInfo(id, defaultGene.name, defaultGene.properties, alleles)
+case class CustomGeneInfo(override val id: String, override val name: String,override val  properties: Map[String, Class[_]], override val alleles: Set[AlleleData], conversionMap: Map[String, Map[String, Double]]) extends GeneInfo(id, name, properties, alleles)
 
 sealed trait EntitiesInfo {
 

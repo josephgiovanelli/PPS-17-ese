@@ -2,12 +2,9 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
 import it.unibo.pps.ese.controller.loader.RegulationDefaultGenes
 import it.unibo.pps.ese.controller.loader.beans.Allele
-import it.unibo.pps.ese.controller.loader.data.{CustomGeneData, DefaultGeneData}
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
-import it.unibo.pps.ese.view.configuration.{ConfigurationView, Result}
-import it.unibo.pps.ese.view.configuration.dialogs.{AnimalChromosomeInfo, EntitiesInfo, LoginDialog}
+import it.unibo.pps.ese.view.configuration.dialogs._
 
-import scala.collection.mutable.ListBuffer
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
@@ -34,7 +31,7 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
     case None => throw new IllegalStateException()
   }
 
-  val structuralChromosome: Iterable[CustomGeneData] = currentAnimalChromosome.structuralChromosome
+  val structuralChromosome: Iterable[CustomGeneInfo] = currentAnimalChromosome.structuralChromosome
   val structuralName: ObservableBuffer[String] = ObservableBuffer[String](structuralChromosome map ( x => x.name) toSeq)
   val structuralChromosomeListView: ListView[String] = new ListView[String] {
     items = structuralName
@@ -46,7 +43,7 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
     })
   }
 
-  var regulationChromosome: Iterable[DefaultGeneData] = currentAnimalChromosome.regulationChromosome
+  var regulationChromosome: Iterable[DefaultGeneInfo] = currentAnimalChromosome.regulationChromosome
   val regulationName: ObservableBuffer[String] = ObservableBuffer[String](regulationChromosome map ( x => x.name) toSeq)
   val regulationChromosomeListView: ListView[String] = new ListView[String] {
     items = regulationName
@@ -59,7 +56,7 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
   }
 
 
-  val sexualChromosome: Iterable[DefaultGeneData] = currentAnimalChromosome.sexualChromosome
+  val sexualChromosome: Iterable[DefaultGeneInfo] = currentAnimalChromosome.sexualChromosome
   val sexualName: ObservableBuffer[String] = ObservableBuffer[String](sexualChromosome map ( x => x.name) toSeq)
   val sexualChromosomeListView: ListView[String] = new ListView[String] {
     items = sexualName
@@ -92,7 +89,7 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
   /*regulationButton.onAction = _ => {
     val effect: Map[String, Double] = Map("life" -> 2)
     val aaa = Allele("aaa", "zzz", 5, 5, 1, effect)
-    val life = DefaultGeneData(RegulationDefaultGenes.LIFE, "aaa", Seq(aaa))
+    val life = DefaultGeneInfo(RegulationDefaultGenes.LIFE, "aaa", Set(aaa))
     regulationChromosome ++= Seq(life)
     println(regulationChromosome.size)
     regulationName.insert(0, life.name)
@@ -143,6 +140,6 @@ case class ChromosomeDialog(window: Window, key: Option[String] = None) extends 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType)
       EntitiesInfo.instance().setAnimalChromosomeInfo(key.get, AnimalChromosomeInfo(structuralChromosome,
-        regulationChromosome, sexualChromosome) )
+        regulationChromosome, sexualChromosome))
 
 }
