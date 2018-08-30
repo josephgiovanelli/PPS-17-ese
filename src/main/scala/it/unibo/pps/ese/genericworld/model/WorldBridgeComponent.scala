@@ -8,15 +8,13 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 case class UpdateEntityState(properties: Seq[EntityProperty]) extends BaseEvent
 
 case class WorldInfoRequest() extends RequestEvent
-case class WorldInfoResponse(override val id: String, width: Long, height: Long) extends ResponseEvent(id)
+case class WorldInfoResponse(override val id: String, width: Long, height: Long) extends ResponseEvent
 
 case class EntitiesStateRequest(filter: EntityState => Boolean = _ => true) extends RequestEvent
-case class EntitiesStateResponse(override val id: String, state: Seq[EntityState]) extends ResponseEvent(id)
+case class EntitiesStateResponse(override val id: String, state: Seq[EntityState]) extends ResponseEvent
 
 case class ComputeNextState() extends BaseEvent
 case class ComputeNextStateAck() extends BaseEvent
-
-case class EraEnd() extends BaseEvent
 
 case class Kill(entityId: String) extends BaseEvent
 case class Create(partnerId: String) extends BaseEvent
@@ -47,8 +45,8 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     case r: EntitiesStateRequest =>
       publish(EntitiesStateResponse(r id,
         (world queryableState) getFilteredState r.filter filterNot (x => x.entityId == entitySpecifications.id)))
-    case r: InteractionEvent if r.id != entitySpecifications.id =>
-      if (!disposed) world interact InteractionEnvelope(entitySpecifications id, r id, r)
+    case r: InteractionEvent if r.receiverId != entitySpecifications.id =>
+      if (!disposed) world interact InteractionEnvelope(entitySpecifications id, r receiverId, r)
     case UpdateEntityState(properties) => properties foreach (e =>
       if (!disposed) (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
     case Kill(entityId)  =>

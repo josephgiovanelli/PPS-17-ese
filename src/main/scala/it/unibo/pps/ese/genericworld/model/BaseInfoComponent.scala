@@ -13,17 +13,17 @@ case class BaseInfoResponse(override val id: String,
                             nutritionalValue: Double,
                             defense: Double,
                             gender:String,
-                            var moved: Boolean) extends ResponseEvent(id)
+                            elapsedClocks: Long) extends ResponseEvent
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
-                        species: String,
-                        reign: ReignType.Value,
-                        gender:String,
-                        var position: Point,
-                        height: Double,
-                        var nutritionalValue: Double,
-                        defense: Double,
-                        var moved: Boolean = false) extends WriterComponent(entitySpecifications) {
+                             species: String,
+                             reign: ReignType.Value,
+                             gender: String,
+                             var position: Point,
+                             height: Double,
+                             var nutritionalValue: Double,
+                             defense: Double,
+                             var elapsedClocks: Long = 0) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()
@@ -34,20 +34,24 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
     case EntityPosition(newPosition) =>
       this synchronized {
         position = newPosition
-        moved = true
       }
     case EntityNutritionalValue(newNutritionalValue) =>
       this synchronized {
         nutritionalValue = newNutritionalValue
       }
     case r: BaseInfoRequest =>
-      publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, moved))
+      this synchronized {
+        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+      }
     case ComputeNextState() =>
+      this synchronized {
+        elapsedClocks += 1
+      }
       publish(new ComputeNextStateAck)
-    case EraEnd() =>
-      moved = false
     case GetInfo() =>
-      publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, moved))
+      this synchronized {
+        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+      }
       publish(new GetInfoAck)
     case _ => Unit
   }
@@ -60,7 +64,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("height", ev height),
       EntityProperty("nutritionalValue", ev nutritionalValue),
       EntityProperty("defense", ev defense),
-      EntityProperty("gender", ev gender)
+      EntityProperty("gender", ev gender),
+      EntityProperty("elapsedClocks", ev elapsedClocks)
     )))
   }
 }

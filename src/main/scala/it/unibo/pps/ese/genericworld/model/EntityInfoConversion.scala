@@ -38,5 +38,6 @@ object EntityInfoConversion {
   implicit class BaseInfoConversions(obj: EntityInfo) {
     def species : EntityKinds = EntityKinds(Symbol(obj.selectDynamic("species").asInstanceOf[String]))
     def reign : ReignType.Value = obj.selectDynamic("reign").asInstanceOf[ReignType.Value]
+    def elapsedClock: Long = obj.selectDynamic("elapsedClock").asInstanceOf[Long]
   }
 }

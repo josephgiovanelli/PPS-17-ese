@@ -26,7 +26,7 @@ object ActionKind extends Enumeration {
 case class EntityPosition(position: Point) extends BaseEvent
 case class InteractionEntity(entityId: String, action: ActionKind.Value) extends BaseEvent
 case class DynamicParametersRequest() extends RequestEvent
-case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double) extends ResponseEvent(id)
+case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double) extends ResponseEvent
 
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,

@@ -7,7 +7,7 @@ import scala.math.floor
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class MealInformation(entityId: String, eatenEnergy: Double) extends InteractionEvent(entityId)
+case class MealInformation(override val receiverId: String, eatenEnergy: Double) extends InteractionEvent
 case class PhysicalStatusInfo(averageLife: Double,
                                energyRequirements: Double,
                                endChildPhase: Double,
