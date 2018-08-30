@@ -16,8 +16,8 @@ trait Hippocampus {
 object Hippocampus {
 
   val locationalFieldSize = 5
-  var worldWidth: Int = 0
-  var worldHeight: Int = 0
+  var worldWidth: Int = 1000
+  var worldHeight: Int = 1000
 
   def apply(worldWidth: Int, worldHeight: Int, neocortex: Neocortex): Hippocampus = {
     this.worldWidth=worldWidth
@@ -59,7 +59,7 @@ object Hippocampus {
         }
         case None =>
       }
-      getBestMemory(currentPosition)
+      computeBestMemory(currentPosition)
     }
 
     override def updateTime(): Unit = {
@@ -71,8 +71,11 @@ object Hippocampus {
       eventGainMin + (eventGainMax-eventGainMin)*eventGain.nextDouble()
     }
 
-    private def getBestMemory(position: Position): ShortTermMemory = {
-      searchMemories.maxBy(t => getMemoryCoefficient(t._2, position))._2
+    private def computeBestMemory(position: Position): ShortTermMemory = {
+      searchMemories.find(t => t._2.locationalField.distanceFromPosition(position)==0) match {
+        case Some(tuple) => tuple._2
+        case None => searchMemories.maxBy(t => getMemoryCoefficient(t._2, position))._2
+      }
     }
 
     private def getMemoryCoefficient(memory: ShortTermMemory, position: Position): Double = {

@@ -26,15 +26,17 @@ object LocationalField {
     if(y<locationalFieldSize) y=locationalFieldSize
     if(y>worldHeight-locationalFieldSize) y=worldHeight-locationalFieldSize
 
+    centerPosition=Position(x,y)
+
     val topLeftPosition: Position = centerPosition-locationalFieldSize
     val bottomRightPosition: Position = centerPosition+locationalFieldSize
 
-    def containsPosition(position: Position): Boolean = {
+    private def containsPosition(position: Position): Boolean = {
       position >=&& topLeftPosition && position <=&& bottomRightPosition
     }
 
     override def distanceFromPosition(position: Position): Double = {
-      centerPosition |-| position
+      if (containsPosition(position)) 0 else centerPosition |-| position
     }
   }
 
