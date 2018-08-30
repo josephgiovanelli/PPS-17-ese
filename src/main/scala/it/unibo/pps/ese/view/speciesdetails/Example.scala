@@ -4,6 +4,7 @@ import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, ChromosomeType, GeneWithAllelicForms, MGene}
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
+import it.unibo.pps.ese.genetics.dnaexpression.GeneStats
 import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import javafx.scene.text.{Font, Text}
 import scalafx.Includes._
@@ -179,31 +180,25 @@ object Example extends JFXApp { app =>
         if(chromosomeType.nonEmpty && geneCouple.nonEmpty){
           val cType = chromosomeType.get
           val gCouple:(MGene,MGene) = geneCouple.get
-          val alleleID1:String = gCouple._1 match {
-            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-            case BasicGene(g,t)=>""
-          }
-          val alleleID2:String = gCouple._2 match {
-            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-            case BasicGene(g,t)=>""
-          }
-          lS.setGeneDetails(
-            chromosomeName = cType.toString+" 1",
-            geneId = gCouple._1.geneId.mkString(","),
-            alleleId = alleleID1,
-            affectedQualities = List("Speed"),
-            dominanceLevel = "5.0",
-            probability = "40",
-            active = "Yes"
+//          val alleleID1:String = gCouple._1 match {
+//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+//            case BasicGene(g,t)=>""
+//          }
+//          val alleleID2:String = gCouple._2 match {
+//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+//            case BasicGene(g,t)=>""
+//          }
+          val geneStats1:GeneStats = geneticsSimulator.getGeneStats(gCouple._1,animalInfo)
+          val geneStats2:GeneStats = geneticsSimulator.getGeneStats(gCouple._2,animalInfo)
+
+          lS.visualizeGeneStats(
+            cName = cType.toString+" 1",
+            geneStats = geneStats1
           )
-          rS.setGeneDetails(
-            chromosomeName = cType.toString+" 2",
-            geneId = gCouple._2.geneId.mkString(","),
-            alleleId = alleleID2,
-            affectedQualities = List("Speed"),
-            dominanceLevel = "5.0",
-            probability = "40",
-            active = "No"
+
+          rS.visualizeGeneStats(
+            cName = cType.toString+" 2",
+            geneStats = geneStats2
           )
         }
         println("Cliccato")
@@ -213,35 +208,27 @@ object Example extends JFXApp { app =>
         if(chromosomeType.nonEmpty && geneCouple.nonEmpty){
           val cType = chromosomeType.get
           val gCouple:(MGene,MGene) = geneCouple.get
-          val alleleID1:String = gCouple._1 match {
-            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-            case BasicGene(g,t)=>""
-          }
-          val alleleID2:String = gCouple._2 match {
-            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
-            case BasicGene(g,t)=>""
-          }
-          lS.setGeneDetails(
-            chromosomeName = cType.toString+" 1",
-            geneId = gCouple._1.geneId.mkString(","),
-            alleleId = alleleID1,
-            affectedQualities = List("Speed"),
-            dominanceLevel = "5.0",
-            probability = "40",
-            active = "Yes"
+//          val alleleID1:String = gCouple._1 match {
+//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+//            case BasicGene(g,t)=>""
+//          }
+//          val alleleID2:String = gCouple._2 match {
+//            case GeneWithAllelicForms(g,a,t) =>a.mkString(",")
+//            case BasicGene(g,t)=>""
+//          }
+          val geneStats1:GeneStats = geneticsSimulator.getGeneStats(gCouple._1,animalInfo)
+          val geneStats2:GeneStats = geneticsSimulator.getGeneStats(gCouple._2,animalInfo)
+
+          lS.visualizeGeneStats(
+            cName = cType.toString+" 1",
+            geneStats = geneStats1
           )
-          rS.setGeneDetails(
-            chromosomeName = cType.toString+" 2",
-            geneId = gCouple._2.geneId.mkString(","),
-            alleleId = alleleID2,
-            affectedQualities = List("Speed"),
-            dominanceLevel = "5.0",
-            probability = "40",
-            active = "No"
+
+          rS.visualizeGeneStats(
+            cName = cType.toString+" 2",
+            geneStats = geneStats2
           )
         }
-//        leftTextPane.setText(textTitle1)
-//        rightTextPane.setText(textTitle2)
         println("Cliccato")
       }
       (hydrogen1Sphere,hydrogen2Sphere)

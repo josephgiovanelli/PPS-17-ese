@@ -3,25 +3,32 @@ sealed trait Side
 case object Left extends Side
 case object Right extends Side
 
+import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
+import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
 import it.unibo.pps.ese.view.speciesdetails.Example.setTitle
 import javafx.scene.text.{Font, Text}
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.Color
+import scalafx.scene.text.TextFlow
 import scalafx.scene.{Group, Parent, SceneAntialiasing, SubScene}
+
+import scala.collection.JavaConverters._
 trait GeneDetails{
-  def setGeneDetails(
-                    chromosomeName:String,
-                    geneId:String,
-                    alleleId:String,
-                    affectedQualities:Seq[String],
-                    dominanceLevel:String,
-                    probability:String,
-                    active:String)
+//  def setGeneDetails(
+//                    chromosomeName:String,
+//                    geneId:String,
+//                    alleleId:String,
+//                    affectedQualities:Seq[String],
+//                    dominanceLevel:String,
+//                    probability:String,
+//                    active:String)
+  def visualizeGeneStats(geneStats: GeneStats,cName:String)
 }
 
 class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(width,height,true,SceneAntialiasing.Balanced) with GeneDetails {
-  private val textLabel = new Text("No gene selected")
-  private[this]def buildDetailsBox(textLabel: Text):Parent= {
+  private val textLabel = new TextFlow()
+  textLabel.children.add("No Gene Selected".toText)
+  private[this]def buildDetailsBox(textLabel: TextFlow):Parent= {
     val cssLayout:String = side match {
       case Left =>
         "-fx-padding: 5 5 5 5;\n"+
@@ -38,8 +45,7 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
     }
     val vbox = new VBox()
     vbox.setStyle(cssLayout);
-    textLabel.setFont(Font.font("Calibri", 24))
-    textLabel.setFill(Color.web("67809F"))
+    textLabel.setMaxWidth(width*0.8)
     vbox.getChildren().add(textLabel)
 
     vbox
@@ -49,14 +55,56 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
   group.children.addAll(buildDetailsBox(textLabel))
   root = group
 
-  override def setGeneDetails(chromosomeName: String, geneId: String,alleleId:String, affectedQualities: Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
-    val text = chromosomeName+"\n" +
-      "Gene Id: "+geneId+"\n" +
-      "Allele Id: "+alleleId+"\n" +
-      "Affect: "+affectedQualities.mkString(",")+"\n" +
-      "Dominance Level: "+dominanceLevel+"\n" +
-      "Probability: "+probability+"%\n" +
-      "Active: "+active+"\n"
-    textLabel.setText(text)
+  override def visualizeGeneStats(geneStats: GeneStats,cName:String): Unit = geneStats match {
+    case AllelicGeneStats(g,d,p,a,aq,f) => {
+      setGeneDetails(
+        chromosomeName= cName,
+        geneId= g.geneId.mkString(","),
+        alleleId= g.alleleCode.mkString(","),
+        affectedQualities = aq.map(_.toString),
+        dominanceLevel = d.toString,
+        probability = p.toString,
+        active = if(a) "Yes" else "No"
+      )
+    }
+    case BasicGeneStats(g,i)=>
+      setBasicGeneDetails(cName,g.geneId.mkString(","),i)
   }
+  implicit class RichText(string:String){
+    def setStyle(style:String):Text = {
+      val text = new Text(string)
+      text.setStyle(style)
+      text.setFill(Color.web("67809F"))
+      text.setFont(Font.font("Calibri", 24))
+      text
+    }
+    def toText:Text = {
+      val text = new Text(string)
+      text.setFill(Color.web("67809F"))
+      text.setFont(Font.font("Calibri", 24))
+      text
+    }
+  }
+  private def setGeneDetails(chromosomeName: String, geneId: String,alleleId:String, affectedQualities: Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
+    val style:String = "-fx-font-weight: 900"
+    val allText:Seq[Text] = (chromosomeName+"\n").setStyle(style) ::
+      "Gene Id: ".setStyle(style)::(geneId+"\n").toText   ::
+      "Allele Id: ".setStyle(style)::(alleleId+"\n").toText ::
+      "Affect: ".setStyle(style)::(affectedQualities.toSet.mkString(", ")+"\n").toText ::
+      "Dominance Level: ".setStyle(style)::(dominanceLevel+"\n").toText ::
+      "Probability: ".setStyle(style)::(probability+"\n").toText ::
+      "Active: ".setStyle(style)::(active+"\n").toText :: List()
+    textLabel.children.clear()
+    textLabel.children.addAll(allText.asJava)
+  }
+  private def setBasicGeneDetails(chromosomeName: String,geneId:String,identifiedThing:String): Unit ={
+    val style:String = "-fx-font-weight: 900"
+    val allText:Seq[Text]  = (chromosomeName+"\n").setStyle(style) ::
+      "Gene Id: ".setStyle(style)::(geneId+"\n").toText ::
+      "Identify: ".setStyle(style)::(identifiedThing+"\n").toText ::List()
+    textLabel.children.clear()
+    textLabel.children.addAll(allText.asJava)
+  }
+
+
 }

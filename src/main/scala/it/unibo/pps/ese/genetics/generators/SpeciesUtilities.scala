@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genetics.generators
 import it.unibo.pps.ese.genetics.Utilities.seqOfElement
 import it.unibo.pps.ese.genetics.dna._
 import it.unibo.pps.ese.genetics.dnaexpression._
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Species}
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, QualityType, Species}
 import it.unibo.pps.ese.genetics.generators.data.TranslatedAnimalData
 
 sealed trait SpeciesUtilities{
@@ -12,13 +12,28 @@ sealed trait SpeciesUtilities{
   def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= seqOfElement(n,generateAnimal)
   def translateGenome(genome:AnimalGenome):AnimalInfo
   def obtainMutantAlleles(gene:MGene):Seq[MGene]
+  private[genetics] def getAllelicBehaviorOfGene(gene:GeneWithAllelicForms):AllelicBehaviour
+  private[genetics] def getFeaturesOfGene(gene:GeneWithAllelicForms):Seq[QualityType]
+  private[genetics] def getProbabilityOfGene(gene:GeneWithAllelicForms):Double
 }
 
 object SpeciesUtilities{
   def apply(animalData:TranslatedAnimalData):SpeciesUtilities = new SpeciesSetup(animalData)
   private[this] class SpeciesSetup(animalData: TranslatedAnimalData) extends SpeciesUtilities {
-
     import SpeciesValues._
+    val geneFeatures: Seq[GeneFeatures] = allGeneData.map(geneData => {
+      val allelicBehaviours: Seq[AllelicBehaviour] = geneData
+        .allelicForm
+        .map(ad => AllelicBehaviour(
+          ad.geneSeq,
+          ad.allelicSeq,
+          ad.dominanceLevel,
+          ad.featuresBehaviour,
+          ad.energyConsumption))
+      GeneFeatures(geneData.geneSeq, geneData.name, geneData.geneFeatures, allelicBehaviours)
+    })
+
+    val dnaTranslator: DnaTranslator = DnaTranslator(geneFeatures)
     override def generateAnimalGenome: AnimalGenome = speciesGenerator.generateAnimalGenome
 
     override def translateGenome(genome:AnimalGenome): AnimalInfo = AnimalInfo(
@@ -33,24 +48,39 @@ object SpeciesUtilities{
         .map(a=>GeneWithAllelicForms(a.geneSeq,a.allelicSeq,gene.geneType))
     }
 
+    override def getAllelicBehaviorOfGene(gene: GeneWithAllelicForms): AllelicBehaviour = {
+      geneFeatures
+        .find(_.geneSeq == gene.geneId)
+        .getOrElse(throw new IllegalStateException())
+        .allelicForm
+        .find(_.allelicSeq == gene.alleleCode)
+        .getOrElse(throw new IllegalStateException())
+    }
+
+    override private[genetics] def getProbabilityOfGene(gene: GeneWithAllelicForms):Double = {
+      allGeneData
+        .flatMap(_.allelicForm)
+        .find(a=>a.geneSeq==gene.geneId && a.allelicSeq==gene.alleleCode)
+        .getOrElse(throw new IllegalStateException())
+        .probability
+    }
+    override private[genetics] def getFeaturesOfGene(gene: GeneWithAllelicForms):Seq[QualityType] = {
+      allGeneData
+        .find(_.geneSeq == gene.geneId)
+        .getOrElse(throw new IllegalStateException())
+        .geneFeatures
+        .flatMap(_.conversionMaps)
+        .map(_.qualityAffected)
+    }
+
+
     private[this] object SpeciesValues {
       val allGeneData: Seq[GeneData] = animalData.structuralChromosome ++
         animalData.regulationChromosome ++
         animalData.sexualChromosome
 
-      val geneFeatures: Seq[GeneFeatures] = allGeneData.map(geneData => {
-        val allelicBehaviours: Seq[AllelicBehaviour] = geneData
-          .allelicForm
-          .map(ad => AllelicBehaviour(
-            ad.geneSeq,
-            ad.allelicSeq,
-            ad.dominanceLevel,
-            ad.featuresBehaviour,
-            ad.energyConsumption))
-        GeneFeatures(geneData.geneSeq, geneData.name, geneData.geneFeatures, allelicBehaviours)
-      })
 
-      val dnaTranslator: DnaTranslator = DnaTranslator(geneFeatures)
+
 
       val speciesGenerator: SpeciesGenerator = new SpeciesGenerator(
         commonChromosomeGenes = List(animalData.reign, speciesNameToGene(animalData.name)),
@@ -72,6 +102,7 @@ object SpeciesUtilities{
         })
       }
     }
+
   }
 }
 
