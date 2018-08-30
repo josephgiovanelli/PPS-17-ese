@@ -2,7 +2,6 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
 import javafx.scene.Node
 
-import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.dialogs._
 
 import scalafx.Includes._
@@ -14,7 +13,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.stage.Window
 
-case class PropertiesDialog(window: Window, animal: String, gene: Option[String], property: Option[String]) extends Dialog[ConversionMap] {
+case class PropertiesDialog(window: Window, animal: String, gene: Option[String], property: Option[String], currentConversionMap: Option[Map[String, Double]]) extends Dialog[ConversionMap] {
 
   val ROW_HEIGHT = 26
   val MIN_ELEM = 3
@@ -49,13 +48,16 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
     add(propertyName, 1, 0)
   }
 
-  var conversionMap:  Map[String, Double] = if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get).conversionMap(property.get) else Map.empty
+  var conversionMap:  Map[String, Double] =
+    if (currentConversionMap.isDefined) currentConversionMap.get
+    else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get).conversionMap(property.get)
+    else Map.empty
   val conversionMapName: ObservableBuffer[String] = ObservableBuffer[String](conversionMap.keySet toSeq)
   val conversionMapListView: ListView[String] = new ListView[String] {
     items = conversionMapName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        PlantDialog(window, Some(value)).showAndWait()
+        ConversionMapDialog(window, Some((value, conversionMap(value)))).showAndWait()
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -64,15 +66,15 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
   conversionMapListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val conversionMapButton = new Button("Add")
-  conversionMapButton.onAction = _ => PlantDialog(window).showAndWait() match {
-    case Some(name) =>
-      conversionMap += (name.toString -> 0.0)
-      conversionMapName.insert(conversionMapName.size, name.toString)
+  conversionMapButton.onAction = _ => ConversionMapDialog(window, None).showAndWait() match {
+    case Some((name: String, value: Double)) =>
+      conversionMap += (name -> value)
+      conversionMapName.insert(conversionMapName.size, name)
     case None => println("Dialog returned: None")
   }
 
   val conversionMapPane = new BorderPane()
-  conversionMapPane.left = new Label("Properties")
+  conversionMapPane.left = new Label("Conversion Map")
   conversionMapPane.right = conversionMapButton
 
 

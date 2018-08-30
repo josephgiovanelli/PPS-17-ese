@@ -60,14 +60,14 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   var properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get).properties else Map.empty
   var alleles: Set[AlleleData] = if (gene.isDefined) currentStructuralChromosome(gene.get).alleles else Set.empty
-  var conversionMap: Map[String, Map[String, Double]] = Map.empty
+  var conversionMap: Map[String, Map[String, Double]] = if (gene.isDefined) currentStructuralChromosome(gene.get).conversionMap else Map.empty
 
   val propertiesName: ObservableBuffer[String] = ObservableBuffer[String](properties.keySet toSeq)
   val propertiesListView: ListView[String] = new ListView[String] {
     items = propertiesName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        PropertiesDialog(window, animal, gene,  Some(value)).showAndWait() match {
+        PropertiesDialog(window, animal, gene,  Some(value), if (conversionMap.isEmpty) None else Some(conversionMap(value))).showAndWait() match {
           case Some(ConversionMap(propertyName, map)) => {
             conversionMap += (propertyName -> map)
           }
@@ -95,7 +95,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   //allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val propertiesButton = new Button("Add")
-  propertiesButton.onAction = _ => PropertiesDialog(window, animal, None,  None).showAndWait() match {
+  propertiesButton.onAction = _ => PropertiesDialog(window, animal, None, None, None).showAndWait() match {
     case Some(ConversionMap(propertyName, map)) => {
       conversionMap += (propertyName -> map)
       properties += (propertyName -> Double.getClass)
@@ -112,7 +112,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   }*/
 
   val propertiesPane = new BorderPane()
-  propertiesPane.left = new Label("ConversionMap")
+  propertiesPane.left = new Label("Properties")
   propertiesPane.right = propertiesButton
 
   /*val allelesPane = new BorderPane()
