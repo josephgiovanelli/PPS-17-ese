@@ -2,13 +2,18 @@ package it.unibo.pps.ese.dataminer
 
 import it.unibo.pps.ese.genericworld.model.support.DataRepository
 
-trait EntityDataRepository {
-  def saveStaticEntityData(data: EntityStaticRecord): Unit
+sealed trait ReadOnlyEntityRepository {
   def exists(entityId: EntityId): Boolean
-  def saveDynamicEntityData(era: Era, data: EntityDynamicRecord): Unit
   def entitiesInEra(era: Era): Seq[EntityTimedRecord]
   def entityDynamicLog(entityId: EntityId): Option[EntityLog]
+  def getAllDynamicLogs: Seq[EntityLog]
 }
+
+sealed trait EntityDataRepository extends ReadOnlyEntityRepository {
+  def saveStaticEntityData(data: EntityStaticRecord): Unit
+  def saveDynamicEntityData(era: Era, data: EntityDynamicRecord): Unit
+}
+
 object EntityDataRepository {
 
   def apply(): EntityDataRepository = new BaseEntityDataRepository
@@ -41,6 +46,8 @@ object EntityDataRepository {
         EntityTimedRecordImpl(x id, era, x structuralData, x.dynamicData.find(y => y._1 == era).map(y => y._2).get))
 
     override def entityDynamicLog(entityId: EntityId): Option[EntityLog] = _dynamicLog getById entityId
+
+    override def getAllDynamicLogs: Seq[EntityLog] = (_dynamicLog getAll) map (x => x._2)
   }
 }
 

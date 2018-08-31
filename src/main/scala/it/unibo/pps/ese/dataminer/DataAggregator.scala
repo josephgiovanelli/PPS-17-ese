@@ -4,8 +4,9 @@ import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, ReignType}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 
 import scala.annotation.tailrec
+import scala.concurrent.ExecutionContext
 
-object DataInterceptor {
+object DataAggregator {
 
   private val _entityDataRepository = EntityDataRepository()
 
@@ -75,14 +76,12 @@ object DataInterceptor {
   }
 
   @tailrec
-  def ingestData(era: Era, data: Seq[EntityState]): Unit = {
+  def ingestData(era: Era, data: Seq[EntityState])(implicit context: ExecutionContext): Unit = {
     if (data isEmpty) return
     if (!(_entityDataRepository exists ((data head) entityId))) _entityDataRepository saveStaticEntityData (data head)
     _entityDataRepository saveDynamicEntityData (era, data head)
     ingestData(era, data tail)
   }
 
-  def readData(era: Era): Seq[EntityTimedRecord] = _entityDataRepository entitiesInEra era
-
-  def readData(entityId: EntityId): Option[EntityLog] = _entityDataRepository entityDynamicLog entityId
+  def ingestedData: ReadOnlyEntityRepository = _entityDataRepository
 }

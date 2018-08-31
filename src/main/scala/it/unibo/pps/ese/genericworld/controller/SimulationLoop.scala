@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.dataminer.DataInterceptor
+import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner}
 import it.unibo.pps.ese.genericworld.model.World
 
 import scala.concurrent.Await
@@ -30,6 +30,7 @@ object SimulationLoop {
       val task = new java.util.TimerTask {
         def run(): Unit = {
 
+          DataAggregator ingestData (era, model entitiesState)
           era += 1
 
           val ret =
@@ -39,17 +40,17 @@ object SimulationLoop {
             } yield b
 
           Await.result(ret, Duration.Inf)
-          DataInterceptor ingestData (era, model entitiesState)
-          val data = DataInterceptor readData era
+
+          val populationTrend = DataMiner(DataAggregator ingestedData) populationTrend()
+          println(populationTrend)
+
           if (era == 100) {
-            val tmp = DataInterceptor readData 1
+            val tmp = (DataAggregator ingestedData) entitiesInEra  1
             tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
-              val y = DataInterceptor readData x.id
-              println("ciao")
+              val y = (DataAggregator ingestedData) entityDynamicLog  x.id
+              println(y)
             })
-            println(100)
           }
-          println(data)
         }
       }
       timer.scheduleAtFixedRate(task, 0, period.toMillis)
