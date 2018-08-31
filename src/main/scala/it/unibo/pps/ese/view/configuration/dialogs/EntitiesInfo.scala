@@ -1,11 +1,10 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 import it.unibo.pps.ese.controller.loader.DefaultGene
-import it.unibo.pps.ese.controller.loader.data.AlleleData
 
 case class AnimalBaseInfo(geneLength: Int, alleleLength: Int, reign: String, typology: String)
-case class AnimalChromosomeInfo(var structuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleData])], var regulationChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleData])],
-                                var sexualChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleData])])
+case class AnimalChromosomeInfo(var structuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])], var regulationChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])],
+                                var sexualChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])])
 case class PlantInfo(height: Double, nutritionalValue: Double, hardness: Double, availability: Double)
 
 
@@ -14,6 +13,8 @@ case class DefaultGeneInfo(defaultGene: DefaultGene, override val id: String)
   extends GeneInfo(id, defaultGene.name, defaultGene.properties)
 case class CustomGeneInfo(override val id: String, override val name: String,override val  properties: Map[String, Class[_]], conversionMap: Map[String, Map[String, Double]]) extends GeneInfo(id, name, properties)
 case class ConversionMap(property: String, map: Map[String, Double])
+case class AlleleInfo(gene: String, id: String, dominance: Double, consume: Double, probability: Double, var effect: Map[String, Double])
+
 sealed trait EntitiesInfo {
 
   def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit
@@ -62,7 +63,7 @@ object EntitiesInfo {
         case None => throw new IllegalStateException()
       }
       val currentStructuralChromosome = currentAnimalChromosome.structuralChromosome
-      val alleles: Map[String, AlleleData] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name)._2 else Map()
+      val alleles: Map[String, AlleleInfo] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name)._2 else Map()
       val tuple = (customGeneInfo, alleles)
       currentAnimalChromosome.structuralChromosome += (customGeneInfo.name -> tuple)
     }
@@ -76,7 +77,7 @@ object EntitiesInfo {
         case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
         case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
       }
-      val alleles: Map[String, AlleleData] = if (currentDefaultChromosome.get(defaultGeneInfo.name).isDefined) currentDefaultChromosome(defaultGeneInfo.name)._2 else Map()
+      val alleles: Map[String, AlleleInfo] = if (currentDefaultChromosome.get(defaultGeneInfo.name).isDefined) currentDefaultChromosome(defaultGeneInfo.name)._2 else Map()
       currentDefaultChromosome += (defaultGeneInfo.name -> (defaultGeneInfo, alleles))
       chromosomeTypes match {
         case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome = currentDefaultChromosome
@@ -84,7 +85,7 @@ object EntitiesInfo {
       }
     }
 
-    def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes.Value, gene: String, alleles: Map[String, AlleleData]): Unit = {
+    def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes.Value, gene: String, alleles: Map[String, AlleleInfo]): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(id) match {
         case Some((_, chromosomeInfo)) => chromosomeInfo
         case None => throw new IllegalStateException()

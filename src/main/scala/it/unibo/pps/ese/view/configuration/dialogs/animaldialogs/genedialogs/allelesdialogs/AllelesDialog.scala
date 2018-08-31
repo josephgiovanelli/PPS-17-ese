@@ -1,7 +1,5 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs
 
-import it.unibo.pps.ese.controller.loader.beans.Allele
-import it.unibo.pps.ese.controller.loader.data.AlleleData
 import it.unibo.pps.ese.view.configuration.dialogs._
 
 import scalafx.Includes._
@@ -26,7 +24,7 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
   val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
   dialogPane().buttonTypes = Seq(okButtonType)
 
-  var currentAlleles: Map[String, AlleleData] = EntitiesInfo.instance().getAnimalInfo(animal) match {
+  var currentAlleles: Map[String, AlleleInfo] = EntitiesInfo.instance().getAnimalInfo(animal) match {
     case Some((_, chromosomeInfo)) => chromosomeInfo.structuralChromosome.get(gene) match {
       case Some((_, alleles)) => alleles
       case None => throw new IllegalStateException()
@@ -35,14 +33,23 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
     case None => throw new IllegalStateException()
   }
 
+  var properties: Set[String] = EntitiesInfo.instance().getAnimalInfo(animal) match {
+    case Some((_, chromosomeInfo)) => chromosomeInfo.structuralChromosome(gene)._1.properties.keySet
+    case None => throw new IllegalStateException()
+  }
   val allelesName: ObservableBuffer[String] = ObservableBuffer[String](currentAlleles.keySet toSeq)
   val allelesListView: ListView[String] = new ListView[String] {
     items = allelesName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        AlleleDialog(window, animal, gene, Some(value)).showAndWait() match {
-          case Some(Allele(alleleGene, id, dominance, consume, probability, effect)) => {
-            currentAlleles += (id -> Allele(alleleGene, id, dominance, consume, probability, effect))
+        val missedProperties: Map[String, Double] = (properties -- currentAlleles(value).effect.keySet).map(x => (x, 0.0)).groupBy(_._1).map{ case (k,v) => (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+        val currentAllele: AlleleInfo = currentAlleles(value)
+        currentAllele.effect ++= missedProperties
+        currentAlleles += (value -> currentAllele)
+        EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
+        AlleleDialog(window, animal, gene, Some(value), properties).showAndWait() match {
+          case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) => {
+            currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
             EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
           }
           case None => println("Dialog returned: None")
@@ -57,9 +64,9 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
   allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val allelesButton = new Button("Add")
-  allelesButton.onAction = _ => AlleleDialog(window, animal, gene, None).showAndWait() match {
-    case Some(Allele(alleleGene, id, dominance, consume, probability, effect)) => {
-      currentAlleles += (id -> Allele(alleleGene, id, dominance, consume, probability, effect))
+  allelesButton.onAction = _ => AlleleDialog(window, animal, gene, None, properties).showAndWait() match {
+    case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) => {
+      currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
       allelesName.insert(allelesName.size, id)
       EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
     }

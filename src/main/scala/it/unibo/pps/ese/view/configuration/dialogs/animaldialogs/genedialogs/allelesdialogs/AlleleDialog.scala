@@ -2,10 +2,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 
 import javafx.scene.Node
 
-import it.unibo.pps.ese.controller.loader.beans.Allele
-import it.unibo.pps.ese.controller.loader.data.AlleleData
-import it.unibo.pps.ese.view.configuration.dialogs.EntitiesInfo
-import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog.ConversionMapDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{AlleleInfo, EntitiesInfo}
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -16,7 +13,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.stage.Window
 
-case class AlleleDialog(window: Window, animal: String, gene: String, currentIdAllele: Option[String]) extends Dialog[Allele] {
+case class AlleleDialog(window: Window, animal: String, gene: String, currentIdAllele: Option[String], properties: Set[String]) extends Dialog[AlleleInfo] {
 
   val ROW_HEIGHT = 26
   val MIN_ELEM = 3
@@ -25,7 +22,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
   title = "Allele Dialog"
   headerText = "Create an allele"
 
-  var currentAlleles: Map[String, AlleleData] = EntitiesInfo.instance().getAnimalInfo(animal) match {
+  var currentAlleles: Map[String, AlleleInfo] = EntitiesInfo.instance().getAnimalInfo(animal) match {
     case Some((_, chromosomeInfo)) => chromosomeInfo.structuralChromosome.get(gene) match {
       case Some((_, alleles)) => alleles
       case None => throw new IllegalStateException()
@@ -71,13 +68,17 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
 
   var effects:  Map[String, Double] =
     if (currentIdAllele.isDefined) currentAlleles(currentIdAllele.get).effect
-    else Map.empty
+    else properties.map(x => (x, 0.0)).groupBy(_._1).map{ case (k,v) => (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
   val effectsName: ObservableBuffer[String] = ObservableBuffer[String](effects.keySet toSeq)
   val effectsListView: ListView[String] = new ListView[String] {
     items = effectsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        EffectDialog(window, Some((value, effects(value)))).showAndWait()
+        EffectDialog(window, (value, effects(value))).showAndWait() match {
+          case Some((name: String, value: Double)) =>
+            effects += (name -> value)
+          case None => println("Dialog returned: None")
+        }
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -85,17 +86,6 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
 
   effectsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
-  val effectsButton = new Button("Add")
-  effectsButton.onAction = _ => EffectDialog(window, None).showAndWait() match {
-    case Some((name: String, value: Double)) =>
-      effects += (name -> value)
-      effectsName.insert(effectsName.size, name)
-    case None => println("Dialog returned: None")
-  }
-
-  val effectsPane = new BorderPane()
-  effectsPane.left = new Label("Conversion Map")
-  effectsPane.right = effectsButton
 
 
   // Enable/Disable login button depending on whether a username was
@@ -110,7 +100,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
   })
 
   dialogPane().content = new VBox() {
-    children ++= Seq(grid, effectsPane, effectsListView)
+    children ++= Seq(grid, new Label("Effects"), effectsListView)
     styleClass += "sample-page"
   }
   // Request focus on the username field by default.
@@ -129,7 +119,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType)
-      Allele(gene, idAllele.text.value, dominance.text.value.toDouble, consume.text.value.toDouble, probability.text.value.toDouble, effects)
+      AlleleInfo(gene, idAllele.text.value, dominance.text.value.toDouble, consume.text.value.toDouble, probability.text.value.toDouble, effects)
     else
       null
 

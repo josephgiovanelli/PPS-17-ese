@@ -9,7 +9,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.stage.Window
 
-case class EffectDialog(window: Window, currentEffect: Option[(String, Double)]) extends Dialog[(String, Double)] {
+case class EffectDialog(window: Window, currentEffect: (String, Double)) extends Dialog[(String, Double)] {
 
   initOwner(window)
   title = "Effect Dialog"
@@ -53,11 +53,10 @@ case class EffectDialog(window: Window, currentEffect: Option[(String, Double)])
     styleClass += "sample-page"
   }
 
-  if (currentEffect.isDefined) {
-    propertyName.editable = false
-    propertyName.text.value = currentEffect.get._1
-    effectValue.text.value = currentEffect.get._2.toString
-  }
+  propertyName.editable = false
+  propertyName.text.value = currentEffect._1
+  effectValue.text.value = currentEffect._2.toString
+
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) (propertyName.text.value, effectValue.text.value.toDouble)

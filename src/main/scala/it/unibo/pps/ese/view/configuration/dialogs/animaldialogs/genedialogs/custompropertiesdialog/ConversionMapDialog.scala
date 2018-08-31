@@ -56,7 +56,6 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
   if (currentConversion.isDefined) {
     conversionName.editable = false
     conversionName.text.value = currentConversion.get._1
-    conversionValue.editable = false
     conversionValue.text.value = currentConversion.get._2.toString
   }
 

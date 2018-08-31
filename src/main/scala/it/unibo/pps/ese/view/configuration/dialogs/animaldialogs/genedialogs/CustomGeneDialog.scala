@@ -4,7 +4,6 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 import javafx.scene.Node
 
 import it.unibo.pps.ese.view.configuration.dialogs.ConversionMap
-import it.unibo.pps.ese.controller.loader.data.AlleleData
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesDialog
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog.PropertiesDialog
@@ -36,7 +35,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     case None => throw new IllegalStateException()
   }
 
-  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleData])] = currentAnimalChromosome.structuralChromosome
+  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome
 
   val idGene: TextField = new TextField() {
     promptText = "Id"
