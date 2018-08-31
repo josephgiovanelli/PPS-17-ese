@@ -35,9 +35,9 @@ class TestMemories extends FunSuite {
   }
 
   test("Test short term memories") {
-    var locationalField: LocationalField = LocationalField(Position(0, 20))
-    var score = 50
-    var shortTermMemory: ShortTermMemory = ShortTermMemory(locationalField, 50)
+    val locationalField: LocationalField = LocationalField(Position(0, 20))
+    val score = 50
+    val shortTermMemory: ShortTermMemory = ShortTermMemory(locationalField, score)
     shortTermMemory.incrementElapsedTime()
     shortTermMemory.incrementElapsedTime()
     assert(shortTermMemory.locationalField==LocationalField(Position(locationalFieldSize,20)))

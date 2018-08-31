@@ -4,7 +4,7 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.view.Position
 
-import scala.collection.mutable.Map
+import scala.collection.mutable.{ListBuffer, Map}
 import scala.util.Random
 
 trait Hippocampus {
@@ -27,7 +27,7 @@ object Hippocampus {
 
   private class HippocampusImpl(worldWidth: Int, worldHeight: Int, neocortex: Neocortex) extends Hippocampus {
 
-    type ShortTermMeories = Map[MemoryType, ShortTermMemory]
+    type ShortTermMeories = Map[MemoryType, ListBuffer[ShortTermMemory]]
 
     val shortTermMemoryMaxTime = 5
 
@@ -47,7 +47,11 @@ object Hippocampus {
 
         }
         case None => {
-          memories(memoryType) = ShortTermMemory(position,computeGain)
+          memories.get(memoryType) match {
+            case None => memories(memoryType) = ListBuffer()
+            case _ =>
+          }
+          memories(memoryType) += ShortTermMemory(position,computeGain)
         }
       }
     }
@@ -59,22 +63,23 @@ object Hippocampus {
         }
         case None =>
       }
-      computeBestMemory(currentPosition)
+      computeBestMemory(memoryType, currentPosition)
     }
 
     override def updateTime(): Unit = {
-      memories.foreach(e => e._2.incrementElapsedTime())
-      memories.retain((k,v) => v.elapsedTime>=shortTermMemoryMaxTime)
+      memories.foreach(e => e._2.foreach(m => m.incrementElapsedTime()))
+      memories.foreach(t => t._2 --= t._2.filter(m => m.elapsedTime>=shortTermMemoryMaxTime))
     }
 
     private def computeGain: Double = {
       eventGainMin + (eventGainMax-eventGainMin)*eventGain.nextDouble()
     }
 
-    private def computeBestMemory(position: Position): ShortTermMemory = {
-      searchMemories.find(t => t._2.locationalField.distanceFromPosition(position)==0) match {
-        case Some(tuple) => tuple._2
-        case None => searchMemories.maxBy(t => getMemoryCoefficient(t._2, position))._2
+    private def computeBestMemory(memoryType: MemoryType, position: Position): ShortTermMemory = {
+      val list = searchMemories.getOrElse(memoryType, List())
+      list.find(m => m.locationalField.distanceFromPosition(position)==0) match {
+        case Some(memory) => memory
+        case None => list.maxBy(m => getMemoryCoefficient(m, position))
       }
     }
 

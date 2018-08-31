@@ -5,29 +5,34 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.view.Position
 
 import scala.collection.mutable.Map
+import scala.collection.mutable.ListBuffer
 
 
 trait Neocortex {
   def addMemory(memoryType: MemoryType, memory: LongTermMemory)
-  def getMemeories(memoryType: MemoryType): Option[List[LongTermMemory]]
+  def getMemeories(memoryType: MemoryType): Option[ListBuffer[LongTermMemory]]
 }
 
 object Neocortex {
 
   def apply(): Neocortex = new NeocortexImpl()
-}
 
-private class NeocortexImpl extends Neocortex {
+  private class NeocortexImpl extends Neocortex {
 
-  type LongTermMemories = Map[MemoryType, List[LongTermMemory]]
+    type LongTermMemories = Map[MemoryType, ListBuffer[LongTermMemory]]
 
-  val memories: LongTermMemories = Map()
+    val memories: LongTermMemories = Map()
 
-  override def addMemory(memoryType: MemoryType, memory: LongTermMemory): Unit = {
-    memories.getOrElse(memoryType, List()).+:(memory)
-  }
+    override def addMemory(memoryType: MemoryType, memory: LongTermMemory): Unit = {
+      memories.get(memoryType) match {
+        case None => memories(memoryType) = ListBuffer()
+        case _ =>
+      }
+      memories(memoryType) += memory
+    }
 
-  override def getMemeories(memoryType: MemoryType): Option[List[LongTermMemory]] = {
-    memories.get(memoryType)
+    override def getMemeories(memoryType: MemoryType): Option[ListBuffer[LongTermMemory]] = {
+      memories.get(memoryType)
+    }
   }
 }
