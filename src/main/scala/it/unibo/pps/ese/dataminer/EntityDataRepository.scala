@@ -6,7 +6,7 @@ sealed trait ReadOnlyEntityRepository {
   def exists(entityId: EntityId): Boolean
   def entitiesInEra(era: Era): Seq[EntityTimedRecord]
   def entityDynamicLog(entityId: EntityId): Option[EntityLog]
-  def getAllDynamicLogs: Seq[EntityLog]
+  def getAllDynamicLogs(): Seq[EntityLog]
 }
 
 sealed trait EntityDataRepository extends ReadOnlyEntityRepository {
@@ -47,7 +47,7 @@ object EntityDataRepository {
 
     override def entityDynamicLog(entityId: EntityId): Option[EntityLog] = _dynamicLog getById entityId
 
-    override def getAllDynamicLogs: Seq[EntityLog] = (_dynamicLog getAll) map (x => x._2)
+    override def getAllDynamicLogs(): Seq[EntityLog] = (_dynamicLog getAll) map (x => x._2)
   }
 }
 

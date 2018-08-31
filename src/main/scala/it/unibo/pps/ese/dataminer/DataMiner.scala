@@ -11,7 +11,7 @@ object DataMiner {
     private[this] val _dataRepository = repository
 
     override def populationTrend(): Seq[Int] =
-      (1 to _dataRepository.getAllDynamicLogs.map(x => x.dynamicData.map(y => y._1).max.toInt).max)
+      (1 to _dataRepository.getAllDynamicLogs().map(x => x.dynamicData.map(y => y._1).max.toInt).max)
         .map(i => _dataRepository.entitiesInEra(i).size)
   }
 }

@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner}
+import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, DataSaver}
 import it.unibo.pps.ese.genericworld.model.World
 
 import scala.concurrent.Await
@@ -44,11 +44,17 @@ object SimulationLoop {
           val populationTrend = DataMiner(DataAggregator ingestedData) populationTrend()
           println(populationTrend)
 
-          if (era == 100) {
+          if (era == 10) {
             val tmp = (DataAggregator ingestedData) entitiesInEra  1
             tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
               val y = (DataAggregator ingestedData) entityDynamicLog  x.id
               println(y)
+
+//              val originalData = (DataAggregator ingestedData) getAllDynamicLogs()
+//              val saver = DataSaver()
+//              val serialized = saver saveData("", originalData)
+//              val deserialized = saver loadData serialized
+//              println(deserialized)
             })
           }
         }
