@@ -1,9 +1,12 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
+
 object Memory {
   type Score = Double
 
   protected sealed trait Memory {
+    def memoryType: MemoryType
     def locationalField: LocationalField
     def score: Score
     def score_=(score: Score): Unit
@@ -16,30 +19,34 @@ object Memory {
     def incrementElapsedTime()
   }
 
-  private abstract class MemoryImpl(val locationalField: LocationalField, var score: Score) extends Memory
+  private abstract class MemoryImpl(val memoryType: MemoryType, val locationalField: LocationalField, var score: Score) extends Memory
 
   object LongTermMemory {
-    def apply(locationalField: LocationalField, score: Score): LongTermMemory = new LongTermMemoryImpl(locationalField, score)
+    def apply(memoryType: MemoryType, locationalField: LocationalField, score: Score): LongTermMemory =
+      new LongTermMemoryImpl(memoryType, locationalField, score)
 
-    private class LongTermMemoryImpl(locationalField: LocationalField, score: Score) extends MemoryImpl(locationalField, score) with LongTermMemory
+    private class LongTermMemoryImpl(memoryType: MemoryType, locationalField: LocationalField, score: Score) extends
+      MemoryImpl(memoryType, locationalField, score) with LongTermMemory
 
-    implicit def shortTermMemorytoLongTermMemory(shortTermMemory: ShortTermMemory): LongTermMemory = {
-      LongTermMemory(shortTermMemory.locationalField, shortTermMemory.score)
+    implicit def shortTermMemorytoLongTermMemory(memoryType: MemoryType, shortTermMemory: ShortTermMemory): LongTermMemory = {
+      LongTermMemory(memoryType, shortTermMemory.locationalField, shortTermMemory.score)
     }
   }
 
   object ShortTermMemory {
-    def apply(locationalField: LocationalField, score: Score): ShortTermMemory = new ShortTermMemoryImpl(locationalField, score)
+    def apply(memoryType: MemoryType, locationalField: LocationalField, score: Score): ShortTermMemory =
+      new ShortTermMemoryImpl(memoryType, locationalField, score)
 
-    private class ShortTermMemoryImpl(locationalField: LocationalField, score: Score) extends MemoryImpl(locationalField, score) with ShortTermMemory {
+    private class ShortTermMemoryImpl(memoryType: MemoryType, locationalField: LocationalField, score: Score) extends
+      MemoryImpl(memoryType, locationalField, score) with ShortTermMemory {
 
       var elapsedTime: Int = 0
 
       override def incrementElapsedTime(): Unit = elapsedTime+=1
     }
 
-    implicit def longTermMemorytoShortTermMemory(longTermMemory: LongTermMemory): ShortTermMemory = {
-      ShortTermMemory(longTermMemory.locationalField, longTermMemory.score)
+    implicit def longTermMemorytoShortTermMemory(memoryType: MemoryType, longTermMemory: LongTermMemory): ShortTermMemory = {
+      ShortTermMemory(memoryType, longTermMemory.locationalField, longTermMemory.score)
     }
   }
 

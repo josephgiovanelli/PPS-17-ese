@@ -1,16 +1,18 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
+
+import it.unibo.pps.ese.entitybehaviors.Direction.Direction
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.view.Position
 
-import scala.collection.mutable.{ListBuffer, Map}
+import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
 trait Hippocampus {
   def updateTime()
   def notifyEvent(memoryType: MemoryType, position: Position)
-  def computeDirection(memoryType: MemoryType, currentPosition: Position)
+  def startSearch(memoryType: MemoryType, position: Position)
 }
 
 object Hippocampus {
@@ -27,7 +29,10 @@ object Hippocampus {
 
   private class HippocampusImpl(worldWidth: Int, worldHeight: Int, neocortex: Neocortex) extends Hippocampus {
 
-    type ShortTermMeories = Map[MemoryType, ListBuffer[ShortTermMemory]]
+    import scala.collection.mutable.Map
+
+    type ShortTermMemoryMap = Map[MemoryType, ListBuffer[ShortTermMemory]]
+    type LongTermMemoryMap = Map[MemoryType, ListBuffer[LongTermMemory]]
 
     val shortTermMemoryMaxTime = 5
 
@@ -36,34 +41,20 @@ object Hippocampus {
     val eventGain = new Random()
     val longTermThreshold = 100
 
-    val memories: ShortTermMeories = Map()
-    var searchMemories: ShortTermMeories = Map()
+    val memories: ShortTermMemoryMap = Map()
+    var searchMemories: (ShortTermMemoryMap, LongTermMemoryMap) =
+      (Map[MemoryType, ListBuffer[ShortTermMemory]](), Map[MemoryType, ListBuffer[LongTermMemory]]())
 
 
     override def notifyEvent(memoryType: MemoryType, position: Position): Unit = {
-      searchMemories = memories.clone()
       neocortex.getMemeories(memoryType) match {
-        case Some(list) => {
-
+        case Some(list) =>
+          list.find(m => m.locationalField == LocationalField(position)) match {
+            case Some(memory) => memory.score += computeGain
+            case None => addNewShortTermMemory(memoryType, position)
         }
-        case None => {
-          memories.get(memoryType) match {
-            case None => memories(memoryType) = ListBuffer()
-            case _ =>
-          }
-          memories(memoryType) += ShortTermMemory(position,computeGain)
-        }
+        case None => addNewShortTermMemory(memoryType, position)
       }
-    }
-
-    override def computeDirection(memoryType: MemoryType, currentPosition: Position): Unit = {
-      neocortex.getMemeories(memoryType) match {
-        case Some(list) => {
-
-        }
-        case None =>
-      }
-      computeBestMemory(memoryType, currentPosition)
     }
 
     override def updateTime(): Unit = {
@@ -75,16 +66,16 @@ object Hippocampus {
       eventGainMin + (eventGainMax-eventGainMin)*eventGain.nextDouble()
     }
 
-    private def computeBestMemory(memoryType: MemoryType, position: Position): ShortTermMemory = {
-      val list = searchMemories.getOrElse(memoryType, List())
-      list.find(m => m.locationalField.distanceFromPosition(position)==0) match {
-        case Some(memory) => memory
-        case None => list.maxBy(m => getMemoryCoefficient(m, position))
-      }
-    }
-
     private def getMemoryCoefficient(memory: ShortTermMemory, position: Position): Double = {
       memory.score/memory.locationalField.distanceFromPosition(position)
+    }
+
+    private def addNewShortTermMemory(memoryType: MemoryType, position: Position) = {
+      memories.get(memoryType) match {
+        case None => memories(memoryType) = ListBuffer()
+        case _ =>
+      }
+      memories(memoryType) += ShortTermMemory(memoryType, position, computeGain)
     }
 
   }

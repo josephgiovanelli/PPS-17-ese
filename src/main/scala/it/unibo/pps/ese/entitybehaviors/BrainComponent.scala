@@ -28,6 +28,11 @@ case class InteractionEntity(entityId: String, action: ActionKind.Value) extends
 case class DynamicParametersRequest() extends RequestEvent
 case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double) extends ResponseEvent(id)
 
+object Direction extends Enumeration {
+  type Direction = Value
+  val RIGHT, LEFT, UP, DOWN = Value
+}
+
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
                           widthWorld: Int,
@@ -36,12 +41,6 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
                           visualField: Double,
                           attractiveness: Double
                          ) extends WriterComponent(entitySpecifications)  {
-
-
-
-  object Direction extends Enumeration {
-    val RIGHT, LEFT, UP, DOWN = Value
-  }
 
 
   implicit def toPoint(tuple2: (Int, Int)): Point = {
