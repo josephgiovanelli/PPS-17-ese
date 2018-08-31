@@ -23,6 +23,7 @@ trait GeneDetails{
 //                    probability:String,
 //                    active:String)
   def visualizeGeneStats(geneStats: GeneStats,cName:String)
+  def emptyGeneStats():Unit
 }
 
 class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(width,height,true,SceneAntialiasing.Balanced) with GeneDetails {
@@ -71,6 +72,7 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
     case BasicGeneStats(g,i)=>
       setBasicGeneDetails(cName,g.geneId.mkString(","),i)
   }
+
   implicit class RichText(string:String){
     def setStyle(style:String):Text = {
       val text = new Text(string)
@@ -111,5 +113,8 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
     textLabel.children.addAll(allText.asJava)
   }
 
-
+  override def emptyGeneStats(): Unit ={
+    textLabel.children.clear()
+    textLabel.children.add("EmptyGene".toText)
+  }
 }

@@ -20,52 +20,41 @@ import scalafx.scene.shape._
 import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import scalafx.scene.layout._
 
-class SpeciesDetailsPane extends Pane {
+class SpeciesDetailsPane(genomeStats:List[ChromosomeWithGeneCouple]) extends Pane {
+  var selectedEntity:Option[AnimalInfo] = None
   this.prefWidth = 1000
   this.prefHeight = 800
-  val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
-  val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
-  geneticsSimulator.beginSimulation(data)
-  val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Gatto")
-  val genome:AnimalGenome = animalInfo.genome
-  val coupledGene:Map[ChromosomeType,List[(MGene,MGene)]] = genome.coupledGene
-  val iteratorCommon = coupledGene(ChromosomeType.COMMON).iterator
-  val iteratorStructural = coupledGene(ChromosomeType.STRUCTURAL_ANIMAL).iterator
-  val iteratorLifeCycle = coupledGene(ChromosomeType.LIFE_CYCLE).iterator
-  val iteratorFeeding = coupledGene(ChromosomeType.FEEDING).iterator
+
   val ballSize:Double = 15.0
   val cylinderRadius:Double = 3.0
   val cylinderHeight:Double = 60.0
   val root = new Group();
 
   this.children += root
-//  val scene = new Scene(root, 1000, 800);
   this.setBackground(new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty))));
 
   val hbox = new HBox()
   hbox.setLayoutX(20);
-  hbox.setLayoutY(200);
+  hbox.setLayoutY(150);
   import CreateDna._
-  val molecules:Seq[Xform] =  createMoleculeFormComplete(0.0,0.0,0.0,180,None,None) ::
-    createMoleculeFormComplete(20,20,-15,165,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
-    createMoleculeFormComplete(-20,-20,15,195,Some(ChromosomeType.COMMON),Some(iteratorCommon))::
-    createMoleculeFormComplete(40,40,-30,150,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
-    createMoleculeFormComplete(60,60,-45,135,Some(ChromosomeType.STRUCTURAL_ANIMAL),Some(iteratorStructural))::
-    createMoleculeFormComplete(80,80,-60,120,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-    createMoleculeFormComplete(100,100,-75,105,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-    createMoleculeFormComplete(-40,-40,30,210,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-    createMoleculeFormComplete(-60,-60,45,225,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-    createMoleculeFormComplete(-80,-80,60,240,Some(ChromosomeType.LIFE_CYCLE),Some(iteratorLifeCycle))::
-    createMoleculeFormComplete(-100,-100,75,255,Some(ChromosomeType.FEEDING),Some(iteratorFeeding))::
-    createMoleculeFormComplete(-120,-120,90,270,None,None)::
-    createMoleculeFormComplete(-140,-140,105,285,None,None)::
-    createMoleculeFormComplete(-160,-160,120,300,None,None)::
-    createMoleculeFormComplete(120,120,-90,90,None,None)::
-    createMoleculeFormComplete(140,140,-105,75,None,None)::
-    createMoleculeFormComplete(160,160,-120,60,None,None)::
-    createMoleculeFormComplete(180,180,-135,45,None,None)::
-    List()
+  var molecules:List[Xform] = genomeStats.map(g=>MoleculeCreator.createNextMolecule(Some(g)))
+  for (i <- molecules.size until 20) molecules = MoleculeCreator.createNextMolecule(None)::molecules
 
+  object MoleculeCreator{
+    val initialPos:Double = 180
+    var actualPos:Double = initialPos
+    val initialRotation1:Double = -135
+    val initialRotation2:Double = 45
+    var actualRotation1:Double = initialRotation1
+    var actualRotation2:Double = initialRotation2
+    def createNextMolecule(chromosomeWithGeneCouple: Option[ChromosomeWithGeneCouple]):Xform = {
+      val molecule = createMoleculeFormComplete(actualPos,actualPos,actualRotation1,actualRotation2,chromosomeWithGeneCouple)
+      actualPos -= 20
+      actualRotation1 +=15
+      actualRotation2 +=15
+      molecule
+    }
+  }
   private val moleculeGroup = new Group()
   moleculeGroup.children ++= molecules
 
@@ -73,14 +62,14 @@ class SpeciesDetailsPane extends Pane {
   val cylinder1 = new Group()
   cylinder1.children += moleculeGroup
 
-  val lS = new GeneDetailsScene(300,600,Left)
+  val lS = new GeneDetailsScene(300,800,Left)
   hbox.children += lS
   val msaa = createSubScene("", cylinder1,
     Color.Transparent,
     new PerspectiveCamera(), true);
   hbox.getChildren().add(msaa);
 
-  val rS = new GeneDetailsScene(300,600,Right)
+  val rS = new GeneDetailsScene(300,800,Right)
   hbox.children += rS
   val slider = new Slider(0, 360, 0);
   slider.setBlockIncrement(1);
@@ -103,10 +92,10 @@ class SpeciesDetailsPane extends Pane {
 
     node.setRotationAxis(Rotate.YAxis);
     node.setTranslateX(150);
-    node.setTranslateY(200);
+    node.setTranslateY(250);
     father.getChildren().addAll(setTitle(title,new Text()), node);
 
-    val subScene = new SubScene(father, 400, 500, true,SceneAntialiasing.Balanced);
+    val subScene = new SubScene(father, 400, 600, true,SceneAntialiasing.Balanced);
     subScene.setFill(fillPaint);
     subScene.setCamera(camera);
 
@@ -125,25 +114,24 @@ class SpeciesDetailsPane extends Pane {
       diffuseColor = Color.web("ecf0f1")
       specularColor = Color.web("bdc3c7")
     }
-    def createHydrogenSpereCouple(tY:Double,chromosomeType: Option[ChromosomeType],geneCouple:Option[(MGene,MGene)]):(Sphere,Sphere) = {
+    def createHydrogenSpereCouple(tY:Double,chromosomeWithGeneCouple: Option[ChromosomeWithGeneCouple]):(Sphere,Sphere) = {
       val size:Double = ballSize
 
       val hydrogen1Sphere = new Sphere(size) {
-        material = if (geneCouple.nonEmpty) blueMaterial else whiteMaterial
+        material = if (chromosomeWithGeneCouple.nonEmpty) blueMaterial else whiteMaterial
         translateY = tY
       }
 
       val hydrogen2Sphere = new Sphere(size) {
-        material = if (geneCouple.nonEmpty) greyMaterial else whiteMaterial
+        material = if (chromosomeWithGeneCouple.nonEmpty) greyMaterial else whiteMaterial
         translateY = tY
       }
       val clickListener:MouseEvent=>Unit = (me:MouseEvent) =>{
-        if(chromosomeType.nonEmpty && geneCouple.nonEmpty){
-          val cType = chromosomeType.get
-          val gCouple:(MGene,MGene) = geneCouple.get
-          val geneStats1:GeneStats = geneticsSimulator.getGeneStats(gCouple._1,animalInfo)
-          val geneStats2:GeneStats = geneticsSimulator.getGeneStats(gCouple._2,animalInfo)
-
+        if(chromosomeWithGeneCouple.nonEmpty){
+          val cType = chromosomeWithGeneCouple.get.chromosomeType
+          val gCouple:GeneCouple = chromosomeWithGeneCouple.get.geneCouple
+          val geneStats1:GeneStats = gCouple.gene1
+          val geneStats2:GeneStats = gCouple.gene2
           lS.visualizeGeneStats(
             cName = cType.toString+" 1",
             geneStats = geneStats1
@@ -153,8 +141,10 @@ class SpeciesDetailsPane extends Pane {
             cName = cType.toString+" 2",
             geneStats = geneStats2
           )
+        }else{
+          lS.emptyGeneStats()
+          rS.emptyGeneStats()
         }
-        println("Cliccato")
       }
       hydrogen1Sphere.onMouseClicked = clickListener
 
@@ -212,16 +202,9 @@ class SpeciesDetailsPane extends Pane {
       }
     }
 
-    def createMoleculeFormComplete(cylinderY:Double,sphereY:Double,r1:Double,r2:Double,chromosomeType: Option[ChromosomeType],iterator:Option[Iterator[(MGene,MGene)]]):Xform = {
-      var geneCouple:Option[(MGene,MGene)] = None
-      if(iterator.nonEmpty){
-        if(iterator.get.hasNext){
-          val element = iterator.get.next()
-          geneCouple = Some(element)
-        }
-      }
+    def createMoleculeFormComplete(cylinderY:Double,sphereY:Double,r1:Double,r2:Double,chromosomeWithGeneCouple: Option[ChromosomeWithGeneCouple]):Xform = {
       val b1 = createCylinderCouple(cylinderHeight/2,cylinderY,90.0)
-      val c1 = createHydrogenSpereCouple(sphereY,chromosomeType,geneCouple)
+      val c1 = createHydrogenSpereCouple(sphereY,chromosomeWithGeneCouple)
       createMoleculeForm(r1,r2,c1._1,c1._2,b1._1,b1._2)
     }
   }
