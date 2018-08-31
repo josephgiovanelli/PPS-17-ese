@@ -5,16 +5,22 @@ import javafx.scene.Node
 import it.unibo.pps.ese.controller.loader.beans.Allele
 import it.unibo.pps.ese.controller.loader.data.AlleleData
 import it.unibo.pps.ese.view.configuration.dialogs.EntitiesInfo
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog.ConversionMapDialog
 
 import scalafx.Includes._
 import scalafx.application.Platform
+import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
-import scalafx.scene.layout.GridPane
+import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.stage.Window
 
 case class AlleleDialog(window: Window, animal: String, gene: String, currentIdAllele: Option[String]) extends Dialog[Allele] {
+
+  val ROW_HEIGHT = 26
+  val MIN_ELEM = 3
+
   initOwner(window)
   title = "Allele Dialog"
   headerText = "Create an allele"
@@ -62,6 +68,36 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
     add(probability, 1, 3)
   }
 
+
+  var effects:  Map[String, Double] =
+    if (currentIdAllele.isDefined) currentAlleles(currentIdAllele.get).effect
+    else Map.empty
+  val effectsName: ObservableBuffer[String] = ObservableBuffer[String](effects.keySet toSeq)
+  val effectsListView: ListView[String] = new ListView[String] {
+    items = effectsName
+    selectionModel().selectedItem.onChange( (_, _, value) => {
+      if (selectionModel().getSelectedIndex != -1) {
+        EffectDialog(window, Some((value, effects(value)))).showAndWait()
+        Platform.runLater(selectionModel().clearSelection())
+      }
+    })
+  }
+
+  effectsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+
+  val effectsButton = new Button("Add")
+  effectsButton.onAction = _ => EffectDialog(window, None).showAndWait() match {
+    case Some((name: String, value: Double)) =>
+      effects += (name -> value)
+      effectsName.insert(effectsName.size, name)
+    case None => println("Dialog returned: None")
+  }
+
+  val effectsPane = new BorderPane()
+  effectsPane.left = new Label("Conversion Map")
+  effectsPane.right = effectsButton
+
+
   // Enable/Disable login button depending on whether a username was
   // entered.
   val okButton: Node = dialogPane().lookupButton(okButtonType)
@@ -73,8 +109,10 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
     }
   })
 
-  dialogPane().content = grid
-
+  dialogPane().content = new VBox() {
+    children ++= Seq(grid, effectsPane, effectsListView)
+    styleClass += "sample-page"
+  }
   // Request focus on the username field by default.
   Platform.runLater(idAllele.requestFocus())
 
@@ -91,25 +129,9 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType)
-      Allele(gene, idAllele.text.value, dominance.text.value.toDouble, consume.text.value.toDouble, probability.text.value.toDouble, Map.empty)
+      Allele(gene, idAllele.text.value, dominance.text.value.toDouble, consume.text.value.toDouble, probability.text.value.toDouble, effects)
     else
       null
-
-
-  /*def showAndThenPrint() = {
-    this.showAndWait() match {
-      case Some(AnimalBaseInfo(n, g, a, r, t)) => {
-        println("AnimalBaseInfo(" + n + ", " + g + ", " + a + ", " + r + ", " + t + ")")
-        ChromosomeDialog(window).showAndWait() match {
-          case Some(AnimalChromosomeInfo(st, re, se)) => {
-            println("AnimalChromosomeInfo(" + st + ", " + re + ", " + se + ")")
-          }
-          case None => println("Dialog returned: None")
-        }
-      }
-      case None => println("Dialog returned: None")
-    }
-  }*/
 
 }
 

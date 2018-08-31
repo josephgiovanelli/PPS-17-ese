@@ -1,7 +1,5 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs
 
-import javafx.scene.Node
-
 import it.unibo.pps.ese.controller.loader.beans.Allele
 import it.unibo.pps.ese.controller.loader.data.AlleleData
 import it.unibo.pps.ese.view.configuration.dialogs._
@@ -9,6 +7,7 @@ import it.unibo.pps.ese.view.configuration.dialogs._
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
+import scalafx.scene.Node
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
