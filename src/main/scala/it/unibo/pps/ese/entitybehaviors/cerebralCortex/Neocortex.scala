@@ -9,6 +9,7 @@ import scala.collection.mutable.ListBuffer
 
 
 trait Neocortex {
+  def memories: Map[MemoryType, ListBuffer[LongTermMemory]]
   def addMemory(memoryType: MemoryType, memory: LongTermMemory)
   def getMemeories(memoryType: MemoryType): Option[ListBuffer[LongTermMemory]]
 }

@@ -36,10 +36,9 @@ trait SearchComponent {
 
 object SearchComponent {
 
-  def apply(): SearchComponent = new SearchComponentImpl()
+  def apply(memories: ListBuffer[SimpleMemory]): SearchComponent = new SearchComponentImpl(memories)
 
-  private class SearchComponentImpl() extends SearchComponent {
-    val memories: ListBuffer[SimpleMemory] = ListBuffer()
+  private class SearchComponentImpl(memories: ListBuffer[SimpleMemory]) extends SearchComponent {
     var currentMemory: Option[SimpleMemory] = None
 
     override def chooseNewMemory(currentPosition: Position): Option[SimpleMemory] = {
