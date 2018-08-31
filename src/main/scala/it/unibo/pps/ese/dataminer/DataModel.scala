@@ -3,7 +3,7 @@ package it.unibo.pps.ese.dataminer
 import it.unibo.pps.ese.utils.Point
 
 trait EntityLog {
-  val id : EntityId
+  val id: EntityId
   val structuralData: StructuralData
   val dynamicData: Seq[(Era, DynamicData)]
 }

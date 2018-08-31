@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.genericworld.controller
 
+import it.unibo.pps.ese.dataminer.DataInterceptor
 import it.unibo.pps.ese.genericworld.model.World
 
 import scala.concurrent.Await
@@ -20,6 +21,7 @@ object SimulationLoop {
 
     private[this] val timer = new java.util.Timer()
     private[this] var scheduledTask = None: Option[java.util.TimerTask]
+    private[this] var era: Long = 0
 
     override def play(): Unit = {
 
@@ -28,6 +30,8 @@ object SimulationLoop {
       val task = new java.util.TimerTask {
         def run(): Unit = {
 
+          era += 1
+
           val ret =
             for {
               b <- model.requireStateUpdate
@@ -35,6 +39,17 @@ object SimulationLoop {
             } yield b
 
           Await.result(ret, Duration.Inf)
+          DataInterceptor ingestData (era, model entitiesState)
+          val data = DataInterceptor readData era
+          if (era == 100) {
+            val tmp = DataInterceptor readData 1
+            tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
+              val y = DataInterceptor readData x.id
+              println("ciao")
+            })
+            println(100)
+          }
+          println(data)
         }
       }
       timer.scheduleAtFixedRate(task, 0, period.toMillis)

@@ -34,7 +34,7 @@ object EntityInfoConversion {
     def actualSpeed: Double = obj.selectDynamic("actualSpeed").asInstanceOf[Double]
   }
 
-  implicit class BaseInfoComponentConversions(obj: EntityInfo) {
+  implicit class BaseInfoConversions(obj: EntityInfo) {
     def species : EntityKinds = EntityKinds(Symbol(obj.selectDynamic("species").asInstanceOf[String]))
     def reign : ReignType.Value = obj.selectDynamic("reign").asInstanceOf[ReignType.Value]
     def position : Point = (obj selectDynamic "position").asInstanceOf[Point]
