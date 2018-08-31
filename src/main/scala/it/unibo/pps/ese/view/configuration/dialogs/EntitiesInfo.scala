@@ -4,12 +4,12 @@ import it.unibo.pps.ese.controller.loader.DefaultGene
 import it.unibo.pps.ese.controller.loader.data.AlleleData
 
 case class AnimalBaseInfo(geneLength: Int, alleleLength: Int, reign: String, typology: String)
-case class AnimalChromosomeInfo(var structuralChromosome: Map[String, CustomGeneInfo], var regulationChromosome: Map[String, DefaultGeneInfo],
-                                var sexualChromosome: Map[String, DefaultGeneInfo])
+case class AnimalChromosomeInfo(var structuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleData])], var regulationChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleData])],
+                                var sexualChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleData])])
 case class PlantInfo(height: Double, nutritionalValue: Double, hardness: Double, availability: Double)
 
 
-class GeneInfo(val id: String, val name: String, val properties: Map[String, Class[_]], var alleles: Set[AlleleData] = Set.empty)
+class GeneInfo(val id: String, val name: String, val properties: Map[String, Class[_]])
 case class DefaultGeneInfo(defaultGene: DefaultGene, override val id: String)
   extends GeneInfo(id, defaultGene.name, defaultGene.properties)
 case class CustomGeneInfo(override val id: String, override val name: String,override val  properties: Map[String, Class[_]], conversionMap: Map[String, Map[String, Double]]) extends GeneInfo(id, name, properties)
@@ -25,6 +25,10 @@ sealed trait EntitiesInfo {
   def setPlantInfo(id: String, plantInfo: PlantInfo): Unit
 
   def getPlantInfo(id: String): Option[PlantInfo]
+}
+
+object ChromosomeTypes extends Enumeration {
+  val STRUCTURAL, REGULATION, SEXUAL = Value
 }
 
 object EntitiesInfo {
@@ -51,6 +55,55 @@ object EntitiesInfo {
     def setPlantInfo(id: String, plantInfo: PlantInfo): Unit = plants += (id -> plantInfo)
 
     def getPlantInfo(id: String): Option[PlantInfo] = plants.get(id)
+
+    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, customGeneInfo: CustomGeneInfo): Unit = {
+      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
+        case Some((_, chromosomeInfo)) => chromosomeInfo
+        case None => throw new IllegalStateException()
+      }
+      val currentStructuralChromosome = currentAnimalChromosome.structuralChromosome
+      val alleles: Map[String, AlleleData] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name)._2 else Map()
+      val tuple = (customGeneInfo, alleles)
+      currentAnimalChromosome.structuralChromosome += (customGeneInfo.name -> tuple)
+    }
+
+    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, defaultGeneInfo: DefaultGeneInfo): Unit = {
+      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
+        case Some((_, chromosomeInfo)) => chromosomeInfo
+        case None => throw new IllegalStateException()
+      }
+      var currentDefaultChromosome = chromosomeTypes match {
+        case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
+        case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
+      }
+      val alleles: Map[String, AlleleData] = if (currentDefaultChromosome.get(defaultGeneInfo.name).isDefined) currentDefaultChromosome(defaultGeneInfo.name)._2 else Map()
+      currentDefaultChromosome += (defaultGeneInfo.name -> (defaultGeneInfo, alleles))
+      chromosomeTypes match {
+        case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome = currentDefaultChromosome
+        case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome = currentDefaultChromosome
+      }
+    }
+
+    def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes.Value, gene: String, alleles: Map[String, AlleleData]): Unit = {
+      val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(id) match {
+        case Some((_, chromosomeInfo)) => chromosomeInfo
+        case None => throw new IllegalStateException()
+      }
+      chromosomeTypes match {
+        case ChromosomeTypes.STRUCTURAL => {
+          val structuralGene = currentAnimalChromosome.structuralChromosome(gene)
+          currentAnimalChromosome.structuralChromosome += (gene -> (structuralGene._1, structuralGene._2 ++ alleles))
+        }
+        case ChromosomeTypes.REGULATION => {
+          val regulationGene = currentAnimalChromosome.regulationChromosome(gene)
+          currentAnimalChromosome.regulationChromosome += (gene -> (regulationGene._1, regulationGene._2 ++ alleles))
+        }
+        case ChromosomeTypes.SEXUAL => {
+          val sexualGene = currentAnimalChromosome.sexualChromosome(gene)
+          currentAnimalChromosome.sexualChromosome += (gene -> (sexualGene._1, sexualGene._2 ++ alleles))
+        }
+      }
+    }
 
   }
 }

@@ -1,7 +1,8 @@
-package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
+package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog
 
 import javafx.scene.Node
 
+import it.unibo.pps.ese.controller.loader.data.AlleleData
 import it.unibo.pps.ese.view.configuration.dialogs._
 
 import scalafx.Includes._
@@ -31,7 +32,7 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
     case None => throw new IllegalStateException()
   }
 
-  var currentStructuralChromosome: Map[String, CustomGeneInfo] = currentAnimalChromosome.structuralChromosome
+  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleData])] = currentAnimalChromosome.structuralChromosome
 
   val propertyName: TextField = new TextField() {
     promptText = "Name"
@@ -50,7 +51,7 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
 
   var conversionMap:  Map[String, Double] =
     if (currentConversionMap.isDefined) currentConversionMap.get
-    else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get).conversionMap(property.get)
+    else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get)._1.conversionMap(property.get)
     else Map.empty
   val conversionMapName: ObservableBuffer[String] = ObservableBuffer[String](conversionMap.keySet toSeq)
   val conversionMapListView: ListView[String] = new ListView[String] {

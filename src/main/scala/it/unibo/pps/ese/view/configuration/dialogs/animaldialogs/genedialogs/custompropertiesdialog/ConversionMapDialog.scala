@@ -1,8 +1,6 @@
-package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
-
+package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog
 
 import javafx.scene.Node
-
 
 import scalafx.Includes._
 import scalafx.geometry.Insets

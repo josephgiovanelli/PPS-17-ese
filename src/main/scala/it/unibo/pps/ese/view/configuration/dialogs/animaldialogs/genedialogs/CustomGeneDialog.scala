@@ -4,10 +4,10 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 import javafx.scene.Node
 
 import it.unibo.pps.ese.view.configuration.dialogs.ConversionMap
-
 import it.unibo.pps.ese.controller.loader.data.AlleleData
-import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesDialog
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog.PropertiesDialog
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -28,7 +28,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   headerText = "Define structural chromosome"
 
   // Set the button types.
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
+  val okButtonType = new ButtonType("Insert Alleles", ButtonData.OKDone)
   dialogPane().buttonTypes = Seq(okButtonType)
 
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
@@ -36,7 +36,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     case None => throw new IllegalStateException()
   }
 
-  var currentStructuralChromosome: Map[String, CustomGeneInfo] = currentAnimalChromosome.structuralChromosome
+  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleData])] = currentAnimalChromosome.structuralChromosome
 
   val idGene: TextField = new TextField() {
     promptText = "Id"
@@ -58,9 +58,9 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     add(nameGene, 1, 1)
   }
 
-  var properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get).properties else Map.empty
-  var alleles: Set[AlleleData] = if (gene.isDefined) currentStructuralChromosome(gene.get).alleles else Set.empty
-  var conversionMap: Map[String, Map[String, Double]] = if (gene.isDefined) currentStructuralChromosome(gene.get).conversionMap else Map.empty
+  var properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get)._1.properties else Map.empty
+  //var alleles: Set[AlleleData] = if (gene.isDefined) currentStructuralChromosome(gene.get).alleles else Set.empty
+  var conversionMap: Map[String, Map[String, Double]] = if (gene.isDefined) currentStructuralChromosome(gene.get)._1.conversionMap else Map.empty
 
   val propertiesName: ObservableBuffer[String] = ObservableBuffer[String](properties.keySet toSeq)
   val propertiesListView: ListView[String] = new ListView[String] {
@@ -132,9 +132,9 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   }
   if (gene.isDefined) {
     nameGene.editable = false
-    nameGene.text.value = currentStructuralChromosome(gene.get).name
+    nameGene.text.value = currentStructuralChromosome(gene.get)._1.name
     idGene.editable = false
-    idGene.text.value = currentStructuralChromosome(gene.get).id
+    idGene.text.value = currentStructuralChromosome(gene.get)._1.id
   }
 
   // When the login button is clicked, convert the result to
@@ -142,10 +142,9 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
-      currentStructuralChromosome += (nameGene.text.value -> CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, conversionMap))
-      println(currentStructuralChromosome)
-      currentAnimalChromosome.structuralChromosome = currentStructuralChromosome
-      EntitiesInfo.instance().setAnimalChromosomeInfo(animal, currentAnimalChromosome)
+      EntitiesInfo.instance().setChromosomeBaseInfo(animal, ChromosomeTypes.STRUCTURAL, CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, conversionMap))
+      println(EntitiesInfo.instance().getAnimalInfo(animal).get._2)
+      AllelesDialog(window, animal, nameGene.text.value, ChromosomeTypes.STRUCTURAL).showAndWait()
       nameGene.text.value
     } else {
       null
