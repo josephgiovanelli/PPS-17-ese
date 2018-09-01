@@ -3,7 +3,7 @@ package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 import org.scalatest.FunSuite
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.view.Position
-import Hippocampus._
+import hippocampus.Hippocampus._
 
 class TestMemories extends FunSuite {
   test("Test locational fields") {

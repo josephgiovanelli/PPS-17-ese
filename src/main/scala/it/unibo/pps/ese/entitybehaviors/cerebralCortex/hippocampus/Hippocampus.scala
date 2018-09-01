@@ -26,7 +26,10 @@ object Hippocampus {
   var worldWidth: Int = 1000
   var worldHeight: Int = 1000
 
-  val shortTermMemoryMaxTime = 5
+  val longTermMemoryThreshold = 99
+  val eventGainMin = 40
+  val eventGainMax = 60
+  val shortTermMemoryMaxTime = 20
   val longTermMemoryDeathThreashold = 1
 
 
@@ -42,13 +45,8 @@ object Hippocampus {
 
     type ShortTermMemoryMap = Map[MemoryType, ListBuffer[ShortTermMemory]]
 
-    val longTermMemoryThreshold = 99
-    val eventGainMin = 40
-    val eventGainMax = 60
     val eventGain = new Random()
-
     val memories: ShortTermMemoryMap = Map()
-
     var memorySearchComponent: Option[MemorySearchComponent] = None
     var currentBestMemory: Option[Memory] = None
 
@@ -70,6 +68,7 @@ object Hippocampus {
     override def updateTime(): Unit = {
       memories.foreach(t => t._2 --= t._2.filter(m => {m.updateTime(); m.elapsedTime}>=shortTermMemoryMaxTime))
       neocortex.memories.foreach(t => t._2 --= t._2.filter(m => {m.updateTime(); m.score}<longTermMemoryDeathThreashold))
+      if (memorySearchComponent.isDefined) memorySearchComponent.get.updateTime()
     }
 
     override def searchStarted: Boolean = memorySearchComponent.isDefined
@@ -136,6 +135,12 @@ object Hippocampus {
       if (yDistance<0) yDirection = Direction.UP
 
       if(Math.abs(xDistance)>Math.abs(yDistance)) xDirection else yDirection
+
+      (Math.abs(xDistance), Math.abs(yDistance)) match {
+        case (0,0) => Direction.NONE
+        case (x,y) if x>=y => xDirection
+        case _ => yDirection
+      }
     }
   }
 }

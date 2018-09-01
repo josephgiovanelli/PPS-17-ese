@@ -8,13 +8,13 @@ import scala.collection.mutable.Map
 import scala.collection.mutable.ListBuffer
 
 
-trait Neocortex {
+private[cerebralCortex] trait Neocortex {
   def memories: Map[MemoryType, ListBuffer[LongTermMemory]]
   def addMemory(memoryType: MemoryType, memory: LongTermMemory)
   def getMemeories(memoryType: MemoryType): Option[ListBuffer[LongTermMemory]]
 }
 
-object Neocortex {
+private[cerebralCortex] object Neocortex {
 
   def apply(): Neocortex = new NeocortexImpl()
 
