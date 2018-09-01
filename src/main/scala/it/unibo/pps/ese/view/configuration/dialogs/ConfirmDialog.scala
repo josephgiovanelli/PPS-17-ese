@@ -82,7 +82,6 @@ case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends D
     if (dialogButton == okButtonType) {
       val animals = animalsEntities.map(animal => animal._1 -> animal._2.text.value.toInt)
       val plants = plantsEntities.map(plant => plant._1 -> plant._2.text.value.toInt)
-      println(plants)
       mainComponent.setUp(EntitiesInfo.instance().getSimulationData(animals, plants))
     }
     else

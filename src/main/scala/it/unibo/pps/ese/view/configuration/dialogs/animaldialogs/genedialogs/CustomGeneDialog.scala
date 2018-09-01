@@ -142,7 +142,6 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
       EntitiesInfo.instance().setChromosomeBaseInfo(animal, ChromosomeTypes.STRUCTURAL, CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, conversionMap))
-      println(EntitiesInfo.instance().getAnimalInfo(animal).get._2)
       AllelesDialog(window, animal, nameGene.text.value, ChromosomeTypes.STRUCTURAL).showAndWait()
       nameGene.text.value
     } else {

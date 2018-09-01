@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
-import it.unibo.pps.ese.controller.loader.{DefaultGene, SexualDefaultGenes}
+import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.controller.loader.beans.{Allele, Gene, Plant, PropertyInfo}
 import it.unibo.pps.ese.controller.loader.data._
 
@@ -132,7 +132,8 @@ object EntitiesInfo {
       defaultChromosomeMapping(ChromosomeTypes.REGULATION, animal)
 
     private def structuralChromosomeMapping(animal: String): Iterable[CustomGeneData] =
-      getAnimalInfo(animal).get._2.structuralChromosome.map(gene => CustomGeneData(Gene(gene._1, gene._2._1.name, "", propertiesMapping(gene._2._1.conversionMap)), alleleMapping(gene._1, gene._2._2)))
+      getAnimalInfo(animal).get._2.structuralChromosome.map(gene => CustomGeneData(Gene(gene._2._1.id, gene._2._1.name, "", propertiesMapping(gene._2._1.conversionMap)), alleleMapping(gene._2._1.id, gene._2._2)))
+
 
 
     private def propertiesMapping(properties: Map[String, Map[String, Double]]): Map[String, PropertyInfo] =
@@ -141,11 +142,12 @@ object EntitiesInfo {
 
     private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[DefaultGeneData] = {
       val animalChromosomeInfo = getAnimalInfo(animal).get._2
-      val defaultChromosomeInfo = chromosomeTypes match {
-        case ChromosomeTypes.REGULATION => animalChromosomeInfo.regulationChromosome
-        case ChromosomeTypes.SEXUAL => animalChromosomeInfo.sexualChromosome
+      var enumerationElements: Set[_ <: DefaultGene] = Set.empty
+      val defaultChromosomeInfo: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])] = chromosomeTypes match {
+        case ChromosomeTypes.REGULATION => enumerationElements = RegulationDefaultGenes.elements; animalChromosomeInfo.regulationChromosome
+        case ChromosomeTypes.SEXUAL => enumerationElements = SexualDefaultGenes.elements; animalChromosomeInfo.sexualChromosome
       }
-      defaultChromosomeInfo.map(gene => DefaultGeneData(SexualDefaultGenes.elements.filter(x => x.name.equals(gene._1)).head, gene._2._1.id, alleleMapping(gene._1, gene._2._2)))
+      defaultChromosomeInfo.map(gene => DefaultGeneData(enumerationElements.filter(x => x.name.equals(gene._2._1.name)).head, gene._2._1.id, alleleMapping(gene._2._1.id, gene._2._2)))
     }
 
 
