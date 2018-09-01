@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.view
+package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
 trait Position {
 

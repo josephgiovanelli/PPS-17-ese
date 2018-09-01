@@ -1,8 +1,9 @@
 package it.unibo.pps.ese.genericworld.controller
 
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
 import it.unibo.pps.ese.genericworld.model.{EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
-import it.unibo.pps.ese.view.{Entity, Position}
+import it.unibo.pps.ese.view.Entity
 import scalafx.scene.paint.Color
 
 case class EntityDetails(id: String, species: String, position: Position)

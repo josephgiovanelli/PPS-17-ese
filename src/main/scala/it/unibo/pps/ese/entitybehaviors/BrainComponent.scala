@@ -2,6 +2,12 @@ package it.unibo.pps.ese.entitybehaviors
 
 import java.util.Random
 
+import it.unibo.pps.ese.entitybehaviors.ActionKind.ActionKind
+import it.unibo.pps.ese.entitybehaviors.Direction.Direction
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{MemoryType, Position}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.SearchingState
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.genericworld.model._
@@ -20,6 +26,7 @@ case class BrainInfo(strong: Double,
                     ) extends BaseEvent
 
 object ActionKind extends Enumeration {
+  type ActionKind = Value
   val EAT, COUPLE = Value
 }
 
@@ -30,7 +37,7 @@ case class DynamicParametersResponse(override val id: String, speed: Double, ene
 
 object Direction extends Enumeration {
   type Direction = Value
-  val RIGHT, LEFT, UP, DOWN = Value
+  val RIGHT, LEFT, UP, DOWN, NONE = Value
 }
 
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
@@ -50,6 +57,15 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     Point(boundWidth(tuple2._1), boundHeight(tuple2._2))
   }
 
+  implicit def actionKindToMemoryType(actionKind: ActionKind): MemoryType = actionKind match {
+    case ActionKind.EAT => MemoryType.HUNTING
+    case ActionKind.COUPLE => MemoryType.COUPLE
+  }
+
+  implicit def pointToPosition(point: Point): Position = {
+    Position(point.x, point.y)
+  }
+
 
   val ENERGY_THRESHOLD = 60
   val MIN_PREYS_FOR_COUPLING = 3
@@ -57,6 +73,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
 
   val decisionSupport: DecisionSupport = DecisionSupport()
+
+  val hippocampus: Hippocampus = Hippocampus(widthWorld, heightWorld, 10)
 
   var entityInVisualField: Map[String, EntityAttributesImpl] = Map.empty
 
@@ -69,6 +87,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     import EntityInfoConversion._
     subscribe {
       case ComputeNextState() =>
+        hippocampus.updateTime()
 
         val dynamicData = requireData[DynamicParametersRequest, DynamicParametersResponse](
           new DynamicParametersRequest)
@@ -135,6 +154,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         if (entityChoice.distance < actionField) {
           me.position = entityAttribute.position
           publish(InteractionEntity(entityAttribute name, action))
+          hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
         } else {
           (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
         }
@@ -142,12 +162,36 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         position = Point(me.position.x, me.position.y)
       }
       else {
-        val direction = Direction(new Random().nextInt(Direction.values.size))
-        position = direction match {
-          case Direction.DOWN => (position.x, position.y - floorSpeed)
-          case Direction.UP => (position.x, position.y + floorSpeed)
+        position = hippocampus.searchingState match {
+          case SearchingState.INACTIVE =>
+            hippocampus.startNewSearch(action)
+            checkNewMemory
+          case SearchingState.ACTIVE =>
+            val d = if (hippocampus.isMemoryDefined) hippocampus.computeDirection(position) else randomDirection
+            val p = getPosition(d)
+            println("Memory says " + println(d) + "  " + p)
+            p
+          case SearchingState.ENDED => println("ended");getPosition(randomDirection)
+        }
+
+        def checkNewMemory: Point = {
+          if (hippocampus.hasNewMemory) {
+            hippocampus.chooseNewMemory(position)
+            getPosition(hippocampus.computeDirection(position))
+          } else getPosition(randomDirection)
+        }
+
+        def randomDirection: Direction = {
+          Direction(new Random().nextInt(Direction.values.size-1))
+        }
+
+
+        def getPosition(direction: Direction): Point = direction match {
+          case Direction.UP => (position.x, position.y - floorSpeed)
+          case Direction.DOWN => (position.x, position.y + floorSpeed)
           case Direction.LEFT => (position.x - floorSpeed, position.y)
           case Direction.RIGHT => (position.x + floorSpeed, position.y)
+          case Direction.NONE => checkNewMemory
         }
       }
       decisionSupport.clearVisualField()

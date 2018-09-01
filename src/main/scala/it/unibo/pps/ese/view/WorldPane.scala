@@ -7,6 +7,7 @@ import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, Tooltip}
 import WorldPrefernces._
 import ZoomPreferences._
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
 import javafx.application.Platform
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType

@@ -2,7 +2,6 @@ package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, ShortTermMemory}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
-import it.unibo.pps.ese.view.Position
 
 import scala.collection.mutable.Map
 import scala.collection.mutable.ListBuffer

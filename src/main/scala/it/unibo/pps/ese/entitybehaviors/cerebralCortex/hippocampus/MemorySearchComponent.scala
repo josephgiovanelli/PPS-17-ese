@@ -2,10 +2,9 @@ package it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus
 
 import it.unibo.pps.ese.entitybehaviors.Direction
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.LocationalField
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{LocationalField, Position}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, Memory, ShortTermMemory}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
-import it.unibo.pps.ese.view.Position
 
 import scala.collection.mutable.ListBuffer
 
@@ -19,7 +18,8 @@ private[hippocampus] trait MemorySearchComponent {
 
 private[hippocampus] object MemorySearchComponent {
 
-  def apply(memoryType: MemoryType, memories: ListBuffer[Memory]): MemorySearchComponent = new MemorySearchComponentImpl(memoryType, memories)
+  def apply(memoryType: MemoryType, memories: ListBuffer[Memory]): MemorySearchComponent =
+    new MemorySearchComponentImpl(memoryType, memories)
 
   private class MemorySearchComponentImpl(val memoryType: MemoryType, val memories: ListBuffer[Memory]) extends MemorySearchComponent {
     var currentMemory: Option[Memory] = None

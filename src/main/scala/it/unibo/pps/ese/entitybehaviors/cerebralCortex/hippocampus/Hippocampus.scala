@@ -4,17 +4,19 @@ import it.unibo.pps.ese.entitybehaviors.Direction
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{Memory => _, _}
-import it.unibo.pps.ese.view.Position
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.SearchingState.SearchingState
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{Position, Memory => _, _}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
 trait Hippocampus {
+
+  def searchingState: SearchingState
   def updateTime()
   def notifyEvent(memoryType: MemoryType, position: Position)
-  def searchStarted: Boolean
   def startNewSearch(memoryType: MemoryType)
+  def isMemoryDefined: Boolean
   def hasNewMemory: Boolean
   def chooseNewMemory(currentPosition: Position)
   def computeDirection(currentPosition: Position): Direction
@@ -22,9 +24,10 @@ trait Hippocampus {
 
 object Hippocampus {
 
-  val locationalFieldSize = 5
-  var worldWidth: Int = 1000
-  var worldHeight: Int = 1000
+  object SearchingState extends Enumeration {
+    type SearchingState = Value
+    val INACTIVE, ACTIVE, ENDED = Value
+  }
 
   val longTermMemoryThreshold = 99
   val eventGainMin = 40
@@ -32,28 +35,29 @@ object Hippocampus {
   val shortTermMemoryMaxTime = 20
   val longTermMemoryDeathThreashold = 1
 
+  def apply(worldWidth: Int, worldHeight: Int, locationalFieldSize: Double): Hippocampus =
+    new HippocampusImpl(worldWidth, worldHeight, locationalFieldSize)
 
-  def apply(worldWidth: Int, worldHeight: Int, neocortex: Neocortex): Hippocampus = {
-    this.worldWidth=worldWidth
-    this.worldHeight=worldHeight
-    new HippocampusImpl(worldWidth, worldHeight, neocortex)
-  }
 
-  private class HippocampusImpl(worldWidth: Int, worldHeight: Int, neocortex: Neocortex) extends Hippocampus {
+  private class HippocampusImpl(val worldWidth: Int, val worldHeight: Int, val locationalFieldSize: Double) extends Hippocampus {
 
     import scala.collection.mutable.Map
 
     type ShortTermMemoryMap = Map[MemoryType, ListBuffer[ShortTermMemory]]
 
-    val eventGain = new Random()
+
+    val neocortex: Neocortex = Neocortex()
     val memories: ShortTermMemoryMap = Map()
+    val eventGain = new Random()
     var memorySearchComponent: Option[MemorySearchComponent] = None
     var currentBestMemory: Option[Memory] = None
+
+    var searchingState: SearchingState = SearchingState.INACTIVE
 
     override def notifyEvent(memoryType: MemoryType, position: Position): Unit = {
       neocortex.getMemeories(memoryType) match {
         case Some(list) =>
-          list.find(m => m.locationalField == LocationalField(position)) match {
+          list.find(m => m.locationalField == LocationalField(worldWidth, worldHeight, locationalFieldSize, position)) match {
             case Some(memory) =>
               memory.score += computeGain
             case None => checkShortTermMemory(memoryType, position)
@@ -62,6 +66,7 @@ object Hippocampus {
       }
       if(memorySearchComponent.isDefined && memoryType==memorySearchComponent.get.memoryType) {
         memorySearchComponent = None
+        searchingState = SearchingState.INACTIVE
       }
     }
 
@@ -71,15 +76,13 @@ object Hippocampus {
       if (memorySearchComponent.isDefined) memorySearchComponent.get.updateTime()
     }
 
-    override def searchStarted: Boolean = memorySearchComponent.isDefined
-
     override def startNewSearch(memoryType: MemoryType): Unit = {
-      memorySearchComponent = Some(MemorySearchComponent(
-        memoryType,
-        ListBuffer() ++= memories.getOrElse(memoryType, List()) ++
-          neocortex.getMemeories(memoryType).getOrElse(List())
-      ))
+      searchingState = SearchingState.ACTIVE
+      val list = ListBuffer() ++= memories.getOrElse(memoryType, List()) ++ neocortex.getMemeories(memoryType).getOrElse(List())
+      memorySearchComponent = Some(MemorySearchComponent(memoryType, list))
     }
+
+    override def isMemoryDefined: Boolean = currentBestMemory.isDefined
 
     override def hasNewMemory: Boolean = {
       memorySearchComponent match {
@@ -98,7 +101,10 @@ object Hippocampus {
     override def computeDirection(currentPosition: Position): Direction = {
       currentBestMemory match {
         case None => throw new IllegalStateException("Memory not defined")
-        case Some(memory) => findDirection(currentPosition, memory.locationalField.centerPosition)
+        case Some(memory) =>
+          val direction = findDirection(currentPosition, memory.locationalField.centerPosition)
+          if (direction==Direction.NONE && !hasNewMemory) searchingState = SearchingState.ENDED
+          direction
       }
     }
 
@@ -123,24 +129,27 @@ object Hippocampus {
     }
 
     private def addShortTermMemory(memoryType: MemoryType, position: Position) = {
-      memories(memoryType) += ShortTermMemory(memoryType, position, computeGain)
+      memories(memoryType) += ShortTermMemory(memoryType, LocationalField(worldWidth, worldHeight, locationalFieldSize, position), computeGain)
     }
 
     private def findDirection(fromPosition: Position, toPosition: Position): Direction = {
-      val xDistance = toPosition.x - fromPosition.x
-      val yDistance = toPosition.y - fromPosition.y
-      var xDirection = Direction.RIGHT
-      var yDirection = Direction.DOWN
-      if (xDistance<0) xDirection = Direction.LEFT
-      if (yDistance<0) yDirection = Direction.UP
+      val distance = LocationalField(worldWidth, worldHeight, locationalFieldSize, toPosition).distanceFromPosition(fromPosition)
+      if (distance==0) Direction.NONE else {
+        val xDistance = toPosition.x - fromPosition.x
+        val yDistance = toPosition.y - fromPosition.y
+        var xDirection = Direction.RIGHT
+        var yDirection = Direction.DOWN
+        if (xDistance<0) xDirection = Direction.LEFT
+        if (yDistance<0) yDirection = Direction.UP
 
-      if(Math.abs(xDistance)>Math.abs(yDistance)) xDirection else yDirection
+        if(Math.abs(xDistance)>Math.abs(yDistance)) xDirection else yDirection
 
-      (Math.abs(xDistance), Math.abs(yDistance)) match {
-        case (0,0) => Direction.NONE
-        case (x,y) if x>=y => xDirection
-        case _ => yDirection
+        (Math.abs(xDistance), Math.abs(yDistance)) match {
+          case (x,y) if x>=y => xDirection
+          case _ => yDirection
+        }
       }
+
     }
   }
 }

@@ -1,9 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-import it.unibo.pps.ese.view.Position
-import hippocampus.Hippocampus.locationalFieldSize
 import it.unibo.pps.ese.utils.Point
-import hippocampus.Hippocampus.{worldWidth, worldHeight}
 
 trait LocationalField {
   def topLeftPosition: Position
@@ -14,9 +11,10 @@ trait LocationalField {
 
 object LocationalField {
 
-  def apply(centerPosition: Position): LocationalField = LocationalFieldImpl(centerPosition)
+  def apply(worldWidth: Int, worldHeight: Int, locationalFieldSize: Double, centerPosition: Position): LocationalField =
+    LocationalFieldImpl(worldWidth, worldHeight, locationalFieldSize, centerPosition)
 
-  private case class LocationalFieldImpl(var centerPosition: Position) extends LocationalField {
+  private case class LocationalFieldImpl(worldWidth: Int, worldHeight: Int, locationalFieldSize: Double, var centerPosition: Position) extends LocationalField {
 
     var x: Double = centerPosition.x
     var y: Double = centerPosition.y
@@ -40,14 +38,4 @@ object LocationalField {
     }
   }
 
-  implicit def positionToLocationalField(position: Position): LocationalField = {
-    LocationalFieldImpl(position)
-  }
-
-  implicit def bound(tuple2: (Int, Int)): Point = {
-    def bound(i: Int, bound: Int): Int = if (i < 0) 0 else if (i > bound) bound else i
-    def boundWidth(x: Int): Int = bound(x, worldWidth)
-    def boundHeight(y: Int): Int = bound(y, worldHeight)
-    Point(boundWidth(tuple2._1), boundHeight(tuple2._2))
-  }
 }
