@@ -2,7 +2,7 @@ package it.unibo.pps.ese.genericworld.model.support
 
 import java.util.concurrent.atomic.AtomicLong
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
@@ -34,7 +34,7 @@ object EventBus {
     }
 
     override def notifyOnTasksEnd(): Future[Done] = {
-      completionPromise = Some(Promise[Done])
+      if (completionPromise isEmpty) completionPromise = Some(Promise[Done])
       (completionPromise get) future
     }
 
