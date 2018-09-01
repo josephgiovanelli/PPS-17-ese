@@ -52,7 +52,9 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   }
   val nameGene = new ComboBox(propertiesName)
 
-  val requiredField = Seq(idGene, nameGene)
+  val previousNameGene = new TextField()
+
+  val requiredField = Seq(idGene, if (gene.isDefined) previousNameGene else nameGene)
 
   val grid: GridPane = new GridPane() {
     hgap = 10
@@ -62,7 +64,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
     add(new Label("Id"), 0, 0)
     add(idGene, 1, 0)
     add(new Label("Name"), 0, 1)
-    add(nameGene, 1, 1)
+    add(if (gene.isDefined) previousNameGene else nameGene, 1, 1)
   }
 
 
@@ -74,10 +76,12 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
     children ++= Seq(grid)
     styleClass += "sample-page"
   }
+
   if (gene.isDefined) {
     idGene.editable = false
     idGene.text.value = currentDefaultChromosome(gene.get)._1.id
-    nameGene.editable = false
+    previousNameGene.editable = false
+    previousNameGene.text.value = currentDefaultChromosome(gene.get)._1.properties.head._1
     nameGene.selectionModel().select(currentDefaultChromosome(gene.get)._1.properties.head._1)
   }
 
