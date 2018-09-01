@@ -23,8 +23,8 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   val MIN_ELEM = 3
 
   initOwner(window)
-  title = "Custom Gene Dialog"
-  headerText = "Define structural chromosome"
+  title = "Default Gene Dialog"
+  headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
 
   // Set the button types.
   val okButtonType = new ButtonType("Insert Alleles", ButtonData.OKDone)
@@ -45,7 +45,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
     case ChromosomeTypes.SEXUAL => SexualDefaultGenes.elements
   }
 
-  val propertiesName = ObservableBuffer[String](propertiesSet.map(x => x.name) toSeq)
+  val propertiesName: ObservableBuffer[String] = ObservableBuffer[String]((propertiesSet.map(x => x.name) -- currentDefaultChromosome.keySet) toSeq)
 
   val idGene: TextField = new TextField() {
     promptText = "Id"
