@@ -95,7 +95,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
   val sexualButton = new Button("Add")
   sexualButton.onAction = _ => DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, None).showAndWait() match {
     case Some(name) => {
-      regulationName.insert(regulationName.size, name.toString)
+      sexualName.insert(regulationName.size, name.toString)
     }
     case None => println("Dialog returned: None")
   }

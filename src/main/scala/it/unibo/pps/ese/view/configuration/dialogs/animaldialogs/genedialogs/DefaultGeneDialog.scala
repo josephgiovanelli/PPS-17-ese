@@ -91,6 +91,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
       val defaultGene = propertiesSet.filter(x => x.name.equals(nameGene.selectionModel().getSelectedItem)).head
+      println(chromosomeTypes)
       EntitiesInfo.instance().setChromosomeBaseInfo(animal, chromosomeTypes, DefaultGeneInfo(defaultGene, idGene.text.value))
       println(EntitiesInfo.instance().getAnimalInfo(animal).get._2)
       AllelesDialog(window, animal, defaultGene.name, chromosomeTypes).showAndWait()
