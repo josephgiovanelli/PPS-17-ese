@@ -69,14 +69,14 @@ object Example extends JFXApp { app =>
   val cylinder1 = new Group()
   cylinder1.children += moleculeGroup
 
-  val lS = new GeneDetailsScene(300,600,Left)
+  val lS = new GeneDetailsSubScene(300,600,Left)
   hbox.children += lS
   val msaa = createSubScene("", cylinder1,
     Color.Transparent,
     new PerspectiveCamera(), true);
   hbox.getChildren().add(msaa);
 
-  val rS = new GeneDetailsScene(300,600,Right)
+  val rS = new GeneDetailsSubScene(300,600,Right)
   hbox.children += rS
   val slider = new Slider(0, 360, 0);
     slider.setBlockIncrement(1);

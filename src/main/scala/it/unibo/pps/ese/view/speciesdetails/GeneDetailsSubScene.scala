@@ -3,9 +3,7 @@ sealed trait Side
 case object Left extends Side
 case object Right extends Side
 
-import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
-import it.unibo.pps.ese.view.speciesdetails.Example.setTitle
 import javafx.scene.text.{Font, Text}
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.Color
@@ -14,19 +12,11 @@ import scalafx.scene.{Group, Parent, SceneAntialiasing, SubScene}
 
 import scala.collection.JavaConverters._
 trait GeneDetails{
-//  def setGeneDetails(
-//                    chromosomeName:String,
-//                    geneId:String,
-//                    alleleId:String,
-//                    affectedQualities:Seq[String],
-//                    dominanceLevel:String,
-//                    probability:String,
-//                    active:String)
   def visualizeGeneStats(geneStats: GeneStats,cName:String)
   def emptyGeneStats():Unit
 }
 
-class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(width,height,true,SceneAntialiasing.Balanced) with GeneDetails {
+class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubScene(width,height,true,SceneAntialiasing.Balanced) with GeneDetails {
   private val textLabel = new TextFlow()
   textLabel.children.add("No Gene Selected".toText)
   private[this]def buildDetailsBox(textLabel: TextFlow):Parent= {
@@ -45,9 +35,9 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
         "-fx-border-style: solid;\n";
     }
     val vbox = new VBox()
-    vbox.setStyle(cssLayout);
+    vbox.setStyle(cssLayout)
     textLabel.setMaxWidth(width*0.85)
-    vbox.getChildren().add(textLabel)
+    vbox.getChildren.add(textLabel)
 
     vbox
   }
@@ -57,7 +47,7 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
   root = group
 
   override def visualizeGeneStats(geneStats: GeneStats,cName:String): Unit = geneStats match {
-    case AllelicGeneStats(g,d,p,a,aq,f) => {
+    case AllelicGeneStats(g,d,p,a,aq,f) =>
       setGeneDetails(
         chromosomeName= cName,
         geneId= g.geneId.mkString(","),
@@ -68,7 +58,6 @@ class GeneDetailsScene(width:Double,height:Double,side: Side) extends SubScene(w
         probability = p.toString,
         active = if(a) "Yes" else "No"
       )
-    }
     case BasicGeneStats(g,i)=>
       setBasicGeneDetails(cName,g.geneId.mkString(","),i)
   }

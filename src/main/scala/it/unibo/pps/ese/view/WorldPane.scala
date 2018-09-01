@@ -7,6 +7,9 @@ import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, Tooltip}
 import WorldPrefernces._
 import ZoomPreferences._
+import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import javafx.application.Platform
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType
@@ -83,7 +86,13 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
         currentSelected = Some(entity.id)
         graphicsContext.fill = selectionColor
         graphicsContext.fillRect(pos.x, pos.y, entitySize(), entitySize())
-        detailsPane.showDetails(entity)
+        //Only for test----------
+        val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
+        val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
+        geneticsSimulator.beginSimulation(data)
+        val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Gatto")
+        //Only for test-----------
+        detailsPane.showDetails(entity,animalInfo)
       case None =>
         currentSelected = None
         detailsPane.clearDetails()

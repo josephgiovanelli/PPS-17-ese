@@ -1,13 +1,16 @@
 package it.unibo.pps.ese.view
 
-import scalafx.scene.control.{Button, Label, ScrollPane}
+import it.unibo.pps.ese.genetics.entities.AnimalInfo
+import it.unibo.pps.ese.view.speciesdetails.QualityViewerBox
+import scalafx.scene.control.{Button, Label, ProgressBar, ScrollPane}
 import scalafx.scene.input.MouseEvent
-import scalafx.scene.layout.BorderPane
+import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import scalafx.Includes._
+import scalafx.geometry.Pos
 
 trait DetailsPane extends ScrollPane {
 
-  def showDetails(e: Entity): Unit
+  def showDetails(e: Entity,animalInfo:AnimalInfo): Unit
   def clearDetails() : Unit
 }
 
@@ -19,19 +22,23 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 
   val nameLabel = Label("")
   val mainPane = new BorderPane()
-  mainPane.center = nameLabel
   val button:Button = new Button("Genome")
-  mainPane.bottom = button
-//  button.onMouseClicked = (me:MouseEvent) => {
-//    mainComponent.setScene(ViewType.GenomeView)
-//  }
+//  mainPane.bottom = button
+  val vBox:VBox = new VBox()
+  vBox.spacing = 10
+  mainPane.top = nameLabel
+  mainPane.center = vBox
+
   content = mainPane
 
-  override def showDetails(e: Entity): Unit = {
+  override def showDetails(e: Entity,animalInfo: AnimalInfo): Unit = {
     nameLabel.text = e.name
+    vBox.children = animalInfo.qualities
+      .values.map(q=> new QualityViewerBox(q.qualityType.toString,q.qualityValue))
   }
 
   override def clearDetails(): Unit = {
     nameLabel.text = ""
   }
+
 }

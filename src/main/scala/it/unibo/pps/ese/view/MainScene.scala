@@ -76,10 +76,12 @@ private class MainScene(mainComponent: MainComponent, width: Double = 1200, heig
   val genomeTab = new Tab()
   genomeTab.text = "Genome"
   genomeTab.closable = false
+  //Only for test----------
   val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
   val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
   geneticsSimulator.beginSimulation(data)
   val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Gatto")
+  //Only for test-----------
 
   val genomePane = new SpeciesDetailsPane(GenomeStatsUtilities.buildGenomeStats(geneticsSimulator,animalInfo))
   genomeTab.content = genomePane
