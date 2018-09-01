@@ -1,9 +1,9 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
 import it.unibo.pps.ese.view.Position
-import Hippocampus.locationalFieldSize
+import hippocampus.Hippocampus.locationalFieldSize
 import it.unibo.pps.ese.utils.Point
-import Hippocampus.{worldWidth, worldHeight}
+import hippocampus.Hippocampus.{worldWidth, worldHeight}
 
 trait LocationalField {
   def topLeftPosition: Position
