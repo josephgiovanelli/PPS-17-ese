@@ -43,7 +43,9 @@ object SimulationLoop {
           Await.result(ret, Duration.Inf)
 
           val populationTrend = DataMiner(DataAggregator ingestedData) populationTrend()
+          val worldSpecies = DataMiner(DataAggregator ingestedData) worldSpecies()
           println(populationTrend)
+          println(worldSpecies)
 
           if (era == 10) {
             val tmp = (DataAggregator ingestedData) entitiesInEra  1
