@@ -1,14 +1,17 @@
 package it.unibo.pps.ese.genericworld.controller
 
+import it.unibo.pps.ese.controller.loader.data.SimulationData
 import it.unibo.pps.ese.genericworld.model.{EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.{Entity, Position}
+
 import scalafx.scene.paint.Color
 
 case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
   def getEntityDetails(position: String): EntityDetails
+  def setUp(simulationData: SimulationData)
 }
 
 //class View {
@@ -44,5 +47,7 @@ object ViewHelpers {
 
   implicit class ManageableObserver(manageableController: ManageableController) extends Observer {
     override def getEntityDetails(id: String): EntityDetails = manageableController entityData id get
+
+    override def setUp(simulationData: SimulationData): Unit = println("ciao")
   }
 }

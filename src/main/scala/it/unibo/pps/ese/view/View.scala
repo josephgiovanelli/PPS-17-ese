@@ -1,18 +1,20 @@
 package it.unibo.pps.ese.view
 
+import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.SimulationDataImpl
 import it.unibo.pps.ese.genericworld.controller.{EntityDetails, Observer}
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
 
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
-
   def addObserver(observer: Observer): Unit
 }
 
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): EntityDetails
+  def setUp(simulationData: SimulationData)
 }
 
 object View {
@@ -56,6 +58,15 @@ private class ViewImpl extends View with MainComponent {
 
   override def getEntityDetails(id: String): EntityDetails = {
     observers.head.getEntityDetails(id)
+  }
+
+  override def setUp(simulationData: SimulationData): Unit =
+    currentView match {
+    case ViewType.ConfigurationView => {
+      observers.head.setUp(simulationData)
+      setScene(ViewType.MainView)
+    }
+    case _ =>
   }
 }
 

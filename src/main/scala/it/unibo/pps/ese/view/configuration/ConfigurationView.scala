@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration
 
-import it.unibo.pps.ese.view.configuration.dialogs.{DefaultGeneInfo, LoginDialog}
+import it.unibo.pps.ese.view.configuration.dialogs.{DefaultGeneInfo, ConfirmDialog}
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.{MainComponent, ViewType}
@@ -88,56 +88,12 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
   plantsPane.right = plantsAddButton
 
   val confirmButton = new Button("Confirm")
-  //confirmButton.onAction = _ =>  AnimalDialog(currentWindow).showAndThenPrint()
+  confirmButton.onAction = _ => ConfirmDialog(currentWindow, mainComponent).showAndWait()
 
 
   content = new VBox() {
     children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, confirmButton)
     styleClass += "sample-page"
-  }
-
-  //val result = createDialog1(currentWindow)
-
-  /*result match {
-    case Some(Result(u, p)) => {
-      println("Username=" + u + ", Password=" + p)
-      val result2 = createDialog2(currentWindow)
-
-      result2 match {
-        case Some(choice) => {
-          println("Your choice: " + choice)
-        }
-        case None         => { println("No selection") }
-      }
-    }
-    case None => println("Dialog returned: None")
-  }*/
-
-
-
-
-
-
-  //new Alert(AlertType.Information, "Hello Dialogs!!!").showAndWait()
-
-  def createDialog1(window: Window) = {
-    val dialog = LoginDialog(window)
-    dialog.showAndWait()
-  }
-
-  def createDialog2(window: Window) = {
-    val choices = Seq("a", "b", "c")
-    val dialog2 = new ChoiceDialog(defaultChoice = "b", choices = choices) {
-      initOwner(window)
-      title = "Choice Dialog"
-      headerText = "Look, a Choice Dialog."
-      contentText = "Choose your letter:"
-    }
-    dialog2.showAndWait()
-  }
-
-  def prova(string: String): Unit = {
-
   }
 
 }

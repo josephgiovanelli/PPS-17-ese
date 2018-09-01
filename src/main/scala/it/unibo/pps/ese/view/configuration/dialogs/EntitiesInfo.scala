@@ -57,6 +57,10 @@ object EntitiesInfo {
 
     def getPlantInfo(id: String): Option[PlantInfo] = plants.get(id)
 
+    def getAnimals(): Set[String] = animals.keySet
+
+    def getPlants(): Set[String] = plants.keySet
+
     def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, customGeneInfo: CustomGeneInfo): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
         case Some((_, chromosomeInfo)) => chromosomeInfo
