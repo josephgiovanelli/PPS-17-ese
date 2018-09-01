@@ -51,7 +51,7 @@ object WorldBuilder {
     world
   }
 
-  private def initializeEntity(animalInfo: AnimalInfo, position: Point) : Entity = {
+  def initializeEntity(animalInfo: AnimalInfo, position: Point) : Entity = {
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
     entity addComponent initializeBrainComponent(entity, animalInfo)

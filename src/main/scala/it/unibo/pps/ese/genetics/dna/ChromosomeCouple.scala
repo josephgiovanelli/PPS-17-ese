@@ -4,10 +4,7 @@ import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.entities.{Female, Gender, Male}
 
 trait ChromosomeCouple{
-  type ChromosomeUnit <: {
-    def geneList: Seq[MGene]
-    def chromosomeType:ChromosomeType
-  }
+  type ChromosomeUnit <: Chromosome
   def addChromosomeCouple(c1:ChromosomeUnit, c2:ChromosomeUnit)
   def addFirstChromosome(c:ChromosomeUnit)
   def addSecondChromosome(c:ChromosomeUnit)
@@ -25,11 +22,7 @@ object ChromosomeCouple{
 }
 
 trait SexualChromosomeCouple extends ChromosomeCouple{
-  type ChromosomeUnit <: {
-    def sexualChromosome:SexualChromosomeType
-    def geneList: Seq[MGene]
-    def chromosomeType:ChromosomeType
-  }
+  type ChromosomeUnit <: SexualChromosome
   def gender:Gender = (firstChromosome.sexualChromosome,secondChromosome.sexualChromosome) match {
     case (X,X) => Female
     case (X,Y) => Male
