@@ -17,6 +17,7 @@ trait GeneDetails{
 }
 
 class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubScene(width,height,true,SceneAntialiasing.Balanced) with GeneDetails {
+  import TextUtilities._
   private val textLabel = new TextFlow()
   textLabel.children.add("No Gene Selected".toText)
   private[this]def buildDetailsBox(textLabel: TextFlow):Parent= {
@@ -36,7 +37,7 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
     }
     val vbox = new VBox()
     vbox.setStyle(cssLayout)
-    textLabel.setMaxWidth(width*0.85)
+    textLabel.setMaxWidth(width*0.75)
     vbox.getChildren.add(textLabel)
 
     vbox
@@ -62,21 +63,7 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
       setBasicGeneDetails(cName,g.geneId.mkString(","),i)
   }
 
-  implicit class RichText(string:String){
-    def setStyle(style:String):Text = {
-      val text = new Text(string)
-      text.setStyle(style)
-      text.setFill(Color.web("67809F"))
-      text.setFont(Font.font("Calibri", 24))
-      text
-    }
-    def toText:Text = {
-      val text = new Text(string)
-      text.setFill(Color.White)
-      text.setFont(Font.font("Calibri", 24))
-      text
-    }
-  }
+
   private def setGeneDetails(chromosomeName: String, geneId: String,alleleId:String, affectedQualities: Seq[String],features:Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
     val style:String = "-fx-font-weight: 900"
     val allText:Seq[Text] = (chromosomeName+"\n").setStyle(style) ::

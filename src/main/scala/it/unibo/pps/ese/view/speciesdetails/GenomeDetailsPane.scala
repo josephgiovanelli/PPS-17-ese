@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.view.speciesdetails
 
+import javafx.scene.text.{Font, Text}
 import scalafx.Includes._
 import scalafx.scene._
 import scalafx.geometry.Insets
@@ -9,7 +10,8 @@ import scalafx.scene.transform.Rotate
 import scalafx.scene.shape._
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
-
+import scalafx.scene.text.TextAlignment
+import TextUtilities._
 sealed trait GenomeDetailsPane extends Pane{
   def setGenomeStats(genomeStats:List[ChromosomeWithGeneCouple]):Unit
 }
@@ -26,7 +28,22 @@ object GenomeDetailsPane {
 
     val root = new Group()
     children += root
-
+    val tbox = new VBox()
+    tbox.spacing = 5
+    val text = new Text("Entity Genome")
+    text.setWrappingWidth(1200)
+    text.textAlignment = TextAlignment.Center
+    val textStyle:String = "-fx-font-size:40;"
+    text.setStyle(textStyle)
+    text.setFill(Color.White)
+    text.setFont(Font.font("Calibri"))
+    tbox.children.addAll(text)
+//    tbox.setLayoutX(450)
+    tbox.setLayoutY(10)
+    val textDetails = "Select a sphere to get the information about the gene couple".toText
+    textDetails.textAlignment = TextAlignment.Center
+    textDetails.wrappingWidth = 1200
+    tbox.children += textDetails
     val hbox = new HBox()
     hbox.setLayoutX(20)
     hbox.setLayoutY(150)
@@ -39,7 +56,7 @@ object GenomeDetailsPane {
     val cylinder1 = new Group()
     cylinder1.children += moleculeGroup
 
-    val lS = new GeneDetailsSubScene(300,800,Left)
+    val lS = new GeneDetailsSubScene(400,800,Left)
     hbox.children += lS
     val msaa = createSubScene(cylinder1,
       Color.Transparent,
@@ -48,14 +65,14 @@ object GenomeDetailsPane {
     hbox.getChildren.add(msaa)
 
 
-    val rS = new GeneDetailsSubScene(300,800,Right)
+    val rS = new GeneDetailsSubScene(400,800,Right)
     hbox.children += rS
     val slider = new Slider(0, 360, 0)
     slider.setBlockIncrement(1)
-    slider.setTranslateX(400)
+    slider.setTranslateX(500)
     slider.setTranslateY(625)
     cylinder1.rotateProperty().bind(slider.valueProperty())
-    root.getChildren.addAll(hbox, slider)
+    root.getChildren.addAll(tbox,hbox, slider)
     if(genomeStats.nonEmpty) setGenomeStats(genomeStats.get)
 
     override def setGenomeStats(genomeStats: List[ChromosomeWithGeneCouple]): Unit = {
