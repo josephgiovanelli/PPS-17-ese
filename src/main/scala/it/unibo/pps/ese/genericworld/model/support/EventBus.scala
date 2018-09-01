@@ -32,7 +32,7 @@ object EventBus {
       })
     }
 
-    override def notifyOnTasksEnd(): Future[Done] = {
+    override def notifyOnTasksEnd(): Future[Done] = this synchronized {
       if (completionPromise isEmpty) completionPromise = Some(Promise[Done])
       (completionPromise get) future
     }

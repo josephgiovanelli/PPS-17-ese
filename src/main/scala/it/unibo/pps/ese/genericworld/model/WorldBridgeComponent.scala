@@ -70,7 +70,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
   override def requireInfo(): Future[Done] = startNewJob(GetInfo())
 
   override def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Future[Done] = {
-    val interactionPromise = Promise() : Promise[Done]
+    val interactionPromise = Promise[Done]
     nervousSystem notifyOnTasksEnd() onComplete (_ => {
       interactionPromise success new Done()
     })
