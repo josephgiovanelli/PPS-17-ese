@@ -3,8 +3,7 @@ package it.unibo.pps.ese.genericworld.controller
 import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, DataSaver}
 import it.unibo.pps.ese.genericworld.model.World
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 
 sealed trait SimulationLoop {
@@ -15,9 +14,11 @@ sealed trait SimulationLoop {
 
 object SimulationLoop {
 
-  def apply(model: World, period: FiniteDuration): SimulationLoop = BaseSimulationLoop(model, period)
+  def apply(model: World, period: FiniteDuration)
+           (implicit executionContext: ExecutionContext): SimulationLoop = BaseSimulationLoop(model, period)
 
-  private case class BaseSimulationLoop(model: World, period: FiniteDuration) extends SimulationLoop {
+  private case class BaseSimulationLoop(model: World, period: FiniteDuration)
+                                       (implicit executionContext: ExecutionContext) extends SimulationLoop {
 
     private[this] val timer = new java.util.Timer()
     private[this] var scheduledTask = None: Option[java.util.TimerTask]

@@ -2,7 +2,7 @@ package it.unibo.pps.ese.genericworld.model
 
 import it.unibo.pps.ese.genericworld.model.support._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait Component {
   def initialize(): Unit
@@ -10,6 +10,7 @@ trait Component {
 }
 
 trait NervousSystemComponent extends Component {
+  implicit def executionContext: ExecutionContext
   private[this] var _nervousSystem : Option[NervousSystem] = None
   def nervousSystem : NervousSystem = _nervousSystem getOrElse(throw new RuntimeException("Error"))
   def nervousSystem_=(nervousSystem: NervousSystem) : Unit = _nervousSystem = Some(nervousSystem)

@@ -4,7 +4,6 @@ import java.util.concurrent.atomic.AtomicLong
 import it.unibo.pps.ese.genericworld.model.support._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class UpdateEntityState(properties: Seq[EntityProperty]) extends BaseEvent
 
@@ -31,7 +30,8 @@ sealed trait WorldBridge {
 }
 
 class WorldBridgeComponent(override val entitySpecifications: EntitySpecifications,
-                           world: InteractiveWorld) extends WriterComponent(entitySpecifications) with WorldBridge {
+                           world: InteractiveWorld)
+                          (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) with WorldBridge {
 
   private var disposed = false
   private var jobCompleted = true

@@ -3,6 +3,7 @@ package it.unibo.pps.ese.genericworld.controller
 import it.unibo.pps.ese.genericworld.model.{EntityState, World}
 import it.unibo.pps.ese.view.View
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
 sealed trait Controller {
@@ -19,9 +20,11 @@ trait ManageableController {
 
 object Controller {
 
-  def apply(world: World, clockPeriod: FiniteDuration): Controller = BaseController(world, clockPeriod)
+  def apply(world: World, clockPeriod: FiniteDuration)
+           (implicit executionContext: ExecutionContext): Controller = BaseController(world, clockPeriod)
 
-  private case class BaseController(world: World, clockPeriod: FiniteDuration) extends Controller with ManageableController {
+  private case class BaseController(world: World, clockPeriod: FiniteDuration)
+                                   (implicit executionContext: ExecutionContext) extends Controller with ManageableController {
 
     val simulationLoop = SimulationLoop(world, clockPeriod)
     var stop = false

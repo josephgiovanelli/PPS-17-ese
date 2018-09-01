@@ -11,8 +11,7 @@ import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Reig
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
 import it.unibo.pps.ese.utils.Point
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 
 object ReignType extends Enumeration {
@@ -21,7 +20,8 @@ object ReignType extends Enumeration {
 
 object WorldBuilder {
 
-  def buildWorldFromSimulationData(simulationConfigPath: String, height: Int, width: Int): World = {
+  def buildWorldFromSimulationData(simulationConfigPath: String, height: Int, width: Int)
+                                  (implicit context: ExecutionContext): World = {
 
     StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
     val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (0, Integer.MAX_VALUE), 0,
@@ -38,49 +38,53 @@ object WorldBuilder {
     geneticsSimulator.speciesList
       .flatMap(x => initializedSimulation.getAllAnimals(x))
       .zip(distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
-      .map(x => initializeEntity(x._1, x._2))
+      .map(x => initializeEntity(x._1, x._2, width, height))
       .foreach(world addEntity)
 
     geneticsSimulator.plantSpeciesList
       .flatMap(x => initializedSimulation.getAllPlant(x))
       .zip(distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
-      .map(x => initializeEntity(x._1, x._2))
+      .map(x => initializeEntity(x._1, x._2, width, height))
       .foreach(world addEntity)
 
     Await.result(world.requireInfoUpdate, Duration.Inf)
     world
   }
 
-  private def initializeEntity(animalInfo: AnimalInfo, position: Point) : Entity = {
+  private def initializeEntity(animalInfo: AnimalInfo, position: Point, worldWidth: Long, worldHeight: Long)
+                              (implicit context: ExecutionContext) : Entity = {
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
-    entity addComponent initializeBrainComponent(entity, animalInfo)
+    entity addComponent initializeBrainComponent(entity, animalInfo, worldWidth, worldHeight)
     entity addComponent initializePhysicalComponent(entity, animalInfo)
     entity
   }
 
 
-  private def initializeEntity(plantInfo: PlantInfo, position: Point) : Entity = {
+  private def initializeEntity(plantInfo: PlantInfo, position: Point, worldWidth: Long, worldHeight: Long)
+                              (implicit context: ExecutionContext) : Entity = {
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, plantInfo, position)
     entity addComponent initializePhysicalComponent(entity, plantInfo)
     entity
   }
 
-  private def initializeBrainComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
+  private def initializeBrainComponent(entity: Entity, animalInfo: AnimalInfo, worldWidth: Long, worldHeight: Long)
+                                      (implicit context: ExecutionContext) : Component = {
 
     implicit def convertKind(dietType: DietType): String = if (dietType.dietName == "H") "herbivore" else "carnivorous"
 
     BrainComponent(entity specifications,
-      500,
-      500,
+      worldHeight.toInt,
+      worldWidth.toInt,
       animalInfo.qualities(Strength).qualityValue,
       animalInfo.qualities(RangeOfAction).qualityValue,
       animalInfo.qualities(FieldOfView).qualityValue,
       animalInfo.qualities(Attractiveness).qualityValue)
   }
 
-  private def initializePhysicalComponent(entity: Entity, animalInfo: AnimalInfo) : Component = {
+  private def initializePhysicalComponent(entity: Entity, animalInfo: AnimalInfo)
+                                         (implicit context: ExecutionContext) : Component = {
     PhysicalStatusComponent(
       entity specifications,
       animalInfo.qualities(Life).qualityValue.toInt,
@@ -92,7 +96,8 @@ object WorldBuilder {
       animalInfo.qualities(Fertility).qualityValue)
   }
 
-  private def initializeBaseInfoComponent(entity: Entity, entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo, position: Point) : Component = {
+  private def initializeBaseInfoComponent(entity: Entity, entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo, position: Point)
+                                         (implicit context: ExecutionContext) : Component = {
 
     implicit def convertReign(reign: Reign): ReignType.Value = if (reign.reignName == "A") ReignType.ANIMAL else ReignType.PLANT
     implicit def convertDefense(entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo): Double =
@@ -111,13 +116,15 @@ object WorldBuilder {
     )
   }
 
-  private def initializePhysicalComponent(entity: Entity, plantInfo: PlantInfo) : Component = {
+  private def initializePhysicalComponent(entity: Entity, plantInfo: PlantInfo)
+                                         (implicit context: ExecutionContext) : Component = {
     PlantPhysicalComponent(
       entity specifications,
       plantInfo.qualities(Availability).qualityValue)
   }
 
-  private def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {
+  private def distinctRandomPoints(n:Int, x:Int, y:Int)
+                                  (implicit context: ExecutionContext):Set[Point] = {
     import scala.util.Random
     require(n < x * y)
     Stream.continually((Random.nextInt(x), Random.nextInt(y))).scanLeft(Set[Point]()) {

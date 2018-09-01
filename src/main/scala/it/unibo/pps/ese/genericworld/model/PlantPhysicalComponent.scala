@@ -4,14 +4,15 @@ import it.unibo.pps.ese.entitybehaviors.MealInformation
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.utils.Point
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class EntityNutritionalValue(nutritionalValue: Double) extends BaseEvent
 case class PlantPhysicalInfo(availability: Double) extends BaseEvent
 
 case class PlantPhysicalComponent(override val entitySpecifications: EntitySpecifications,
-                                  availability: Double) extends WriterComponent(entitySpecifications) {
+                                  availability: Double)
+                                 (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()

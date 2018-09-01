@@ -4,6 +4,8 @@ import it.unibo.pps.ese.entitybehaviors.EntityPosition
 import it.unibo.pps.ese.genericworld.model.support.{RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.utils.Point
 
+import scala.concurrent.ExecutionContext
+
 case class BaseInfoRequest() extends RequestEvent
 case class BaseInfoResponse(override val id: String,
                             species: String,
@@ -15,13 +17,14 @@ case class BaseInfoResponse(override val id: String,
                             gender:String) extends ResponseEvent(id)
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
-                        species: String,
-                        reign: ReignType.Value,
-                        gender:String,
-                        var position: Point,
-                        height: Double,
-                        var nutritionalValue: Double,
-                        defense: Double) extends WriterComponent(entitySpecifications) {
+                             species: String,
+                             reign: ReignType.Value,
+                             gender:String,
+                             var position: Point,
+                             height: Double,
+                             var nutritionalValue: Double,
+                             defense: Double)
+                            (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()

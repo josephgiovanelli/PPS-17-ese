@@ -3,9 +3,9 @@ package it.unibo.pps.ese.entitybehaviors
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, InteractionEvent}
 
+import scala.concurrent.ExecutionContext
 import scala.math.floor
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object LifePhases extends Enumeration {
   val CHILD, ADULT, ELDERLY = Value
@@ -33,7 +33,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
                                    endAdultPhase: Double,
                                    percentageDecay: Double,
                                    speed: Double,
-                                   fertility: Double) extends WriterComponent(entitySpecifications)  {
+                                   fertility: Double)
+                                  (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
   val MAX_ENERGY = 10000
   val YEAR_TO_CLOCK = 10
