@@ -1,11 +1,8 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 import it.unibo.pps.ese.view.MainComponent
-import it.unibo.pps.ese.view.configuration.Result
-import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.ChromosomeDialog
 
 import scalafx.Includes._
-import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
@@ -82,8 +79,12 @@ case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends D
   // When the login button is clicked, convert the result to
   // a username-password-pair.
   resultConverter = dialogButton =>
-    if (dialogButton == okButtonType)
-      mainComponent.setUp(null)
+    if (dialogButton == okButtonType) {
+      val animals = animalsEntities.map(animal => animal._1 -> animal._2.text.value.toInt)
+      val plants = plantsEntities.map(plant => plant._1 -> plant._2.text.value.toInt)
+      println(plants)
+      mainComponent.setUp(EntitiesInfo.instance().getSimulationData(animals, plants))
+    }
     else
       null
 

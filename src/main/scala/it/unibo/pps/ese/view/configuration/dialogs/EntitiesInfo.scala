@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 import it.unibo.pps.ese.controller.loader.DefaultGene
+import it.unibo.pps.ese.controller.loader.beans.Plant
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
 
 case class AnimalBaseInfo(geneLength: Int, alleleLength: Int, reign: String, typology: String)
 case class AnimalChromosomeInfo(var structuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])], var regulationChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])],
@@ -48,8 +50,7 @@ object EntitiesInfo {
       animals += (id -> (animalBaseInfo, animalChromosomeInfo))
     }
 
-    def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit =
-      animals += (id -> (animals(id)._1, animalChromosomeInfo))
+    def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit = animals += (id -> (animals(id)._1, animalChromosomeInfo))
 
     def getAnimalInfo(id: String): Option[(AnimalBaseInfo, AnimalChromosomeInfo)] = animals.get(id)
 
@@ -109,6 +110,14 @@ object EntitiesInfo {
         }
       }
     }
+
+    def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): SimulationData = {
+      val animalsData: Map[AnimalData, Int] = null
+      val mappedPlants: Map[String, PlantData] = plants.map(plant => plant._1 -> Plant(plant._1, 3, 3, "P", plant._2.height, 0, plant._2.hardness, plant._2.nutritionalValue, plant._2.availability))
+      val plantsData: Map[PlantData, Int] = mappedPlants.map(mappedPlant => mappedPlant._2 -> plantsEntities(mappedPlant._1))
+      SimulationData(animalsData, plantsData)
+    }
+
 
   }
 }

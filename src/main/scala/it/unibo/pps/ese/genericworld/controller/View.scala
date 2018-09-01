@@ -48,6 +48,6 @@ object ViewHelpers {
   implicit class ManageableObserver(manageableController: ManageableController) extends Observer {
     override def getEntityDetails(id: String): EntityDetails = manageableController entityData id get
 
-    override def setUp(simulationData: SimulationData): Unit = println("ciao")
+    override def setUp(simulationData: SimulationData): Unit = println(simulationData)
   }
 }
