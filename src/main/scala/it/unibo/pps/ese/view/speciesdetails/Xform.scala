@@ -1,7 +1,10 @@
 package it.unibo.pps.ese.view.speciesdetails
 
+ import it.unibo.pps.ese.genetics.dnaexpression.GeneStats
  import scalafx.Includes._
-import scalafx.scene.transform.{Scale, Rotate, Translate}
+ import scalafx.scene.input.MouseEvent
+ import scalafx.scene.shape.Sphere
+ import scalafx.scene.transform.{Rotate, Scale, Translate}
 
 object Xform {
   object RotateOrder {
@@ -163,5 +166,34 @@ class Xform extends javafx.scene.Group {
     ip.x = 0.0
     ip.y = 0.0
     ip.z = 0.0
+  }
+}
+sealed trait ModifiableSphereCouple{
+  def setGeneStats(chromosomeWithGeneCouple: ChromosomeWithGeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene):Unit
+}
+class GeneCoupleXForm(val s1:Sphere,val s2:Sphere) extends Xform() with ModifiableSphereCouple {
+  override def setGeneStats(chromosomeWithGeneCouple: ChromosomeWithGeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene): Unit = {
+    s1.material = Materials.blueMaterial
+    s2.material = Materials.greyMaterial
+    val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
+              val gCouple:GeneCouple = chromosomeWithGeneCouple.geneCouple
+              val geneStats1:GeneStats = gCouple.gene1
+              val geneStats2:GeneStats = gCouple.gene2
+              val cType = chromosomeWithGeneCouple.chromosomeType
+              lS.visualizeGeneStats(
+                cName = cType.toString+" 1",
+                geneStats = geneStats1
+              )
+
+              rS.visualizeGeneStats(
+                cName = cType.toString+" 2",
+                geneStats = geneStats2
+              )
+    }
+    s1.onMouseEntered = clickListener
+    s2.onMouseEntered = clickListener
+
+    s1.onMouseClicked = clickListener
+    s2.onMouseClicked = clickListener
   }
 }

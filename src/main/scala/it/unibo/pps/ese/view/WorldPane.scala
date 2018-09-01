@@ -10,6 +10,7 @@ import ZoomPreferences._
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.entities.AnimalInfo
+import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
 import javafx.application.Platform
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType
@@ -27,11 +28,11 @@ trait WorldPane extends ScrollPane with WorldView {
 }
 
 object WorldPane {
-  def apply(mainComponent: MainComponent, detailsPane: DetailsPane, width: Int, height: Int): WorldPane =
-    new WorldPaneImpl(mainComponent, detailsPane, width, height)
+  def apply(mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int): WorldPane =
+    new WorldPaneImpl(mainComponent, detailsPane,genomeDetailsPane, width, height)
 }
 
-private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPane, width: Int, height: Int) extends WorldPane {
+private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int) extends WorldPane {
 
   val selectionColor: Color = Color.Gold
 
@@ -93,6 +94,8 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
         val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Gatto")
         //Only for test-----------
         detailsPane.showDetails(entity,animalInfo)
+        genomeDetailsPane.setGenomeStats(GenomeStatsUtilities.buildGenomeStats(geneticsSimulator,animalInfo))
+
       case None =>
         currentSelected = None
         detailsPane.clearDetails()

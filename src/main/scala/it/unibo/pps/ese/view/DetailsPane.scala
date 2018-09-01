@@ -26,15 +26,14 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 //  mainPane.bottom = button
   val vBox:VBox = new VBox()
   vBox.spacing = 10
-  mainPane.top = nameLabel
   mainPane.center = vBox
 
   content = mainPane
 
   override def showDetails(e: Entity,animalInfo: AnimalInfo): Unit = {
     nameLabel.text = e.name
-    vBox.children = animalInfo.qualities
-      .values.map(q=> new QualityViewerBox(q.qualityType.toString,q.qualityValue))
+    vBox.children = nameLabel :: animalInfo.qualities
+      .values.map(q=> new QualityViewerBox(q.qualityType.toString,q.qualityValue)).toList
   }
 
   override def clearDetails(): Unit = {
