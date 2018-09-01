@@ -2,7 +2,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 
 import javafx.scene.Node
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AlleleInfo, EntitiesInfo}
+import it.unibo.pps.ese.view.configuration.dialogs.{AlleleInfo, ChromosomeTypes, EntitiesInfo}
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -13,7 +13,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.stage.Window
 
-case class AlleleDialog(window: Window, animal: String, gene: String, currentIdAllele: Option[String], properties: Set[String]) extends Dialog[AlleleInfo] {
+case class AlleleDialog(window: Window, animal: String, gene: String, currentIdAllele: Option[String], properties: Set[String], chromosomeTypes: ChromosomeTypes.Value) extends Dialog[AlleleInfo] {
 
   val ROW_HEIGHT = 26
   val MIN_ELEM = 3
@@ -22,11 +22,17 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
   title = "Allele Dialog"
   headerText = "Create an allele"
 
-  var currentAlleles: Map[String, AlleleInfo] = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeInfo.structuralChromosome.get(gene) match {
-      case Some((_, alleles)) => alleles
-      case None => throw new IllegalStateException()
+  val currentAnimalChromosome = EntitiesInfo.instance().getAnimalInfo(animal) match {
+    case Some((_, chromosomeInfo)) => chromosomeTypes match {
+      case ChromosomeTypes.STRUCTURAL => chromosomeInfo.structuralChromosome
+      case ChromosomeTypes.REGULATION => chromosomeInfo.regulationChromosome
+      case ChromosomeTypes.SEXUAL => chromosomeInfo.sexualChromosome
     }
+    case None => throw new IllegalStateException()
+  }
+
+  var currentAlleles: Map[String, AlleleInfo] = currentAnimalChromosome.get(gene) match {
+    case Some((_, alleles)) => alleles
     case None => throw new IllegalStateException()
   }
 

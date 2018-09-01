@@ -4,7 +4,7 @@ import javafx.scene.Node
 
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.dialogs._
-import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.CustomGeneDialog
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.{CustomGeneDialog, DefaultGeneDialog}
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -48,7 +48,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     items = regulationName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        PlantDialog(window, Some(value)).showAndWait()
+        DefaultGeneDialog(window, ChromosomeTypes.REGULATION, animal, Some(value)).showAndWait()
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -60,7 +60,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     items = sexualName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        PlantDialog(window, Some(value)).showAndWait()
+        DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, Some(value)).showAndWait()
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -78,7 +78,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     case None => println("Dialog returned: None")
   }
   val regulationButton = new Button("Add")
-  regulationButton.onAction = _ => PlantDialog(window).showAndWait() match {
+  regulationButton.onAction = _ => DefaultGeneDialog(window, ChromosomeTypes.REGULATION, animal, None).showAndWait() match {
     case Some(name) => {
       regulationName.insert(regulationName.size, name.toString)
     }
@@ -93,9 +93,9 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     regulationName.insert(0, life.name)
   }*/
   val sexualButton = new Button("Add")
-  sexualButton.onAction = _ => PlantDialog(window).showAndWait() match {
+  sexualButton.onAction = _ => DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, None).showAndWait() match {
     case Some(name) => {
-      sexualName.insert(sexualName.size, name.toString)
+      regulationName.insert(regulationName.size, name.toString)
     }
     case None => println("Dialog returned: None")
   }
