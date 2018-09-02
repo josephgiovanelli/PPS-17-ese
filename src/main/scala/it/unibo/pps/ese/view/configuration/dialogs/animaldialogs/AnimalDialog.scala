@@ -4,77 +4,88 @@ import javafx.scene.Node
 
 import it.unibo.pps.ese.view.configuration.dialogs.{AnimalBaseInfo, EntitiesInfo}
 
+import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
+import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
-import scalafx.scene.layout.GridPane
+import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.stage.Window
 
 case class AnimalDialog(window: Window, animal: Option[String] = None) extends Dialog[String] {
+
+  /*
+  Header
+   */
+
   initOwner(window)
   title = "Animal Dialog"
   headerText = "Create an animal"
 
-  // Set the button types.
-  val okButtonType = new ButtonType("Insert Chromosome", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
+  /*
+  Fields
+   */
 
-  // Create the username and password labels and fields.
-  val name: TextField = new TextField() {
-    promptText = "Name"
-  }
-  val geneLength: TextField = new TextField() {
-    promptText = "Gene Length"
-  }
-  val alleleLength: TextField = new TextField() {
-    promptText = "Allele Length"
-  }
-  val reign: TextField = new TextField() {
-    promptText = "Reign"
-  }
-  val typology: TextField = new TextField() {
-    promptText = "Typology"
-  }
+  val name: TextField = new TextField()
+  val geneLength: TextField = new TextField()
+  val alleleLength: TextField = new TextField()
+  val reign: TextField = new TextField()
+  val typology: TextField = new TextField()
+  val errorLabel = new Label()
 
-  val requiredField = Seq(name, geneLength, alleleLength, reign, typology)
+  val fields: Map[TextField, Label] = ListMap(
+    name -> new Label("Name"),
+    geneLength -> new Label("Gene Length"),
+    alleleLength -> new Label("Allele Length"),
+    reign -> new Label("Reign"),
+    typology -> new Label("Typology"),
+  )
 
-  val grid = new GridPane() {
+  val grid: GridPane = new GridPane() {
     hgap = 10
     vgap = 10
     padding = Insets(20, 100, 10, 10)
 
-    add(new Label("Name"), 0, 0)
-    add(name, 1, 0)
-    add(new Label("Gene Length"), 0, 1)
-    add(geneLength, 1, 1)
-    add(new Label("Allele Length"), 0, 2)
-    add(alleleLength, 1, 2)
-    add(new Label("Reign"), 0, 3)
-    add(reign, 1, 3)
-    add(new Label("Typology"), 0, 4)
-    add(typology, 1, 4)
+    var count = 0
+    fields.foreach(field => {
+      add(field._2, 0, count)
+      add(field._1, 1, count)
+      count += 1
+    })
   }
 
-  // Enable/Disable login button depending on whether a username was
-  // entered.
+  dialogPane().content = new VBox(grid, errorLabel)
+
+  Platform.runLater(name.requestFocus())
+
+  /*
+  OkButton
+   */
+  val okButtonType = new ButtonType("Insert Chromosome", ButtonData.OKDone)
+  dialogPane().buttonTypes = Seq(okButtonType)
   val okButton: Node = dialogPane().lookupButton(okButtonType)
   okButton.disable = true
 
-  requiredField.foreach(subject => {
-    subject.text.onChange { (_, _, newValue) =>
-      okButton.disable = newValue.trim().isEmpty || requiredField.filter(x => !x.equals(subject)).exists(x => x.getText.trim().isEmpty)
-    }
+  /*
+  Checks
+   */
+
+  val mandatoryFields: Set[TextField] = fields.keySet
+  val error: StringProperty = StringProperty(checkFields())
+  errorLabel.text <== error
+
+  mandatoryFields.foreach(subject => {
+    subject.text.onChange ( (_, _, newValue) =>{
+      error.value = checkFields()
+      okButton.disable = newValue.trim().isEmpty || mandatoryFields.filter(x => !x.equals(subject)).exists(x => x.getText.trim().isEmpty)
+    })
   })
 
-  dialogPane().content = grid
-
-  // Request focus on the username field by default.
-  Platform.runLater(name.requestFocus())
-
-  // When the login button is clicked, convert the result to
-  // a username-password-pair.
+  /*
+  Restart information
+   */
 
   if (animal.isDefined) {
     val animalInfo = EntitiesInfo.instance().getAnimalInfo(animal.get) match {
@@ -89,6 +100,10 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
     typology.text.value = animalInfo.typology.toString
   }
 
+  /*
+  Result
+   */
+
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
       EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt, alleleLength.text.value.toInt, reign.text.value, typology.text.value))
@@ -99,19 +114,16 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
       null
 
 
-  /*def showAndThenPrint() = {
-    this.showAndWait() match {
-      case Some(AnimalBaseInfo(n, g, a, r, t)) => {
-        println("AnimalBaseInfo(" + n + ", " + g + ", " + a + ", " + r + ", " + t + ")")
-        ChromosomeDialog(window).showAndWait() match {
-          case Some(AnimalChromosomeInfo(st, re, se)) => {
-            println("AnimalChromosomeInfo(" + st + ", " + re + ", " + se + ")")
-          }
-          case None => println("Dialog returned: None")
-        }
-      }
-      case None => println("Dialog returned: None")
+
+  private def checkFields(): String = {
+    val mandatoryCheck = mandatoryFields.filter(x => x.getText.trim().isEmpty)
+    var checksSuccessful = true
+    var toPrint: String = ""
+    if (mandatoryCheck.nonEmpty) {
+      toPrint = "Empty fields: " + mandatoryCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _) + "\n"
+      checksSuccessful = false
     }
-  }*/
+    toPrint
+  }
 
 }

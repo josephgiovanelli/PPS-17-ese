@@ -4,18 +4,41 @@ import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, 
 import it.unibo.pps.ese.controller.loader.beans.{Allele, Gene, Plant, PropertyInfo}
 import it.unibo.pps.ese.controller.loader.data._
 
-case class AnimalBaseInfo(geneLength: Int, alleleLength: Int, reign: String, typology: String)
-case class AnimalChromosomeInfo(var structuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])], var regulationChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])],
+case class AnimalBaseInfo(geneLength: Int,
+                          alleleLength: Int,
+                          reign: String,
+                          typology: String)
+
+case class AnimalChromosomeInfo(var structuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])],
+                                var regulationChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])],
                                 var sexualChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])])
-case class PlantInfo(height: Double, nutritionalValue: Double, hardness: Double, availability: Double)
 
+case class PlantInfo(height: Double,
+                     nutritionalValue: Double,
+                     hardness: Double,
+                     availability: Double)
 
-class GeneInfo(val id: String, val name: String, val properties: Map[String, Class[_]])
-case class DefaultGeneInfo(defaultGene: DefaultGene, override val id: String)
-  extends GeneInfo(id, defaultGene.name, defaultGene.properties)
-case class CustomGeneInfo(override val id: String, override val name: String,override val  properties: Map[String, Class[_]], conversionMap: Map[String, Map[String, Double]]) extends GeneInfo(id, name, properties)
-case class ConversionMap(property: String, map: Map[String, Double])
-case class AlleleInfo(gene: String, id: String, dominance: Double, consume: Double, probability: Double, var effect: Map[String, Double])
+class GeneInfo(val id: String,
+               val name: String,
+               val properties: Map[String, Class[_]])
+
+case class DefaultGeneInfo(defaultGene: DefaultGene,
+                           override val id: String) extends GeneInfo(id, defaultGene.name, defaultGene.properties)
+
+case class CustomGeneInfo(override val id: String,
+                          override val name: String,
+                          override val  properties: Map[String, Class[_]],
+                          conversionMap: Map[String, Map[String, Double]]) extends GeneInfo(id, name, properties)
+
+case class ConversionMap(property: String,
+                         map: Map[String, Double])
+
+case class AlleleInfo(gene: String,
+                      id: String,
+                      dominance: Double,
+                      consume: Double,
+                      probability: Double,
+                      var effect: Map[String, Double])
 
 sealed trait EntitiesInfo {
 
@@ -36,7 +59,7 @@ object ChromosomeTypes extends Enumeration {
 
 object EntitiesInfo {
   private val _instance = new EntitiesInfoImpl()
-  def instance() =
+  def instance(): EntitiesInfoImpl =
     _instance
 
   class EntitiesInfoImpl() extends EntitiesInfo {
@@ -58,9 +81,9 @@ object EntitiesInfo {
 
     def getPlantInfo(id: String): Option[PlantInfo] = plants.get(id)
 
-    def getAnimals(): Set[String] = animals.keySet
+    def getAnimals: Set[String] = animals.keySet
 
-    def getPlants(): Set[String] = plants.keySet
+    def getPlants: Set[String] = plants.keySet
 
     def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, customGeneInfo: CustomGeneInfo): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
@@ -96,18 +119,15 @@ object EntitiesInfo {
         case None => throw new IllegalStateException()
       }
       chromosomeTypes match {
-        case ChromosomeTypes.STRUCTURAL => {
+        case ChromosomeTypes.STRUCTURAL =>
           val structuralGene = currentAnimalChromosome.structuralChromosome(gene)
           currentAnimalChromosome.structuralChromosome += (gene -> (structuralGene._1, structuralGene._2 ++ alleles))
-        }
-        case ChromosomeTypes.REGULATION => {
+        case ChromosomeTypes.REGULATION =>
           val regulationGene = currentAnimalChromosome.regulationChromosome(gene)
           currentAnimalChromosome.regulationChromosome += (gene -> (regulationGene._1, regulationGene._2 ++ alleles))
-        }
-        case ChromosomeTypes.SEXUAL => {
+        case ChromosomeTypes.SEXUAL =>
           val sexualGene = currentAnimalChromosome.sexualChromosome(gene)
           currentAnimalChromosome.sexualChromosome += (gene -> (sexualGene._1, sexualGene._2 ++ alleles))
-        }
       }
     }
 
@@ -134,11 +154,8 @@ object EntitiesInfo {
     private def structuralChromosomeMapping(animal: String): Iterable[CustomGeneData] =
       getAnimalInfo(animal).get._2.structuralChromosome.map(gene => CustomGeneData(Gene(gene._2._1.id, gene._2._1.name, "", propertiesMapping(gene._2._1.conversionMap)), alleleMapping(gene._2._1.id, gene._2._2)))
 
-
-
     private def propertiesMapping(properties: Map[String, Map[String, Double]]): Map[String, PropertyInfo] =
       properties.map(property => property._1 -> PropertyInfo(property._2))
-
 
     private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[DefaultGeneData] = {
       val animalChromosomeInfo = getAnimalInfo(animal).get._2
@@ -150,13 +167,8 @@ object EntitiesInfo {
       defaultChromosomeInfo.map(gene => DefaultGeneData(enumerationElements.filter(x => x.name.equals(gene._2._1.name)).head, gene._2._1.id, alleleMapping(gene._2._1.id, gene._2._2)))
     }
 
-
     private def alleleMapping(gene: String, alleles: Map[String, AlleleInfo]): Iterable[AlleleData] =
       alleles.map(allele => Allele(gene, allele._2.id, allele._2.dominance, allele._2.consume, allele._2.probability, allele._2.effect))
-
-
-
-
   }
 }
 

@@ -1,9 +1,9 @@
 package it.unibo.pps.ese.view.configuration
 
-import it.unibo.pps.ese.view.configuration.dialogs.{DefaultGeneInfo, ConfirmDialog}
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfirmDialog, ListViewUtils}
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
-import it.unibo.pps.ese.view.{MainComponent, ViewType}
+import it.unibo.pps.ese.view.MainComponent
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -11,33 +11,14 @@ import scalafx.collections.ObservableBuffer
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
-import scalafx.stage.Window
 
 trait ConfigurationView {
 }
 
-case class Result(username: String, password: String)
-
 class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350) with ConfigurationView {
 
 
-  val ROW_HEIGHT = 26
-  val MIN_ELEM = 5
-
   val currentWindow: scalafx.stage.Window = this.window()
-
-  /*val effect: Map[String, Double] = Map("life" -> 2)
-  val aaa = Allele("aaa", "zzz", 5, 5, 1, effect)
-  println(DefaultGeneInfo(RegulationDefaultGenes.LIFE, "aaa", Set(aaa)))*/
-
-  /*val animalBeans = Animal("Gatto", 3, 3, "A", "C", "", null, null)
-  val effect: Map[String, Double] = Map("life" -> 2)
-  val aaa = Allele("aaa", "zzz", 5, 5, 1, effect)
-  val life = DefaultGeneData(RegulationDefaultGenes.LIFE, "aaa", Seq(aaa))
-  val chromosome = Seq(life)
-  val animal = AnimalData(animalBeans, Iterable.empty, chromosome, Iterable.empty)
-  val simulationDataImpl = SimulationDataImpl(Map(animal -> 0), Map())*/
-
 
   val animalsName: ObservableBuffer[String] = ObservableBuffer[String]()
   val animalsListView: ListView[String] = new ListView[String] {
@@ -61,21 +42,19 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
     })
   }
 
-  animalsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
-  plantsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+  animalsListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  plantsListView.prefHeight <== ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
 
   val animalsAddButton = new Button("Add")
   val plantsAddButton = new Button("Add")
   animalsAddButton.onAction = _ => AnimalDialog(currentWindow).showAndWait() match {
-    case Some(name) => {
+    case Some(name) =>
       animalsName.insert(animalsName.size, name.toString)
-    }
     case None => println("Dialog returned: None")
   }
   plantsAddButton.onAction = _ => PlantDialog(currentWindow).showAndWait() match {
-    case Some(name) => {
+    case Some(name) =>
       plantsName.insert(plantsName.size, name.toString)
-    }
     case None => println("Dialog returned: None")
   }
 

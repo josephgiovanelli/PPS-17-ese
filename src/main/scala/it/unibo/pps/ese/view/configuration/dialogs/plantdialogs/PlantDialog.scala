@@ -6,6 +6,7 @@ import it.unibo.pps.ese.view.configuration.dialogs.{EntitiesInfo, ParseUtils, Pl
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
+import scalafx.application.Platform
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
@@ -14,21 +15,25 @@ import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.stage.Window
 
 case class PlantDialog(window: Window, key: Option[String] = None) extends Dialog[String] {
+
+  /*
+  Header
+   */
+
   initOwner(window)
   title = "Plant Dialog"
   headerText = "Create a plant"
 
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = true
+  /*
+  Fields
+   */
 
   val name: TextField = new TextField()
   val heightPlant: TextField = new TextField()
   val nutritionalValue: TextField = new TextField()
   val hardness: TextField = new TextField()
   val availability: TextField = new TextField()
+  val errorLabel = new Label()
 
   val fields: Map[TextField, Label] = ListMap(
     name -> new Label("Name"),
@@ -51,8 +56,27 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
     })
   }
 
+  dialogPane().content = new VBox(grid, errorLabel)
+
+  Platform.runLater(name.requestFocus())
+
+  /*
+  OkButton
+   */
+
+  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
+  dialogPane().buttonTypes = Seq(okButtonType)
+  val okButton: Node = dialogPane().lookupButton(okButtonType)
+  okButton.disable = true
+
+  /*
+  Checks
+   */
+
   val mandatoryFields: Set[TextField] = fields.keySet
   val doubleField: Set[TextField] = mandatoryFields - name
+  val error: StringProperty = StringProperty(checkFields())
+  errorLabel.text <== error
 
   mandatoryFields.foreach(subject => {
     subject.text.onChange ( (_, _, _) => {
@@ -62,15 +86,9 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
     })
   })
 
-  val label = new Label()
-  val error: StringProperty = StringProperty(checkFields())
-  label.text <== error
-
-  dialogPane().content = new VBox() {
-    children ++= Seq(grid, label)
-    styleClass += "sample-page"
-  }
-
+  /*
+  Restart information
+   */
 
   if (key.isDefined) {
     val plantInfo = EntitiesInfo.instance().getPlantInfo(key.get) match {
@@ -84,6 +102,10 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
     hardness.text.value = plantInfo.hardness.toString
     availability.text.value = plantInfo.availability.toString
   }
+
+  /*
+  Result
+   */
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
