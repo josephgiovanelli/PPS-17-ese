@@ -2,12 +2,13 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
 import javafx.scene.Node
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AnimalBaseInfo, EntitiesInfo}
+import it.unibo.pps.ese.view.configuration.dialogs.{AnimalBaseInfo, EntitiesInfo, ParseUtils}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.beans.property.StringProperty
+import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
@@ -28,19 +29,19 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
   Fields
    */
 
-  val name: TextField = new TextField()
-  val geneLength: TextField = new TextField()
-  val alleleLength: TextField = new TextField()
-  val reign: TextField = new TextField()
-  val typology: TextField = new TextField()
+  val typologySet: ObservableBuffer[String] = ObservableBuffer[String]("Carnivorous", "Herbivore")
+
+  val name = new TextField()
+  val geneLength = new TextField()
+  val alleleLength = new TextField()
+  val typology = new ComboBox(typologySet)
+  typology.selectionModel().select(0)
   val errorLabel = new Label()
 
   val fields: Map[TextField, Label] = ListMap(
     name -> new Label("Name"),
     geneLength -> new Label("Gene Length"),
     alleleLength -> new Label("Allele Length"),
-    reign -> new Label("Reign"),
-    typology -> new Label("Typology"),
   )
 
   val grid: GridPane = new GridPane() {
@@ -54,6 +55,9 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
       add(field._1, 1, count)
       count += 1
     })
+
+    add(new Label("Typology"), 0, count)
+    add(typology, 1, count)
   }
 
   dialogPane().content = new VBox(grid, errorLabel)
@@ -63,6 +67,7 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
   /*
   OkButton
    */
+
   val okButtonType = new ButtonType("Insert Chromosome", ButtonData.OKDone)
   dialogPane().buttonTypes = Seq(okButtonType)
   val okButton: Node = dialogPane().lookupButton(okButtonType)
@@ -73,13 +78,15 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
    */
 
   val mandatoryFields: Set[TextField] = fields.keySet
-  val error: StringProperty = StringProperty(checkFields())
+  val intField: Set[TextField] = Set(geneLength, alleleLength)
+  val error: StringProperty = StringProperty(checkFields()._1)
   errorLabel.text <== error
 
   mandatoryFields.foreach(subject => {
-    subject.text.onChange ( (_, _, newValue) =>{
-      error.value = checkFields()
-      okButton.disable = newValue.trim().isEmpty || mandatoryFields.filter(x => !x.equals(subject)).exists(x => x.getText.trim().isEmpty)
+    subject.text.onChange ( (_, _, _) => {
+      val result = checkFields()
+      error.value = result._1
+      okButton.disable = !result._2
     })
   })
 
@@ -96,8 +103,7 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
     name.text.value = animal.get
     geneLength.text.value = animalInfo.geneLength.toString
     alleleLength.text.value = animalInfo.alleleLength.toString
-    reign.text.value = animalInfo.reign.toString
-    typology.text.value = animalInfo.typology.toString
+    typology.selectionModel().select(animalInfo.typology.toString)
   }
 
   /*
@@ -106,7 +112,7 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
-      EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt, alleleLength.text.value.toInt, reign.text.value, typology.text.value))
+      EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt, alleleLength.text.value.toInt, typology.value.value))
       ChromosomeDialog(window, if (animal.isEmpty) name.text.value else animal.get).showAndWait()
       name.text.value
     }
@@ -115,15 +121,20 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
 
 
 
-  private def checkFields(): String = {
+  private def checkFields(): (String, Boolean) = {
     val mandatoryCheck = mandatoryFields.filter(x => x.getText.trim().isEmpty)
+    val intCheck = intField.filter(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
     var checksSuccessful = true
     var toPrint: String = ""
     if (mandatoryCheck.nonEmpty) {
-      toPrint = "Empty fields: " + mandatoryCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _) + "\n"
+      toPrint += "Empty fields: " + mandatoryCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _) + "\n"
       checksSuccessful = false
     }
-    toPrint
+    if (intCheck.nonEmpty) {
+      toPrint += "Int fields: " + intCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _)
+      checksSuccessful = false
+    }
+    (toPrint, checksSuccessful)
   }
 
 }

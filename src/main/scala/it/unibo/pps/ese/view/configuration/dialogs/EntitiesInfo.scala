@@ -6,7 +6,6 @@ import it.unibo.pps.ese.controller.loader.data._
 
 case class AnimalBaseInfo(geneLength: Int,
                           alleleLength: Int,
-                          reign: String,
                           typology: String)
 
 case class AnimalChromosomeInfo(var structuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])],
@@ -65,6 +64,8 @@ object EntitiesInfo {
   class EntitiesInfoImpl() extends EntitiesInfo {
     private var animals: Map[String, (AnimalBaseInfo, AnimalChromosomeInfo)] = Map.empty
     private var plants: Map[String, PlantInfo] = Map.empty
+
+    private var typologyMap = Map("Carnivorous" -> "C", "Herbivore" -> "H")
 
 
     def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit = {
@@ -141,7 +142,7 @@ object EntitiesInfo {
     }
 
     private def animalsMapping(animalsEntities: Map[String, Int]): Map[AnimalData, Int] = {
-      val mappedAnimals: Map[String, AnimalData] = animals.map(animal => animal._1 -> AnimalData(animal._1, animal._2._1.geneLength, animal._2._1.alleleLength, animal._2._1.reign, animal._2._1.typology, structuralChromosomeMapping(animal._1), regulationChromosomeMapping(animal._1), sexualChromosomeMapping(animal._1)))
+      val mappedAnimals: Map[String, AnimalData] = animals.map(animal => animal._1 -> AnimalData(animal._1, animal._2._1.geneLength, animal._2._1.alleleLength, "A", typologyMap(animal._2._1.typology), structuralChromosomeMapping(animal._1), regulationChromosomeMapping(animal._1), sexualChromosomeMapping(animal._1)))
       mappedAnimals.map(mappedAnimal => mappedAnimal._2 -> animalsEntities(mappedAnimal._1))
     }
 

@@ -75,14 +75,14 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
 
   val mandatoryFields: Set[TextField] = fields.keySet
   val doubleField: Set[TextField] = mandatoryFields - name
-  val error: StringProperty = StringProperty(checkFields())
+  val error: StringProperty = StringProperty(checkFields()._1)
   errorLabel.text <== error
 
   mandatoryFields.foreach(subject => {
     subject.text.onChange ( (_, _, _) => {
-      error.value = checkFields()
-      okButton.disable = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
-        doubleField.exists(x => ParseUtils.parse[Double](x.getText.trim()).isEmpty)
+      val result = checkFields()
+      error.value = result._1
+      okButton.disable = !result._2
     })
   })
 
@@ -116,20 +116,20 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
       null
 
 
-  private def checkFields(): String = {
+  private def checkFields(): (String, Boolean) = {
     val mandatoryCheck = mandatoryFields.filter(x => x.getText.trim().isEmpty)
     val doubleCheck = doubleField.filter(x => ParseUtils.parse[Double](x.getText.trim()).isEmpty)
     var checksSuccessful = true
     var toPrint: String = ""
     if (mandatoryCheck.nonEmpty) {
-      toPrint = "Empty fields: " + mandatoryCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _) + "\n"
+      toPrint += "Empty fields: " + mandatoryCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _) + "\n"
       checksSuccessful = false
     }
     if (doubleCheck.nonEmpty) {
       toPrint += "Double fields: " + doubleCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _)
       checksSuccessful = false
     }
-    toPrint
+    (toPrint, checksSuccessful)
   }
 
 }
