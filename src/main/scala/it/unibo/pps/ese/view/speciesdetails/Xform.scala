@@ -3,7 +3,7 @@ package it.unibo.pps.ese.view.speciesdetails
  import it.unibo.pps.ese.genetics.dnaexpression.GeneStats
  import scalafx.Includes._
  import scalafx.scene.input.MouseEvent
- import scalafx.scene.shape.Sphere
+ import scalafx.scene.shape.{Cylinder, Sphere}
  import scalafx.scene.transform.{Rotate, Scale, Translate}
 
 object Xform {
@@ -171,10 +171,12 @@ class Xform extends javafx.scene.Group {
 sealed trait ModifiableSphereCouple{
   def setGeneStats(chromosomeWithGeneCouple: ChromosomeWithGeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene):Unit
 }
-class GeneCoupleXForm(val s1:Sphere,val s2:Sphere) extends Xform() with ModifiableSphereCouple {
+class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinder) extends Xform() with ModifiableSphereCouple {
   override def setGeneStats(chromosomeWithGeneCouple: ChromosomeWithGeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene): Unit = {
     s1.material = Materials.blueMaterial
     s2.material = Materials.greyMaterial
+    c1.material = Materials.greyMaterial
+    c2.material = Materials.blueMaterial
     val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
               val gCouple:GeneCouple = chromosomeWithGeneCouple.geneCouple
               val geneStats1:GeneStats = gCouple.gene1

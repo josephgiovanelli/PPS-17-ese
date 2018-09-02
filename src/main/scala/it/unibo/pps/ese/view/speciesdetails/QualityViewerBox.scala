@@ -26,8 +26,5 @@ class QualityViewerBox(val quality:String,val qualityValue:Double) extends HBox 
   val valueLabel:Label = new Label()
   valueLabel.prefWidth = 50
   valueLabel.setText(qualityValue.toString)
-  //      left = qualityLabel
-  //      center = bar
-  //      right = valueLabel
   children = List(qualityLabel, bar,valueLabel)
 }

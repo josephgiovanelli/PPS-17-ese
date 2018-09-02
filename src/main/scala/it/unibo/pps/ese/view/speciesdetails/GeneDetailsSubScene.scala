@@ -4,9 +4,8 @@ case object Left extends Side
 case object Right extends Side
 
 import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
-import javafx.scene.text.{Font, Text}
+import javafx.scene.text.Text
 import scalafx.scene.layout.VBox
-import scalafx.scene.paint.Color
 import scalafx.scene.text.TextFlow
 import scalafx.scene.{Group, Parent, SceneAntialiasing, SubScene}
 
@@ -65,15 +64,14 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
 
 
   private def setGeneDetails(chromosomeName: String, geneId: String,alleleId:String, affectedQualities: Seq[String],features:Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
-    val style:String = "-fx-font-weight: 900"
-    val allText:Seq[Text] = (chromosomeName+"\n").setStyle(style) ::
-      "Gene Id: ".setStyle(style)::(geneId+"\n").toText   ::
-      "Allele Id: ".setStyle(style)::(alleleId+"\n").toText ::
-      "Affect:\n".setStyle(style)::(affectedQualities.toSet.mkString(", ")+"\n").toText ::
-      "Features:\n".setStyle(style)::(features.mkString(",\n")+"\n").toText ::
-      "Dominance Level: ".setStyle(style)::(dominanceLevel+"\n").toText ::
-      "Probability: ".setStyle(style)::(probability+"\n").toText ::
-      "Active: ".setStyle(style)::(active+"\n").toText :: List()
+    val allText:Seq[Text] = (chromosomeName+"\n").toLabelText::
+      "Gene Id: ".toLabelText::(geneId+"\n").toText   ::
+      "Allele Id: ".toLabelText::(alleleId+"\n").toText ::
+      "Affect:\n".toLabelText::(affectedQualities.toSet.mkString(", ")+"\n").toText ::
+      "Features:\n".toLabelText::(features.mkString(",\n")+"\n").toText ::
+      "Dominance Level: ".toLabelText::(dominanceLevel+"\n").toText ::
+      "Probability: ".toLabelText::(probability+"\n").toText ::
+      "Active: ".toLabelText::(active+"\n").toText :: List()
     textLabel.children.clear()
     textLabel.children.addAll(allText.asJava)
   }
@@ -82,9 +80,9 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
   }
   private def setBasicGeneDetails(chromosomeName: String,geneId:String,identifiedThing:String): Unit ={
     val style:String = "-fx-font-weight: 900"
-    val allText:Seq[Text]  = (chromosomeName+"\n").setStyle(style) ::
-      "Gene Id: ".setStyle(style)::(geneId+"\n").toText ::
-      "Identify: ".setStyle(style)::(identifiedThing+"\n").toText ::List()
+    val allText:Seq[Text]  = (chromosomeName+"\n").toLabelText::
+      "Gene Id: ".toLabelText::(geneId+"\n").toText ::
+      "Identify: ".toLabelText::(identifiedThing+"\n").toText ::List()
     textLabel.children.clear()
     textLabel.children.addAll(allText.asJava)
   }

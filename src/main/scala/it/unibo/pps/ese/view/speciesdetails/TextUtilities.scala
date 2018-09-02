@@ -5,18 +5,26 @@ import scalafx.scene.paint.Color
 
 object TextUtilities {
   implicit class RichText(string:String){
-    def setStyle(style:String):Text = {
+    def toTextStyled(style:String,color: Color,font: Font):Text ={
       val text = new Text(string)
       text.setStyle(style)
-      text.setFill(Color.web("67809F"))
-      text.setFont(Font.font("Calibri", 24))
+      text.setFill(color)
+      text.setFont(font)
       text
     }
+    def toLabelText:Text = {
+      toTextStyled(
+        style="-fx-font-weight: 900",
+        color=Color.web("67809F"),
+        font=Font.font("Calibri", 24)
+      )
+    }
     def toText:Text = {
-      val text = new Text(string)
-      text.setFill(Color.White)
-      text.setFont(Font.font("Calibri", 24))
-      text
+      toTextStyled(
+        style = "",
+        color = Color.White,
+        font = Font.font("Calibri", 24)
+      )
     }
   }
 }

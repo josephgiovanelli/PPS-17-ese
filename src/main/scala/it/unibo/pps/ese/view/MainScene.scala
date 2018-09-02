@@ -5,13 +5,9 @@ import javafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
-import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.genetics.entities.AnimalInfo
-import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
+import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
-import scalafx.scene.paint.Color
 
 object ZoomPreferences {
   val minZoom: Int = 1
@@ -79,14 +75,6 @@ private class MainScene(mainComponent: MainComponent, width: Double = 1200, heig
   genomeTab.text = "Genome"
   genomeTab.closable = false
   genomeTab.content = genomePane
-  //Only for test----------
-//  val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
-//  val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
-//  geneticsSimulator.beginSimulation(data)
-//  val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Gatto")
-  //Only for test-----------
-
-
 
   val simulationPane = new TabPane()
   simulationPane.tabs = List(worldTab, statisticsTab,genomeTab)

@@ -5,7 +5,7 @@ import scalafx.Includes._
 import scalafx.scene._
 import scalafx.geometry.Insets
 import scalafx.scene.control.Slider
-import scalafx.scene.paint.{Color, Paint, PhongMaterial}
+import scalafx.scene.paint.{Color, Paint}
 import scalafx.scene.transform.Rotate
 import scalafx.scene.shape._
 import scalafx.scene.input.MouseEvent
@@ -25,25 +25,25 @@ object GenomeDetailsPane {
     val cylinderRadius:Double = 3.0
     val cylinderHeight:Double = 60.0
     background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
-
     val root = new Group()
     children += root
+
     val tbox = new VBox()
     tbox.spacing = 5
-    val text = new Text("Entity Genome")
-    text.setWrappingWidth(1200)
-    text.textAlignment = TextAlignment.Center
-    val textStyle:String = "-fx-font-size:40;"
-    text.setStyle(textStyle)
-    text.setFill(Color.White)
-    text.setFont(Font.font("Calibri"))
-    tbox.children.addAll(text)
-//    tbox.setLayoutX(450)
+    val titleText:Text = "Entity Genome".toTextStyled(
+      style="-fx-font-size:40;",
+      color = Color.White,
+      font = Font.font("Calibri")
+    )
+    titleText.setWrappingWidth(1200)
+    titleText.textAlignment = TextAlignment.Center
+    tbox.children.addAll(titleText)
     tbox.setLayoutY(10)
-    val textDetails = "Select a sphere to get the information about the gene couple".toText
+    val textDetails:Text = "Select a sphere to get the information about the gene couple".toText
     textDetails.textAlignment = TextAlignment.Center
     textDetails.wrappingWidth = 1200
     tbox.children += textDetails
+
     val hbox = new HBox()
     hbox.setLayoutX(20)
     hbox.setLayoutY(150)
@@ -53,16 +53,16 @@ object GenomeDetailsPane {
     val moleculeGroup = new Group()
     moleculeGroup.children ++= molecules
 
-    val cylinder1 = new Group()
-    cylinder1.children += moleculeGroup
+    val dnaHelix = new Group()
+    dnaHelix.children += moleculeGroup
 
     val lS = new GeneDetailsSubScene(400,800,Left)
     hbox.children += lS
-    val msaa = createSubScene(cylinder1,
+    val dnaSubscene = createSubScene(dnaHelix,
       Color.Transparent,
       new PerspectiveCamera(), true)
 
-    hbox.getChildren.add(msaa)
+    hbox.getChildren.add(dnaSubscene)
 
 
     val rS = new GeneDetailsSubScene(400,800,Right)
@@ -71,7 +71,7 @@ object GenomeDetailsPane {
     slider.setBlockIncrement(1)
     slider.setTranslateX(500)
     slider.setTranslateY(625)
-    cylinder1.rotateProperty().bind(slider.valueProperty())
+    dnaHelix.rotateProperty().bind(slider.valueProperty())
     root.getChildren.addAll(tbox,hbox, slider)
     if(genomeStats.nonEmpty) setGenomeStats(genomeStats.get)
 
@@ -96,6 +96,7 @@ object GenomeDetailsPane {
 
       subScene
     }
+
     private[this] object MoleculeCreator {
       val initialPos: Double = 180
       var actualPos: Double = initialPos
@@ -149,7 +150,7 @@ object GenomeDetailsPane {
         }
 
         val bc2 = new Cylinder(cSize._1, cSize._2) {
-          material = Materials.blueMaterial
+          material = Materials.whiteMaterial
           translateX = tX
           translateY = tY
           rotationAxis = Rotate.ZAxis
@@ -158,7 +159,7 @@ object GenomeDetailsPane {
         (bc1,bc2)
       }
       def createMoleculeForm(r1:Double,r2:Double,s1:Sphere,s2:Sphere,c1:Cylinder,c2:Cylinder):GeneCoupleXForm = {
-        new GeneCoupleXForm(s1,s2) {
+        new GeneCoupleXForm(s1,s2,c1,c2) {
           children ++= Seq(
             new Xform {
               rotateY = r1
