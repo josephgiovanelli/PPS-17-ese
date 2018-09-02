@@ -103,7 +103,7 @@ object GeneticsSimulator extends GeneticsSimulator{
 
     gene.completeCode match {
       case `herbivoreSeq` => Herbivore.toString
-      case `carnivorousSeq` => Herbivore.toString
+      case `carnivorousSeq` => Carnivorous.toString
       case `animalSeq` => Animal.toString
       case `plantSeq` => Plant.toString
       case _ => "Species"
