@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genericworld.model
 import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.entitybehaviors.{BrainComponent, PhysicalStatusComponent, StaticRules, decisionsupport}
+import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
@@ -32,16 +32,15 @@ object WorldBuilder {
     val world = World(width, height)
 
     val data = new YamlLoader().loadSimulation(simulationConfigPath)
-    val geneticsSimulator = GeneticsSimulator
-    val initializedSimulation = geneticsSimulator.beginSimulation(data)
+    val initializedSimulation = GeneticsSimulator.beginSimulation(data)
 
-    geneticsSimulator.speciesList
+    GeneticsSimulator.speciesList
       .flatMap(x => initializedSimulation.getAllAnimals(x))
       .zip(distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
       .map(x => initializeEntity(x._1, x._2))
       .foreach(world addEntity)
 
-    geneticsSimulator.plantSpeciesList
+    GeneticsSimulator.plantSpeciesList
       .flatMap(x => initializedSimulation.getAllPlant(x))
       .zip(distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
       .map(x => initializeEntity(x._1, x._2))
@@ -56,6 +55,7 @@ object WorldBuilder {
     entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
     entity addComponent initializeBrainComponent(entity, animalInfo)
     entity addComponent initializePhysicalComponent(entity, animalInfo)
+    entity addComponent initializeReproductionComponent(entity, animalInfo)
     entity
   }
 
@@ -116,6 +116,23 @@ object WorldBuilder {
       entity specifications,
       plantInfo.qualities(Availability).qualityValue)
   }
+
+  def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo): Component = {
+    ReproductionComponent(
+      entity.specifications,
+      //TODO exception, key not exists
+      //animalInfo.qualities(Fecundity).qualityValue,
+      3,
+      GeneticsSimulator,
+      animalInfo.genome,
+      //TODO
+      10,
+      7,
+      0.05,
+      animalInfo.qualities(EnergyRequirements).qualityValue
+    )
+  }
+
 
   private def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {
     import scala.util.Random

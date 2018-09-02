@@ -14,7 +14,7 @@ object EmbryosUtil {
     var embryosNumber = fecundity.toLong
     if(fecundity - embryosNumber > math.random()) embryosNumber += 1
     (1L to embryosNumber)
-      .filter(_ => math.random() > (firstReproductionInfo.fertility + secondReproductionInfo.fertility) / 2)
+      .filter(_ => math.random() < (firstReproductionInfo.fertility + secondReproductionInfo.fertility) / 2)
       .map(_ => makeEmbryo(firstReproductionInfo, secondReproductionInfo))
   }
 
@@ -30,7 +30,7 @@ object EmbryosUtil {
         secondReproductionInfo.genome.autosomeChromosomeCouples(ChromosomeType.LIFE_CYCLE), firstReproductionInfo.species),
       generateNewChromosomeCouple(firstReproductionInfo.genome.autosomeChromosomeCouples(ChromosomeType.FEEDING),
         secondReproductionInfo.genome.autosomeChromosomeCouples(ChromosomeType.FEEDING), firstReproductionInfo.species)
-    ) |%-%| generateNewSexualChromosomeCouple(firstReproductionInfo.genome.sexualChromosomeCouple,
+    ) |%-%| generateNewChromosomeCouple(firstReproductionInfo.genome.sexualChromosomeCouple,
       secondReproductionInfo.genome.sexualChromosomeCouple, firstReproductionInfo.species)
     geneticEngine.getAnimalInfoByGenome(firstReproductionInfo.species, childGenome)
   }
@@ -42,7 +42,7 @@ object EmbryosUtil {
       mutateChromosome(randomChromosome(secondCouple), species)
   }
 
-  def generateNewSexualChromosomeCouple(firstCouple: SexualChromosomeCouple, secondCouple: SexualChromosomeCouple,
+  def generateNewChromosomeCouple(firstCouple: SexualChromosomeCouple, secondCouple: SexualChromosomeCouple,
                                         species: String)(implicit geneticEngine: GeneticsEngine): SexualChromosomeCouple = {
     mutateChromosome(randomChromosome(firstCouple), species) :+:
       mutateChromosome(randomChromosome(secondCouple), species)
@@ -65,17 +65,6 @@ object EmbryosUtil {
       couple.secondChromosome
     }
   }
-
-//  implicit class ProbabilisticChromosomeCouple[T <: ChromosomeCouple](couple: T) {
-//    def randomChromosome: couple.ChromosomeUnit = {
-//      if(Random.nextBoolean()) {
-//        couple.firstChromosome
-//      } else {
-//        couple.secondChromosome
-//      }
-//    }
-//  }
-
 }
 
 

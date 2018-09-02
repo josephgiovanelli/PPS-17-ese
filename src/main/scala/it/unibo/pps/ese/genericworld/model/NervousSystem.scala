@@ -44,7 +44,12 @@ object NervousSystem {
       val result = Promise[B]()
       lazy val consumer : Consumer = {
         case response: B if response.id == request.id =>
-          result success response
+          try {
+            result success response
+          } catch {
+            case e: IllegalStateException =>
+              throw new IllegalStateException("Problem with message: " + request.toString, e)
+          }
           _eventBus detach consumer
         case _ => Unit
       }

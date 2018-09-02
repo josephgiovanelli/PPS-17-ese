@@ -56,6 +56,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
       //Completed before next entity computation?
       if (!disposed) world removeEntity entityId
     case Create(sons)  =>
+      println("Entities Creation")
       import scala.concurrent.ExecutionContext.Implicits.global
       //Completed before next entity computation?
       if (!disposed) //Necessary?

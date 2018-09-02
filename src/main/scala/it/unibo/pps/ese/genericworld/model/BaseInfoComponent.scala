@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.entitybehaviors.EntityPosition
+import it.unibo.pps.ese.entitybehaviors.{EntityPosition, ReproductionBaseInformationRequest, ReproductionBaseInformationResponse}
 import it.unibo.pps.ese.genericworld.model.support.{RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.utils.Point
 
@@ -42,6 +42,16 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
     case r: BaseInfoRequest =>
       this synchronized {
         publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+      }
+    case r: ReproductionBaseInformationRequest =>
+      this synchronized {
+        //TODO problem: elapsedClocks can be non-updated if ComputeNextState is served after reproduction
+        /* Scenario:
+         * scheduler->to all components async
+         *            ->brain -> reproduction -> here
+         *                                            -> BaseInfo
+         */
+        publish(ReproductionBaseInformationResponse(r id, gender, elapsedClocks, species))
       }
     case ComputeNextState() =>
       this synchronized {

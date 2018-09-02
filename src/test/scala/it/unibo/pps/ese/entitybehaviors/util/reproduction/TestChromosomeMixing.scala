@@ -40,7 +40,7 @@ class TestChromosomeMixing extends FunSuite {
     val sexualCouple1 = SexualChromosomeCouple(sc1, sc1)
     val sexualCouple2 = SexualChromosomeCouple(sc1, sc1)
 
-    val sonSexCouple = EmbryosUtil.generateNewSexualChromosomeCouple(sexualCouple1, sexualCouple2, "test")
+    val sonSexCouple = EmbryosUtil.generateNewChromosomeCouple(sexualCouple1, sexualCouple2, "test")
     assert(sonSexCouple.firstChromosome == sc1)
   }
 

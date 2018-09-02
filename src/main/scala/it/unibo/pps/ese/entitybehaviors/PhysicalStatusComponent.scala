@@ -55,6 +55,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         publish(new ComputeNextStateAck)
       case r: DynamicParametersRequest =>
         publish(DynamicParametersResponse(r.id, currentSpeed, currentEnergy, fertility))
+      case r: ReproductionPhysicalInformationRequest =>
+        publish(ReproductionPhysicalInformationResponse(r id, fertility, currentYear))
       case InteractionEntity(entityId, action) if action == ActionKind.EAT =>
         requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == entityId))
           .onComplete {
