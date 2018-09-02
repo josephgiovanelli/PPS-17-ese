@@ -16,7 +16,6 @@ trait Hippocampus {
   def updateTime()
   def notifyEvent(memoryType: MemoryType, position: Position)
   def startNewSearch(memoryType: MemoryType)
-  def isMemoryDefined: Boolean
   def hasNewMemory: Boolean
   def chooseNewMemory(currentPosition: Position)
   def computeDirection(currentPosition: Position): Direction
@@ -32,7 +31,7 @@ object Hippocampus {
   val longTermMemoryThreshold = 99
   val eventGainMin = 40
   val eventGainMax = 60
-  val shortTermMemoryMaxTime = 20
+  val shortTermMemoryMaxTime = 30
   val longTermMemoryDeathThreashold = 1
 
   def apply(worldWidth: Int, worldHeight: Int, locationalFieldSize: Double): Hippocampus =
@@ -77,12 +76,11 @@ object Hippocampus {
     }
 
     override def startNewSearch(memoryType: MemoryType): Unit = {
-      searchingState = SearchingState.ACTIVE
+
       val list = ListBuffer() ++= memories.getOrElse(memoryType, List()) ++ neocortex.getMemeories(memoryType).getOrElse(List())
+      if (list.nonEmpty)searchingState = SearchingState.ACTIVE else searchingState = SearchingState.ENDED
       memorySearchComponent = Some(MemorySearchComponent(memoryType, list))
     }
-
-    override def isMemoryDefined: Boolean = currentBestMemory.isDefined
 
     override def hasNewMemory: Boolean = {
       memorySearchComponent match {

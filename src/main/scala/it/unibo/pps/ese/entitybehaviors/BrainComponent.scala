@@ -74,7 +74,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   val decisionSupport: DecisionSupport = DecisionSupport()
 
-  val hippocampus: Hippocampus = Hippocampus(widthWorld, heightWorld, 10)
+  val hippocampus: Hippocampus = Hippocampus(widthWorld, heightWorld, actionField+5)
 
   var entityInVisualField: Map[String, EntityAttributesImpl] = Map.empty
 
@@ -167,17 +167,21 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             hippocampus.startNewSearch(action)
             checkNewMemory
           case SearchingState.ACTIVE =>
-            val d = if (hippocampus.isMemoryDefined) hippocampus.computeDirection(position) else randomDirection
+            val d = hippocampus.computeDirection(position)
             val p = getPosition(d)
-            println("Memory says " + println(d) + "  " + p)
+            println("Memory says " + d + "  " + p)
             p
-          case SearchingState.ENDED => println("ended");getPosition(randomDirection)
+          case SearchingState.ENDED => println("random");getPosition(randomDirection)
         }
 
         def checkNewMemory: Point = {
           if (hippocampus.hasNewMemory) {
+            println("new memory")
             hippocampus.chooseNewMemory(position)
-            getPosition(hippocampus.computeDirection(position))
+            val d = hippocampus.computeDirection(position)
+            val p = getPosition(d)
+            println("Memory says " + d + "  " + p)
+            p
           } else getPosition(randomDirection)
         }
 
@@ -191,7 +195,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
           case Direction.DOWN => (position.x, position.y + floorSpeed)
           case Direction.LEFT => (position.x - floorSpeed, position.y)
           case Direction.RIGHT => (position.x + floorSpeed, position.y)
-          case Direction.NONE => checkNewMemory
+          case Direction.NONE => println("NONE");checkNewMemory
         }
       }
       decisionSupport.clearVisualField()

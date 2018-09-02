@@ -19,10 +19,12 @@ import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.View
 import it.unibo.pps.ese.view.ViewLauncher.{stage, view}
 import scalafx.application.JFXApp
+import scalafx.stage.WindowEvent
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import scalafx.Includes._
 
 object TestLauncher extends JFXApp {
 
@@ -47,6 +49,11 @@ object TestLauncher extends JFXApp {
     stage = view
     controller attachView (view, frameRate = 30)
     controller.manage.play()
+
+    stage.setOnCloseRequest((e: WindowEvent) => {
+        controller.manage.exit()
+    })
+
 //    println("Playing")
 //    Thread.sleep(1000)
 //

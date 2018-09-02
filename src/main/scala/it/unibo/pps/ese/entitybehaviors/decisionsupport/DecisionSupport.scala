@@ -44,6 +44,7 @@ object DecisionSupport {
       case (f, t) if (f sameAbscissa t) < 0 => (f.x + 1, f.y)
       case (f, t) if (f sameOrdinate t) > 0 => (f.x, f.y - 1)
       case (f, t) if (f sameOrdinate t) < 0 => (f.x, f.y + 1)
+      case (f, _) => f
     }
 
     private def basicFilter(entity: EntityAttributes): Stream[EntityAttributes] =
