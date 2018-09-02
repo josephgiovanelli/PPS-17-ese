@@ -91,7 +91,7 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
         val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
         val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
         geneticsSimulator.beginSimulation(data)
-        val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Gatto")
+        val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Giraffa")
         //Only for test-----------
         detailsPane.showDetails(entity,animalInfo)
         genomeDetailsPane.setGenomeStats(GenomeStatsUtilities.buildGenomeStats(geneticsSimulator,animalInfo))

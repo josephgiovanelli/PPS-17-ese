@@ -15,6 +15,7 @@ object ProteinoGenicAmminoacid extends Enumeration {
     val Phe = Val('F',"Phenyalanine")
     val Gly = Val('G',"Glycine")
     val His = Val('H',"Histidyne")
+    val Isp = Val('I',"Ispanicus")
     val Lys = Val('K',"Lysine")
     val Leu = Val('L',"Leucine")
     val Met = Val('M',"Methionine")

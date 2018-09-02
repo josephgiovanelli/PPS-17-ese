@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.view
 
-import it.unibo.pps.ese.genetics.entities.AnimalInfo
-import it.unibo.pps.ese.view.speciesdetails.QualityViewerBox
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male}
+import it.unibo.pps.ese.view.speciesdetails.{NonNumericQualityViewerBox, QualityViewerBox}
 import scalafx.scene.control.{Button, Label, ProgressBar, ScrollPane}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.{BorderPane, HBox, VBox}
@@ -32,8 +32,22 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 
   override def showDetails(e: Entity,animalInfo: AnimalInfo): Unit = {
     nameLabel.text = e.name
-    vBox.children = nameLabel :: animalInfo.qualities
-      .values.map(q=> new QualityViewerBox(q.qualityType.toString,q.qualityValue)).toList
+    val genderColor = animalInfo.gender match {
+      case Male => "-fx-accent: cyan;"
+      case Female => "-fx-accent: pink;"
+    }
+    val dietColor = animalInfo.dietType match {
+      case Herbivore => "-fx-accent: green;"
+      case Carnivorous => "-fx-accent: red"
+    }
+    val genderBox = new NonNumericQualityViewerBox(animalInfo.gender.toString,genderColor)
+    val dietBox = new NonNumericQualityViewerBox(animalInfo.dietType.toString,dietColor)
+
+    vBox.children = nameLabel ::
+      genderBox ::
+      dietBox ::
+      animalInfo.qualities
+      .values.map(q=> new QualityViewerBox(q.qualityType.toString,q.qualityValue,"")).toList
   }
 
   override def clearDetails(): Unit = {
