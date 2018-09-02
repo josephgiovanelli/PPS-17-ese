@@ -1,3 +1,15 @@
 language: scala
 scala:
-   - 2.12.2
+- 2.12.6
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION test
+  - sbt ++$TRAVIS_SCALA_VERSION assembly
+deploy:
+  provider: releases
+  api_key:
+    secure: 2Rj2+sP97sRGYSfPRSNCurRBd0tnTqBtl80+pXh4V0lu/f5YTA3oNtDBMeDbXqmAhcqjYinLkv8Z1Z+3uvSJxXUmvlMA/NGquxxktN4fy06PybtLsaxb83y4krMTRF6Yrde/gGV4t2erYwYa+JqAlVzbcqkQYcBoagaQxFBqxwFF+1AqEuDDS+aVyNtxKLtNmbOEjYM0TfIbwhekSf8JVZYoXeEhuHqfkMu1XmoosxOVmSyWTTHI+Rs47WcC2H2Xxcts8eQIDpoXTbFA8xQ8g1jUrbyBqcLzTWBrE5TkL5000EIsnL0m4ueVfqTeLFeSQ3b5QnypFcQwPcEK3t4SXKp8Ur/sLXWCNVJfTNxRlXEJJM9jjMCig3J9e88Ij/NBWiC7adPrPik/2mZknFJif8ZrTxu54Zo62UI25Kq14pLoonIiBvqZE3BsiUWBjnhiCr4yyM+0kbBbDJmDeCgnBNcM6IrjrqToddGTqFNCS2kxNS5mZ+M+6+UNs+1maZFBfq552JWSPdRRgixqTxI4NWHCf6IFfUMamw/snkpn9kzOwOcLRsLgGy9qkqOhLfY1sF0XQ1m5FHUf/AbBYARvPLtkaQhrr/D6ky6hk8ihqcCphKFTmR6vkz6+Qx4Y51q74JW8yi0QYcH4lZvZBR7K9qxcI3M0N3ntcKC3aUwNN/A=
+  file: target/libs/PPS-17-ese_fatjar.jar
+  on:
+    tags: true
+    branch: master
+    repo: KaikiKM/PPS-17-ese
