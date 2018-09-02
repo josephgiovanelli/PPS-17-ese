@@ -65,7 +65,7 @@ object EntitiesInfo {
     private var animals: Map[String, (AnimalBaseInfo, AnimalChromosomeInfo)] = Map.empty
     private var plants: Map[String, PlantInfo] = Map.empty
 
-    private var typologyMap = Map("Carnivorous" -> "C", "Herbivore" -> "H")
+    private val typologyMap = Map("Carnivorous" -> "C", "Herbivore" -> "H")
 
 
     def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit = {
