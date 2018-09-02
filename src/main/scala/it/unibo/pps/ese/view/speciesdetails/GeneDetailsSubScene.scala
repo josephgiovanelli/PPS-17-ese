@@ -3,7 +3,7 @@ sealed trait Side
 case object Left extends Side
 case object Right extends Side
 
-import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
+import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, EmptyGeneStats, GeneStats}
 import javafx.scene.text.Text
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.TextFlow
@@ -60,6 +60,8 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
       )
     case BasicGeneStats(g,i)=>
       setBasicGeneDetails(cName,g.geneId.mkString(","),i)
+    case EmptyGeneStats()=>
+      emptyGeneStats()
   }
 
 

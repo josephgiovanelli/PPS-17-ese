@@ -17,3 +17,4 @@ case class BasicGeneStats(
                            identifiedThing:String
                          ) extends GeneStats
 
+case class EmptyGeneStats() extends GeneStats

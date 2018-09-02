@@ -169,28 +169,32 @@ class Xform extends javafx.scene.Group {
   }
 }
 sealed trait ModifiableSphereCouple{
-  def setGeneStats(chromosomeWithGeneCouple: ChromosomeWithGeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene):Unit
+  def setGeneStats(chromosomeWithGeneCouple: GeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene):Unit
 }
 class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinder) extends Xform() with ModifiableSphereCouple {
-  override def setGeneStats(chromosomeWithGeneCouple: ChromosomeWithGeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene): Unit = {
+  override def setGeneStats(chromosomeWithGeneCouple: GeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene): Unit = {
     s1.material = Materials.blueMaterial
     s2.material = Materials.greyMaterial
     c1.material = Materials.greyMaterial
     c2.material = Materials.blueMaterial
     val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
-              val gCouple:GeneCouple = chromosomeWithGeneCouple.geneCouple
-              val geneStats1:GeneStats = gCouple.gene1
-              val geneStats2:GeneStats = gCouple.gene2
-              val cType = chromosomeWithGeneCouple.chromosomeType
-              lS.visualizeGeneStats(
-                cName = cType.toString+" 1",
-                geneStats = geneStats1
-              )
+              val gCouple:GeneCouple = chromosomeWithGeneCouple
+              val geneStats1:GeneStats = gCouple.gene1.geneStats
+              val geneStats2:GeneStats = gCouple.gene2.geneStats
+              val cType1 = chromosomeWithGeneCouple.gene1.chromosomeType
+              val cType2 = chromosomeWithGeneCouple.gene2.chromosomeType
+              val cName1:String = if (cType1==cType2) cType1.toString+" 1" else cType1.toString
+              val cName2:String = if (cType1==cType2) cType2.toString+" 2" else cType2.toString
 
-              rS.visualizeGeneStats(
-                cName = cType.toString+" 2",
-                geneStats = geneStats2
-              )
+              lS.visualizeGeneStats(
+                        cName = cName1,
+                        geneStats = geneStats1
+                      )
+
+                      rS.visualizeGeneStats(
+                        cName = cName2,
+                        geneStats = geneStats2
+                      )
     }
     s1.onMouseEntered = clickListener
     s2.onMouseEntered = clickListener

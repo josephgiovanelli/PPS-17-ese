@@ -61,5 +61,17 @@ package object dna {
       }
       ).toMap
     }
-  }
+
+    def sexualGeneCoupled:List[(GeneInChromosome,GeneInChromosome)]= {
+      val chromosomes:(SexualChromosome,SexualChromosome) = if(genome.firstSexualChromosome.sexualChromosome == X)
+        genome.firstSexualChromosome->genome.secondSexualChromosome else
+        genome.secondSexualChromosome->genome.firstSexualChromosome
+
+        chromosomes._1.geneList.map(g=> {
+          val specular = chromosomes._2.geneList.find(_.geneId == g.geneId)
+          (GeneInChromosome(ChromosomeType.SEXUAL_X,Some(g)),GeneInChromosome(chromosomes._2.chromosomeType,specular))
+        }).toList
+      }
+    }
+  case class GeneInChromosome(chromosomeType: ChromosomeType,gene:Option[MGene])
 }

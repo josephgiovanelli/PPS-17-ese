@@ -13,11 +13,11 @@ import scalafx.scene.layout._
 import scalafx.scene.text.TextAlignment
 import TextUtilities._
 sealed trait GenomeDetailsPane extends Pane{
-  def setGenomeStats(genomeStats:List[ChromosomeWithGeneCouple]):Unit
+  def setGenomeStats(genomeStats:List[GeneCouple]):Unit
 }
 object GenomeDetailsPane {
-  def apply(genomeStats: Option[List[ChromosomeWithGeneCouple]]):GenomeDetailsPane= new SpeciesDetailsPane(genomeStats)
-  private[this] class SpeciesDetailsPane(genomeStats:Option[List[ChromosomeWithGeneCouple]]) extends GenomeDetailsPane {
+  def apply(genomeStats: Option[List[GeneCouple]]):GenomeDetailsPane= new SpeciesDetailsPane(genomeStats)
+  private[this] class SpeciesDetailsPane(genomeStats:Option[List[GeneCouple]]) extends GenomeDetailsPane {
     prefWidth = 1000
     prefHeight = 800
 
@@ -75,7 +75,7 @@ object GenomeDetailsPane {
     root.getChildren.addAll(tbox,hbox, slider)
     if(genomeStats.nonEmpty) setGenomeStats(genomeStats.get)
 
-    override def setGenomeStats(genomeStats: List[ChromosomeWithGeneCouple]): Unit = {
+    override def setGenomeStats(genomeStats: List[GeneCouple]): Unit = {
 
       for(i<-genomeStats.indices) molecules(i).setGeneStats(genomeStats(i),lS,rS)
 
