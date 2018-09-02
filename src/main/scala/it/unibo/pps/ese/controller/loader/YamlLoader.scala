@@ -9,7 +9,7 @@ import net.jcazevedo.moultingyaml._
 import org.kaikikm.threadresloader.ResourceLoader
 
 
-class YamlLoader extends Loader {
+object YamlLoader extends Loader {
 
   object CustomYaml extends DefaultYamlProtocol {
     implicit val simulationFormat = yamlFormat2(Simulation)

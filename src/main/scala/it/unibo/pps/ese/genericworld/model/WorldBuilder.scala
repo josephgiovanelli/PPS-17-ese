@@ -31,7 +31,7 @@ object WorldBuilder {
 
     val world = World(width, height)
 
-    val data = new YamlLoader().loadSimulation(simulationConfigPath)
+    val data = YamlLoader.loadSimulation(simulationConfigPath)
     val initializedSimulation = GeneticsSimulator.beginSimulation(data)
 
     GeneticsSimulator.speciesList
