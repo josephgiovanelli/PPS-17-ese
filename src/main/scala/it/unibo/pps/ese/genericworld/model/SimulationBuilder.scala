@@ -44,7 +44,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
     new SimulationBuilder(width, height, data)
 
   def data(simulationConfigPath: String): SimulationBuilder[Simulation with Data] =
-    new SimulationBuilder(width, height, new YamlLoader().loadSimulation(simulationConfigPath))
+    new SimulationBuilder(width, height, YamlLoader.loadSimulation(simulationConfigPath))
 
   def build(implicit ev: Simulation =:= ReadySimulation): Controller = controller
 

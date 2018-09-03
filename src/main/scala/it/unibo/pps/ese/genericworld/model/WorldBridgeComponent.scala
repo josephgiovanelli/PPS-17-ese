@@ -1,23 +1,26 @@
 package it.unibo.pps.ese.genericworld.model
 
 import java.util.concurrent.atomic.AtomicLong
+
 import it.unibo.pps.ese.genericworld.model.support._
+import it.unibo.pps.ese.genetics.entities.AnimalInfo
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.util.{Failure, Success}
 
 case class UpdateEntityState(properties: Seq[EntityProperty]) extends BaseEvent
 
 case class WorldInfoRequest() extends RequestEvent
-case class WorldInfoResponse(override val id: String, width: Long, height: Long) extends ResponseEvent(id)
+case class WorldInfoResponse(override val id: String, width: Long, height: Long) extends ResponseEvent
 
 case class EntitiesStateRequest(filter: EntityState => Boolean = _ => true) extends RequestEvent
-case class EntitiesStateResponse(override val id: String, state: Seq[EntityState]) extends ResponseEvent(id)
+case class EntitiesStateResponse(override val id: String, state: Seq[EntityState]) extends ResponseEvent
 
 case class ComputeNextState() extends BaseEvent
 case class ComputeNextStateAck() extends BaseEvent
 
 case class Kill(entityId: String) extends BaseEvent
-case class Create(partnerId: String) extends BaseEvent
+case class Create(sons: Iterable[AnimalInfo]) extends BaseEvent
 
 case class GetInfo() extends BaseEvent
 case class GetInfoAck() extends BaseEvent
@@ -46,16 +49,24 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     case r: EntitiesStateRequest =>
       publish(EntitiesStateResponse(r id,
         (world queryableState) getFilteredState r.filter filterNot (x => x.entityId == entitySpecifications.id)))
-    case r: InteractionEvent if r.id != entitySpecifications.id =>
-      if (!disposed) world interact InteractionEnvelope(entitySpecifications id, r id, r)
+    case r: InteractionEvent if r.receiverId != entitySpecifications.id =>
+      if (!disposed) world interact InteractionEnvelope(entitySpecifications id, r receiverId, r)
     case UpdateEntityState(properties) => properties foreach (e =>
       if (!disposed) (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
     case Kill(entityId)  =>
+      //Completed before next entity computation?
       if (!disposed) world removeEntity entityId
-    case Create(partnerId)  =>
-      //create a new entity based on both entities features
-      //and then call
-      //world addEntity newEntity
+    case Create(sons)  =>
+      println("Entities Creation")
+      //Completed before next entity computation?
+      if (!disposed) //Necessary?
+      requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest).onComplete({
+        case Success(info) =>
+          println("I need a way to create an entity, Bocc NOOB")
+          //sons.map(i => WorldBuilder.initializeEntity(i, info.position)).foreach(entity => world addEntity entity)
+        case Failure(exception) =>
+          exception
+      })
     case ComputeNextStateAck() =>
       runningJobAccumulator.incrementAndGet
       checkRunningJobCompletion()

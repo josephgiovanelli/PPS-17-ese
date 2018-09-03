@@ -13,6 +13,8 @@ test in assembly := {}
 
 libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.5" % "test"
 
+Test / fork := true
+
 //markup-loading dependencies
 libraryDependencies += "org.yaml" % "snakeyaml" % "1.21"
 libraryDependencies += "net.jcazevedo" %% "moultingyaml" % "0.4.0"
@@ -26,3 +28,12 @@ libraryDependencies += "it.unibo.alice.tuprolog" % "tuprolog" % "3.2"
 
 libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0"
 libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.6.0"
+
+import Tests._
+
+{
+  def groupByFirst(tests: Seq[TestDefinition]) =
+    tests map(t => Group("", Seq(t), SubProcess(ForkOptions())))
+
+  testGrouping in Test := groupByFirst( (definedTests in Test).value )
+}

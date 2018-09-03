@@ -4,10 +4,10 @@ import java.util.UUID.randomUUID
 
 package object support {
 
-  class BaseEvent
-  class RequestEvent(identifier : String = randomUUID().toString) extends BaseEvent { val id : String = identifier }
-  class ResponseEvent(identifier : String) extends BaseEvent { val id : String = identifier }
-  class InteractionEvent(identifier : String) extends BaseEvent { val id : String = identifier }
+  trait BaseEvent
+  trait RequestEvent extends BaseEvent { val id : String = randomUUID().toString }
+  trait ResponseEvent extends BaseEvent { val id : String }
+  trait InteractionEvent extends BaseEvent { val receiverId: String }
 
   case class InteractionEnvelope[A](sourceId : String, targetId: String, message: A)
   class Done

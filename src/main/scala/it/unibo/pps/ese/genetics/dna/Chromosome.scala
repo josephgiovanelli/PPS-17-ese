@@ -28,13 +28,15 @@ case object Y extends SexualChromosomeType
 
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.{ChromosomeType, _}
 
-sealed trait Chromosome{
+sealed trait Chromosome{ self =>
   def chromosomeType:ChromosomeType
   def geneList:Seq[MGene]
+  def mutate(newGenes: Seq[MGene]): self.type
 }
 
 object Chromosome{
-  def apply(chromosomeType: ChromosomeType,geneList:MGene*): Chromosome = new BasicChromosomeImpl(chromosomeType,geneList)
+  def apply(chromosomeType: ChromosomeType,geneList:MGene*): Chromosome =
+    new BasicChromosomeImpl(chromosomeType,geneList)
 
   def apply(chromosomeType: ChromosomeType,
             sexualChromosome: SexualChromosomeType,
@@ -42,7 +44,6 @@ object Chromosome{
     sexualChromosome,
     geneList)
 }
-
 
 sealed trait SexualChromosome extends Chromosome{
   def sexualChromosome: SexualChromosomeType
@@ -56,19 +57,37 @@ abstract class BasicChromosome(
                                 override val geneList:Seq[MGene]) extends Chromosome{
 //  println(chromosomeType+geneList.map(_.geneType).toString())
   require(checkListOfGene(chromosomeType,geneList.map(_.geneType)))
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[BasicChromosome]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: BasicChromosome =>
+      (that canEqual this) &&
+        chromosomeType == that.chromosomeType &&
+        geneList == that.geneList
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(chromosomeType, geneList)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+
+  override def toString: String = chromosomeType.toString+"->"+geneList
 }
 
 class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[MGene])
-  extends BasicChromosome(chromosomeType,geneList){
+  extends BasicChromosome(chromosomeType,geneList){ self =>
 
-  override def toString: String = chromosomeType.toString+"->"+geneList
-
+  override def mutate(newGenes: Seq[MGene]) =
+    new BasicChromosomeImpl(chromosomeType, newGenes).asInstanceOf[self.type ]
 }
 
 class SexualChromosomeImpl(chromosomeType: ChromosomeType,
                            override val sexualChromosome: SexualChromosomeType,
                            geneList:Seq[MGene])
-  extends BasicChromosome(chromosomeType,geneList) with SexualChromosome{
-
+  extends BasicChromosome(chromosomeType,geneList) with SexualChromosome{ self =>
+  override def mutate(newGenes: Seq[MGene]) =
+    new SexualChromosomeImpl(chromosomeType, sexualChromosome, newGenes).asInstanceOf[self.type]
 }
 

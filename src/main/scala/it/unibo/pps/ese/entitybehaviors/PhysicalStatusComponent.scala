@@ -11,8 +11,7 @@ object LifePhases extends Enumeration {
   val CHILD, ADULT, ELDERLY = Value
 }
 
-case class MealInformation(entityId: String, eatenEnergy: Double) extends InteractionEvent(entityId)
-
+case class MealInformation(override val receiverId: String, eatenEnergy: Double) extends InteractionEvent
 case class PhysicalStatusInfo(averageLife: Double,
                                energyRequirements: Double,
                                endChildPhase: Double,
@@ -67,6 +66,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         publish(new ComputeNextStateAck)
       case r: DynamicParametersRequest =>
         publish(DynamicParametersResponse(r.id, currentSpeed, currentEnergy, fertility))
+      case r: ReproductionPhysicalInformationRequest =>
+        publish(ReproductionPhysicalInformationResponse(r id, fertility))
       case InteractionEntity(entityId, action) if action == ActionKind.EAT =>
         requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == entityId))
           .onComplete {

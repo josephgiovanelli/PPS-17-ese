@@ -42,6 +42,7 @@ object EntityInfoConversion {
     def nutritionalValue : Double = obj.selectDynamic("nutritionalValue").asInstanceOf[Double]
     def defense : Double = obj.selectDynamic("defense").asInstanceOf[Double]
     def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("gender").asInstanceOf[String]).get
+    def elapsedClocks: Long = obj.selectDynamic("elapsedClocks").asInstanceOf[Long]
   }
 
   implicit class PlantPhysicalComponentConversions(obj: EntityInfo) {

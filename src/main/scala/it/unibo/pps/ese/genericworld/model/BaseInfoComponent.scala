@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.entitybehaviors.EntityPosition
+import it.unibo.pps.ese.entitybehaviors.{EntityPosition, ReproductionBaseInformationRequest, ReproductionBaseInformationResponse}
 import it.unibo.pps.ese.genericworld.model.support.{RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.utils.Point
 
@@ -14,7 +14,8 @@ case class BaseInfoResponse(override val id: String,
                             height: Double,
                             nutritionalValue: Double,
                             defense: Double,
-                            gender:String) extends ResponseEvent(id)
+                            gender:String,
+                            elapsedClocks: Long) extends ResponseEvent
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
                              species: String,
@@ -23,7 +24,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
                              var position: Point,
                              height: Double,
                              var nutritionalValue: Double,
-                             defense: Double)
+                             defense: Double,
+                             var elapsedClocks: Long = 0)
                             (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
@@ -41,11 +43,28 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
         nutritionalValue = newNutritionalValue
       }
     case r: BaseInfoRequest =>
-      publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender))
+      this synchronized {
+        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+      }
+    case r: ReproductionBaseInformationRequest =>
+      this synchronized {
+        //TODO problem: elapsedClocks can be non-updated if ComputeNextState is served after reproduction
+        /* Scenario:
+         * scheduler->to all components async
+         *            ->brain -> reproduction -> here
+         *                                            -> BaseInfo
+         */
+        publish(ReproductionBaseInformationResponse(r id, gender, elapsedClocks, species))
+      }
     case ComputeNextState() =>
+      this synchronized {
+        elapsedClocks += 1
+      }
       publish(new ComputeNextStateAck)
     case GetInfo() =>
-      publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender))
+      this synchronized {
+        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+      }
       publish(new GetInfoAck)
     case _ => Unit
   }
@@ -58,7 +77,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("height", ev height),
       EntityProperty("nutritionalValue", ev nutritionalValue),
       EntityProperty("defense", ev defense),
-      EntityProperty("gender", ev gender)
+      EntityProperty("gender", ev gender),
+      EntityProperty("elapsedClocks", ev elapsedClocks)
     )))
   }
 }

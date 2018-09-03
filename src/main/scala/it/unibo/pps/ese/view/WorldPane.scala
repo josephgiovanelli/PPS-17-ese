@@ -89,7 +89,7 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
         graphicsContext.fill = selectionColor
         graphicsContext.fillRect(pos.x, pos.y, entitySize(), entitySize())
         //Only for test----------
-        val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
+        val data = YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
         val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
         geneticsSimulator.beginSimulation(data)
         val animalInfo:AnimalInfo = geneticsSimulator.newAnimal("Giraffa")
