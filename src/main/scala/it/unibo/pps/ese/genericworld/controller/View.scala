@@ -5,7 +5,6 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData
 import it.unibo.pps.ese.genericworld.model.{EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.Entity
-import it.unibo.pps.ese.view.{Entity, Position}
 
 import scalafx.scene.paint.Color
 

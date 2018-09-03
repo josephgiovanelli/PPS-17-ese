@@ -7,7 +7,8 @@ import it.unibo.pps.ese.view.configuration.dialogs.{EntitiesInfo, ParseUtils, Pl
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
-import scalafx.beans.property.StringProperty
+import scalafx.scene.paint.Color
+import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
@@ -23,6 +24,8 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
   initOwner(window)
   title = "Plant Dialog"
   headerText = "Create a plant"
+  dialogPane().getStylesheets.add(getClass.getResource("/text-field-red-border.css").toExternalForm)
+  val errorClass = PseudoClass("error")
 
   /*
   Fields
@@ -33,30 +36,31 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
   val nutritionalValue: TextField = new TextField()
   val hardness: TextField = new TextField()
   val availability: TextField = new TextField()
-  val errorLabel = new Label()
 
-  val fields: Map[TextField, Label] = ListMap(
-    name -> new Label("Name"),
-    heightPlant -> new Label("Height"),
-    nutritionalValue -> new Label("Nutritional Value"),
-    hardness -> new Label("Hardness"),
-    availability -> new Label("Availability"),
+  val fields: Map[TextField, (Label, Label)] = ListMap(
+    name -> (new Label("Name"), new Label("")),
+    heightPlant -> (new Label("Height"), new Label("")),
+    nutritionalValue -> (new Label("Nutritional Value"), new Label("")),
+    hardness -> (new Label("Hardness"), new Label("")),
+    availability -> (new Label("Availability"), new Label("")),
   )
 
   val grid: GridPane = new GridPane() {
     hgap = 10
-    vgap = 10
-    padding = Insets(20, 100, 10, 10)
+    padding = Insets(10, 100, 10, 10)
 
     var count = 0
     fields.foreach(field => {
-      add(field._2, 0, count)
+      add(field._2._1, 0, count)
       add(field._1, 1, count)
       count += 1
+      add(field._2._2, 1, count)
+      count += 1
+      field._2._2.textFill = Color.Red
     })
   }
 
-  dialogPane().content = new VBox(grid, errorLabel)
+  dialogPane().content = new VBox(grid)
 
   Platform.runLater(name.requestFocus())
 
@@ -75,14 +79,10 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
 
   val mandatoryFields: Set[TextField] = fields.keySet
   val doubleField: Set[TextField] = mandatoryFields - name
-  val error: StringProperty = StringProperty(checkFields()._1)
-  errorLabel.text <== error
 
   mandatoryFields.foreach(subject => {
     subject.text.onChange ( (_, _, _) => {
-      val result = checkFields()
-      error.value = result._1
-      okButton.disable = !result._2
+      okButton.disable = checkFields()
     })
   })
 
@@ -116,20 +116,32 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
       null
 
 
-  private def checkFields(): (String, Boolean) = {
+  private def checkFields(): Boolean = {
     val mandatoryCheck = mandatoryFields.filter(x => x.getText.trim().isEmpty)
     val doubleCheck = doubleField.filter(x => ParseUtils.parse[Double](x.getText.trim()).isEmpty)
-    var checksSuccessful = true
-    var toPrint: String = ""
+    var errorFound = false
     if (mandatoryCheck.nonEmpty) {
-      toPrint += "Empty fields: " + mandatoryCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _) + "\n"
-      checksSuccessful = false
+      mandatoryCheck.foreach(field => {
+        field.pseudoClassStateChanged(PseudoClass("error"), true)
+        fields(field)._2.text.value = "Must be filled"
+      })
+      (mandatoryFields -- mandatoryCheck).foreach(field => {
+        field.pseudoClassStateChanged(PseudoClass("error"), false)
+        fields(field)._2.text.value = ""
+      })
+      errorFound = true
+    } else if (doubleCheck.nonEmpty) {
+      doubleCheck.foreach(field => {
+        field.pseudoClassStateChanged(PseudoClass("error"), true)
+        fields(field)._2.text.value = "Must be double"
+      })
+      (doubleField -- doubleCheck).foreach(field => {
+        field.pseudoClassStateChanged(PseudoClass("error"), false)
+        fields(field)._2.text.value = ""
+      })
+      errorFound = true
     }
-    if (doubleCheck.nonEmpty) {
-      toPrint += "Double fields: " + doubleCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _)
-      checksSuccessful = false
-    }
-    (toPrint, checksSuccessful)
+    errorFound
   }
 
 }
