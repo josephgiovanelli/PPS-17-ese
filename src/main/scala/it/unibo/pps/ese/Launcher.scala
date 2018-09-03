@@ -6,6 +6,7 @@ import it.unibo.pps.ese.view.View
 import scalafx.application.JFXApp
 
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Launcher extends JFXApp {
   require(parameters.raw.size == 1, "Application requires an input path corresponding to a simulation's config file")

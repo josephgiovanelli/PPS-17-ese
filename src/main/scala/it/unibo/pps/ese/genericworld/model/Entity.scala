@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.genericworld.model
 
+import scala.concurrent.ExecutionContext
+
 sealed trait Entity {
   def id: String
   def getComponents : Seq[Component]
@@ -14,13 +16,14 @@ sealed trait EntitySpecifications {
 }
 
 sealed trait NervousSystemExtension {
+  implicit def executionContext: ExecutionContext
   private[this] val _nervousSystem = NervousSystem()
   def nervousSystem : ManageableNervousSystem = _nervousSystem
 }
 
 object Entity {
 
-  def apply(instance: String, id: String): Entity = instance match {
+  def apply(instance: String, id: String)(implicit executionContext: ExecutionContext): Entity = instance match {
     case "base" => new BaseEntity(id)
     case "improved" => new ImprovedEntity(id) with NervousSystemExtension
   }
@@ -41,7 +44,7 @@ object Entity {
     override def dispose(): Unit = Unit
   }
 
-  private class ImprovedEntity(id: String) extends BaseEntity(id) {
+  private class ImprovedEntity(id: String)(implicit val executionContext: ExecutionContext) extends BaseEntity(id) {
 
     self : NervousSystemExtension =>
     override def addComponent(component: Component): Unit = {

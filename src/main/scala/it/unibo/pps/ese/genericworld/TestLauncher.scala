@@ -21,10 +21,11 @@ import it.unibo.pps.ese.view.ViewLauncher.{stage, view}
 import scalafx.application.JFXApp
 import scalafx.stage.WindowEvent
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import scalafx.Includes._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object TestLauncher extends JFXApp {
 
@@ -43,7 +44,7 @@ object TestLauncher extends JFXApp {
 //    world addEntity entity4
 //    world addEntity entity1
 
-    val world = WorldBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
+    val world: World = WorldBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
     val controller = Controller(world, clockPeriod = 250 millis)
     val view = View()
     stage = view

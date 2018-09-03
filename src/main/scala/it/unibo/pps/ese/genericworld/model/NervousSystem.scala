@@ -2,7 +2,7 @@ package it.unibo.pps.ese.genericworld.model
 
 import it.unibo.pps.ese.genericworld.model.support._
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 sealed trait NervousSystem {
   def publish(event: Event) : Unit
@@ -18,9 +18,9 @@ sealed trait ManageableNervousSystem extends NervousSystem {
 
 object NervousSystem {
 
-  def apply(): ManageableNervousSystem = new SnifferNervousSystem()
+  def apply()(implicit executionContext: ExecutionContext): ManageableNervousSystem = new SnifferNervousSystem()
 
-  private class SnifferNervousSystem extends ManageableNervousSystem {
+  private class SnifferNervousSystem()(implicit executionContext: ExecutionContext) extends ManageableNervousSystem {
 
     private[this] val _eventBus = EventBus()
     private[this] var _eventsMappings : List[(Class[_], _ => Seq[EntityProperty])]= List empty

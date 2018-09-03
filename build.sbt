@@ -23,3 +23,6 @@ libraryDependencies ++= Seq(
 )
 libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.144-R12"
 libraryDependencies += "it.unibo.alice.tuprolog" % "tuprolog" % "3.2"
+
+libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0"
+libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.6.0"

@@ -30,7 +30,8 @@ object EntitiesStateCache {
     }
 
     override def getEntityState(entityId: String): EntityState = this synchronized {
-      EntityState(entityId, _entitiesRepository getById entityId getOrElse new EntityInfo)
+      EntityState(entityId,
+        _entitiesRepository getById entityId getOrElse(throw new IllegalStateException("No item found")) copy())
     }
 
     override def deleteEntityState(entityId: String): Unit = this synchronized {
@@ -40,7 +41,7 @@ object EntitiesStateCache {
     }
 
     override def getFilteredState(filter: EntityState => Boolean): Seq[EntityState] = this synchronized {
-      val entityStates = (_entitiesRepository getAll) filter (x => x._2.alive == true) map(x => EntityState(x._1, x._2))
+      val entityStates = (_entitiesRepository getAll) filter (x => x._2.alive == true) map(x => EntityState(x._1, x._2 copy()))
       entityStates filter filter
     }
 

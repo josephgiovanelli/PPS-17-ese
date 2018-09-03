@@ -9,7 +9,8 @@ case class WorldInfo(width: Long, height: Long)
 sealed trait World {
   def width: Long
   def height: Long
-  def addEntity(entity: Entity): Unit
+  def entities : Seq[Entity]
+  def addEntity(entity: Entity)(implicit context: ExecutionContext): Unit
   def removeEntity(id: String): Unit
   def entitiesState : Seq[EntityState]
   def requireStateUpdate(implicit context: ExecutionContext): Future[Done]
@@ -23,16 +24,16 @@ sealed trait CachedWorld {
 
 sealed trait InteractiveWorld extends CachedWorld {
   def info: WorldInfo
-  def entities : Seq[Entity]
-  def addEntity(entity: Entity): Unit
+  def addEntity(entity: Entity)(implicit context: ExecutionContext): Unit
   def removeEntity(id: String): Unit
-  def interact[A <: InteractionEvent](envelope: InteractionEnvelope[A])
+  def interact[A <: InteractionEvent](envelope: InteractionEnvelope[A])(implicit context: ExecutionContext)
 }
 
 sealed trait UpdatableWorld {
 
   private[this] var _entityBridges : Seq[WorldBridgeComponent] = Seq empty
   private[this] var _toDeleteBridges : Set[String] = Set empty
+  private[this] var _interactionSideEffects : Seq[Future[Done]] = Seq empty
 
   def addBridge(bridge : WorldBridgeComponent): Unit = _entityBridges = _entityBridges :+ bridge
 
@@ -40,23 +41,25 @@ sealed trait UpdatableWorld {
 
   def requireStateUpdate(implicit context: ExecutionContext): Future[Done] =
     serializeFutures(scala.util.Random.shuffle(_entityBridges))(e => {
-      val future = e.computeNewState
+      val future = e.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects))
       future onComplete(_ => {
         _entityBridges filter (bridge => _toDeleteBridges contains bridge.entitySpecifications.id) foreach (x => x.dispose())
         _entityBridges = _entityBridges filterNot(bridge => _toDeleteBridges contains bridge.entitySpecifications.id)
+        _interactionSideEffects = Seq empty
       })
       future
     }) map(_ => new Done())
 
   def requireInfoUpdate(implicit context: ExecutionContext): Future[Done] =
-    Future.traverse(_entityBridges)(e => e.requireInfo) map (_ => new Done())
+    Future.traverse(_entityBridges)(e => e.requireInfo()) map (_ => new Done())
 
-  def deliver[A <: InteractionEvent](interactionEnvelope: InteractionEnvelope[A]): Unit = {
+  def deliver[A <: InteractionEvent](interactionEnvelope: InteractionEnvelope[A])
+                                    (implicit context: ExecutionContext): Unit = {
     _entityBridges find (x => x.entitySpecifications.id == interactionEnvelope.targetId) foreach(
-      x => x.deliverMessage[A](interactionEnvelope))
+      x => _interactionSideEffects = _interactionSideEffects :+ x.deliverMessage[A](interactionEnvelope))
   }
 
-  private def serializeFutures[A, B](l: Iterable[A])(fn: A ⇒ Future[B])
+  private def serializeFutures[A, B](l: Iterable[A])(fn: A => Future[B])
                                     (implicit context: ExecutionContext): Future[List[B]] =
     l.foldLeft(Future(List.empty[B])) {
       (previousFuture, next) =>
@@ -80,7 +83,7 @@ object World {
 
     override def entities: Seq[Entity] = _entities
 
-    override def addEntity(entity: Entity): Unit = {
+    override def addEntity(entity: Entity)(implicit context: ExecutionContext): Unit = {
       entity match {
         case _: Entity with NervousSystemExtension =>
           val bridge = new WorldBridgeComponent(entity specifications, this)
@@ -100,8 +103,7 @@ object World {
 
     override def entitiesState: Seq[EntityState] = queryableState getFilteredState(_ => true)
 
-    override def interact[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Unit = {
-      deliver[A](envelope)
-    }
+    override def interact[A <: InteractionEvent](envelope: InteractionEnvelope[A])
+                                                (implicit context: ExecutionContext): Unit = deliver[A](envelope)
   }
 }

@@ -14,9 +14,8 @@ import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.utils.Point
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 case class BrainInfo(strong: Double,
@@ -46,8 +45,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
                           strong: Double,
                           actionField: Double,
                           visualField: Double,
-                          attractiveness: Double
-                         ) extends WriterComponent(entitySpecifications)  {
+                          attractiveness: Double)
+                         (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
 
   implicit def toPoint(tuple2: (Int, Int)): Point = {

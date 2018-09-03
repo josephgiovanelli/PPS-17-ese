@@ -23,14 +23,15 @@ case class GetInfo() extends BaseEvent
 case class GetInfoAck() extends BaseEvent
 
 sealed trait WorldBridge {
-  def computeNewState(implicit context: ExecutionContext): Future[Done]
-  def requireInfo(implicit context: ExecutionContext): Future[Done]
-  def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A])
+  def computeNewState(): Future[Done]
+  def requireInfo(): Future[Done]
+  def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Future[Done]
   def dispose(): Unit
 }
 
 class WorldBridgeComponent(override val entitySpecifications: EntitySpecifications,
-                           world: InteractiveWorld) extends WriterComponent(entitySpecifications) with WorldBridge {
+                           world: InteractiveWorld)
+                          (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) with WorldBridge {
 
   private var disposed = false
   private var jobCompleted = true
@@ -64,16 +65,22 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     case _ => Unit
   }
 
-  override def computeNewState(implicit context: ExecutionContext): Future[Done] = startNewJob(ComputeNextState())
+  override def computeNewState(): Future[Done] = startNewJob(ComputeNextState())
 
-  override def requireInfo(implicit context: ExecutionContext): Future[Done] = startNewJob(GetInfo())
+  override def requireInfo(): Future[Done] = startNewJob(GetInfo())
 
-  override def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Unit =
+  override def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Future[Done] = {
+    val interactionPromise = Promise[Done]
+    nervousSystem notifyOnTasksEnd() onComplete (_ => {
+      interactionPromise success new Done()
+    })
     publish(envelope.message)
+    interactionPromise future
+  }
 
   override def dispose(): Unit = disposed = true
 
-  private def startNewJob(event: Event)(implicit context: ExecutionContext): Future[Done] = {
+  private def startNewJob(event: Event): Future[Done] = {
     if (disposed) Future {new Done}
     if ((runningJobPromise isCompleted) && jobCompleted) {
       jobCompleted = false

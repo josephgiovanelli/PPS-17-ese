@@ -2,8 +2,7 @@ package it.unibo.pps.ese.genericworld.model.support
 
 import java.util.concurrent.atomic.AtomicLong
 
-import scala.concurrent.{Future, Promise}
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success}
 
 sealed trait EventBus {
@@ -14,9 +13,9 @@ sealed trait EventBus {
 }
 
 object EventBus {
-  def apply(): EventBus = new BaseEventBus()
+  def apply()(implicit executionContext: ExecutionContext): EventBus = new BaseEventBus()
 
-  private class BaseEventBus() extends EventBus {
+  private class BaseEventBus()(implicit executionContext: ExecutionContext) extends EventBus {
 
     private[this] var consumersRegistry = List[Consumer]()
     private[this] val activeTasks = new AtomicLong(0)
@@ -33,8 +32,8 @@ object EventBus {
       })
     }
 
-    override def notifyOnTasksEnd(): Future[Done] = {
-      completionPromise = Some(Promise[Done])
+    override def notifyOnTasksEnd(): Future[Done] = this synchronized {
+      if (completionPromise isEmpty) completionPromise = Some(Promise[Done])
       (completionPromise get) future
     }
 

@@ -1,11 +1,10 @@
 package it.unibo.pps.ese.genericworld.model
 
 import scala.language.dynamics
-import scala.collection.mutable
 
 class EntityInfo extends Dynamic {
 
-  val values: mutable.Map[String, Any] = mutable.Map.empty[String, Any]
+  private var values: Map[String, Any] = Map.empty[String, Any]
 
   def selectDynamic(name: String): Any = {
     values.get(name) match {
@@ -15,6 +14,12 @@ class EntityInfo extends Dynamic {
   }
 
   def updateDynamic(name: String)(value: Any): Unit = {
-    values(name) = value
+    values = values + (name -> value)
+  }
+
+  def copy(): EntityInfo = {
+    val copy = new EntityInfo()
+    copy values = values
+    copy
   }
 }
