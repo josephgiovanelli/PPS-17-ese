@@ -2,13 +2,13 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
 import javafx.scene.Node
 
-import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.{CustomGeneDialog, DefaultGeneDialog}
 
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
+import scalafx.css.PseudoClass
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
@@ -18,13 +18,20 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
 
   val MIN_ELEM = 3
 
+  /*
+  Header
+   */
+
   initOwner(window)
   title = "Chromosome Dialog"
   headerText = "Define animal chromosome"
+  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
+  val errorClass = PseudoClass("error")
 
-  // Set the button types.
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
+
+  /*
+  Fields
+   */
 
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
     case Some((_, chromosomeInfo)) => chromosomeInfo
@@ -71,43 +78,27 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
 
   val structuralButton = new Button("Add")
   structuralButton.onAction = _ => CustomGeneDialog(window, animal, None).showAndWait() match {
-    case Some(name) => {
+    case Some(name) =>
       structuralName.insert(structuralName.size, name.toString)
-    }
     case None => println("Dialog returned: None")
   }
   val regulationButton = new Button("Add")
   regulationButton.onAction = _ => DefaultGeneDialog(window, ChromosomeTypes.REGULATION, animal, None).showAndWait() match {
-    case Some(name) => {
+    case Some(name) =>
       regulationName.insert(regulationName.size, name.toString)
-    }
     case None => println("Dialog returned: None")
   }
-  /*regulationButton.onAction = _ => {
-    val effect: Map[String, Double] = Map("life" -> 2)
-    val aaa = Allele("aaa", "zzz", 5, 5, 1, effect)
-    val life = DefaultGeneInfo(RegulationDefaultGenes.LIFE, "aaa", Set(aaa))
-    regulationChromosome ++= Seq(life)
-    println(regulationChromosome.size)
-    regulationName.insert(0, life.name)
-  }*/
   val sexualButton = new Button("Add")
   sexualButton.onAction = _ => DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, None).showAndWait() match {
-    case Some(name) => {
+    case Some(name) =>
       sexualName.insert(sexualName.size, name.toString)
-    }
     case None => println("Dialog returned: None")
   }
-  /*sexualButton.onAction = _ => {
-    LoginDialog(window).showAndWait() match {
-      case Some(Result(a, b)) => println((a, b))
-      case None => println("ciao")
-    }
-  }*/
 
   val structuralPane = new BorderPane()
   structuralPane.left = new Label("Structural Chromosome")
   structuralPane.right = structuralButton
+
 
   val regulationPane = new BorderPane()
   regulationPane.left = new Label("Regulation Chromosome")
@@ -117,18 +108,27 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
   sexualPane.left = new Label("Sexual Chromosome")
   sexualPane.right = sexualButton
 
-
-  // Enable/Disable login button depending on whether a username was
-  // entered.
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = false
-
-
   dialogPane().content = new VBox() {
     children ++= Seq(structuralPane, structuralChromosomeListView, regulationPane, regulationChromosomeListView,
-      sexualPane, sexualChromosomeListView)
+      sexualPane, sexualChromosomeListView, new Label("At least one element per chromosome"))
     styleClass += "sample-page"
   }
 
+  /*
+  OkButton
+  */
+
+  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
+  dialogPane().buttonTypes = Seq(okButtonType)
+  val okButton: Node = dialogPane().lookupButton(okButtonType)
+  okButton.disable = true
+
+  val mandatoryFields = Seq(structuralName, regulationName, sexualName)
+
+  mandatoryFields.foreach(subject =>
+    subject.onChange ((_, _) =>
+      okButton.disable = checkField))
+
+  def checkField: Boolean = mandatoryFields.exists(x => x.isEmpty)
 
 }

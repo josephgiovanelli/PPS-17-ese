@@ -134,7 +134,10 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
     else if (intCheck) fields(field)._2.text.value = "Must be int"
     else fields(field)._2.text.value = ""
 
-    mandatoryFields.exists(x => x.getText.trim().isEmpty) || intFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
+    checkFields
   }
+
+  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) || intFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
+
 
 }

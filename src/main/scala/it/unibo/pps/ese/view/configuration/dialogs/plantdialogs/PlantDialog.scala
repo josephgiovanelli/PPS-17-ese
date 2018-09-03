@@ -129,7 +129,11 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
     else if (doubleCheck) fields(field)._2.text.value = "Must be double"
     else fields(field)._2.text.value = ""
 
-    mandatoryFields.exists(x => x.getText.trim().isEmpty) || doubleFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
+    checkFields
   }
+
+  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) || doubleFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
+
+
 
 }
