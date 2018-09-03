@@ -5,9 +5,9 @@ import javafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
+import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
-import scalafx.scene.paint.Color
 
 object ZoomPreferences {
   val minZoom: Int = 1
@@ -36,9 +36,11 @@ private class MainScene(mainComponent: MainComponent, width: Double = 1200, heig
   worldTab.text = "World"
   worldTab.closable = false
 
+  val genomePane = GenomeDetailsPane(None)
+
   val worldContainerPane = new SplitPane()
-  val detailsPane = DetailsPane()
-  val worldPane: WorldPane = WorldPane(mainComponent, detailsPane, worldWidth, worldHeigth)
+  val detailsPane = DetailsPane(mainComponent)
+  val worldPane: WorldPane = WorldPane(mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal
@@ -69,9 +71,13 @@ private class MainScene(mainComponent: MainComponent, width: Double = 1200, heig
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
 
-  val simulationPane = new TabPane()
-  simulationPane.tabs = List(worldTab, statisticsTab)
+  val genomeTab = new Tab()
+  genomeTab.text = "Genome"
+  genomeTab.closable = false
+  genomeTab.content = genomePane
 
+  val simulationPane = new TabPane()
+  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab)
   val mainPane = new BorderPane()
   mainPane.top = topPane
   mainPane.center = simulationPane

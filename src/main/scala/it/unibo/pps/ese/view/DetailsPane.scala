@@ -1,31 +1,57 @@
 package it.unibo.pps.ese.view
 
-import scalafx.scene.control.{Label, ScrollPane}
-import scalafx.scene.layout.BorderPane
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male}
+import it.unibo.pps.ese.view.speciesdetails.{NonNumericQualityViewerBox, QualityViewerBox}
+import scalafx.scene.control.{Button, Label, ProgressBar, ScrollPane}
+import scalafx.scene.input.MouseEvent
+import scalafx.scene.layout.{BorderPane, HBox, VBox}
+import scalafx.Includes._
+import scalafx.geometry.Pos
 
 trait DetailsPane extends ScrollPane {
 
-  def showDetails(e: Entity): Unit
+  def showDetails(e: Entity,animalInfo:AnimalInfo): Unit
   def clearDetails() : Unit
 }
 
 object DetailsPane {
-  def apply(): DetailsPane = new DetailsPaneImpl()
+  def apply(mainComponent: MainComponent): DetailsPane = new DetailsPaneImpl(mainComponent)
 }
 
-class DetailsPaneImpl extends DetailsPane {
+class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 
   val nameLabel = Label("")
   val mainPane = new BorderPane()
-  mainPane.center = nameLabel
+  val button:Button = new Button("Genome")
+//  mainPane.bottom = button
+  val vBox:VBox = new VBox()
+  vBox.spacing = 10
+  mainPane.center = vBox
 
   content = mainPane
 
-  override def showDetails(e: Entity): Unit = {
+  override def showDetails(e: Entity,animalInfo: AnimalInfo): Unit = {
     nameLabel.text = e.name
+    val genderColor = animalInfo.gender match {
+      case Male => "-fx-accent: cyan;"
+      case Female => "-fx-accent: pink;"
+    }
+    val dietColor = animalInfo.dietType match {
+      case Herbivore => "-fx-accent: green;"
+      case Carnivorous => "-fx-accent: red"
+    }
+    val genderBox = new NonNumericQualityViewerBox(animalInfo.gender.toString,genderColor)
+    val dietBox = new NonNumericQualityViewerBox(animalInfo.dietType.toString,dietColor)
+
+    vBox.children = nameLabel ::
+      genderBox ::
+      dietBox ::
+      animalInfo.qualities
+      .values.map(q=> new QualityViewerBox(q.qualityType.toString,q.qualityValue,"")).toList
   }
 
   override def clearDetails(): Unit = {
     nameLabel.text = ""
   }
+
 }

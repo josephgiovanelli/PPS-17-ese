@@ -24,7 +24,7 @@ sealed trait Gender
 case object Male extends Gender
 case object Female extends Gender
 
-sealed trait Reign{
+sealed trait Reign extends Identified{
   def reignName:String
   def geneId:BasicGene
 }
