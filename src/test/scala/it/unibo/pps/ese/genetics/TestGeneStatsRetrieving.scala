@@ -99,7 +99,7 @@ class TestGeneStatsRetrieving extends fixture.FunSuite {
     while(female.gender!=Female){
       female = geneticsSimulator.newAnimal("Gatto")
     }
-    
+
     female.genome.sexualGeneCoupled.foreach {
       case (GeneInChromosome(t1, Some(g1)), GeneInChromosome(t2, Some(g2))) =>
       case _=> fail()
