@@ -41,12 +41,14 @@ object NervousSystem {
     override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit = _eventsMappings = mapper :: _eventsMappings
 
     override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): Future[B] = {
+      //_eventBus notifyNewTaskStart()
       val result = Promise[B]()
       var t: Set[B] = Set()
       lazy val consumer : Consumer = {
         case response: B if response.id == request.id =>
           try {
             result success response
+            //_eventBus notifyNewTaskEnd()
           } catch {
             case e: IllegalStateException =>
               throw new IllegalStateException("Problem with message: "

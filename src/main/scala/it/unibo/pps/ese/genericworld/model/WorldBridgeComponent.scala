@@ -16,6 +16,9 @@ case class WorldInfoResponse(override val id: String, width: Long, height: Long)
 case class EntitiesStateRequest(filter: EntityState => Boolean = _ => true) extends RequestEvent
 case class EntitiesStateResponse(override val id: String, state: Seq[EntityState]) extends ResponseEvent
 
+case class EntityExecutionRequest(entityId: String) extends RequestEvent
+case class EntityExecutionResponse(override val id: String, status: Boolean) extends ResponseEvent
+
 case class ComputeNextState() extends BaseEvent
 case class ComputeNextStateAck() extends BaseEvent
 
@@ -48,11 +51,11 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
       publish(WorldInfoResponse(r id, (world info) width, (world info) height))
     case r: EntitiesStateRequest =>
       publish(EntitiesStateResponse(r id,
-        (world queryableState) getFilteredState r.filter filterNot (x => x.entityId == entitySpecifications.id)))
+        world.state(r.filter)filterNot(x => x.entityId == entitySpecifications.id)))
     case r: InteractionEvent if r.receiverId != entitySpecifications.id =>
       if (!disposed) world interact InteractionEnvelope(entitySpecifications id, r receiverId, r)
     case UpdateEntityState(properties) => properties foreach (e =>
-      if (!disposed) (world queryableState) addOrUpdateEntityState (entitySpecifications id, e))
+      if (!disposed) world updateState (entitySpecifications id, e))
     case Kill(entityId)  =>
       //Completed before next entity computation?
       if (!disposed) world removeEntity entityId
@@ -62,8 +65,8 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
       if (!disposed) //Necessary?
       requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest).onComplete({
         case Success(info) =>
-          println("I need a way to create an entity, Bocc NOOB")
-          //sons.map(i => WorldBuilder.initializeEntity(i, info.position)).foreach(entity => world addEntity entity)
+          sons.map(i => EntityBuilderHelpers.initializeEntity(i, info.position, world.info.height, world.info.width))
+              .foreach(entity =>world addEntity entity)
         case Failure(exception) =>
           exception
       })

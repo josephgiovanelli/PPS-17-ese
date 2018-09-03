@@ -9,6 +9,8 @@ sealed trait EventBus {
   def send(event: Event): Unit
   def attach(e: Consumer): Unit
   def detach(e: Consumer): Unit
+  def notifyNewTaskStart(): Unit
+  def notifyNewTaskEnd(): Unit
   def notifyOnTasksEnd(): Future[Done]
 }
 
@@ -51,5 +53,9 @@ object EventBus {
         completionPromise = None
       }
     }
+
+    override def notifyNewTaskStart(): Unit = activeTasks.incrementAndGet()
+
+    override def notifyNewTaskEnd(): Unit = activeTasks.decrementAndGet()
   }
 }
