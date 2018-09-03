@@ -12,7 +12,6 @@ case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
   def getEntityDetails(position: String): EntityDetails
-  def setUp(simulationData: SimulationData)
 }
 
 //class View {
@@ -48,7 +47,5 @@ object ViewHelpers {
 
   implicit class ManageableObserver(manageableController: ManageableController) extends Observer {
     override def getEntityDetails(id: String): EntityDetails = manageableController entityData id get
-
-    override def setUp(simulationData: SimulationData): Unit = println(simulationData)
   }
 }

@@ -1,8 +1,9 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
-import it.unibo.pps.ese.controller.loader.data.SimulationData.SimulationDataImpl
-import it.unibo.pps.ese.genericworld.controller.{EntityDetails, Observer}
+import it.unibo.pps.ese.genericworld.controller.{Controller, EntityDetails, Observer}
+import it.unibo.pps.ese.genericworld.model.SimulationBuilder
+import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
 
 import scalafx.application.JFXApp.PrimaryStage
@@ -28,7 +29,9 @@ private class ViewImpl extends View with MainComponent {
   var mainView: WorldView = new MainScene(this)
   var currentView: ViewType.Value = ViewType.MainView
 
-  setScene(ViewType.ConfigurationView)
+  //da riaggiungere
+  //setScene(ViewType.ConfigurationView)
+  setScene(ViewType.MainView)
 
   override def addObserver(observer: Observer): Unit = {
     observers = observer :: observers
@@ -63,7 +66,10 @@ private class ViewImpl extends View with MainComponent {
   override def setUp(simulationData: SimulationData): Unit =
     currentView match {
     case ViewType.ConfigurationView => {
-      observers.head.setUp(simulationData)
+      import scala.concurrent.ExecutionContext.Implicits.global
+      val controller: Controller = new SimulationBuilder[EmptySimulation].dimension(500, 500).data(simulationData).build
+      controller.attachView(this, 30)
+      controller.manage.play()
       setScene(ViewType.MainView)
     }
     case _ =>

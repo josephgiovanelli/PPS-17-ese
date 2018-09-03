@@ -53,12 +53,12 @@ object TestLauncher extends JFXApp {
 
   val view = View()
   stage = view
-//controller attachView (view, frameRate = 30)
-//controller.manage.play()
+  controller attachView (view, frameRate = 30)
+  controller.manage.play()
 
-//    stage.setOnCloseRequest((e: WindowEvent) => {
-//        controller.manage.exit()
-//    })
+    stage.setOnCloseRequest((e: WindowEvent) => {
+        controller.manage.exit()
+    })
 
 //    println("Playing")
 //    Thread.sleep(1000)
