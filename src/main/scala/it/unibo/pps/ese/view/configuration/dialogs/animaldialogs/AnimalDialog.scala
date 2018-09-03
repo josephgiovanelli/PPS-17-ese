@@ -25,7 +25,7 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
   initOwner(window)
   title = "Animal Dialog"
   headerText = "Create an animal"
-  dialogPane().getStylesheets.add(getClass.getResource("/text-field-red-border.css").toExternalForm)
+  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
   val errorClass = PseudoClass("error")
 
   /*
@@ -126,9 +126,9 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
     val intCheck = if (intFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
 
     if (mandatoryCheck || intCheck)
-      field.pseudoClassStateChanged(PseudoClass("error"), true)
+      field.pseudoClassStateChanged(errorClass, true)
     else
-      field.pseudoClassStateChanged(PseudoClass("error"), false)
+      field.pseudoClassStateChanged(errorClass, false)
 
     if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
     else if (intCheck) fields(field)._2.text.value = "Must be int"

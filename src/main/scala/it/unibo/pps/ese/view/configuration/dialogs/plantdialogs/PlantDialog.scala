@@ -24,7 +24,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
   initOwner(window)
   title = "Plant Dialog"
   headerText = "Create a plant"
-  dialogPane().getStylesheets.add(getClass.getResource("/text-field-red-border.css").toExternalForm)
+  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
   val errorClass = PseudoClass("error")
 
   /*
@@ -121,9 +121,9 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
     val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
 
     if (mandatoryCheck || doubleCheck)
-      field.pseudoClassStateChanged(PseudoClass("error"), true)
+      field.pseudoClassStateChanged(errorClass, true)
     else
-      field.pseudoClassStateChanged(PseudoClass("error"), false)
+      field.pseudoClassStateChanged(errorClass, false)
 
     if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
     else if (doubleCheck) fields(field)._2.text.value = "Must be double"
