@@ -22,8 +22,6 @@ import scalafx.stage.Window
 
 case class CustomGeneDialog(window: Window, animal: String, gene: Option[String] = None) extends Dialog[String] {
 
-  val MIN_ELEM = 3
-
   /*
   Header
    */
@@ -37,13 +35,6 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   /*
   Fields
    */
-
-  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeInfo
-    case None => throw new IllegalStateException()
-  }
-
-  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome
 
   val idGene: TextField = new TextField()
   val nameGene: TextField = new TextField()
@@ -68,6 +59,13 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     })
   }
 
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
+    case Some((_, chromosomeInfo)) => chromosomeInfo
+    case None => throw new IllegalStateException()
+  }
+
+  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome
+
   var properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get)._1.properties else Map.empty
   var conversionMap: Map[String, Map[String, Double]] = if (gene.isDefined) currentStructuralChromosome(gene.get)._1.conversionMap else Map.empty
 
@@ -87,7 +85,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     })
   }
 
-  propertiesListView.prefHeight = MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  propertiesListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
 
   val propertiesButton = new Button("Add")
   propertiesButton.onAction = _ => PropertiesDialog(window, animal, None, None, None).showAndWait() match {
@@ -172,7 +170,6 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   }
 
   private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) || propertiesName.isEmpty
-
 
 }
 

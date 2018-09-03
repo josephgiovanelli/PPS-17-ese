@@ -5,6 +5,7 @@ import it.unibo.pps.ese.view.configuration.dialogs._
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
+import scalafx.css.PseudoClass
 import scalafx.scene.Node
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
@@ -13,16 +14,17 @@ import scalafx.stage.Window
 
 case class AllelesDialog(window: Window, animal: String, gene: String, chromosomeTypes: ChromosomeTypes.Value) extends Dialog[Unit] {
 
-  val ROW_HEIGHT = 26
-  val MIN_ELEM = 3
+  /*
+  Header
+  */
 
   initOwner(window)
   title = "Alleles Dialog"
   headerText = "Define chromosome alleles"
 
-  // Set the button types.
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
+  /*
+  Fields
+  */
 
   val currentAnimalChromosome = EntitiesInfo.instance().getAnimalInfo(animal) match {
     case Some((_, chromosomeInfo)) => chromosomeTypes match {
@@ -63,7 +65,7 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
 
 
 
-  allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+  allelesListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
 
   val allelesButton = new Button("Add")
   allelesButton.onAction = _ => AlleleDialog(window, animal, gene, None, properties, chromosomeTypes).showAndWait() match {
@@ -79,17 +81,27 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
   allelesPane.left = new Label("Alleles")
   allelesPane.right = allelesButton
 
+  dialogPane().content = new VBox() {
+    children ++= Seq(allelesPane, allelesListView, new Label("At least one allele"))
+    styleClass += "sample-page"
+  }
 
-  // Enable/Disable login button depending on whether a username was
-  // entered.
+  /*
+  OkButton
+  */
+
+  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
+  dialogPane().buttonTypes = Seq(okButtonType)
   val okButton: Node = dialogPane().lookupButton(okButtonType)
   okButton.disable = false
 
+  /*
+  Checks
+   */
+  allelesName.onChange((_,_) =>
+    okButton.disable = checkFields)
 
-  dialogPane().content = new VBox() {
-    children ++= Seq(allelesPane, allelesListView)
-    styleClass += "sample-page"
-  }
+  private def checkFields: Boolean = allelesName.isEmpty
 
 }
 

@@ -16,8 +16,6 @@ import scalafx.stage.Window
 
 case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
 
-  val MIN_ELEM = 3
-
   /*
   Header
    */
@@ -72,9 +70,9 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     })
   }
 
-  structuralChromosomeListView.prefHeight = MIN_ELEM * ListViewUtils.ROW_HEIGHT
-  regulationChromosomeListView.prefHeight = MIN_ELEM * ListViewUtils.ROW_HEIGHT
-  sexualChromosomeListView.prefHeight = MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  structuralChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  regulationChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  sexualChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
 
   val structuralButton = new Button("Add")
   structuralButton.onAction = _ => CustomGeneDialog(window, animal, None).showAndWait() match {
