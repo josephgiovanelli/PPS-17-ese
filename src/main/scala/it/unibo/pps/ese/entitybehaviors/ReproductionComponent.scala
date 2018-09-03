@@ -34,7 +34,6 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
                                  fecundity: Double,
                                  geneticsSimulator: GeneticsSimulator,
                                  animalGenome: AnimalGenome,
-                                 clockPerYear: Long,
                                  pregnancyDuration: Long,
                                  mutationProb: Double,
                                  energyRequirements: Double)
@@ -88,7 +87,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
             }
           })
         })
-      case r: PartnerInfoRequest =>
+      case r: PartnerInfoRequest if r.senderId != entitySpecifications.id =>
         requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
           .onComplete{
             case Success(info) =>

@@ -42,14 +42,20 @@ object NervousSystem {
 
     override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): Future[B] = {
       val result = Promise[B]()
+      var t: Set[B] = Set()
       lazy val consumer : Consumer = {
         case response: B if response.id == request.id =>
           try {
             result success response
           } catch {
             case e: IllegalStateException =>
-              throw new IllegalStateException("Problem with message: " + request.toString, e)
+              throw new IllegalStateException("Problem with message: "
+                + t.contains(response) + "\n"
+                + request + "\n"
+                + t.head + "\n"
+                + response)
           }
+          t = t + response
           _eventBus detach consumer
         case _ => Unit
       }

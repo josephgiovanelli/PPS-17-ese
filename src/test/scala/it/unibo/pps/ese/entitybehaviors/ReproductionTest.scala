@@ -6,8 +6,8 @@ import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Gender}
-import it.unibo.pps.ese.genetics.entities.QualityType.EnergyRequirements
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Gender, Quality}
+import it.unibo.pps.ese.genetics.entities.QualityType.{EnergyRequirements, Fecundity}
 import it.unibo.pps.ese.utils.Point
 import org.scalatest.FunSuite
 
@@ -19,16 +19,12 @@ class ReproductionTest extends FunSuite {
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo): Component = {
     ReproductionComponent(
-      entity.specifications,
-      //TODO exception, key not exists
-      //animalInfo.qualities(Fecundity).qualityValue,
-      3,
+      entity specifications,
+      info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
       GeneticsSimulator,
       info.genome,
-      //TODO
-      10,
-      1,
-      0.0,
+      3,
+      0.1,
       info.qualities(EnergyRequirements).qualityValue
     )
   }

@@ -4,12 +4,12 @@ import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.SimulationData
-import it.unibo.pps.ese.entitybehaviors.{BrainComponent, PhysicalStatusComponent, StaticRules, decisionsupport}
+import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 import it.unibo.pps.ese.genericworld.controller.Controller
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Reign}
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Quality, Reign}
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
 import it.unibo.pps.ese.utils.Point
 
@@ -55,6 +55,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
       entity addComponent initializeBrainComponent(entity, animalInfo)
       entity addComponent initializeAnimalPhysicalComponent(entity, animalInfo)
+      entity addComponent initializeReproductionComponent(entity, animalInfo)
       entity
     }
 
@@ -110,6 +111,18 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       )
     }
 
+    def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo): Component = {
+      ReproductionComponent(
+        entity specifications,
+        animalInfo.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
+        GeneticsSimulator,
+        animalInfo.genome,
+        3,
+        0.1,
+        animalInfo.qualities(EnergyRequirements).qualityValue
+      )
+    }
+
     def initializePlantPhysicalComponent(entity: Entity, plantInfo: PlantInfo): Component = {
       PlantPhysicalComponent(
         entity specifications,
@@ -125,7 +138,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
     }
 
     StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (0, Integer.MAX_VALUE), 0,
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (0, Integer.MAX_VALUE), Integer.MAX_VALUE,
       Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
       Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
     StaticRules.instance().setRules(worldRules)

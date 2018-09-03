@@ -44,14 +44,14 @@ object SimulationLoop {
 
           val populationTrend = DataMiner(DataAggregator ingestedData) populationTrend()
           val worldSpecies = DataMiner(DataAggregator ingestedData) worldSpecies()
-          println(populationTrend)
-          println(worldSpecies)
+          //println(populationTrend)
+          //println(worldSpecies)
 
           if (era == 10) {
             val tmp = (DataAggregator ingestedData) entitiesInEra  1
             tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
               val y = (DataAggregator ingestedData) entityDynamicLog  x.id
-              println(y)
+              //println(y)
 
 //              val originalData = (DataAggregator ingestedData) getAllDynamicLogs()
 //              val saver = DataSaver()
