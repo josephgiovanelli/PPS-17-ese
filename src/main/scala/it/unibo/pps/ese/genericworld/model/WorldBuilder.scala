@@ -117,7 +117,7 @@ object WorldBuilder {
       plantInfo.qualities(Availability).qualityValue)
   }
 
-  def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo): Component = {
+  private def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo): Component = {
     ReproductionComponent(
       entity.specifications,
       //TODO exception, key not exists

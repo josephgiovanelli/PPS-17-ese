@@ -1,20 +1,23 @@
 package it.unibo.pps.ese.entitybehaviors.util.reproduction
 
+import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, Chromosome, ChromosomeCouple, ChromosomeType, MGene, ProteinoGenicAmminoacid, RegulatorGene, SexualChromosomeCouple, StructuralGene, X, Y}
 import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import org.scalatest.FunSuite
 
 class TestChromosomeMixing extends FunSuite {
 
-  implicit val fake: GeneticsEngine = new GeneticsEngine {
-    override def getAnimalInfoByGenome(species: String, childGenome: AnimalGenome): AnimalInfo = null
-
-    override def obtainMutantAlleles(species: String, gene: MGene): Iterable[MGene] = Seq()
-
-    override def mutationProb: Double = 0
-  }
-
   test("Chromosomes couples can be correctly mixed without mutations") {
+    implicit val fake: GeneticsEngine = new GeneticsEngine {
+      override def getAnimalInfoByGenome(species: String, childGenome: AnimalGenome): AnimalInfo = null
+
+      override def obtainMutantAlleles(species: String, gene: MGene): Iterable[MGene] = Seq()
+
+      override def mutationProb: Double = 0
+    }
+
     val bg1 = BasicGene(Seq('A'), StructuralGene)
     val bg2 = BasicGene(Seq('B'), StructuralGene)
     val bg3 = BasicGene(Seq('C'), StructuralGene)
@@ -45,6 +48,25 @@ class TestChromosomeMixing extends FunSuite {
   }
 
   test("Chromosomes couples can be correctly mixed with mutations") {
+    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
+    val initializedSimulation = GeneticsSimulator.beginSimulation(data)
+    val animalGenome = initializedSimulation.getAllAnimals.head._2.head.genome
 
+    implicit val validGeneticEngine: GeneticsEngine = new GeneticsEngine {
+      override def getAnimalInfoByGenome(species: String, childGenome: AnimalGenome): AnimalInfo =
+        GeneticsSimulator.getAnimalInfoByGenome(species, childGenome)
+
+      override def obtainMutantAlleles(species: String, gene: MGene): Iterable[MGene] =
+        GeneticsSimulator.obtainMutantAlleles(species, gene)
+
+      override def mutationProb: Double = 1.0
+    }
+
+    val species = initializedSimulation.getAllAnimals.head._1
+    val structuralChromosomeCouple = animalGenome.autosomeChromosomeCouples(ChromosomeType.STRUCTURAL_ANIMAL)
+    val newChromosomeCouple = EmbryosUtil.generateNewChromosomeCouple(structuralChromosomeCouple,
+      structuralChromosomeCouple, species)._2
+    val expectedChromosomeCode: Seq[ProteinoGenicAmminoacid] = List('O', 'C', 'C', 'S', 'D', 'C')
+    assert(newChromosomeCouple.firstChromosome.geneList.exists(gene => gene.completeCode == expectedChromosomeCode))
   }
 }

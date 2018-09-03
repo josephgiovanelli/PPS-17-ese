@@ -11,16 +11,24 @@ import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
+
+
 case class ReproductionBaseInformationRequest() extends RequestEvent
 case class ReproductionBaseInformationResponse(override val id: String, gender: String, elapsedClocks: Long, species: String) extends ResponseEvent
 case class ReproductionPhysicalInformationRequest() extends RequestEvent
-case class ReproductionPhysicalInformationResponse(override val id: String, fertility: Double, age: Double) extends ResponseEvent
+case class ReproductionPhysicalInformationResponse(override val id: String, fertility: Double) extends ResponseEvent
 case class PartnerInfoRequest(override val receiverId: String, senderId: String) extends InteractionEvent with RequestEvent
 case class PartnerInfoResponse(override val id: String, override val receiverId: String, partnerGenome: AnimalGenome,
                                partnerFertility: Double) extends InteractionEvent with ResponseEvent
 
 case class PregnancyRequirements(extraEnergyRequirements: Double) extends BaseEvent
 case class PregnancyEnd() extends BaseEvent
+
+trait ForceReproduction
+case class AutoForceReproduction(partnerId: String) extends ForceReproduction with BaseEvent
+case class PartnerForceReproduction(override val receiverId: String, genome: AnimalGenome, fertility: Double, species: String)
+  extends ForceReproduction with InteractionEvent with ReproductionInfo
+case class ForceReproductionForward[T <: ForceReproduction](forwardedForcing: T) extends BaseEvent
 
 case class ReproductionComponent(override val entitySpecifications: EntitySpecifications,
                                  fecundity: Double,
@@ -63,29 +71,22 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
           }
         }
         publish(new ComputeNextStateAck)
-      case InteractionEntity(id, kind) if kind == ActionKind.COUPLE =>
-        val f1 = requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == id))
-        val f2 = requireData[ReproductionBaseInformationRequest, ReproductionBaseInformationResponse](ReproductionBaseInformationRequest())
-        val result = for {
-          r1 <- f1
-          r2 <- f2
-        } yield (r1, r2)
-
-        result.onComplete{
-          case Success((partnerBaseInfo, myBaseInfo)) =>
+      case InteractionEntity(partnerId, kind) if kind == ActionKind.COUPLE =>
+        checkPartnerExistence(partnerId, partnerBaseInfo => {
+          obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
             import EntityInfoConversion._
-            if(partnerBaseInfo.state.nonEmpty) {
-              if (partnerBaseInfo.state.head.state.elapsedClocks < myBaseInfo.elapsedClocks)
-                print("")
-                //TODO force me and other animal to copulate at next move
-              else
-              if(embryos.isEmpty) {
-                //TODO force other entity to copulate
-                copulate(id, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString)
-              }
+            if (partnerBaseInfo.state.head.state.elapsedClocks < myBaseInfo.elapsedClocks) {
+              //force me and other animal to copulate at next move
+              publish(AutoForceReproduction(partnerId))
+              publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
+            } else if(embryos.isEmpty) {
+              //force other animal to copulate
+              publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
+              createEmbryos(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
+                myPhysicalInfo.fertility)
             }
-          case Failure(error) => throw error
-        }
+          })
+        })
       case r: PartnerInfoRequest =>
         requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
           .onComplete{
@@ -94,27 +95,70 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
             case Failure(exception) =>
               exception
           }
+      case r: ForceReproductionForward[_] =>
+        handleForcedReproduction(r.forwardedForcing)
       case GetInfo() =>
         publish(new GetInfoAck)
       case _ => Unit
     }
   }
 
-  private def copulate(partnerId: String, gender: String, species: String, partnerSpecies: String): Unit = {
+  private def handleForcedReproduction(forwardedForcing: ForceReproduction): Unit = forwardedForcing match {
+    case AutoForceReproduction(partnerId) =>
+      checkPartnerExistence(partnerId, partnerBaseInfo => {
+        obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
+          createEmbryos(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
+            myPhysicalInfo.fertility)
+        })
+      })
+    case r: PartnerForceReproduction =>
+      obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
+        createEmbryos(r, myBaseInfo.gender, myBaseInfo.species, myPhysicalInfo.fertility)
+      })
+  }
+
+  private def checkPartnerExistence(partnerId: String, f: EntitiesStateResponse => Unit): Unit = {
+    requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == partnerId))
+      .onComplete{
+        case Success(value) =>
+          if(value.state.nonEmpty) {
+            f(value)
+          }
+        case Failure(exception) =>
+          exception
+      }
+  }
+
+  private def obtainPersonalData(f: (ReproductionBaseInformationResponse, ReproductionPhysicalInformationResponse) => Unit): Unit = {
+    val f2 = requireData[ReproductionBaseInformationRequest, ReproductionBaseInformationResponse](ReproductionBaseInformationRequest())
+    val f3 = requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
+    val result = for {
+      r2 <- f2
+      r3 <- f3
+    } yield (r2, r3)
+    result.onComplete{
+      case Success((myBaseInfo, myPhysicalInfo)) =>
+          f(myBaseInfo, myPhysicalInfo)
+      case Failure(error) => throw error
+    }
+  }
+
+  private def createEmbryos(partnerId: String, gender: String, species: String, partnerSpecies: String, myFertility: Double): Unit = {
     if(SexTypes.withNameOpt(gender).get == SexTypes.female) {
-      val f1 = requireData[PartnerInfoRequest, PartnerInfoResponse](PartnerInfoRequest(partnerId, entitySpecifications.id))
-      val f3 = requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
-      val result = for {
-        r1 <- f1
-        r2 <- f3
-      } yield (r1, r2)
-      result.onComplete {
-        case Success((partner, physical)) =>
-          embryos = EmbryosUtil.createEmbryos(ReproductionInfo(animalGenome, physical.fertility, species),
+      requireData[PartnerInfoRequest, PartnerInfoResponse](PartnerInfoRequest(partnerId, entitySpecifications.id))
+      .onComplete {
+        case Success(partner) =>
+          embryos = EmbryosUtil.createEmbryos(ReproductionInfo(animalGenome, myFertility, species),
             ReproductionInfo(partner.partnerGenome, partner.partnerFertility, partnerSpecies), fecundity)
         case Failure(error) => throw error
       }
     }
   }
 
+  private def createEmbryos(partner: ReproductionInfo, gender: String, species: String, myFertility: Double): Unit = {
+    if (SexTypes.withNameOpt(gender).get == SexTypes.female) {
+      embryos = EmbryosUtil.createEmbryos(ReproductionInfo(animalGenome, myFertility, species),
+        partner, fecundity)
+    }
+  }
 }

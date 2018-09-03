@@ -80,7 +80,7 @@ class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[MGene])
   extends BasicChromosome(chromosomeType,geneList){ self =>
 
   override def mutate(newGenes: Seq[MGene]) =
-    new BasicChromosomeImpl(chromosomeType, geneList).asInstanceOf[self.type ]
+    new BasicChromosomeImpl(chromosomeType, newGenes).asInstanceOf[self.type ]
 }
 
 class SexualChromosomeImpl(chromosomeType: ChromosomeType,
@@ -88,6 +88,6 @@ class SexualChromosomeImpl(chromosomeType: ChromosomeType,
                            geneList:Seq[MGene])
   extends BasicChromosome(chromosomeType,geneList) with SexualChromosome{ self =>
   override def mutate(newGenes: Seq[MGene]) =
-    new SexualChromosomeImpl(chromosomeType, sexualChromosome, geneList).asInstanceOf[self.type]
+    new SexualChromosomeImpl(chromosomeType, sexualChromosome, newGenes).asInstanceOf[self.type]
 }
 

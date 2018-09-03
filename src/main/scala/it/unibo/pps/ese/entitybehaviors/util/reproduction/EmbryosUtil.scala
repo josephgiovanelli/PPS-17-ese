@@ -68,4 +68,12 @@ object EmbryosUtil {
 }
 
 
-case class ReproductionInfo (genome: AnimalGenome, fertility: Double, species: String)
+trait ReproductionInfo {def genome: AnimalGenome
+def fertility: Double
+def species: String }
+
+object ReproductionInfo {
+  def apply(genome: AnimalGenome, fertility: Double, species: String): ReproductionInfo = ReproductionInfoImpl(genome, fertility, species)
+
+  private case class ReproductionInfoImpl(genome: AnimalGenome, fertility: Double, species: String) extends ReproductionInfo
+}
