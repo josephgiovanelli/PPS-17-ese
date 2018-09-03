@@ -60,7 +60,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
     })
   }
 
-  dialogPane().content = new VBox(grid)
+  dialogPane().content = grid
 
   Platform.runLater(name.requestFocus())
 
@@ -78,7 +78,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
    */
 
   val mandatoryFields: Set[TextField] = fields.keySet
-  val doubleField: Set[TextField] = mandatoryFields - name
+  val doubleFields: Set[TextField] = mandatoryFields - name
 
   mandatoryFields.foreach(subject => {
     subject.text.onChange ( (_, _, _) => {
@@ -117,30 +117,22 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
 
 
   private def checkFields(): Boolean = {
-    val mandatoryCheck = mandatoryFields.filter(x => x.getText.trim().isEmpty)
-    val doubleCheck = doubleField.filter(x => ParseUtils.parse[Double](x.getText.trim()).isEmpty)
     var errorFound = false
-    if (mandatoryCheck.nonEmpty) {
-      mandatoryCheck.foreach(field => {
+    mandatoryFields.foreach(field => {
+      val mandatoryCheck = field.getText.trim().isEmpty
+      val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
+
+      if (mandatoryCheck || doubleCheck) {
         field.pseudoClassStateChanged(PseudoClass("error"), true)
-        fields(field)._2.text.value = "Must be filled"
-      })
-      (mandatoryFields -- mandatoryCheck).foreach(field => {
+        errorFound = true
+      }
+      else
         field.pseudoClassStateChanged(PseudoClass("error"), false)
-        fields(field)._2.text.value = ""
-      })
-      errorFound = true
-    } else if (doubleCheck.nonEmpty) {
-      doubleCheck.foreach(field => {
-        field.pseudoClassStateChanged(PseudoClass("error"), true)
-        fields(field)._2.text.value = "Must be double"
-      })
-      (doubleField -- doubleCheck).foreach(field => {
-        field.pseudoClassStateChanged(PseudoClass("error"), false)
-        fields(field)._2.text.value = ""
-      })
-      errorFound = true
-    }
+
+      if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+      else if (doubleCheck) fields(field)._2.text.value = "Must be double"
+      else fields(field)._2.text.value = ""
+    })
     errorFound
   }
 

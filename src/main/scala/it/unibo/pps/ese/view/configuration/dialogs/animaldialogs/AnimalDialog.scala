@@ -7,12 +7,13 @@ import it.unibo.pps.ese.view.configuration.dialogs.{AnimalBaseInfo, EntitiesInfo
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
-import scalafx.beans.property.StringProperty
 import scalafx.collections.ObservableBuffer
+import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, VBox}
+import scalafx.scene.layout.GridPane
+import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
 case class AnimalDialog(window: Window, animal: Option[String] = None) extends Dialog[String] {
@@ -24,6 +25,8 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
   initOwner(window)
   title = "Animal Dialog"
   headerText = "Create an animal"
+  dialogPane().getStylesheets.add(getClass.getResource("/text-field-red-border.css").toExternalForm)
+  val errorClass = PseudoClass("error")
 
   /*
   Fields
@@ -36,31 +39,32 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
   val alleleLength = new TextField()
   val typology = new ComboBox(typologySet)
   typology.selectionModel().select(0)
-  val errorLabel = new Label()
 
-  val fields: Map[TextField, Label] = ListMap(
-    name -> new Label("Name"),
-    geneLength -> new Label("Gene Length"),
-    alleleLength -> new Label("Allele Length"),
+  val fields: Map[TextField, (Label, Label)] = ListMap(
+    name -> (new Label("Name"), new Label("")),
+    geneLength -> (new Label("Gene Length"), new Label("")),
+    alleleLength -> (new Label("Allele Length"), new Label("")),
   )
 
   val grid: GridPane = new GridPane() {
     hgap = 10
-    vgap = 10
     padding = Insets(20, 100, 10, 10)
 
     var count = 0
     fields.foreach(field => {
-      add(field._2, 0, count)
+      add(field._2._1, 0, count)
       add(field._1, 1, count)
       count += 1
+      add(field._2._2, 1, count)
+      count += 1
+      field._2._2.textFill = Color.Red
     })
 
     add(new Label("Typology"), 0, count)
     add(typology, 1, count)
   }
 
-  dialogPane().content = new VBox(grid, errorLabel)
+  dialogPane().content = grid
 
   Platform.runLater(name.requestFocus())
 
@@ -78,15 +82,11 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
    */
 
   val mandatoryFields: Set[TextField] = fields.keySet
-  val intField: Set[TextField] = Set(geneLength, alleleLength)
-  val error: StringProperty = StringProperty(checkFields()._1)
-  errorLabel.text <== error
+  val intFields: Set[TextField] = Set(geneLength, alleleLength)
 
   mandatoryFields.foreach(subject => {
     subject.text.onChange ( (_, _, _) => {
-      val result = checkFields()
-      error.value = result._1
-      okButton.disable = !result._2
+      okButton.disable = checkFields()
     })
   })
 
@@ -121,20 +121,24 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
 
 
 
-  private def checkFields(): (String, Boolean) = {
-    val mandatoryCheck = mandatoryFields.filter(x => x.getText.trim().isEmpty)
-    val intCheck = intField.filter(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
-    var checksSuccessful = true
-    var toPrint: String = ""
-    if (mandatoryCheck.nonEmpty) {
-      toPrint += "Empty fields: " + mandatoryCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _) + "\n"
-      checksSuccessful = false
-    }
-    if (intCheck.nonEmpty) {
-      toPrint += "Int fields: " + intCheck.map(field => fields(field).text.value).foldRight("")(_ + " | " + _)
-      checksSuccessful = false
-    }
-    (toPrint, checksSuccessful)
+  private def checkFields(): Boolean = {
+    var errorFound = false
+    mandatoryFields.foreach(field => {
+      val mandatoryCheck = field.getText.trim().isEmpty
+      val intCheck = if (intFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
+
+      if (mandatoryCheck || intCheck) {
+        field.pseudoClassStateChanged(PseudoClass("error"), true)
+        errorFound = true
+      }
+      else
+        field.pseudoClassStateChanged(PseudoClass("error"), false)
+
+      if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+      else if (intCheck) fields(field)._2.text.value = "Must be int"
+      else fields(field)._2.text.value = ""
+    })
+    errorFound
   }
 
 }
