@@ -143,6 +143,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
       val partners = decisionSupport.discoverPartners(me)
       val preys = decisionSupport.discoverPreys(me)
+      //println(partners)
       var targets: Stream[EntityChoiceImpl] = preys
       var action: ActionKind.Value = ActionKind.EAT
       if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
