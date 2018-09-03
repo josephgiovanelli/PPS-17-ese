@@ -2,8 +2,10 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 
 import javafx.scene.Node
 
+import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
 
+import scala.collection.immutable
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
@@ -48,16 +50,20 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
     add(propertyName, 1, 0)
   }
 
+
   var conversionMap:  Map[String, Double] =
     if (currentConversionMap.isDefined) currentConversionMap.get
     else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get)._1.conversionMap(property.get)
     else Map.empty
+
+  var qualites: Set[String] = QualityType.values.map(x => x.toString).toSet -- conversionMap.keySet
+
   val conversionMapName: ObservableBuffer[String] = ObservableBuffer[String](conversionMap.keySet toSeq)
   val conversionMapListView: ListView[String] = new ListView[String] {
     items = conversionMapName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        ConversionMapDialog(window, Some((value, conversionMap(value)))).showAndWait() match {
+        ConversionMapDialog(window, Some((value, conversionMap(value))), qualites).showAndWait() match {
           case Some((name: String, value: Double)) =>
             conversionMap += (name -> value)
           case None => println("Dialog returned: None")
@@ -70,10 +76,11 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
   conversionMapListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val conversionMapButton = new Button("Add")
-  conversionMapButton.onAction = _ => ConversionMapDialog(window, None).showAndWait() match {
+  conversionMapButton.onAction = _ => ConversionMapDialog(window, None, qualites).showAndWait() match {
     case Some((name: String, value: Double)) =>
       conversionMap += (name -> value)
       conversionMapName.insert(conversionMapName.size, name)
+      qualites -= name
     case None => println("Dialog returned: None")
   }
 

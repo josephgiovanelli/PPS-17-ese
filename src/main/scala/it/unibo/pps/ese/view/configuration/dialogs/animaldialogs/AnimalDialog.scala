@@ -85,8 +85,8 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
   val intFields: Set[TextField] = Set(geneLength, alleleLength)
 
   mandatoryFields.foreach(subject => {
-    subject.text.onChange ( (_, _, _) => {
-      okButton.disable = checkFields()
+    subject.text.onChange ( (_, _, newValue) => {
+      okButton.disable = checkFields(subject, newValue)
     })
   })
 
@@ -121,24 +121,20 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
 
 
 
-  private def checkFields(): Boolean = {
-    var errorFound = false
-    mandatoryFields.foreach(field => {
-      val mandatoryCheck = field.getText.trim().isEmpty
-      val intCheck = if (intFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
+  private def checkFields(field: TextField, newValue: String): Boolean = {
+    val mandatoryCheck = field.getText.trim().isEmpty
+    val intCheck = if (intFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
 
-      if (mandatoryCheck || intCheck) {
-        field.pseudoClassStateChanged(PseudoClass("error"), true)
-        errorFound = true
-      }
-      else
-        field.pseudoClassStateChanged(PseudoClass("error"), false)
+    if (mandatoryCheck || intCheck)
+      field.pseudoClassStateChanged(PseudoClass("error"), true)
+    else
+      field.pseudoClassStateChanged(PseudoClass("error"), false)
 
-      if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
-      else if (intCheck) fields(field)._2.text.value = "Must be int"
-      else fields(field)._2.text.value = ""
-    })
-    errorFound
+    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+    else if (intCheck) fields(field)._2.text.value = "Must be int"
+    else fields(field)._2.text.value = ""
+
+    mandatoryFields.exists(x => x.getText.trim().isEmpty) || intFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
   }
 
 }

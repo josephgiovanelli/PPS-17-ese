@@ -3,13 +3,14 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 import javafx.scene.Node
 
 import scalafx.Includes._
+import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.stage.Window
 
-case class ConversionMapDialog(window: Window, currentConversion: Option[(String, Double)]) extends Dialog[(String, Double)] {
+case class ConversionMapDialog(window: Window, currentConversion: Option[(String, Double)], qualites: Set[String]) extends Dialog[(String, Double)] {
 
   initOwner(window)
   title = "Conversion Map Dialog"
@@ -20,9 +21,8 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
   dialogPane().buttonTypes = Seq(okButtonType)
 
 
-  val conversionName: TextField = new TextField() {
-    promptText = "Name"
-  }
+  val conversionName = new ComboBox(ObservableBuffer[String](qualites.toSeq))
+  val previousConversionName = new TextField()
 
   val conversionValue: TextField = new TextField() {
     promptText = "Value"
@@ -36,7 +36,7 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
     padding = Insets(20, 100, 10, 10)
 
     add(new Label("Name"), 0, 0)
-    add(conversionName, 1, 0)
+    add(if (currentConversion.isDefined) previousConversionName else conversionName, 1, 0)
     add(new Label("Value"), 0, 1)
     add(conversionValue, 1, 1)
   }
@@ -54,13 +54,14 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
   }
 
   if (currentConversion.isDefined) {
-    conversionName.editable = false
-    conversionName.text.value = currentConversion.get._1
+    conversionName.value.value = currentConversion.get._1
+    previousConversionName.editable = false
+    previousConversionName.text.value = currentConversion.get._1
     conversionValue.text.value = currentConversion.get._2.toString
   }
 
   resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) (conversionName.text.value, conversionValue.text.value.toDouble)
+    if (dialogButton == okButtonType) (conversionName.value.value, conversionValue.text.value.toDouble)
     else null
 }
 

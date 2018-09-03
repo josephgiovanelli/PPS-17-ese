@@ -50,8 +50,8 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   val idGene: TextField = new TextField() {
     promptText = "Id"
   }
-  val nameGene = new ComboBox(propertiesName)
 
+  val nameGene = new ComboBox(propertiesName)
   val previousNameGene = new TextField()
 
   val requiredField = Seq(idGene, if (gene.isDefined) previousNameGene else nameGene)

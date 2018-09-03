@@ -81,8 +81,8 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
   val doubleFields: Set[TextField] = mandatoryFields - name
 
   mandatoryFields.foreach(subject => {
-    subject.text.onChange ( (_, _, _) => {
-      okButton.disable = checkFields()
+    subject.text.onChange ( (_, _, newValue) => {
+      okButton.disable = checkFields(subject, newValue)
     })
   })
 
@@ -116,24 +116,20 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
       null
 
 
-  private def checkFields(): Boolean = {
-    var errorFound = false
-    mandatoryFields.foreach(field => {
-      val mandatoryCheck = field.getText.trim().isEmpty
-      val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
+  private def checkFields(field: TextField, newValue: String): Boolean = {
+    val mandatoryCheck = field.getText.trim().isEmpty
+    val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
 
-      if (mandatoryCheck || doubleCheck) {
-        field.pseudoClassStateChanged(PseudoClass("error"), true)
-        errorFound = true
-      }
-      else
-        field.pseudoClassStateChanged(PseudoClass("error"), false)
+    if (mandatoryCheck || doubleCheck)
+      field.pseudoClassStateChanged(PseudoClass("error"), true)
+    else
+      field.pseudoClassStateChanged(PseudoClass("error"), false)
 
-      if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
-      else if (doubleCheck) fields(field)._2.text.value = "Must be double"
-      else fields(field)._2.text.value = ""
-    })
-    errorFound
+    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+    else if (doubleCheck) fields(field)._2.text.value = "Must be double"
+    else fields(field)._2.text.value = ""
+
+    mandatoryFields.exists(x => x.getText.trim().isEmpty) || doubleFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
   }
 
 }

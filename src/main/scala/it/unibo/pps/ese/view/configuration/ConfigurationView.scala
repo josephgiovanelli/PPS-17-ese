@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.view.configuration
 
+import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs.{ConfirmDialog, ListViewUtils}
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
@@ -74,5 +75,4 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
     children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, confirmButton)
     styleClass += "sample-page"
   }
-
 }
