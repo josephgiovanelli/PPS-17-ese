@@ -2,6 +2,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
 import javafx.scene.Node
 
+import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.{CustomGeneDialog, DefaultGeneDialog}
 
@@ -52,19 +53,18 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     items = regulationName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        DefaultGeneDialog(window, ChromosomeTypes.REGULATION, animal, Some(value)).showAndWait()
+        DefaultGeneDialog(window, ChromosomeTypes.REGULATION, animal, Some(value), RegulationDefaultGenes.elements -- getCurrentRegulationChromosome).showAndWait()
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
-
 
   val sexualName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.sexualChromosome.keySet toSeq)
   val sexualChromosomeListView: ListView[String] = new ListView[String] {
     items = sexualName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, Some(value)).showAndWait()
+        DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, Some(value), SexualDefaultGenes.elements -- getCurrentSexualChromosome).showAndWait()
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -81,16 +81,22 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     case None => println("Dialog returned: None")
   }
   val regulationButton = new Button("Add")
-  regulationButton.onAction = _ => DefaultGeneDialog(window, ChromosomeTypes.REGULATION, animal, None).showAndWait() match {
-    case Some(name) =>
-      regulationName.insert(regulationName.size, name.toString)
-    case None => println("Dialog returned: None")
+  regulationButton.onAction = _ => {
+    DefaultGeneDialog(window, ChromosomeTypes.REGULATION, animal, None, RegulationDefaultGenes.elements -- getCurrentRegulationChromosome).showAndWait() match {
+      case Some(name) =>
+        regulationName.insert(regulationName.size, name.toString)
+        regulationButton.disable = (RegulationDefaultGenes.elements -- getCurrentRegulationChromosome).isEmpty
+      case None => println("Dialog returned: None")
+    }
   }
   val sexualButton = new Button("Add")
-  sexualButton.onAction = _ => DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, None).showAndWait() match {
-    case Some(name) =>
-      sexualName.insert(sexualName.size, name.toString)
-    case None => println("Dialog returned: None")
+  sexualButton.onAction = _ => {
+    DefaultGeneDialog(window, ChromosomeTypes.SEXUAL, animal, None, SexualDefaultGenes.elements -- getCurrentSexualChromosome).showAndWait() match {
+      case Some(name) =>
+        sexualName.insert(sexualName.size, name.toString)
+        sexualButton.disable = (SexualDefaultGenes.elements -- getCurrentSexualChromosome).isEmpty
+      case None => println("Dialog returned: None")
+    }
   }
 
   val structuralPane = new BorderPane()
@@ -125,8 +131,14 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
 
   mandatoryFields.foreach(subject =>
     subject.onChange ((_, _) =>
-      okButton.disable = checkField))
+      okButton.disable = checkFields))
 
-  def checkField: Boolean = mandatoryFields.exists(x => x.isEmpty)
+  private def checkFields: Boolean = mandatoryFields.exists(x => x.isEmpty)
+
+  private def getCurrentRegulationChromosome: Set[RegulationDefaultGene] =
+    currentAnimalChromosome.regulationChromosome.keySet.map(x => RegulationDefaultGenes.elements.filter(y => y.name.equals(x)).head)
+
+  private def getCurrentSexualChromosome: Set[SexualDefaultGene] =
+    currentAnimalChromosome.sexualChromosome.keySet.map(x => SexualDefaultGenes.elements.filter(y => y.name.equals(x)).head)
 
 }

@@ -94,6 +94,7 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
     previousConversionName.editable = false
     previousConversionName.text.value = currentConversion.get._1
     conversionValue.text.value = currentConversion.get._2.toString
+    okButton.disable = false
   } else {
     conversionName.value.value = qualites.head
   }

@@ -152,8 +152,15 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
 
   private def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatoryCheck = field.getText.trim().isEmpty
-    val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
-    val specialCheck = if (specialFields.contains(field)) field.text.value.toDouble >= 0.0 && field.text.value.toDouble <= 1.0 else false
+    val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Double](field.getText.trim()).isEmpty else false
+    val specialCheck =
+      if (specialFields.contains(field))
+        if (ParseUtils.parse[Double](field.getText.trim()).isEmpty)
+          true
+        else
+          field.text.value.toDouble < 0.0 || field.text.value.toDouble > 1.0
+      else
+        false
 
     if (mandatoryCheck || doubleCheck || specialCheck)
       field.pseudoClassStateChanged(errorClass, true)
@@ -162,15 +169,15 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
 
     if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
     else if (doubleCheck) fields(field)._2.text.value = "Must be double"
-    else if (specialCheck) fields(field)._2.text.value = "Must be between 0.0 and 1.0 "
+    else if (specialCheck) fields(field)._2.text.value = "Must be a probability"
     else fields(field)._2.text.value = ""
 
     checkFields
   }
 
   private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
-    doubleFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty) ||
-    specialFields.exists(x => x.text.value.toDouble >= 0.0 && x.text.value.toDouble <= 1.0) ||
+    doubleFields.exists(x => ParseUtils.parse[Double](x.getText.trim()).isEmpty) ||
+    specialFields.exists(x => x.text.value.toDouble < 0.0 || x.text.value.toDouble > 1.0) ||
     effectsName.isEmpty
 
 
