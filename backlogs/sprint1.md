@@ -12,7 +12,7 @@
 |         | Parsing yaml| Matteo | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
 | Gli esseri viventi ed i loro movimenti vengono mostrati in un interfaccia grafica
 |         | Realizzare la visualizzazione del mondo| Luca | 60 | 60 | 60 | 45 | 25 | 15 | 0 |
-|         | Organizzare la struttura generale della View| Luca | 40 | 35 | 20 | 10 | 10 | 0 | 10 |
+|         | Organizzare la struttura generale della View| Luca | 40 | 25 | 20 | 10 | 10 | 0 | 10 |
 | Ogni essere vivente ha un proprio genoma che ne identifica le caratteristiche
 |         | Codificare cromosomi| Diego             |  20  | 10 | 0 | 0 | 0 | 0 | 0 |
 |         | Implementare creazione pool di individui a partire dai valori in input | Diego             |  25  | 25  | 25 | 20 | 5 | 0 | 0 |
