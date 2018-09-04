@@ -110,7 +110,21 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             case Success(_) =>
               val extData = externalData.value.get.get
               entityInVisualField = Map.empty
+
+              //TODO mortal bug
+//              println()
+//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "male"))
+//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "female"))
+//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "male"))
+//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "female"))
+
               extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
+
+//              println()
+//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.male ))
+//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.female ))
+//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
+//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
 
               val data = dynamicData.value.get.get
 

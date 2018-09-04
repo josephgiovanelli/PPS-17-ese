@@ -47,8 +47,14 @@ object DecisionSupport {
       case (f, _) => f
     }
 
-    private def basicFilter(entity: EntityAttributes): Stream[EntityAttributes] =
+    private def basicFilter(entity: EntityAttributes): Stream[EntityAttributes] = {
+//      println()
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.male ))
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.female ))
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
       visualField filter (prey => prey != entity) filter (other => heightDiff(entity, other)) toStream
+    }
 
     private def heightDiff(entity1: EntityAttributes, entity2: EntityAttributes): Boolean = {
       val diff = abs(entity1.height - entity2.height)

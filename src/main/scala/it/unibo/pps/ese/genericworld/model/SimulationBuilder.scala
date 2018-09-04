@@ -61,7 +61,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
     import EntityBuilderHelpers._
 
     StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (0, Integer.MAX_VALUE), 0,
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0,
       Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
       Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
     StaticRules.instance().setRules(worldRules)
