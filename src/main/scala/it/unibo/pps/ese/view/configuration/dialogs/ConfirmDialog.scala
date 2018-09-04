@@ -5,6 +5,7 @@ import javafx.scene.Node
 import it.unibo.pps.ese.view.MainComponent
 
 import scalafx.Includes._
+import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
@@ -12,19 +13,24 @@ import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.stage.Window
 
 case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends Dialog[Unit] {
+
+  /*
+  Header
+   */
+
   initOwner(window)
   title = "Confirm Dialog"
   headerText = "Choose number of entities for each species"
-
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = true
+  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
+  val errorClass = PseudoClass("error")
 
 
-  val animalsEntities: Map[String, TextField] = EntitiesInfo.instance().getAnimals.map(x => x -> new TextField()).groupBy(_._1).map{ case (k,v) => (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
-  val plantsEntities: Map[String, TextField] = EntitiesInfo.instance().getPlants.map(x => x -> new TextField()).groupBy(_._1).map{ case (k,v) => (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+  val animalsEntities: Map[String, TextField] =
+    EntitiesInfo.instance().getAnimals.map(x => x -> new TextField()).groupBy(_._1).map{ case (k,v) =>
+      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+  val plantsEntities: Map[String, TextField] =
+    EntitiesInfo.instance().getPlants.map(x => x -> new TextField()).groupBy(_._1).map{ case (k,v) =>
+      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
 
   val animalsGrid: GridPane = new GridPane() {
     hgap = 10
@@ -72,6 +78,19 @@ case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends D
     children ++= Seq(animalsPane, plantsPane)
     styleClass += "sample-page"
   }
+
+  /*
+  OkButton
+   */
+
+  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
+  dialogPane().buttonTypes = Seq(okButtonType)
+  val okButton: Node = dialogPane().lookupButton(okButtonType)
+  okButton.disable = true
+
+  /*
+  Result
+   */
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
