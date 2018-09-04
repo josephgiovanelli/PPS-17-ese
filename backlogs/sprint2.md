@@ -12,12 +12,12 @@
 |         | Implementazione di un periodo di gravidanza| Matteo | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
 |         | Combinazione genomica padre e madre| Matteo | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Gli animali sono dotati di una memoria che utilizzano per memorizzare e ritrovare luoghi
-|         | Implementazione della modalità di scelta e rievocazione dei ricordi| Luca | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
-|         | Implementazione del funzionamento dei ricordi a breve e lungo termine| Luca | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
-|         | Integrazione corteccia cerebrale con BrainComponent| Luca | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
-|         | Implementazione delle funzionalità base dell'ippocampo| Luca | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
-|         | Implementazione della neocorteccia| Luca | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
-|         | Strutturazione della corteccia cerebrale| Luca | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         | Strutturazione della corteccia cerebrale| Luca | 15 | 5 | 0 | 0 | 0 | 0 | 0 |
+|         | Implementazione della neocorteccia| Luca | 10 | 10 | 5 | 5 | 5 | 0 | 0 |
+|         | Implementazione delle funzionalità base dell'ippocampo| Luca | 10 | 10 | 10 | 5 | 5 | 5 | 0 |
+|         | Implementazione del funzionamento dei ricordi a breve e lungo termine| Luca | 30 | 30 | 30 | 20 | 15 | 10 | 0 |
+|         | Implementazione della modalità di scelta e rievocazione dei ricordi| Luca | 30 | 30 | 30 | 20 | 20 | 10 | 0 |
+|         | Integrazione corteccia cerebrale con BrainComponent| Luca | 5 | 5 | 5 | 5 | 5 | 5 | 0 |
 | Visualizzazione delle caratteristiche genomiche dell'animale
 |         | Trovare rappresentazione grafica per il genoma| Diego             |  35  | 20 | 20 | 10 | 10 | 0 | 0 |
 |         | Collegare caratteristiche genomiche alla visualizzazione| Diego             |  25  | 15  | 15 | 10 | 10 | 5 | 0 |
