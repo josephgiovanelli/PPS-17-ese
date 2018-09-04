@@ -122,6 +122,9 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
    */
 
   val mandatoryFields: Set[TextField] = fields.keySet
+  val genes: Map[String, (GeneInfo, Map[String, AlleleInfo])] = EntitiesInfo.instance().getAnimalInfo(animal).get._2.structuralChromosome ++
+    EntitiesInfo.instance().getAnimalInfo(animal).get._2.regulationChromosome ++
+    EntitiesInfo.instance().getAnimalInfo(animal).get._2.sexualChromosome
 
   mandatoryFields.foreach(subject =>
     subject.text.onChange ((_, _, newValue) =>
@@ -157,19 +160,28 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   private def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatoryCheck = field.getText.trim().isEmpty
+    val lengthCheck = if (field.equals(idGene)) idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength
+                      else false
+    val uniqueNameCheck = if (field.equals(nameGene) && gene.isEmpty) genes.keySet.contains(nameGene.text.value) else false
+    val uniqueIdCheck = if (field.equals(idGene) && gene.isEmpty) genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) else false
 
-    if (mandatoryCheck) {
+    if (mandatoryCheck || lengthCheck || uniqueNameCheck || uniqueIdCheck)
       field.pseudoClassStateChanged(errorClass, true)
-      fields(field)._2.text.value = "Must be filled"
-    }
-    else {
+    else
       field.pseudoClassStateChanged(errorClass, false)
-      fields(field)._2.text.value = ""
-    }
+
+    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+    else if (lengthCheck) fields(field)._2.text.value = "Must be " + EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength + " long"
+    else if (uniqueNameCheck || uniqueIdCheck) fields(field)._2.text.value = "Must be unique"
+    else fields(field)._2.text.value = ""
     checkFields
   }
 
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) || propertiesName.isEmpty
+  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
+    idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength ||
+    (genes.keySet.contains(nameGene.text.value) && gene.isEmpty) ||
+    (genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) && gene.isEmpty) ||
+    propertiesName.isEmpty
 
 }
 

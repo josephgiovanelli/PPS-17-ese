@@ -39,7 +39,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
   val probability: TextField = new TextField()
 
   val fields: Map[TextField, (Label, Label)] = ListMap(
-    idAllele -> (new Label("Name"), new Label("")),
+    idAllele -> (new Label("Id"), new Label("")),
     dominance -> (new Label("Dominance"), new Label("")),
     consume -> (new Label("Consume"), new Label("")),
     probability -> (new Label("Probability"), new Label("")),
