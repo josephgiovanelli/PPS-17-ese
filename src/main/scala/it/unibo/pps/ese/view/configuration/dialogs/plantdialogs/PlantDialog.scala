@@ -118,7 +118,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
 
   private def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatoryCheck = field.getText.trim().isEmpty
-    val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
+    val doubleCheck = if (doubleFields.contains(field)) ParseUtils.parse[Double](field.getText.trim()).isEmpty else false
 
     if (mandatoryCheck || doubleCheck)
       field.pseudoClassStateChanged(errorClass, true)
@@ -132,7 +132,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Dialo
     checkFields
   }
 
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) || doubleFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty)
+  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) || doubleFields.exists(x => ParseUtils.parse[Double](x.getText.trim()).isEmpty)
 
 
 
