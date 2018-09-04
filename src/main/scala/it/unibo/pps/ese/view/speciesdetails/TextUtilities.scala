@@ -1,7 +1,9 @@
 package it.unibo.pps.ese.view.speciesdetails
 
 import javafx.scene.text.{Font, Text}
+import scalafx.scene.Node
 import scalafx.scene.paint.Color
+import scalafx.scene.text.TextFlow
 
 object TextUtilities {
   implicit class RichText(string:String){
@@ -25,6 +27,18 @@ object TextUtilities {
         color = Color.White,
         font = Font.font("Calibri", 24)
       )
+    }
+  }
+  implicit class RichTextFlow(textFlow:TextFlow){
+    import scala.collection.JavaConverters._
+    def addAndClear(node:Text): Unit ={
+      textFlow.children clear()
+      textFlow.children add node
+    }
+
+    def addAllAndClear(nodes:Seq[Text]): Unit ={
+      textFlow.children.clear()
+      textFlow.children.addAll(nodes.asJava)
     }
   }
 }

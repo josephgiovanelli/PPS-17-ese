@@ -87,6 +87,15 @@ class TestLoadingSimulation extends FunSuite{
     assert(geneticsSimulator.obtainMutantAlleles("Gatto",
       sm(ChromosomeType.STRUCTURAL_ANIMAL).geneList.head).nonEmpty)
     println(female.qualities.values.size)
-
+    var males = 0
+    var females = 0
+    for(i<-1 to 50) {
+      geneticsSimulator.newAnimal("Gatto").gender match {
+        case Male => males +=1
+        case Female =>  females +=1
+      }
+    }
+    println(initializedSimulation.getAllAnimals("Gatto").groupBy(a=> a.gender).map(c=>c._1+",size: "+c._2.size))
+    println(males,females)
   }
 }

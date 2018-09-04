@@ -9,7 +9,6 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.text.TextFlow
 import scalafx.scene.{Group, Parent, SceneAntialiasing, SubScene}
 
-import scala.collection.JavaConverters._
 trait GeneDetails{
   def visualizeGeneStats(geneStats: GeneStats,cName:String)
   def emptyGeneStats():Unit
@@ -49,6 +48,7 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
   override def visualizeGeneStats(geneStats: GeneStats,cName:String): Unit = geneStats match {
     case AllelicGeneStats(g,d,p,a,aq,f) =>
       setGeneDetails(
+        geneType= g.geneType.toString,
         chromosomeName= cName,
         geneId= g.geneId.mkString(","),
         alleleId= g.alleleCode.mkString(","),
@@ -59,38 +59,44 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
         active = if(a) "Yes" else "No"
       )
     case BasicGeneStats(g,i)=>
-      setBasicGeneDetails(cName,g.geneId.mkString(","),i)
+      setBasicGeneDetails(
+        chromosomeName = cName,
+        geneType=g.geneType.toString,
+        geneId=g.geneId.mkString(","),
+        identifiedThing = i
+      )
     case EmptyGeneStats()=>
       emptyGeneStats()
   }
+  override def emptyGeneStats(): Unit ={
+    textLabel.addAndClear("EmptyGene".toText)
+  }
 
-
-  private def setGeneDetails(chromosomeName: String, geneId: String,alleleId:String, affectedQualities: Seq[String],features:Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
-    val allText:Seq[Text] = (chromosomeName+"\n").toLabelText::
-      "Gene Id: ".toLabelText::(geneId+"\n").toText   ::
+  private def setGeneDetails(chromosomeName: String,geneType:String, geneId: String,alleleId:String, affectedQualities: Seq[String],features:Seq[String], dominanceLevel: String, probability: String, active: String): Unit = {
+    val allText:Seq[Text] =
+      buildBasicTextInfoSeq(chromosomeName,geneType,geneId):::
       "Allele Id: ".toLabelText::(alleleId+"\n").toText ::
       "Affect:\n".toLabelText::(affectedQualities.toSet.mkString(", ")+"\n").toText ::
       "Features:\n".toLabelText::(features.mkString(",\n")+"\n").toText ::
       "Dominance Level: ".toLabelText::(dominanceLevel+"\n").toText ::
       "Probability: ".toLabelText::(probability+"\n").toText ::
       "Active: ".toLabelText::(active+"\n").toText :: List()
-    textLabel.children.clear()
-    textLabel.children.addAll(allText.asJava)
+    textLabel.addAllAndClear(allText)
   }
   private def featuresToString(features: Seq[(String,Double)]):Seq[String] = {
     features.map(e =>e._1+": "+e._2)
   }
-  private def setBasicGeneDetails(chromosomeName: String,geneId:String,identifiedThing:String): Unit ={
+  private def setBasicGeneDetails(chromosomeName: String,geneType:String,geneId:String,identifiedThing:String): Unit ={
     val style:String = "-fx-font-weight: 900"
-    val allText:Seq[Text]  = (chromosomeName+"\n").toLabelText::
-      "Gene Id: ".toLabelText::(geneId+"\n").toText ::
-      "Identify: ".toLabelText::(identifiedThing+"\n").toText ::List()
-    textLabel.children.clear()
-    textLabel.children.addAll(allText.asJava)
+    val allText:Seq[Text]  =
+        buildBasicTextInfoSeq(chromosomeName,geneType,geneId):::
+        "Identify: ".toLabelText::(identifiedThing+"\n").toText::List()
+    textLabel.addAllAndClear(allText)
   }
 
-  override def emptyGeneStats(): Unit ={
-    textLabel.children.clear()
-    textLabel.children.add("EmptyGene".toText)
+  private def buildBasicTextInfoSeq(chromosomeName: String,geneType:String,geneId:String):List[Text]= {
+    (chromosomeName+"\n").toLabelText::
+    geneType.toLabelText::("\n").toText ::
+    "Gene Id: ".toLabelText::(geneId+"\n").toText :: List()
   }
 }

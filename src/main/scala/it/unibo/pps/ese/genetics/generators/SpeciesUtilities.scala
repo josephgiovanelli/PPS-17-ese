@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genetics.generators
 
-import it.unibo.pps.ese.genetics.Utilities.seqOfElement
 import it.unibo.pps.ese.genetics.dna._
 import it.unibo.pps.ese.genetics.dnaexpression._
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, QualityType, Species}
@@ -9,7 +8,7 @@ import it.unibo.pps.ese.genetics.generators.data.TranslatedAnimalData
 sealed trait SpeciesUtilities{
   def generateAnimal:AnimalInfo = translateGenome(generateAnimalGenome)
   def generateAnimalGenome:AnimalGenome
-  def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= seqOfElement(n,generateAnimal)
+  def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal)
   def translateGenome(genome:AnimalGenome):AnimalInfo
   def obtainMutantAlleles(gene:MGene):Seq[MGene]
   private[genetics] def getAllelicBehaviorOfGene(gene:GeneWithAllelicForms):AllelicBehaviour

@@ -2,22 +2,24 @@ package it.unibo.pps.ese.genetics.dna
 
 object ChromosomeType extends Enumeration {
   type ChromosomeType = Value
-  protected case class Val(trueSequence: Seq[GeneType]) extends super.Val{
+  protected case class Val(trueSequence: Seq[GeneType],name:String) extends super.Val{
+    override def toString(): String = name
   }
   implicit def valueToChromosomeType(x: Value): Val = x.asInstanceOf[Val]
 
-  val COMMON = Val(List(IdentifierGene,IdentifierGene))
-  val STRUCTURAL_PLANT = Val(List(StructuralGene,StructuralGene,StructuralGene))
-  val ONLY_FOR_TEST = Val(List(RegulatorGene))
-  val STRUCTURAL_ANIMAL = Val(List())
-  val LIFE_CYCLE = Val(List(RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene))
-  val FEEDING = Val(List(IdentifierGene))
-  val SEXUAL_X = Val(List(RegulatorGene,RegulatorGene))
-  val SEXUAL_Y = Val(List())
+  val COMMON = Val(List(IdentifierGene,IdentifierGene),"Common Chromosome")
+  val STRUCTURAL_PLANT = Val(List(StructuralGene,StructuralGene,StructuralGene),"Structural Chromosome")
+  val ONLY_FOR_TEST = Val(List(RegulatorGene),"Test")
+  val STRUCTURAL_ANIMAL = Val(List(),"Structural Chromosome")
+  val LIFE_CYCLE = Val(List(RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene),"Life Cycle Chromosome")
+  val FEEDING = Val(List(IdentifierGene),"Feeding Chromosome")
+  val SEXUAL_X = Val(List(RegulatorGene,RegulatorGene),"X Chromosome")
+  val SEXUAL_Y = Val(List(),"Y Chromosome")
   def checkListOfGene(chromosomeType: ChromosomeType,seq: Seq[GeneType]):Boolean= chromosomeType match {
     case STRUCTURAL_ANIMAL => seq.forall(_ == StructuralGene)
     case _ =>chromosomeType.trueSequence.equals(seq)
   }
+
 }
 
 sealed trait SexualChromosomeType
