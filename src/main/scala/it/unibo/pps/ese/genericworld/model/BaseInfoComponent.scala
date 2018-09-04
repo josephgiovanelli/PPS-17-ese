@@ -14,8 +14,7 @@ case class BaseInfoResponse(override val id: String,
                             height: Double,
                             nutritionalValue: Double,
                             defense: Double,
-                            gender:String,
-                            elapsedClocks: Long) extends ResponseEvent
+                            gender:String) extends ResponseEvent
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
                              species: String,
@@ -24,8 +23,7 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
                              var position: Point,
                              height: Double,
                              var nutritionalValue: Double,
-                             defense: Double,
-                             var elapsedClocks: Long = 0)
+                             defense: Double)
                             (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
@@ -44,26 +42,15 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       }
     case r: BaseInfoRequest =>
       this synchronized {
-        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender))
       }
     case r: ReproductionBaseInformationRequest =>
-      this synchronized {
-        //TODO problem: elapsedClocks can be non-updated if ComputeNextState is served after reproduction
-        /* Scenario:
-         * scheduler->to all components async
-         *            ->brain -> reproduction -> here
-         *                                            -> BaseInfo
-         */
-        publish(ReproductionBaseInformationResponse(r id, gender, elapsedClocks, species))
-      }
+        publish(ReproductionBaseInformationResponse(r id, gender, species))
     case ComputeNextState() =>
-      this synchronized {
-        elapsedClocks += 1
-      }
       publish(new ComputeNextStateAck)
     case GetInfo() =>
       this synchronized {
-        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender))
       }
       publish(new GetInfoAck)
     case _ => Unit
@@ -77,8 +64,7 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("height", ev height),
       EntityProperty("nutritionalValue", ev nutritionalValue),
       EntityProperty("defense", ev defense),
-      EntityProperty("gender", ev gender),
-      EntityProperty("elapsedClocks", ev elapsedClocks)
+      EntityProperty("gender", ev gender)
     )))
   }
 }

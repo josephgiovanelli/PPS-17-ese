@@ -54,8 +54,7 @@ case class FakeComponent(override val entitySpecifications: EntitySpecifications
                              var position: Point,
                              height: Double,
                              var nutritionalValue: Double,
-                             defense: Double,
-                             var elapsedClocks: Long = 0)
+                             defense: Double)
                         (implicit val executionContext: ExecutionContext)
                           extends WriterComponent(entitySpecifications) {
 
@@ -71,26 +70,15 @@ case class FakeComponent(override val entitySpecifications: EntitySpecifications
       }
     case r: BaseInfoRequest =>
       this synchronized {
-        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender))
       }
     case r: ReproductionBaseInformationRequest =>
-      this synchronized {
-        //TODO problem: elapsedClocks can be non-updated if ComputeNextState is served after reproduction
-        /* Scenario:
-         * scheduler->to all components async
-         *            ->brain -> reproduction -> here
-         *                                            -> BaseInfo
-         */
-        publish(ReproductionBaseInformationResponse(r id, gender, elapsedClocks, species))
-      }
+        publish(ReproductionBaseInformationResponse(r id, gender, species))
     case ComputeNextState() =>
-      this synchronized {
-        elapsedClocks += 1
-      }
       publish(new ComputeNextStateAck)
     case GetInfo() =>
       this synchronized {
-        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, elapsedClocks))
+        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender))
       }
       publish(new GetInfoAck)
     case _ => Unit

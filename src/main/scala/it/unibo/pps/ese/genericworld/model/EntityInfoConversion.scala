@@ -13,6 +13,10 @@ object EntityInfoConversion {
     def fakeSpeed : Int = obj.selectDynamic("fakeSpeed").asInstanceOf[Int]
   }
 
+  implicit class ExtraFieldsConversions(obj: EntityInfo) {
+    def status : EntityUpdateState.Value = obj.selectDynamic("status").asInstanceOf[EntityUpdateState.Value]
+  }
+
   implicit class BrainComponentConversions(obj: EntityInfo) {
     def strong : Double = obj.selectDynamic("strong").asInstanceOf[Double]
     def actionField : Double = obj.selectDynamic("actionField").asInstanceOf[Double]
@@ -42,7 +46,6 @@ object EntityInfoConversion {
     def nutritionalValue : Double = obj.selectDynamic("nutritionalValue").asInstanceOf[Double]
     def defense : Double = obj.selectDynamic("defense").asInstanceOf[Double]
     def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("gender").asInstanceOf[String]).get
-    def elapsedClocks: Long = obj.selectDynamic("elapsedClocks").asInstanceOf[Long]
   }
 
   implicit class PlantPhysicalComponentConversions(obj: EntityInfo) {

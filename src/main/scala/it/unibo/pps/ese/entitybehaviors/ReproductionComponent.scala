@@ -14,7 +14,7 @@ import scala.util.{Failure, Success}
 
 
 case class ReproductionBaseInformationRequest() extends RequestEvent
-case class ReproductionBaseInformationResponse(override val id: String, gender: String, elapsedClocks: Long, species: String) extends ResponseEvent
+case class ReproductionBaseInformationResponse(override val id: String, gender: String, species: String) extends ResponseEvent
 case class ReproductionPhysicalInformationRequest() extends RequestEvent
 case class ReproductionPhysicalInformationResponse(override val id: String, fertility: Double) extends ResponseEvent
 case class PartnerInfoRequest(override val receiverId: String, senderId: String) extends InteractionEvent with RequestEvent
@@ -75,7 +75,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
         checkPartnerExistence(partnerId, partnerBaseInfo => {
           obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
             import EntityInfoConversion._
-            if (partnerBaseInfo.state.head.state.elapsedClocks < myBaseInfo.elapsedClocks) {
+            if (partnerBaseInfo.state.head.state.status == EntityUpdateState.UPDATED) {
               //force me and other animal to copulate at next move
               publish(AutoForceReproduction(partnerId))
               publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
