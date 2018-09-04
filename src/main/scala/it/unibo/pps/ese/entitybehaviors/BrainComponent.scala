@@ -90,6 +90,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         if(forceReproduction.isDefined) {
           publish(ForceReproductionForward(forceReproduction.get))
           forceReproduction = None
+          publish(new ComputeNextStateAck)
         } else {
           hippocampus.updateTime()
 
