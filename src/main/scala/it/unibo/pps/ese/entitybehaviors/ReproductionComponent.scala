@@ -53,7 +53,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
   private def subscribeEvents(): Unit = {
     subscribe {
       case ComputeNextState() =>
-        //println("Hey, compute")
+        //TODO sync problem: if embryos created in this era?
         if(embryos.nonEmpty) {
           println("Pregnant")
           inPregnancyTime += 1

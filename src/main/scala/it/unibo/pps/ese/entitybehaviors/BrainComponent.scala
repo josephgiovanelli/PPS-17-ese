@@ -70,6 +70,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   val MIN_PREYS_FOR_COUPLING = 3
   val FERTILITY_THRESHOLD = 20
 
+  var forceReproduction: Option[ForceReproduction] = None
 
   val decisionSupport: DecisionSupport = DecisionSupport()
 
@@ -86,35 +87,45 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     import EntityInfoConversion._
     subscribe {
       case ComputeNextState() =>
-        hippocampus.updateTime()
+        if(forceReproduction.isDefined) {
+          publish(ForceReproductionForward(forceReproduction.get))
+          forceReproduction = None
+        } else {
+          hippocampus.updateTime()
 
-        val dynamicData = requireData[DynamicParametersRequest, DynamicParametersResponse](
-          new DynamicParametersRequest)
+          val dynamicData = requireData[DynamicParametersRequest, DynamicParametersResponse](
+            new DynamicParametersRequest)
 
-        val externalData = for {
-          baseInfo <- requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest)
-          external <- requireData[EntitiesStateRequest, EntitiesStateResponse](
-            EntitiesStateRequest(x => distanceBetween(x.state.position, baseInfo position) <= visualField))
-        } yield external
+          val externalData = for {
+            baseInfo <- requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest)
+            external <- requireData[EntitiesStateRequest, EntitiesStateResponse](
+              EntitiesStateRequest(x => distanceBetween(x.state.position, baseInfo position) <= visualField))
+          } yield external
 
-        def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
-          x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
-          x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
+          def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
+            x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
+            x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
 
-        Future.sequence(Seq(dynamicData, externalData)).onComplete {
-          case Success(_) =>
-            val extData = externalData.value.get.get
-            entityInVisualField = Map.empty
-            extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
+          Future.sequence(Seq(dynamicData, externalData)).onComplete {
+            case Success(_) =>
+              val extData = externalData.value.get.get
+              entityInVisualField = Map.empty
+              extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
 
-            val data = dynamicData.value.get.get
+              val data = dynamicData.value.get.get
 
-            nextMove(data speed, data energy, data fertility) onComplete (r => {
-              publish(EntityPosition(r.get))
-              publish(new ComputeNextStateAck)
-            })
-          case Failure(error) => throw error
+              nextMove(data speed, data energy, data fertility) onComplete (r => {
+                publish(EntityPosition(r.get))
+                publish(new ComputeNextStateAck)
+              })
+            case Failure(error) => throw error
+          }
         }
+      case r: AutoForceReproduction =>
+        forceReproduction = Some(r)
+        //TODO if feature for publish only in receiver bus is added, two cases can be unified
+      case r: PartnerForceReproduction if r.receiverId == entitySpecifications.id =>
+        forceReproduction = Some(r)
       case GetInfo() =>
         publish(BrainInfo(strong, actionField, visualField, attractiveness))
         publish(new GetInfoAck)

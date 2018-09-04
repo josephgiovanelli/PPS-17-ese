@@ -3,7 +3,7 @@ package it.unibo.pps.ese.entitybehaviors
 import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.genericworld.model._
+import it.unibo.pps.ese.genericworld.model.{EntityUpdateState, _}
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Gender, Quality}
@@ -39,22 +39,26 @@ class ReproductionTest extends FunSuite {
     val world = World(10, 10)
     val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
     val initializedSimulation = GeneticsSimulator.beginSimulation(data)
-    val male = baseEntityInit(initializedSimulation.getAllAnimals.head._2.head, Point(1, 1), "M")
+    val female = behaviourEntityInit(baseEntityInit(initializedSimulation.getAllAnimals.head._2.head, Point(1, 1), "F"), active = true)
+    val male = behaviourEntityInit(baseEntityInit(initializedSimulation.getAllAnimals.head._2.head, Point(1, 1), "M"), active = false)
+    world.addEntity(male)
+    world.addEntity(female)
     Await.result(world.requireInfoUpdate, Duration.Inf)
     Await.result(world.requireStateUpdate, Duration.Inf)
   }
+
+  def behaviourEntityInit(entity: Entity, active: Boolean): Entity = {
+    entity //addComponent FakeComponent(active)
+  }
+
 }
 
-case class FakeStatusInfo(species: String) extends BaseEvent
+case class FakeStatusInfo(species: String, status: EntityUpdateState.Value) extends BaseEvent
 
 case class FakeComponent(override val entitySpecifications: EntitySpecifications,
                              species: String,
-                             reign: ReignType.Value,
                              gender: String,
-                             var position: Point,
-                             height: Double,
-                             var nutritionalValue: Double,
-                             defense: Double)
+                             var position: Point)
                         (implicit val executionContext: ExecutionContext)
                           extends WriterComponent(entitySpecifications) {
 
@@ -64,21 +68,13 @@ case class FakeComponent(override val entitySpecifications: EntitySpecifications
   }
 
   private def subscribeEvents(): Unit = subscribe {
-    case EntityNutritionalValue(newNutritionalValue) =>
-      this synchronized {
-        nutritionalValue = newNutritionalValue
-      }
-    case r: BaseInfoRequest =>
-      this synchronized {
-        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender))
-      }
     case r: ReproductionBaseInformationRequest =>
         publish(ReproductionBaseInformationResponse(r id, gender, species))
     case ComputeNextState() =>
       publish(new ComputeNextStateAck)
     case GetInfo() =>
       this synchronized {
-        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender))
+        publish(FakeStatusInfo("", EntityUpdateState.WAITING))
       }
       publish(new GetInfoAck)
     case _ => Unit
@@ -86,7 +82,8 @@ case class FakeComponent(override val entitySpecifications: EntitySpecifications
 
   private def configureMappings(): Unit = {
     addMapping[FakeStatusInfo]((classOf[FakeStatusInfo], ev => Seq(
-      EntityProperty("species", ev species)
+      EntityProperty("species", ev species),
+      EntityProperty("species", ev status)
     )))
   }
 }
