@@ -119,19 +119,23 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
   }
 
   /*
-  OkButton
-  */
-
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = true
+  Checks
+   */
 
   val mandatoryFields = Seq(structuralName, regulationName, sexualName)
 
   mandatoryFields.foreach(subject =>
     subject.onChange ((_, _) =>
       okButton.disable = checkFields))
+
+  /*
+  OkButton
+  */
+
+  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
+  dialogPane().buttonTypes = Seq(okButtonType)
+  val okButton: Node = dialogPane().lookupButton(okButtonType)
+  okButton.disable = checkFields
 
   private def checkFields: Boolean = mandatoryFields.exists(x => x.isEmpty)
 

@@ -93,7 +93,7 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
   val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
   dialogPane().buttonTypes = Seq(okButtonType)
   val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = false
+  okButton.disable = checkFields
 
   /*
   Checks
