@@ -47,15 +47,15 @@ object EventBus {
       consumersRegistry = consumersRegistry filterNot (e == _)
     }
 
+    override def notifyNewTaskStart(): Unit = activeTasks.incrementAndGet()
+
+    override def notifyNewTaskEnd(): Unit = checkTasksCompletion()
+
     private def checkTasksCompletion(): Unit = this synchronized {
       if (activeTasks.decrementAndGet() == 0 && completionPromise.isDefined && !completionPromise.get.isCompleted) {
         (completionPromise get) success new Done
         completionPromise = None
       }
     }
-
-    override def notifyNewTaskStart(): Unit = activeTasks.incrementAndGet()
-
-    override def notifyNewTaskEnd(): Unit = activeTasks.decrementAndGet()
   }
 }
