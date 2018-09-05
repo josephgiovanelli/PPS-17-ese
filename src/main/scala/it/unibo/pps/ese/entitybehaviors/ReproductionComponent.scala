@@ -77,7 +77,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
         checkPartnerExistence(partnerId, partnerBaseInfo => {
           //println("partner exists")
           obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
-            //println(partnerBaseInfo.state.head.state.status)
+            println(partnerBaseInfo.state.head.state.status)
             import EntityInfoConversion._
             if (partnerBaseInfo.state.head.state.status == EntityUpdateState.UPDATED) {
               //force me and other animal to copulate at next move

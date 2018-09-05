@@ -118,14 +118,14 @@ sealed trait UpdatableWorld {
 object UpdatableWorld {
 
   sealed trait UpdatePolicy {
-    def updateOrder[A](sequence: Seq[A]): Seq[A]
+    def updateOrder[A <: WorldBridgeComponent](sequence: Seq[A]): Seq[A]
   }
   object UpdatePolicy {
     sealed trait Stochastic extends UpdatePolicy {
-      override def updateOrder[A](sequence: Seq[A]): Seq[A] = scala.util.Random.shuffle(sequence)
+      override def updateOrder[A <: WorldBridgeComponent](sequence: Seq[A]): Seq[A] = scala.util.Random.shuffle(sequence)
     }
     sealed trait Deterministic extends UpdatePolicy {
-      override def updateOrder[A](sequence: Seq[A]): Seq[A] = sequence
+      override def updateOrder[A <: WorldBridgeComponent](sequence: Seq[A]): Seq[A] = sequence.sortWith((a1, a2) => a1.entitySpecifications.id < a2.entitySpecifications.id)
     }
   }
 }

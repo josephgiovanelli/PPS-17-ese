@@ -1,16 +1,11 @@
 package it.unibo.pps.ese.entitybehaviors
 
-import java.util.UUID.randomUUID
-
 import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.Deterministic
 import it.unibo.pps.ese.genericworld.model.{EntityUpdateState, _}
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
-import it.unibo.pps.ese.genetics.dna.{AnimalGenome, MGene}
-import it.unibo.pps.ese.genetics.dnaexpression.{AllelicBehaviour, GeneStats}
-import it.unibo.pps.ese.genetics.{GeneticsSimulator, InitializedSimulation}
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, Gender, PlantInfo, Quality, QualityType, Species}
+import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Quality}
 import it.unibo.pps.ese.genetics.entities.QualityType.{EnergyRequirements, Fecundity}
 import it.unibo.pps.ese.utils.Point
 import org.scalatest.FunSuite
@@ -20,6 +15,8 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ReproductionTest extends FunSuite {
+
+  private val i = (9 to 1 by -1).iterator
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo): Component = {
     ReproductionComponent(
@@ -34,7 +31,7 @@ class ReproductionTest extends FunSuite {
   }
 
   def baseEntityInit(animalInfo: AnimalInfo) : Entity = {
-    val entity = Entity("improved", randomUUID().toString)
+    val entity = Entity("improved", i.next().toString)
     entity addComponent initializeReproductionComponent(entity, animalInfo)
     entity
   }
