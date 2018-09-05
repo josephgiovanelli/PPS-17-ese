@@ -92,7 +92,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
             }
           })
         })
-      case r: PartnerInfoRequest if r.senderId != entitySpecifications.id =>
+      case r: PartnerInfoRequest =>
         requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
           .onComplete{
             case Success(info) =>
@@ -137,7 +137,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
   private def obtainPersonalData(f: (ReproductionBaseInformationResponse, ReproductionPhysicalInformationResponse) => Unit): Unit = {
     val f2 = requireData[ReproductionBaseInformationRequest, ReproductionBaseInformationResponse](ReproductionBaseInformationRequest())
     val f3 = requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
-    val result = for {
+    val result: SupervisedFuture[(ReproductionBaseInformationResponse, ReproductionPhysicalInformationResponse)] = for {
       r2 <- f2
       r3 <- f3
     } yield (r2, r3)

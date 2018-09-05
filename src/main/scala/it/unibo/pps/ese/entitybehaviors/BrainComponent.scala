@@ -94,47 +94,40 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         } else {
           hippocampus.updateTime()
 
-          val dynamicData = requireData[DynamicParametersRequest, DynamicParametersResponse](
-            new DynamicParametersRequest)
-
-          val externalData = for {
+          val data = for {
+            dynamicData <- requireData[DynamicParametersRequest, DynamicParametersResponse](new DynamicParametersRequest)
             baseInfo <- requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest)
-            external <- requireData[EntitiesStateRequest, EntitiesStateResponse](
-              EntitiesStateRequest(x => distanceBetween(x.state.position, baseInfo position) <= visualField))
-          } yield external
+            external <- requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => distanceBetween(x.state.position, baseInfo position) <= visualField))
+          } yield (external, dynamicData)
 
-          def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
-            x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
-            x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
-
-          Future.sequence(Seq(dynamicData, externalData)).onComplete {
-            case Success(_) =>
-              val extData = externalData.value.get.get
+          data onComplete{
+            case Success((extData, dynData)) =>
               entityInVisualField = Map.empty
-
               //TODO mortal bug
-//              println()
-//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "male"))
-//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "female"))
-//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "male"))
-//              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "female"))
+              //              println()
+              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "male"))
+              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "female"))
+              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "male"))
+              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "female"))
 
               extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
 
-//              println()
-//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.male ))
-//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.female ))
-//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
-//              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
+              //              println()
+              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.male ))
+              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.female ))
+              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
+              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
 
-              val data = dynamicData.value.get.get
-
-              nextMove(data speed, data energy, data fertility) onComplete (r => {
+              nextMove(dynData speed, dynData energy, dynData fertility) onComplete (r => {
                 publish(EntityPosition(r.get))
                 publish(new ComputeNextStateAck)
               })
             case Failure(error) => throw error
           }
+
+          def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
+            x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
+            x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
         }
       case r: AutoForceReproduction =>
         forceReproduction = Some(r)
@@ -158,7 +151,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     )))
   }
 
-  private def nextMove(speed: Double, energy: Double, fertility: Double): Future[Point] = {
+  private def nextMove(speed: Double, energy: Double, fertility: Double): SupervisedFuture[Point] = {
 
     requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest) map (data => {
       var position = data position

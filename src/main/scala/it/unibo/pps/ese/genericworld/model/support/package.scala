@@ -12,7 +12,10 @@ package object support {
   case class InteractionEnvelope[A](sourceId : String, targetId: String, message: A)
   class Done
 
-  type Consumer = Event => Unit
+  case class IdentifiedEvent(sourceId: String, event: Event)
+  case class IdentifiedConsumer(sourceId: String, consumer: Event => Unit)
+
+  type Consumer = IdentifiedConsumer
   type RequestConsumer = RequestEvent => Unit
   type Event = BaseEvent
 
