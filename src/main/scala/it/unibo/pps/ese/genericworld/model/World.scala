@@ -4,8 +4,10 @@ import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genericworld.model.support.{Done, InteractionEnvelope, InteractionEvent}
 
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
+import scala.util.{Failure, Success}
 
 case class WorldInfo(width: Long, height: Long)
 
@@ -53,10 +55,13 @@ sealed trait UpdatableWorld {
   private[this] var _toDeleteBridges : Set[String] = Set empty
   private[this] var _interactionSideEffects : Seq[Future[Done]] = Seq empty
   private[this] var _entitiesUpdateState : Map[String, EntityUpdateState.Value] = Map.empty
+  private[this] var _toAddBridges: mutable.Buffer[Future[Done]] = mutable.Buffer()
 
   def addBridge(bridge : WorldBridgeComponent)(implicit context: ExecutionContext): Unit = {
     _entitiesUpdateState = _entitiesUpdateState + (bridge.entitySpecifications.id -> EntityUpdateState.WAITING)
-    bridge.initializeInfo().onComplete(_ => {
+    val f = bridge.initializeInfo()
+    _toAddBridges += f
+    f.onComplete(_ => {
       _entityBridges = _entityBridges :+ bridge
     })
   }
@@ -65,22 +70,38 @@ sealed trait UpdatableWorld {
 
   def requireStateUpdate(implicit context: ExecutionContext): Future[Done] = {
     _entitiesUpdateState = _entitiesUpdateState map { case (key, _) => key -> EntityUpdateState.WAITING }
-    serializeFutures(updateOrder(_entityBridges))(e => {
-      _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATING)
-      val future = e.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList))
-      future onComplete(_ => {
-        _entityBridges filter (bridge => _toDeleteBridges contains bridge.entitySpecifications.id) foreach (x => x.dispose())
-        _entityBridges = _entityBridges filterNot(bridge => _toDeleteBridges contains bridge.entitySpecifications.id)
-        _interactionSideEffects = Seq.empty
-        _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATED)
+    println("Entities: " + _entitiesUpdateState.size)
+    Future.sequence(_toAddBridges).flatMap(_ => {
+      _toAddBridges.clear()
+      println("Bridges: " + _entityBridges.size)
+      serializeFutures(updateOrder(_entityBridges))(e => {
+        _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATING)
+        println(e.entitySpecifications.id, " computing new state")
+        val future = e.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList))
+        future onComplete{
+          case Success(_) =>
+            _entityBridges filter (bridge => _toDeleteBridges contains bridge.entitySpecifications.id) foreach (x => x.dispose())
+            _entityBridges = _entityBridges filterNot(bridge => _toDeleteBridges contains bridge.entitySpecifications.id)
+            _interactionSideEffects = Seq.empty
+            _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATED)
+          case Failure(exception) =>
+            throw exception
+
+        }
+        future
       })
-      future
+
     }) map(_ => new Done())
   }
 
 
-  def requireInfoUpdate(implicit context: ExecutionContext): Future[Done] =
-    Future.traverse(_entityBridges)(e => e.requireInfo()) map (_ => new Done())
+  def requireInfoUpdate(implicit context: ExecutionContext): Future[Done] = {
+    Future.sequence(_toAddBridges).flatMap(_ => {
+      _toAddBridges.clear()
+      println("Bridges: " + _entityBridges.size)
+      Future.traverse(_entityBridges)(e => e.requireInfo()) map (_ => new Done())
+    })
+  }
 
   def deliver[A <: InteractionEvent](interactionEnvelope: InteractionEnvelope[A])
                                     (implicit context: ExecutionContext): Unit = {
@@ -120,7 +141,7 @@ object World {
 
   import scala.reflect.runtime.universe._
 
-  def apply[T <: UpdatePolicy](width: Long, height: Long, t: TypeTag[T]): World = t.tpe match {
+  def apply[T <: UpdatePolicy](width: Long, height: Long)(implicit t: TypeTag[T]): World = t.tpe match {
     case e if e =:= typeOf[Stochastic] => new BaseInteractiveWorld(width, height) with Stochastic
     case e if e =:= typeOf[Deterministic] => new BaseInteractiveWorld(width, height) with Deterministic
   }

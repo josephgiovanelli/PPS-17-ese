@@ -79,7 +79,7 @@ object NervousSystem {
     override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](publisher: String, request: A): SupervisedFuture[B] = {
       val result = Promise[B]()
 //      var t: Set[B] = Set()
-      lazy val consumer : Consumer = IdentifiedConsumer(getClass.getSimpleName, {
+      lazy val consumer : Consumer = IdentifiedConsumer(publisher, {
         case response: B if response.id == request.id =>
 //          try {
 //            result success response

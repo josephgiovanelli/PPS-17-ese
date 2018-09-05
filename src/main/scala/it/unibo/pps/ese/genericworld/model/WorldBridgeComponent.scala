@@ -115,8 +115,10 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
   private def checkRunningJobCompletion(): Unit = this synchronized {
     if (!(runningJobPromise isCompleted)
       && runningJobAccumulator.get() == entitySpecifications.componentsCount - 1
-      && jobCompleted)
+      && jobCompleted) {
+      println("Entity computation done")
       runningJobPromise success new Done()
+    }
   }
 
   private def failurePromise() : Future[Done] = {

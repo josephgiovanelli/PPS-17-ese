@@ -4,6 +4,7 @@ import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
+import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.Deterministic
 import it.unibo.pps.ese.genericworld.model.{EntityUpdateState, _}
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, MGene}
@@ -38,10 +39,10 @@ class ReproductionTest extends FunSuite {
     entity
   }
 
-  StaticRules.instance().addSpecies(Set("Test"))
+  StaticRules.instance().addSpecies(Set("Gatto", "Giraffa"))
 
   test("Copulation") {
-    val world = World(10, 10)
+    val world = World[Deterministic](10, 10)
     val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
     val initializedSimulation = GeneticsSimulator.beginSimulation(data)
     val maleInfo = initializedSimulation.getAllAnimals.head._2.head
@@ -59,6 +60,7 @@ class ReproductionTest extends FunSuite {
   }
 
   def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, active: Option[String]): Entity = {
+    println(info.species.name)
     entity addComponent FakeComponent(entity.specifications, info.species.name, gender, position, active)
     entity
   }
@@ -80,6 +82,7 @@ class ReproductionTest extends FunSuite {
 
     private def subscribeEvents(): Unit = subscribe {
       case ComputeNextState() =>
+        println("compute next state")
         if(partner.nonEmpty) {
           println("send")
           publish(InteractionEntity(partner.get, ActionKind.COUPLE))
