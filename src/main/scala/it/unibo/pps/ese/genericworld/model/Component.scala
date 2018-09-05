@@ -23,7 +23,7 @@ trait BusWriter extends NervousSystemComponent {
 
 trait BusReader extends NervousSystemComponent {
   def subscribe(consumer : Event => Unit) : Unit = nervousSystem subscribe IdentifiedConsumer(getClass.getSimpleName, consumer)
-  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SafeFuture[B] = nervousSystem requireData[A, B] request
+  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SupervisedFuture[B] = nervousSystem requireData[A, B] request
   def notifyOnTasksEnd(): Future[Done] = nervousSystem notifyOnTasksEnd()
 }
 

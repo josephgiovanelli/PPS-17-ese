@@ -5,36 +5,43 @@ import it.unibo.pps.ese.genericworld.model.support._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.Try
 
-class SafeFuture[T](future: Future[T])(implicit onCreation: Unit => Unit, afterExecution: Unit => Unit, executionContext: ExecutionContext) {
+trait Supervisor {
+  def computationStarted: () => Unit
+  def computationEnded: () => Unit
+}
+
+class SupervisedFuture[T](future: Future[T])(implicit supervisor: Supervisor) {
 
   private val _future: Future[T] = future
 
-  def onComplete(callback: Try[T] => Unit): Unit = {
-    onCreation()
+  def onComplete(callback: Try[T] => Unit)(implicit executionContext: ExecutionContext): Unit = {
+    supervisor.computationStarted()
     future onComplete(_ => {
       callback(future.value.get)
-      afterExecution()
+      supervisor.computationEnded()
     })
   }
 
-  def map[S](mapper: T => S): SafeFuture[S] = new SafeFuture(future map mapper)(onCreation, afterExecution, executionContext)
+  def map[S](mapper: T => S)(implicit executionContext: ExecutionContext): SupervisedFuture[S] =
+    new SupervisedFuture(future map mapper)
 
-  def flatMap[S](mapper: T => SafeFuture[S]): SafeFuture[S] =
-    new SafeFuture(future flatMap (x => mapper(x)._future))(onCreation, afterExecution, executionContext)
+  def flatMap[S](mapper: T => SupervisedFuture[S])(implicit executionContext: ExecutionContext): SupervisedFuture[S] =
+    new SupervisedFuture(future flatMap (x => mapper(x)._future))
 
-  def withFilter(p: T => Boolean): SafeFuture[T] = new SafeFuture(future withFilter p)(onCreation, afterExecution, executionContext)
+  def withFilter(p: T => Boolean)(implicit executionContext: ExecutionContext): SupervisedFuture[T] =
+    new SupervisedFuture(future withFilter p)
 
-  def foreach[U](p: T => U): Unit = {
-    onCreation()
+  def foreach[U](p: T => U)(implicit executionContext: ExecutionContext): Unit = {
+    supervisor.computationStarted()
     future foreach p
-    afterExecution()
+    supervisor.computationEnded()
   }
 }
 
 sealed trait NervousSystem {
   def publish(event: IdentifiedEvent) : Unit
   def subscribe(handler: Consumer)
-  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SafeFuture[B]
+  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SupervisedFuture[B]
   def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty]))
   def notifyOnTasksEnd(): Future[Done]
 }
@@ -68,7 +75,7 @@ object NervousSystem {
 
     override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit = _eventsMappings = mapper :: _eventsMappings
 
-    override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): SafeFuture[B] = {
+    override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): SupervisedFuture[B] = {
       val result = Promise[B]()
 //      var t: Set[B] = Set()
       lazy val consumer : Consumer = IdentifiedConsumer(getClass.getSimpleName, {
@@ -87,9 +94,11 @@ object NervousSystem {
       _eventBus attach consumer
       _eventBus send IdentifiedEvent(getClass.getSimpleName, request)
 
-      implicit val onCreation: Unit => Unit = Unit => _eventBus notifyNewTaskStart()
-      implicit val afterExecution: Unit => Unit = Unit => _eventBus notifyNewTaskEnd()
-      new SafeFuture(result.future)(onCreation, afterExecution, executionContext)
+      implicit val supervisor: Supervisor = new Supervisor {
+        override def computationStarted: () => Unit = () => _eventBus notifyNewTaskStart()
+        override def computationEnded: () => Unit = () => _eventBus notifyNewTaskEnd()
+      }
+      new SupervisedFuture(result.future)
     }
 
     override def dispose(): Unit = {

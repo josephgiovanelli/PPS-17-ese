@@ -151,7 +151,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     )))
   }
 
-  private def nextMove(speed: Double, energy: Double, fertility: Double): SafeFuture[Point] = {
+  private def nextMove(speed: Double, energy: Double, fertility: Double): SupervisedFuture[Point] = {
 
     requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest) map (data => {
       var position = data position
