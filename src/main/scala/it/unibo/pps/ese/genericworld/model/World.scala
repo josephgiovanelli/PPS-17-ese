@@ -1,8 +1,11 @@
 package it.unibo.pps.ese.genericworld.model
 
+import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy
+import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genericworld.model.support.{Done, InteractionEnvelope, InteractionEvent}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 
 case class WorldInfo(width: Long, height: Long)
 
@@ -25,9 +28,10 @@ sealed trait CachedWorld {
   private[this] val _queryableState = EntitiesStateCache apply
 
   def stateMapper: EntityState => EntityState
+  def publishState(entityId: String): Unit = _queryableState publishEntityState entityId
+  def hideState(entityId: String): Unit = _queryableState hideEntityState entityId
   def updateState(entityId: String, entityProperty: EntityProperty): Unit =
     _queryableState addOrUpdateEntityState (entityId, entityProperty)
-  def deleteState(entityId: String): Unit = _queryableState deleteEntityState entityId
   def state(filter: EntityState => Boolean, map: Boolean = true): Seq[EntityState] = {
     val state = _queryableState getFilteredState filter
     if (map) state map stateMapper else state
@@ -43,21 +47,25 @@ sealed trait InteractiveWorld extends CachedWorld {
 
 sealed trait UpdatableWorld {
 
+  self: UpdatePolicy =>
+
   private[this] var _entityBridges : Seq[WorldBridgeComponent] = Seq empty
   private[this] var _toDeleteBridges : Set[String] = Set empty
   private[this] var _interactionSideEffects : Seq[Future[Done]] = Seq empty
   private[this] var _entitiesUpdateState : Map[String, EntityUpdateState.Value] = Map.empty
 
-  def addBridge(bridge : WorldBridgeComponent): Unit = {
+  def addBridge(bridge : WorldBridgeComponent)(implicit context: ExecutionContext): Unit = {
     _entitiesUpdateState = _entitiesUpdateState + (bridge.entitySpecifications.id -> EntityUpdateState.WAITING)
-    _entityBridges = _entityBridges :+ bridge
+    bridge.initializeInfo().onComplete(_ => {
+      _entityBridges = _entityBridges :+ bridge
+    })
   }
 
   def removeBridge(entityId: String): Unit = _toDeleteBridges = _toDeleteBridges + entityId
 
   def requireStateUpdate(implicit context: ExecutionContext): Future[Done] = {
     _entitiesUpdateState = _entitiesUpdateState map { case (key, _) => key -> EntityUpdateState.WAITING }
-    serializeFutures(scala.util.Random.shuffle(_entityBridges))(e => {
+    serializeFutures(updateOrder(_entityBridges))(e => {
       _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATING)
       val future = e.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList))
       future onComplete(_ => {
@@ -93,11 +101,34 @@ sealed trait UpdatableWorld {
     }
 }
 
+object UpdatableWorld {
+
+  sealed trait UpdatePolicy {
+    def updateOrder[A](sequence: Seq[A]): Seq[A]
+  }
+  object UpdatePolicy {
+    sealed trait Stochastic extends UpdatePolicy {
+      override def updateOrder[A](sequence: Seq[A]): Seq[A] = scala.util.Random.shuffle(sequence)
+    }
+    sealed trait Deterministic extends UpdatePolicy {
+      override def updateOrder[A](sequence: Seq[A]): Seq[A] = sequence toSeq
+    }
+  }
+}
+
 object World {
 
-  def apply(width: Long, height: Long): World = BaseInteractiveWorld(width, height)
+  import scala.reflect.runtime.universe._
 
-  private case class BaseInteractiveWorld(width: Long, height: Long) extends World with InteractiveWorld with UpdatableWorld {
+  def apply[T <: UpdatePolicy](width: Long, height: Long, t: TypeTag[T]): World = t.tpe match {
+    case e if e =:= typeOf[Stochastic] => new BaseInteractiveWorld(width, height) with Stochastic
+    case e if e =:= typeOf[Deterministic] => new BaseInteractiveWorld(width, height) with Deterministic
+  }
+
+  private class BaseInteractiveWorld(val width: Long, val height: Long) extends World
+    with InteractiveWorld with UpdatableWorld {
+
+    self: UpdatePolicy =>
 
     private[this] var _entities : Seq[Entity] = Seq empty
     private[this] def entities_=(entities : Seq[Entity]) : Unit = _entities = entities
@@ -110,8 +141,8 @@ object World {
       entity match {
         case _: Entity with NervousSystemExtension =>
           val bridge = new WorldBridgeComponent(entity specifications, this)
-          addBridge(bridge)
           entity addComponent bridge
+          addBridge(bridge)
         case _ => Unit
       }
       entities_=(entities :+ entity)
@@ -121,7 +152,7 @@ object World {
       removeBridge(id)
       entities find (x => x.id == id) foreach (x => x.dispose())
       entities_=(entities filterNot(e => e.id == id))
-      deleteState(id)
+      hideState(id)
     }
 
     override def entitiesState: Seq[EntityState] = state (_ => true, map = false)

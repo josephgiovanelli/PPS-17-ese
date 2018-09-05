@@ -29,6 +29,7 @@ case class GetInfo() extends BaseEvent
 case class GetInfoAck() extends BaseEvent
 
 sealed trait WorldBridge {
+  def initializeInfo(): Future[Done]
   def computeNewState(): Future[Done]
   def requireInfo(): Future[Done]
   def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Future[Done]
@@ -123,4 +124,9 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     result failure new RuntimeException("Pending request")
     result future
   }
+
+  override def initializeInfo(): Future[Done] = requireInfo().map(result => {
+    world.publishState(entitySpecifications id)
+    result
+  })
 }

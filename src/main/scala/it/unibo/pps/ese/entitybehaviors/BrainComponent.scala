@@ -190,7 +190,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             val p = getPosition(d)
             println("Memory says " + d + "  " + p)
             p
-          case SearchingState.ENDED => println("random");getPosition(randomDirection)
+          case SearchingState.ENDED => getPosition(randomDirection)
         }
 
         def checkNewMemory: Point = {

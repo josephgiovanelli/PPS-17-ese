@@ -9,6 +9,7 @@ import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRule
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 import it.unibo.pps.ese.genericworld.controller.Controller
+import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Quality, Reign}
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
 import it.unibo.pps.ese.utils.Point
@@ -66,7 +67,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
     StaticRules.instance().setRules(worldRules)
 
-    val world = World(width, height)
+    val world = World[Stochastic](width, height)
 
     val geneticsSimulator = GeneticsSimulator
     val initializedSimulation = geneticsSimulator.beginSimulation(data)
@@ -83,8 +84,8 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       .map(x => initializeEntity(x._1, x._2))
       .foreach(world addEntity)
 
-    Await.result(world.requireInfoUpdate, Duration.Inf)
-    val a = world.entitiesState
+    //Await.result(world.requireInfoUpdate, Duration.Inf)
+    //val a = world.entitiesState
     Controller(world, 250 millis)
   }
 }

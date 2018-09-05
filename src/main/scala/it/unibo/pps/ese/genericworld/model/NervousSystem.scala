@@ -73,7 +73,8 @@ object NervousSystem {
 
     override def subscribe(handler: Consumer) : Unit = _eventBus attach handler
 
-    override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit = _eventsMappings = mapper :: _eventsMappings
+    override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit =
+      _eventsMappings = mapper :: _eventsMappings
 
     override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): SupervisedFuture[B] = {
       val result = Promise[B]()
