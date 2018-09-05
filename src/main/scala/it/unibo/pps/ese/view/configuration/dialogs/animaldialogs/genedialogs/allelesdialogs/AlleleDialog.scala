@@ -61,17 +61,19 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
     })
   }
 
-
-  val currentAnimalChromosome = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeTypes match {
-      case ChromosomeTypes.STRUCTURAL => chromosomeInfo.structuralChromosome
-      case ChromosomeTypes.REGULATION => chromosomeInfo.regulationChromosome
-      case ChromosomeTypes.SEXUAL => chromosomeInfo.sexualChromosome
-    }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
+    case Some((_, chromosomeInfo)) => chromosomeInfo
     case None => throw new IllegalStateException()
   }
 
-  var currentAlleles: Map[String, AlleleInfo] = currentAnimalChromosome.get(gene) match {
+  val currentSpecificAnimalChromosome = chromosomeTypes match {
+    case ChromosomeTypes.STRUCTURAL => currentAnimalChromosome.structuralChromosome
+    case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
+    case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
+  }
+
+
+  var currentAlleles: Map[String, AlleleInfo] = currentSpecificAnimalChromosome.get(gene) match {
     case Some((_, alleles)) => alleles
     case None => throw new IllegalStateException()
   }
@@ -118,6 +120,10 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
   val mandatoryFields: Set[TextField] = fields.keySet
   val doubleFields: Set[TextField] = mandatoryFields - idAllele
   val specialFields: Set[TextField] = Set(probability)
+  val allelesId: Set[String] = (currentAnimalChromosome.structuralChromosome ++
+    currentAnimalChromosome.regulationChromosome ++
+    currentAnimalChromosome.sexualChromosome).values.flatMap(x => x._2.keySet) toSet
+
 
   mandatoryFields.foreach(subject => {
     subject.text.onChange ( (_, _, newValue) => {
@@ -161,23 +167,30 @@ case class AlleleDialog(window: Window, animal: String, gene: String, currentIdA
           field.text.value.toDouble < 0.0 || field.text.value.toDouble > 1.0
       else
         false
+    val uniqueIdCheck = if (field.equals(idAllele) && currentIdAllele.isEmpty) allelesId.contains(idAllele.text.value) else false
+    val lengthCheck = if (field.equals(idAllele)) idAllele.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.alleleLength
+                      else false
 
-    if (mandatoryCheck || doubleCheck || specialCheck)
+    if (mandatoryCheck || lengthCheck || doubleCheck || specialCheck || uniqueIdCheck)
       field.pseudoClassStateChanged(errorClass, true)
     else
       field.pseudoClassStateChanged(errorClass, false)
 
     if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+    else if (lengthCheck) fields(field)._2.text.value = "Must be " + EntitiesInfo.instance().getAnimalInfo(animal).get._1.alleleLength + " long"
     else if (doubleCheck) fields(field)._2.text.value = "Must be double"
     else if (specialCheck) fields(field)._2.text.value = "Must be a probability"
+    else if (uniqueIdCheck) fields(field)._2.text.value = "Must be unique"
     else fields(field)._2.text.value = ""
 
     checkFields
   }
 
   private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
+    idAllele.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.alleleLength ||
     doubleFields.exists(x => ParseUtils.parse[Double](x.getText.trim()).isEmpty) ||
     specialFields.exists(x => x.text.value.toDouble < 0.0 || x.text.value.toDouble > 1.0) ||
+    (allelesId.contains(idAllele.text.value) && currentIdAllele.isEmpty) ||
     effectsName.isEmpty
 
 

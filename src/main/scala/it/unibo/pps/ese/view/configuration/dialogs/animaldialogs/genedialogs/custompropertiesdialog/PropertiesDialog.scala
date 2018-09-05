@@ -2,7 +2,6 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 
 import javafx.scene.Node
 
-import it.unibo.pps.ese.controller.loader.{RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
 
