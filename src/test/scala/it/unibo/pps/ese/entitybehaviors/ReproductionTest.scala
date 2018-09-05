@@ -3,10 +3,13 @@ package it.unibo.pps.ese.entitybehaviors
 import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
 import it.unibo.pps.ese.genericworld.model.{EntityUpdateState, _}
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
-import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Quality}
+import it.unibo.pps.ese.genetics.dna.{AnimalGenome, MGene}
+import it.unibo.pps.ese.genetics.dnaexpression.{AllelicBehaviour, GeneStats}
+import it.unibo.pps.ese.genetics.{GeneticsSimulator, InitializedSimulation}
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, Gender, PlantInfo, Quality, QualityType, Species}
 import it.unibo.pps.ese.genetics.entities.QualityType.{EnergyRequirements, Fecundity}
 import it.unibo.pps.ese.utils.Point
 import org.scalatest.FunSuite
@@ -21,7 +24,30 @@ class ReproductionTest extends FunSuite {
     ReproductionComponent(
       entity specifications,
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
-      GeneticsSimulator,
+      new GeneticsSimulator {
+        def beginSimulation(simulationData:SimulationData):InitializedSimulation = null
+        def speciesList:Seq[String] = Seq()
+        def plantSpeciesList:Seq[String] = Seq()
+        def newPlant(species: String):PlantInfo = null
+        def newAnimal(species:String):AnimalInfo = null
+        def obtainMutantAlleles(species:String,gene:MGene):Seq[MGene] = Seq()
+        def addNewAnimalSpecies(animalData:AnimalData,num:Int):Seq[AnimalInfo] = Seq()
+        def addNewPlantSpecies(plantData:PlantData,num:Int):Seq[PlantInfo] = Seq()
+        def getAnimalInfoByGenome(species:String,genome: AnimalGenome):AnimalInfo = new AnimalInfo {
+          override def dietType: DietType = null
+
+          override def genome: AnimalGenome = null
+
+          override def qualities: Map[QualityType, Quality] = Map()
+
+          override def activeAlleles: Seq[AllelicBehaviour] = Seq()
+
+          override def species: Species = null
+
+          override def gender: Gender = null
+        }
+        def getGeneStats(geneM:MGene, animalInfo: AnimalInfo):GeneStats = null
+      },
       info.genome,
       3,
       -1,
