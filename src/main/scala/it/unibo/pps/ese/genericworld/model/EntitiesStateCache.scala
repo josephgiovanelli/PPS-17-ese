@@ -6,12 +6,11 @@ case class EntityState(entityId: String, state: EntityInfo)
 case class EntityProperty(propertyId : String, value : Any)
 
 sealed trait EntitiesStateCache {
-
+  def publishEntityState(entityId: String)
+  def hideEntityState(entityId: String)
   def addOrUpdateEntityState (entityId: String, element: EntityProperty) : Unit
   def getEntityState(entityId: String): EntityState
-  def deleteEntityState(entityId: String) : Unit
   def getFilteredState(filter: EntityState => Boolean ) : Seq[EntityState]
-
 }
 
 object EntitiesStateCache {
@@ -22,6 +21,14 @@ object EntitiesStateCache {
 
     private val _entitiesRepository : DataRepository[String, EntityInfo] =
       DataRepository[String, EntityInfo]
+
+    override def publishEntityState(entityId: String): Unit = this synchronized {
+      (_entitiesRepository getById entityId getOrElse(throw new IllegalStateException("No item publish"))).public = true
+    }
+
+    override def hideEntityState(entityId: String): Unit = this synchronized {
+      (_entitiesRepository getById entityId getOrElse(throw new IllegalStateException("No item to hide"))).public = false
+    }
 
     override def addOrUpdateEntityState(entityId: String, element: EntityProperty): Unit = this synchronized {
       val entityState = _entitiesRepository getById entityId getOrElse cleanState
@@ -34,20 +41,14 @@ object EntitiesStateCache {
         _entitiesRepository getById entityId getOrElse(throw new IllegalStateException("No item found")) copy())
     }
 
-    override def deleteEntityState(entityId: String): Unit = this synchronized {
-      //_entitiesRepository deleteById entityId
-      //Logic deletion
-      (_entitiesRepository getById entityId getOrElse(throw new IllegalStateException("No item to delete"))).alive = false
-    }
-
     override def getFilteredState(filter: EntityState => Boolean): Seq[EntityState] = this synchronized {
-      val entityStates = (_entitiesRepository getAll) filter (x => x._2.alive == true) map(x => EntityState(x._1, x._2 copy()))
+      val entityStates = (_entitiesRepository getAll) filter (x => x._2.public == true) map(x => EntityState(x._1, x._2 copy()))
       entityStates filter filter
     }
 
     private def cleanState: EntityInfo = {
       val state = new EntityInfo
-      state.alive = true
+      state.public = false
       state
     }
   }

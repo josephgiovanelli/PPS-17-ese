@@ -41,7 +41,7 @@ class SupervisedFuture[T](future: Future[T])(implicit supervisor: Supervisor) {
 sealed trait NervousSystem {
   def publish(event: IdentifiedEvent) : Unit
   def subscribe(handler: Consumer)
-  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SupervisedFuture[B]
+  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](publisher: String, request: A): SupervisedFuture[B]
   def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty]))
   def notifyOnTasksEnd(): Future[Done]
 }
@@ -73,9 +73,10 @@ object NervousSystem {
 
     override def subscribe(handler: Consumer) : Unit = _eventBus attach handler
 
-    override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit = _eventsMappings = mapper :: _eventsMappings
+    override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit =
+      _eventsMappings = mapper :: _eventsMappings
 
-    override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): SupervisedFuture[B] = {
+    override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](publisher: String, request: A): SupervisedFuture[B] = {
       val result = Promise[B]()
 //      var t: Set[B] = Set()
       lazy val consumer : Consumer = IdentifiedConsumer(getClass.getSimpleName, {
@@ -92,7 +93,7 @@ object NervousSystem {
         case _ => Unit
       })
       _eventBus attach consumer
-      _eventBus send IdentifiedEvent(getClass.getSimpleName, request)
+      _eventBus send IdentifiedEvent(publisher, request)
 
       implicit val supervisor: Supervisor = new Supervisor {
         override def computationStarted: () => Unit = () => _eventBus notifyNewTaskStart()
