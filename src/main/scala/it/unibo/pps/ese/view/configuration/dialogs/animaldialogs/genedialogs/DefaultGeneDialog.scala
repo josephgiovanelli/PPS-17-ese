@@ -33,18 +33,15 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   Fields
    */
 
-  val currentDefaultChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])] = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeTypes match {
-      case ChromosomeTypes.REGULATION => chromosomeInfo.regulationChromosome
-      case ChromosomeTypes.SEXUAL => chromosomeInfo.sexualChromosome
-    }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
+    case Some((_, chromosomeInfo)) => chromosomeInfo
     case None => throw new IllegalStateException()
   }
 
-  /*val propertiesSet: Set[_ <: DefaultGene] = chromosomeTypes match {
-    case ChromosomeTypes.REGULATION => RegulationDefaultGenes.elements
-    case ChromosomeTypes.SEXUAL => SexualDefaultGenes.elements
-  }*/
+  val currentDefaultChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])] = chromosomeTypes match {
+    case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
+    case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
+  }
 
   val propertiesName: ObservableBuffer[String] = ObservableBuffer[String](propertiesSet.map(x => x.name) toSeq)
 
@@ -90,6 +87,9 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
    */
 
   val mandatoryFields: Set[TextField] = fields.keySet
+  val genes: Map[String, (GeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome ++
+    currentAnimalChromosome.regulationChromosome ++
+    currentAnimalChromosome.sexualChromosome
 
   mandatoryFields.foreach(subject =>
     subject.text.onChange ((_, _, newValue) =>
@@ -126,19 +126,26 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
 
   private def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatoryCheck = field.getText.trim().isEmpty
+    val lengthCheck = if (field.equals(idGene)) idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength
+                      else false
+    val uniqueIdCheck = if (field.equals(idGene) && gene.isEmpty) genes.values.map(x => x._1.id).toSet.contains(idGene.text.value)
+                        else false
 
-    if (mandatoryCheck) {
+    if (mandatoryCheck || lengthCheck || uniqueIdCheck)
       field.pseudoClassStateChanged(errorClass, true)
-      fields(field)._2.text.value = "Must be filled"
-    }
-    else {
+    else
       field.pseudoClassStateChanged(errorClass, false)
-      fields(field)._2.text.value = ""
-    }
+
+    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+    else if (lengthCheck) fields(field)._2.text.value = "Must be " + EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength + " long"
+    else if (uniqueIdCheck) fields(field)._2.text.value = "Must be unique"
+    else fields(field)._2.text.value = ""
     checkFields
   }
 
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty)
+  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
+    idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength ||
+    (genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) && gene.isEmpty)
 
 
 }

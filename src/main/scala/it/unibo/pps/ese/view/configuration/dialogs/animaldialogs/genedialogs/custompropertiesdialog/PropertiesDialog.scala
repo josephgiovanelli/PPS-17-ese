@@ -2,6 +2,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 
 import javafx.scene.Node
 
+import it.unibo.pps.ese.controller.loader.{RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
 
@@ -18,7 +19,7 @@ import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class PropertiesDialog(window: Window, animal: String, gene: Option[String], property: Option[String], currentConversionMap: Option[Map[String, Double]]) extends Dialog[ConversionMap] {
+case class PropertiesDialog(window: Window, animal: String, gene: Option[String], property: Option[String], currentConversionMap: Option[Map[String, Double]], properties: Iterable[String]) extends Dialog[ConversionMap] {
 
   /*
   Header
@@ -146,19 +147,22 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
 
   private def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatoryCheck = field.getText.trim().isEmpty
+    val uniqueNameCheck = if (field.equals(propertyName) && property.isEmpty) properties.toSet.contains(propertyName.text.value) else false
 
-    if (mandatoryCheck) {
+    if (mandatoryCheck || uniqueNameCheck)
       field.pseudoClassStateChanged(errorClass, true)
-      fields(field)._2.text.value = "Must be filled"
-    }
-    else {
+    else
       field.pseudoClassStateChanged(errorClass, false)
-      fields(field)._2.text.value = ""
-    }
+
+    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
+    else if (uniqueNameCheck) fields(field)._2.text.value = "Must be unique"
+    else fields(field)._2.text.value = ""
     checkFields
   }
 
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) || conversionMapName.isEmpty
+  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
+    (properties.toSet.contains(propertyName.text.value) && property.isEmpty) ||
+    conversionMapName.isEmpty
 
 
 }

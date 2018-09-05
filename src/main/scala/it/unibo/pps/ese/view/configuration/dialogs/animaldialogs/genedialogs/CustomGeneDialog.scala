@@ -3,6 +3,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
 import javafx.scene.Node
 
+import it.unibo.pps.ese.controller.loader.{RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.view.configuration.dialogs.ConversionMap
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesDialog
@@ -74,7 +75,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     items = propertiesName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        PropertiesDialog(window, animal, gene,  Some(value), if (conversionMap.isEmpty) None else Some(conversionMap(value))).showAndWait() match {
+        PropertiesDialog(window, animal, gene,  Some(value), if (conversionMap.isEmpty) None else Some(conversionMap(value)), propertiesName).showAndWait() match {
           case Some(ConversionMap(propertyName, map)) => {
             conversionMap += (propertyName -> map)
           }
@@ -88,7 +89,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   propertiesListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
 
   val propertiesButton = new Button("Add")
-  propertiesButton.onAction = _ => PropertiesDialog(window, animal, None, None, None).showAndWait() match {
+  propertiesButton.onAction = _ => PropertiesDialog(window, animal, None, None, None, propertiesName).showAndWait() match {
     case Some(ConversionMap(propertyName, map)) => {
       conversionMap += (propertyName -> map)
       properties += (propertyName -> Double.getClass)
@@ -122,9 +123,12 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
    */
 
   val mandatoryFields: Set[TextField] = fields.keySet
-  val genes: Map[String, (GeneInfo, Map[String, AlleleInfo])] = EntitiesInfo.instance().getAnimalInfo(animal).get._2.structuralChromosome ++
-    EntitiesInfo.instance().getAnimalInfo(animal).get._2.regulationChromosome ++
-    EntitiesInfo.instance().getAnimalInfo(animal).get._2.sexualChromosome
+  val genes: Map[String, (GeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome ++
+    currentAnimalChromosome.regulationChromosome ++
+    currentAnimalChromosome.sexualChromosome
+
+  val genesName: Set[String] = genes.keySet ++
+    (RegulationDefaultGenes.elements ++ SexualDefaultGenes.elements).map(x => x.name)
 
   mandatoryFields.foreach(subject =>
     subject.text.onChange ((_, _, newValue) =>
@@ -162,7 +166,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     val mandatoryCheck = field.getText.trim().isEmpty
     val lengthCheck = if (field.equals(idGene)) idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength
                       else false
-    val uniqueNameCheck = if (field.equals(nameGene) && gene.isEmpty) genes.keySet.contains(nameGene.text.value) else false
+    val uniqueNameCheck = if (field.equals(nameGene) && gene.isEmpty) genesName.contains(nameGene.text.value) else false
     val uniqueIdCheck = if (field.equals(idGene) && gene.isEmpty) genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) else false
 
     if (mandatoryCheck || lengthCheck || uniqueNameCheck || uniqueIdCheck)
@@ -179,7 +183,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
     idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength ||
-    (genes.keySet.contains(nameGene.text.value) && gene.isEmpty) ||
+    (genesName.contains(nameGene.text.value) && gene.isEmpty) ||
     (genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) && gene.isEmpty) ||
     propertiesName.isEmpty
 
