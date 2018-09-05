@@ -121,11 +121,12 @@ object EntityBuilderHelpers {
     BaseInfoComponent(
       entity specifications,
       entityInfo.species.name,
-      entityInfo.species.reign,
+      convertReign(entityInfo.species.reign),
       entityInfo.gender.toString.toLowerCase,
       position,
       entityInfo.qualities(Height).qualityValue,
       entityInfo.qualities(NutritionalValue).qualityValue,
+      convertDefense(entityInfo),
       entityInfo
     )
   }

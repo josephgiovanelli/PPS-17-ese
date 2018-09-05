@@ -46,9 +46,10 @@ object EntityInfoConversion {
     def nutritionalValue : Double = obj.selectDynamic("nutritionalValue").asInstanceOf[Double]
     def defense : Double = obj.selectDynamic("defense").asInstanceOf[Double]
     def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("gender").asInstanceOf[String]).get
+    def baseEntityInfo : it.unibo.pps.ese.genetics.entities.EntityInfo = obj.selectDynamic("entityInfo").asInstanceOf[it.unibo.pps.ese.genetics.entities.EntityInfo]
   }
 
   implicit class PlantPhysicalComponentConversions(obj: EntityInfo) {
-    def availability : Double = obj.selectDynamic("availability").asInstanceOf[Double]
+    def availability: Double = obj.selectDynamic("availability").asInstanceOf[Double]
   }
 }

@@ -125,7 +125,7 @@ object UpdatableWorld {
       override def updateOrder[A](sequence: Seq[A]): Seq[A] = scala.util.Random.shuffle(sequence)
     }
     sealed trait Deterministic extends UpdatePolicy {
-      override def updateOrder[A](sequence: Seq[A]): Seq[A] = sequence toSeq
+      override def updateOrder[A](sequence: Seq[A]): Seq[A] = sequence
     }
   }
 }

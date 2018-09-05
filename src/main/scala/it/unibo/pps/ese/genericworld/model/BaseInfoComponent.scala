@@ -14,7 +14,8 @@ case class BaseInfoResponse(override val id: String,
                             height: Double,
                             nutritionalValue: Double,
                             defense: Double,
-                            gender:String) extends ResponseEvent
+                            gender:String,
+                            entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo) extends ResponseEvent
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
                              species: String,
@@ -23,7 +24,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
                              var position: Point,
                              height: Double,
                              var nutritionalValue: Double,
-                             defense: Double)
+                             defense: Double,
+                             entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo)
                             (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
@@ -42,7 +44,7 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       }
     case r: BaseInfoRequest =>
       this synchronized {
-        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender))
+        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, entityInfo))
       }
     case r: ReproductionBaseInformationRequest =>
         publish(ReproductionBaseInformationResponse(r id, gender, species))
@@ -50,7 +52,7 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       publish(new ComputeNextStateAck)
     case GetInfo() =>
       this synchronized {
-        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender))
+        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, entityInfo))
       }
       publish(new GetInfoAck)
     case _ => Unit
@@ -64,7 +66,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("height", ev height),
       EntityProperty("nutritionalValue", ev nutritionalValue),
       EntityProperty("defense", ev defense),
-      EntityProperty("gender", ev gender)
+      EntityProperty("gender", ev gender),
+      EntityProperty("entityInfo", ev entityInfo)
     )))
   }
 }

@@ -51,7 +51,7 @@ object TestLauncher extends JFXApp {
   val controller: Controller =
     new SimulationBuilder[EmptySimulation] dimension(500, 500) data "it/unibo/pps/ese/controller/loader/Simulation.yml" build
 
-  val view = View()
+  val view = View(GeneticsSimulator)
   stage = view
   controller attachView (view, frameRate = 30)
   controller.manage.play()

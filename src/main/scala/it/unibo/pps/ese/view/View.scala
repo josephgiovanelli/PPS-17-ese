@@ -1,11 +1,11 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
-import it.unibo.pps.ese.genericworld.controller.{Controller, EntityDetails, Observer}
-import it.unibo.pps.ese.genericworld.model.SimulationBuilder
+import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
+import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
-
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
@@ -14,15 +14,15 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
 
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
-  def getEntityDetails(id: String): EntityDetails
+  def getEntityDetails(id: String): Option[EntityInfo]
   def setUp(simulationData: SimulationData)
 }
 
 object View {
-  def apply(): View = new ViewImpl()
+  def apply(geneticsSimulator: GeneticsSimulator): View = new ViewImpl(geneticsSimulator)
 }
 
-private class ViewImpl extends View with MainComponent {
+private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with MainComponent {
 
   var observers: List[Observer] = Nil
   var configurationView: ConfigurationView = null
@@ -59,7 +59,7 @@ private class ViewImpl extends View with MainComponent {
     }
   }
 
-  override def getEntityDetails(id: String): EntityDetails = {
+  override def getEntityDetails(id: String): Option[EntityInfo] = {
     observers.head.getEntityDetails(id)
   }
 

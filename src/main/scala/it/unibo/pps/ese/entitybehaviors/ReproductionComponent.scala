@@ -73,7 +73,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
         }
         publish(new ComputeNextStateAck)
       case InteractionEntity(partnerId, kind) if kind == ActionKind.COUPLE =>
-        println("received")
+        //println("received")
         checkPartnerExistence(partnerId, partnerBaseInfo => {
           //println("partner exists")
           obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
@@ -81,11 +81,11 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
             import EntityInfoConversion._
             if (partnerBaseInfo.state.head.state.status == EntityUpdateState.UPDATED) {
               //force me and other animal to copulate at next move
-              println("busy partner")
+              //println("busy partner")
               publish(AutoForceReproduction(partnerId))
               publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
             } else if(embryos.isEmpty) {
-              println("free partner")
+              //println("free partner")
               //force other animal to copulate
               publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
               createEmbryos(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
@@ -94,11 +94,11 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
           })
         })
       case r: PartnerInfoRequest  /*if r.senderId != entitySpecifications.id*/=>
-        println("Received request by: ", entitySpecifications.id)
+        //println("Received request by: ", entitySpecifications.id)
         requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
           .onComplete{
             case Success(info) =>
-              println("Send response: ", entitySpecifications.id)
+              //println("Send response: ", entitySpecifications.id)
               publish(PartnerInfoResponse(r.id, r.senderId, animalGenome, info.fertility))
             case Failure(exception) =>
               exception
