@@ -5,6 +5,7 @@ import java.util.UUID.randomUUID
 package object support {
 
   trait BaseEvent
+  trait HighPriorityEvent
   trait RequestEvent extends BaseEvent { val id : String = randomUUID().toString }
   trait ResponseEvent extends BaseEvent { val id : String }
   trait InteractionEvent extends BaseEvent { val receiverId: String }

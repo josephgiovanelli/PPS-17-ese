@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.model.support
 
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success}
@@ -19,22 +19,64 @@ object EventBus {
 
   private class BaseEventBus()(implicit executionContext: ExecutionContext) extends EventBus {
 
+    case class EventInfo(event: Event, f: Event => Unit) {
+      def execute: Future[Any] = Future{f(event)}
+    }
+
     private[this] var consumersRegistry = List[Consumer]()
     private[this] val activeTasks = new AtomicLong(0)
     private[this] var completionPromise: Option[Promise[Done]] = None
 
+    private[this] var delayedHighPriorityEvents = Seq[EventInfo]()
+    private[this] var delayedLowPriorityEvents = Seq[EventInfo]()
+    private[this] val sendDelayed: AtomicBoolean = new AtomicBoolean(false)
+
     override def send(i: IdentifiedEvent): Unit = {
+
+      def serveEvent(eventInfo: EventInfo): Unit =
+        eventInfo.execute.onComplete{
+          case Success(_) =>
+            checkTasksCompletion()
+            dequeueAndServe()
+          case Failure(error) => throw error
+        }
+
+      def enqueueEvent(eventInfo: EventInfo): Unit = this synchronized {
+        eventInfo event match {
+          case _: HighPriorityEvent => delayedHighPriorityEvents = delayedHighPriorityEvents :+ eventInfo
+          case _ => delayedLowPriorityEvents = delayedLowPriorityEvents :+ eventInfo
+        }
+      }
+
+      def dequeueAndServe(): Unit = {
+        def events(): Seq[EventInfo] = this synchronized {
+          if (delayedHighPriorityEvents.nonEmpty) {
+            sendDelayed set true
+            val temp = delayedHighPriorityEvents
+            delayedHighPriorityEvents = Seq[EventInfo]()
+            temp
+          } else if (delayedLowPriorityEvents.nonEmpty && !(sendDelayed get())) {
+            val temp = delayedLowPriorityEvents
+            delayedLowPriorityEvents = Seq[EventInfo]()
+            temp
+          } else {
+            sendDelayed set false
+            Seq[EventInfo]()
+          }
+        }
+
+        events() foreach serveEvent
+      }
+
       consumersRegistry
         .filterNot (x => x.sourceId == i.sourceId)
         .map(x => x consumer)
         .foreach (f => {
           activeTasks.incrementAndGet()
-          Future{f(i.event)}
-            .onComplete{
-              case Success(_) => checkTasksCompletion()
-              case Failure(error) => throw error
-            }
+          enqueueEvent(EventInfo(i event, f))
         })
+
+      dequeueAndServe()
     }
 
     override def notifyOnTasksEnd(): Future[Done] = this synchronized {
@@ -54,7 +96,7 @@ object EventBus {
 
     override def notifyNewTaskEnd(): Unit = checkTasksCompletion()
 
-    private def checkTasksCompletion(): Unit = this synchronized {
+    private[this] def checkTasksCompletion(): Unit = this synchronized {
       if (activeTasks.decrementAndGet() == 0 && completionPromise.isDefined && !completionPromise.get.isCompleted) {
         (completionPromise get) success new Done
         completionPromise = None

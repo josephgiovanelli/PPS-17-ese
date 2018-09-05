@@ -19,8 +19,8 @@ case class EntitiesStateResponse(override val id: String, state: Seq[EntityState
 case class EntityExecutionRequest(entityId: String) extends RequestEvent
 case class EntityExecutionResponse(override val id: String, status: Boolean) extends ResponseEvent
 
-case class ComputeNextState() extends BaseEvent
-case class ComputeNextStateAck() extends BaseEvent
+case class ComputeNextState() extends BaseEvent with HighPriorityEvent
+case class ComputeNextStateAck() extends BaseEvent with HighPriorityEvent
 
 case class Kill(entityId: String) extends BaseEvent
 case class Create(sons: Iterable[AnimalInfo]) extends BaseEvent
