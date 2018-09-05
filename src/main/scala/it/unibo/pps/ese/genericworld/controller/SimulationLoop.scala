@@ -34,6 +34,8 @@ object SimulationLoop {
           DataAggregator ingestData (era, model entitiesState)
           era += 1
 
+          println("Era " + era + "computation started")
+
           val ret =
             for {
               b <- model.requireStateUpdate
@@ -44,7 +46,7 @@ object SimulationLoop {
 
           val populationTrend = DataMiner(DataAggregator ingestedData) populationTrend()
           //val worldSpecies = DataMiner(DataAggregator ingestedData) worldSpecies()
-          println(populationTrend)
+          println("Era " + era + " computation finished (Population trend: " + populationTrend + ")")
           //println(worldSpecies)
 
           if (era == 10) {

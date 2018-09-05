@@ -53,52 +53,45 @@ sealed trait UpdatableWorld {
 
   private[this] var _entityBridges : Seq[WorldBridgeComponent] = Seq empty
   private[this] var _toDeleteBridges : Set[String] = Set empty
+  private[this] var _toAddBridges: Set[(Future[Done], WorldBridgeComponent)] = Set empty
   private[this] var _interactionSideEffects : Seq[Future[Done]] = Seq empty
   private[this] var _entitiesUpdateState : Map[String, EntityUpdateState.Value] = Map.empty
-  private[this] var _toAddBridges: mutable.Buffer[Future[Done]] = mutable.Buffer()
 
   def addBridge(bridge : WorldBridgeComponent)(implicit context: ExecutionContext): Unit = {
     _entitiesUpdateState = _entitiesUpdateState + (bridge.entitySpecifications.id -> EntityUpdateState.WAITING)
-    val f = bridge.initializeInfo()
-    _toAddBridges += f
-    f.onComplete(_ => {
-      _entityBridges = _entityBridges :+ bridge
-    })
+    _toAddBridges = _toAddBridges + (bridge.initializeInfo() -> bridge)
   }
 
   def removeBridge(entityId: String): Unit = _toDeleteBridges = _toDeleteBridges + entityId
 
   def requireStateUpdate(implicit context: ExecutionContext): Future[Done] = {
     _entitiesUpdateState = _entitiesUpdateState map { case (key, _) => key -> EntityUpdateState.WAITING }
-    println("Entities: " + _entitiesUpdateState.size)
-    Future.sequence(_toAddBridges).flatMap(_ => {
-      _toAddBridges.clear()
-      println("Bridges: " + _entityBridges.size)
+    val bridges: Set[(Future[Done], WorldBridgeComponent)] = _toAddBridges
+    _toAddBridges = Set.empty
+    Future.sequence(bridges.map(x => x._1)).flatMap(y => {
+      _entityBridges = _entityBridges ++: bridges.map(x => x._2).toSeq
+      println("Status Bridges: " + _entityBridges.size)
       serializeFutures(updateOrder(_entityBridges))(e => {
         _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATING)
-        println(e.entitySpecifications.id, " computing new state")
-        val future = e.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList))
-        future onComplete{
+        e.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList)) andThen {
           case Success(_) =>
             _entityBridges filter (bridge => _toDeleteBridges contains bridge.entitySpecifications.id) foreach (x => x.dispose())
             _entityBridges = _entityBridges filterNot(bridge => _toDeleteBridges contains bridge.entitySpecifications.id)
             _interactionSideEffects = Seq.empty
             _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATED)
-          case Failure(exception) =>
-            throw exception
-
+          case Failure(exception) => throw exception
         }
-        future
-      })
-
-    }) map(_ => new Done())
+      })}
+    ) map(_ => new Done())
   }
 
 
   def requireInfoUpdate(implicit context: ExecutionContext): Future[Done] = {
-    Future.sequence(_toAddBridges).flatMap(_ => {
-      _toAddBridges.clear()
-      println("Bridges: " + _entityBridges.size)
+    val bridges: Set[(Future[Done], WorldBridgeComponent)] = _toAddBridges
+    _toAddBridges = Set.empty
+    Future.sequence(bridges.map(x => x._1)).flatMap(_ => {
+      _entityBridges = _entityBridges ++: bridges.map(x => x._2).toSeq
+      println("Info Bridges: " + _entityBridges.size)
       Future.traverse(_entityBridges)(e => e.requireInfo()) map (_ => new Done())
     })
   }

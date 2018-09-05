@@ -29,7 +29,7 @@ object EventBus {
 
     private[this] var delayedHighPriorityEvents = Seq[EventInfo]()
     private[this] var delayedLowPriorityEvents = Seq[EventInfo]()
-    private[this] val sendDelayed: AtomicBoolean = new AtomicBoolean(false)
+    private[this] val activeHighPriorityTasks = new AtomicLong(0)
 
     override def send(i: IdentifiedEvent): Unit = {
 
@@ -37,6 +37,10 @@ object EventBus {
         eventInfo.execute.onComplete{
           case Success(_) =>
             checkTasksCompletion()
+            eventInfo event match {
+              case _: HighPriorityEvent => activeHighPriorityTasks decrementAndGet()
+              case _ => Unit
+            }
             dequeueAndServe()
           case Failure(error) => throw error
         }
@@ -51,16 +55,15 @@ object EventBus {
       def dequeueAndServe(): Unit = {
         def events(): Seq[EventInfo] = this synchronized {
           if (delayedHighPriorityEvents.nonEmpty) {
-            sendDelayed set true
             val temp = delayedHighPriorityEvents
+            activeHighPriorityTasks addAndGet temp.size
             delayedHighPriorityEvents = Seq[EventInfo]()
             temp
-          } else if (delayedLowPriorityEvents.nonEmpty && !(sendDelayed get())) {
+          } else if (delayedLowPriorityEvents.nonEmpty && activeHighPriorityTasks.get() == 0) {
             val temp = delayedLowPriorityEvents
             delayedLowPriorityEvents = Seq[EventInfo]()
             temp
           } else {
-            sendDelayed set false
             Seq[EventInfo]()
           }
         }

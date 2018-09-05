@@ -25,8 +25,8 @@ case class ComputeNextStateAck() extends BaseEvent with HighPriorityEvent
 case class Kill(entityId: String) extends BaseEvent
 case class Create(sons: Iterable[AnimalInfo]) extends BaseEvent
 
-case class GetInfo() extends BaseEvent
-case class GetInfoAck() extends BaseEvent
+case class GetInfo() extends BaseEvent with HighPriorityEvent
+case class GetInfoAck() extends BaseEvent with HighPriorityEvent
 
 sealed trait WorldBridge {
   def initializeInfo(): Future[Done]
@@ -116,7 +116,6 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     if (!(runningJobPromise isCompleted)
       && runningJobAccumulator.get() == entitySpecifications.componentsCount - 1
       && jobCompleted) {
-      println("Entity computation done")
       runningJobPromise success new Done()
     }
   }
