@@ -32,8 +32,8 @@ class SafeFuture[T](future: Future[T])(implicit onCreation: Unit => Unit, afterE
 }
 
 sealed trait NervousSystem {
-  def publish(event: Event) : Unit
-  def subscribe(handler: Event => Unit)
+  def publish(event: IdentifiedEvent) : Unit
+  def subscribe(handler: Consumer)
   def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SafeFuture[B]
   def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty]))
   def notifyOnTasksEnd(): Future[Done]
@@ -51,26 +51,27 @@ object NervousSystem {
 
     private[this] val _eventBus = EventBus()
     private[this] var _eventsMappings : List[(Class[_], _ => Seq[EntityProperty])]= List empty
-    private[this] val _mapper : Consumer = ev => {
+    private[this] val _mapper : Event => Unit = ev => {
       val mapper = _eventsMappings find(e => e._1.getName == ev.getClass.getName)
       if (mapper isDefined) mapper get match {
-        case (_, map: (Event => Seq[EntityProperty])) => publish(UpdateEntityState(map(ev)))
+        case (_, map: (Event => Seq[EntityProperty])) =>
+          publish(IdentifiedEvent(getClass.getSimpleName, UpdateEntityState(map(ev))))
         case _ => Unit
       }
     }
 
-    _eventBus attach _mapper
+    _eventBus attach IdentifiedConsumer(getClass.getSimpleName, _mapper)
 
-    override def publish(event: Event) : Unit = _eventBus send event
+    override def publish(event: IdentifiedEvent) : Unit = _eventBus send event
 
-    override def subscribe(handler: Event => Unit) : Unit = _eventBus attach handler
+    override def subscribe(handler: Consumer) : Unit = _eventBus attach handler
 
     override def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty])): Unit = _eventsMappings = mapper :: _eventsMappings
 
     override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](request: A): SafeFuture[B] = {
       val result = Promise[B]()
 //      var t: Set[B] = Set()
-      lazy val consumer : Consumer = {
+      lazy val consumer : Consumer = IdentifiedConsumer(getClass.getSimpleName, {
         case response: B if response.id == request.id =>
 //          try {
 //            result success response
@@ -82,9 +83,9 @@ object NervousSystem {
           result success response
           _eventBus detach consumer
         case _ => Unit
-      }
+      })
       _eventBus attach consumer
-      _eventBus send request
+      _eventBus send IdentifiedEvent(getClass.getSimpleName, request)
 
       implicit val onCreation: Unit => Unit = Unit => _eventBus notifyNewTaskStart()
       implicit val afterExecution: Unit => Unit = Unit => _eventBus notifyNewTaskEnd()
@@ -92,7 +93,7 @@ object NervousSystem {
     }
 
     override def dispose(): Unit = {
-      _eventBus detach _mapper
+      _eventBus detach IdentifiedConsumer(getClass.getSimpleName, _mapper)
       _eventsMappings = List empty
     }
 

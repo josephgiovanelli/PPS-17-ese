@@ -17,12 +17,12 @@ trait NervousSystemComponent extends Component {
 }
 
 trait BusWriter extends NervousSystemComponent {
-  def publish(event : Event): Unit = nervousSystem publish event
+  def publish(event : Event): Unit = nervousSystem publish IdentifiedEvent(getClass.getSimpleName, event)
   def addMapping[A <: Event](mapper: (Class[A] ,A => Seq[EntityProperty])): Unit = nervousSystem addMapping mapper
 }
 
 trait BusReader extends NervousSystemComponent {
-  def subscribe(consumer : Consumer) : Unit = nervousSystem subscribe consumer
+  def subscribe(consumer : Event => Unit) : Unit = nervousSystem subscribe IdentifiedConsumer(getClass.getSimpleName, consumer)
   def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SafeFuture[B] = nervousSystem requireData[A, B] request
   def notifyOnTasksEnd(): Future[Done] = nervousSystem notifyOnTasksEnd()
 }

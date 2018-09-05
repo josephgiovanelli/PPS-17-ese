@@ -87,7 +87,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
             }
           })
         })
-      case r: PartnerInfoRequest if r.senderId != entitySpecifications.id =>
+      case r: PartnerInfoRequest =>
         requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
           .onComplete{
             case Success(info) =>
