@@ -64,11 +64,11 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
           if(inPregnancyTime == pregnancyDuration / 3 * 2)
             publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / 2))
           if(inPregnancyTime >= pregnancyDuration) {
+            publish(Create(embryos))
             embryos = Seq()
             publish(PregnancyEnd())
             //TODO death possible?
             //println("Childbirth")
-            publish(Create(embryos))
           }
         }
         publish(new ComputeNextStateAck)
@@ -92,10 +92,12 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
             }
           })
         })
-      case r: PartnerInfoRequest =>
+      case r: PartnerInfoRequest  /*if r.senderId != entitySpecifications.id*/=>
+        println("Received request by: ", entitySpecifications.id)
         requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())
           .onComplete{
             case Success(info) =>
+              //println("Send response: ", entitySpecifications.id)
               publish(PartnerInfoResponse(r.id, r.senderId, animalGenome, info.fertility))
             case Failure(exception) =>
               exception
@@ -150,6 +152,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
 
   private def createEmbryos(partnerId: String, gender: String, species: String, partnerSpecies: String, myFertility: Double): Unit = {
     if(SexTypes.withNameOpt(gender).get == SexTypes.female) {
+      println("sending: ", entitySpecifications.id, " to ", partnerId)
       requireData[PartnerInfoRequest, PartnerInfoResponse](PartnerInfoRequest(partnerId, entitySpecifications.id))
       .onComplete {
         case Success(partner) =>

@@ -24,30 +24,7 @@ class ReproductionTest extends FunSuite {
     ReproductionComponent(
       entity specifications,
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
-      new GeneticsSimulator {
-        def beginSimulation(simulationData:SimulationData):InitializedSimulation = null
-        def speciesList:Seq[String] = Seq()
-        def plantSpeciesList:Seq[String] = Seq()
-        def newPlant(species: String):PlantInfo = null
-        def newAnimal(species:String):AnimalInfo = null
-        def obtainMutantAlleles(species:String,gene:MGene):Seq[MGene] = Seq()
-        def addNewAnimalSpecies(animalData:AnimalData,num:Int):Seq[AnimalInfo] = Seq()
-        def addNewPlantSpecies(plantData:PlantData,num:Int):Seq[PlantInfo] = Seq()
-        def getAnimalInfoByGenome(species:String,genome: AnimalGenome):AnimalInfo = new AnimalInfo {
-          override def dietType: DietType = null
-
-          override def genome: AnimalGenome = null
-
-          override def qualities: Map[QualityType, Quality] = Map()
-
-          override def activeAlleles: Seq[AllelicBehaviour] = Seq()
-
-          override def species: Species = null
-
-          override def gender: Gender = null
-        }
-        def getGeneStats(geneM:MGene, animalInfo: AnimalInfo):GeneStats = null
-      },
+      GeneticsSimulator,
       info.genome,
       3,
       -1,
@@ -67,19 +44,22 @@ class ReproductionTest extends FunSuite {
     val world = World(10, 10)
     val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
     val initializedSimulation = GeneticsSimulator.beginSimulation(data)
-    val male = behaviourEntityInit(baseEntityInit(initializedSimulation.getAllAnimals.head._2.head), Point(1,1), "male", None)
-    val female = behaviourEntityInit(baseEntityInit(initializedSimulation.getAllAnimals.head._2.head), Point(2,2), "female", Some(male.specifications.id))
+    val maleInfo = initializedSimulation.getAllAnimals.head._2.head
+    val femaleInfo = initializedSimulation.getAllAnimals.head._2.head
+    val male = behaviourEntityInit(baseEntityInit(maleInfo), maleInfo, Point(1,1), "male", None)
+    val female = behaviourEntityInit(baseEntityInit(femaleInfo), femaleInfo, Point(2,2), "female", Some(male.specifications.id))
+    println("male id: ", male.specifications.id)
+    println("female id: ", female.specifications.id)
+    println("male id: ", male.id)
+    println("female id: ", female.id)
     world.addEntity(male)
     world.addEntity(female)
     Await.result(world.requireInfoUpdate, Duration.Inf)
     Await.result(world.requireStateUpdate, Duration.Inf)
-    Await.result(world.requireStateUpdate, Duration.Inf)
-    //Await.result(world.requireStateUpdate, Duration.Inf)
-    //Await.result(world.requireStateUpdate, Duration.Inf)
   }
 
-  def behaviourEntityInit(entity: Entity, position: Point, gender: String, active: Option[String]): Entity = {
-    entity addComponent FakeComponent(entity.specifications, "Test", gender, position, active)
+  def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, active: Option[String]): Entity = {
+    entity addComponent FakeComponent(entity.specifications, info.species.name, gender, position, active)
     entity
   }
 
