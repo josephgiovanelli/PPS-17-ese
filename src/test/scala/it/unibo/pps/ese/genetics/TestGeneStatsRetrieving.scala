@@ -90,6 +90,10 @@ class TestGeneStatsRetrieving extends fixture.FunSuite {
             assert(d == 5.0)
             assert(p == 1.0)
             assert(f.toSet == Set("fecundity"->3.0))
+          case AllelicGeneStats(g,d,p,a,aq,f) if aq == List(QualityType.PregnancyDuration) =>
+            assert(d == 5.0)
+            assert(p == 1.0)
+            assert(f.toSet == Set("pregnancyDuration"->20.0))
         }
       }
       case _=> fail()
