@@ -11,8 +11,6 @@ import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-
-
 case class ReproductionBaseInformationRequest() extends RequestEvent
 case class ReproductionBaseInformationResponse(override val id: String, gender: String, species: String) extends ResponseEvent
 case class ReproductionPhysicalInformationRequest() extends RequestEvent
@@ -21,9 +19,24 @@ case class PartnerInfoRequest(override val receiverId: String, senderId: String)
 case class PartnerInfoResponse(override val id: String, override val receiverId: String, partnerGenome: AnimalGenome,
                                partnerFertility: Double) extends InteractionEvent with ResponseEvent
 
+/**
+  * Message that indicates pregnancy start
+  */
+case class Pregnant() extends BaseEvent
+
+/**
+  * Message that indicates an extra energy requirements caused by fetus growing
+  * @param extraEnergyRequirements extra energy requirements
+  */
 case class PregnancyRequirements(extraEnergyRequirements: Double) extends BaseEvent
+/**
+  * Message that indicates pregnancy end
+  */
 case class PregnancyEnd() extends BaseEvent
 
+/*
+ * Messages for sync partners' copulation
+ */
 trait ForceReproduction
 case class AutoForceReproduction(partnerId: String) extends ForceReproduction with BaseEvent
 case class PartnerForceReproduction(override val receiverId: String, genome: AnimalGenome, fertility: Double, species: String)
@@ -41,7 +54,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
                                 (implicit val executionContext: ExecutionContext)
                                   extends WriterComponent(entitySpecifications)  {
 
-  private val energyRequirementsPerChild = energyRequirements * 0.2 / math.round(energyRequirements)
+  private val energyRequirementsPerChild = energyRequirements * 0.2 / math.round(fecundity)
   private val pregnancyDurationInClocks: Long = (clocksPerYear * pregnancyDuration).toLong
   private var embryos: Seq[AnimalInfo] = Seq()
   private var inPregnancyTime: Long = 0
@@ -90,7 +103,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
               //println("free partner")
               //force other animal to copulate
               publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
-              createEmbryos(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
+              copulate(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
                 myPhysicalInfo.fertility)
             }
           })
@@ -117,13 +130,13 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
     case AutoForceReproduction(partnerId) =>
       checkPartnerExistence(partnerId, partnerBaseInfo => {
         obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
-          createEmbryos(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
+          copulate(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
             myPhysicalInfo.fertility)
         })
       })
     case r: PartnerForceReproduction =>
       obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
-        createEmbryos(r, myBaseInfo.gender, myBaseInfo.species, myPhysicalInfo.fertility)
+        copulate(r, myBaseInfo.gender, myBaseInfo.species, myPhysicalInfo.fertility)
       })
   }
 
@@ -153,24 +166,28 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
     }
   }
 
-  private def createEmbryos(partnerId: String, gender: String, species: String, partnerSpecies: String, myFertility: Double): Unit = {
+  private def copulate(partnerId: String, gender: String, species: String, partnerSpecies: String, myFertility: Double): Unit = {
     if(SexTypes.withNameOpt(gender).get == SexTypes.female) {
       println("sending: ", entitySpecifications.id, " to ", partnerId)
       requireData[PartnerInfoRequest, PartnerInfoResponse](PartnerInfoRequest(partnerId, entitySpecifications.id))
       .onComplete {
         case Success(partner) =>
           //println("embryos created")
-          embryos = EmbryosUtil.createEmbryos(ReproductionInfo(animalGenome, myFertility, species),
-            ReproductionInfo(partner.partnerGenome, partner.partnerFertility, partnerSpecies), fecundity)
+          createEmbryos(ReproductionInfo(animalGenome, myFertility, species),
+            ReproductionInfo(partner.partnerGenome, partner.partnerFertility, partnerSpecies))
         case Failure(error) => throw error
       }
     }
   }
 
-  private def createEmbryos(partner: ReproductionInfo, gender: String, species: String, myFertility: Double): Unit = {
+  private def copulate(partner: ReproductionInfo, gender: String, species: String, myFertility: Double): Unit = {
     if (SexTypes.withNameOpt(gender).get == SexTypes.female) {
-      embryos = EmbryosUtil.createEmbryos(ReproductionInfo(animalGenome, myFertility, species),
-        partner, fecundity)
+      createEmbryos(ReproductionInfo(animalGenome, myFertility, species), partner)
     }
+  }
+
+  private def createEmbryos(me: ReproductionInfo, partner: ReproductionInfo): Unit = {
+    embryos = EmbryosUtil.createEmbryos(me, partner, fecundity)
+    publish(Pregnant())
   }
 }

@@ -43,6 +43,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   var currentPhase: LifePhases.Value = LifePhases.CHILD
   var currentSpeed: Double = speed
   var elapsedClocks: Int = 0
+  var extraEnergyRequirements: Double = 0
 
   override def initialize(): Unit = {
     subscribeEvents()
@@ -57,13 +58,17 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     subscribe {
       case ComputeNextState() =>
         this synchronized {
-          currentEnergy -= energyRequirements
+          currentEnergy -= (energyRequirements + extraEnergyRequirements)
         }
         publish(dynamicInfo)
         if (currentEnergy <= 0) publish(Kill(entitySpecifications id))
         elapsedClocks += 1
         if (elapsedClocks == YEAR_TO_CLOCK) yearCallback()
         publish(new ComputeNextStateAck)
+      case PregnancyRequirements(value) =>
+        extraEnergyRequirements += value
+      case _: PregnancyEnd =>
+        extraEnergyRequirements = 0
       case r: DynamicParametersRequest =>
         publish(DynamicParametersResponse(r.id, currentSpeed, currentEnergy, fertility))
       case r: ReproductionPhysicalInformationRequest =>
