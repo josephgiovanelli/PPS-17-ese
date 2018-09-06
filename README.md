@@ -33,7 +33,7 @@ Add additional notes about how to deploy this on a live system
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/KaikiKM/PPS-17-ese/releases). 
 
 ## Authors
 
@@ -48,5 +48,5 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 * **Pisano Giuseppe** ( giuseppe.pisano3@studio.unibo.it )
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/KaikiKM/PPS-17-ese/graphs/contributors) who participated in this project.
 
