@@ -117,7 +117,7 @@ class TestSetupSpecies extends FunSuite{
       assert(animalFeature.qualities contains Fertility)
       assert(animalFeature.qualities contains Fecundity)
       assert(animalFeature.qualities(Fertility).qualityValue==2.0)
-      assert(animalFeature.qualities(Fecundity).qualityValue==3.0)
+      assert(animalFeature.qualities(Fecundity).qualityValue==6.0)
     }
     val speed:Double = animalFeature
       .qualities(Speed)
