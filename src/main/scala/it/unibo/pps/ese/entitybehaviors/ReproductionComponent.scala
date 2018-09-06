@@ -81,6 +81,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
           if(inPregnancyTime >= pregnancyDurationInClocks) {
             publish(Create(embryos))
             embryos = Seq()
+            inPregnancyTime = 0
             publish(PregnancyEnd())
             //TODO death possible?
             //println("Childbirth")
