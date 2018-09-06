@@ -68,7 +68,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   val ENERGY_THRESHOLD = 60
   val MIN_PREYS_FOR_COUPLING = 3
-  val FERTILITY_THRESHOLD = 20
+  val FERTILITY_THRESHOLD = 0.4
 
   var forceReproduction: Option[ForceReproduction] = None
 

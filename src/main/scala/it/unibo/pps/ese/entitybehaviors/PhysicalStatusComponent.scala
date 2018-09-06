@@ -32,11 +32,11 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
                                    endAdultPhase: Double,
                                    percentageDecay: Double,
                                    speed: Double,
-                                   fertility: Double)
+                                   fertility: Double,
+                                   yearToClock: Long)
                                   (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
   val MAX_ENERGY = 10000
-  val YEAR_TO_CLOCK = 10
 
   var currentYear: Int = 0
   var currentEnergy: Double = MAX_ENERGY
@@ -63,7 +63,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         publish(dynamicInfo)
         if (currentEnergy <= 0) publish(Kill(entitySpecifications id))
         elapsedClocks += 1
-        if (elapsedClocks == YEAR_TO_CLOCK) yearCallback()
+        if (elapsedClocks == yearToClock) yearCallback()
         publish(new ComputeNextStateAck)
       case PregnancyRequirements(value) =>
         extraEnergyRequirements += value

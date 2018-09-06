@@ -92,6 +92,9 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
 object EntityBuilderHelpers {
 
+  private val yearToClock = 10
+  private val mutationProb = 0.05
+
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)
                       (implicit executionContext: ExecutionContext): Entity = {
     val entity = Entity("improved", randomUUID().toString)
@@ -155,7 +158,8 @@ object EntityBuilderHelpers {
       animalInfo.qualities(Oldness).qualityValue,
       animalInfo.qualities(Decline).qualityValue,
       animalInfo.qualities(Speed).qualityValue,
-      animalInfo.qualities(Fertility).qualityValue)
+      animalInfo.qualities(Fertility).qualityValue,
+      yearToClock)
   }
 
   private def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo)
@@ -166,8 +170,8 @@ object EntityBuilderHelpers {
       GeneticsSimulator,
       animalInfo.genome,
       animalInfo.qualities.getOrElse(PregnancyDuration, Quality(0, PregnancyDuration)).qualityValue,
-      20,
-      0.1,
+      yearToClock,
+      mutationProb,
       animalInfo.qualities(EnergyRequirements).qualityValue
     )
   }
