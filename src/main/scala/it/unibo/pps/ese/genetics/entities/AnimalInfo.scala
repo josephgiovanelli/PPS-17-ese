@@ -23,6 +23,17 @@ object AnimalInfo{
     qualities = animalFeature.animalQualities,
     activeAlleles = animalFeature.activeAllelicStructure
   )
+
+  def unapply(arg: AnimalInfo): Option[(Species,Gender,DietType,AnimalGenome,Map[QualityType,Quality],Seq[AllelicBehaviour])] = {
+     Some(
+       arg.species,
+       arg.gender,
+       arg.dietType,
+       arg.genome,
+       arg.qualities,
+       arg.activeAlleles
+     )
+  }
   //Anche altro apply
   case class AnimalInfoImpl(
                              species: Species,

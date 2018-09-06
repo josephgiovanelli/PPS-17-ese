@@ -89,7 +89,7 @@ class TestLoadingSimulation extends FunSuite{
     println(female.qualities.values.size)
     var males = 0
     var females = 0
-    for(i<-1 to 50) {
+    for(i<-1 to 1000) {
       geneticsSimulator.newAnimal("Gatto").gender match {
         case Male => males +=1
         case Female =>  females +=1

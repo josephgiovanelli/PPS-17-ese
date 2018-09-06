@@ -26,7 +26,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
 
   var observers: List[Observer] = Nil
   var configurationView: ConfigurationView = null
-  var mainView: WorldView = new MainScene(this)
+  var mainView: WorldView = new MainScene(geneticsSimulator,this)
   var currentView: ViewType.Value = ViewType.MainView
 
   //da riaggiungere
@@ -41,7 +41,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     currentView = sceneType
     sceneType match {
       case ViewType.MainView =>
-        val v = new MainScene(this)
+        val v = new MainScene(geneticsSimulator,this)
         mainView = v
         this.scene = v
       case ViewType.ConfigurationView => {

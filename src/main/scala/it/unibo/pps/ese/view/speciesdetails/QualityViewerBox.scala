@@ -7,7 +7,13 @@ import scalafx.scene.layout.HBox
 sealed trait QualityViewer{
   def setQualityValue(value:Double)
 }
-
+object QualityBoxUtilities{
+  implicit class QualityString(qualityString: String){
+    def --->(value: Double):QualityViewerBox = {
+      new QualityViewerBox(qualityString,value,"")
+    }
+  }
+}
 class QualityViewerBox(val quality:String,val qualityValue:Double,style:String) extends HBox with QualityViewer {
   override def setQualityValue(value: Double): Unit = {
     bar.progress = value / 100.0

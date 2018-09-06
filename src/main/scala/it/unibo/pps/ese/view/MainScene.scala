@@ -5,6 +5,7 @@ import javafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
+import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
@@ -16,7 +17,7 @@ object ZoomPreferences {
 }
 
 
-private class MainScene(mainComponent: MainComponent, width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
+private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
 
   val generationTextLabel: String = "Generation: "
 
@@ -40,7 +41,7 @@ private class MainScene(mainComponent: MainComponent, width: Double = 1200, heig
 
   val worldContainerPane = new SplitPane()
   val detailsPane = DetailsPane(mainComponent)
-  val worldPane: WorldPane = WorldPane(mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
+  val worldPane: WorldPane = WorldPane(geneticsSimulator,mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal

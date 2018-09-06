@@ -13,7 +13,7 @@ object ChromosomeType extends Enumeration {
   val STRUCTURAL_ANIMAL = Val(List(),"Structural Chromosome")
   val LIFE_CYCLE = Val(List(RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene,RegulatorGene),"Life Cycle Chromosome")
   val FEEDING = Val(List(IdentifierGene),"Feeding Chromosome")
-  val SEXUAL_X = Val(List(RegulatorGene,RegulatorGene),"X Chromosome")
+  val SEXUAL_X = Val(List(RegulatorGene,RegulatorGene,RegulatorGene),"X Chromosome")
   val SEXUAL_Y = Val(List(),"Y Chromosome")
   def checkListOfGene(chromosomeType: ChromosomeType,seq: Seq[GeneType]):Boolean= chromosomeType match {
     case STRUCTURAL_ANIMAL => seq.forall(_ == StructuralGene)
