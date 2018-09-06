@@ -9,6 +9,7 @@ import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.genericworld.controller.Controller
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
+import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.dna.AnimalGenome
 import it.unibo.pps.ese.genetics.entities.QualityType._
@@ -19,10 +20,13 @@ import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.View
 import it.unibo.pps.ese.view.ViewLauncher.{stage, view}
 import scalafx.application.JFXApp
+import scalafx.stage.WindowEvent
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import scalafx.Includes._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object TestLauncher extends JFXApp {
 
@@ -41,12 +45,21 @@ object TestLauncher extends JFXApp {
 //    world addEntity entity4
 //    world addEntity entity1
 
-    val world = WorldBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
-    val controller = Controller(world, clockPeriod = 250 millis)
-    val view = View()
-    stage = view
-    controller attachView (view, frameRate = 30)
-    controller.manage.play()
+//    val controller: Controller =
+//      SimulationBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
+
+  val controller: Controller =
+    new SimulationBuilder[EmptySimulation] dimension(500, 500) data "it/unibo/pps/ese/controller/loader/Simulation.yml" build
+
+  val view = View(GeneticsSimulator)
+  stage = view
+  controller attachView (view, frameRate = 30)
+  controller.manage.play()
+
+    stage.setOnCloseRequest((e: WindowEvent) => {
+        controller.manage.exit()
+    })
+
 //    println("Playing")
 //    Thread.sleep(1000)
 //

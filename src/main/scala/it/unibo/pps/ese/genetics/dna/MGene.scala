@@ -3,9 +3,15 @@ package it.unibo.pps.ese.genetics.dna
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 
 sealed trait GeneType
-case object IdentifierGene extends GeneType
-case object StructuralGene extends GeneType
-case object RegulatorGene extends GeneType
+case object IdentifierGene extends GeneType{
+  override def toString: String = "Identifier Gene"
+}
+case object StructuralGene extends GeneType{
+  override def toString: String = "Structural Gene"
+}
+case object RegulatorGene extends GeneType{
+  override def toString: String = "Regulator Gene"
+}
 
 trait MGene{
   def geneType:GeneType

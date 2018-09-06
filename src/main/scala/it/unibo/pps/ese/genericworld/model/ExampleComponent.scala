@@ -1,11 +1,14 @@
 package it.unibo.pps.ese.genericworld.model
 
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
+
+import scala.concurrent.ExecutionContext
 import scala.language.dynamics
 
 case class ExampleEvent(speed: Int) extends BaseEvent
 
-class ExampleComponent(override val entitySpecifications: EntitySpecifications) extends WriterComponent(entitySpecifications) {
+class ExampleComponent(override val entitySpecifications: EntitySpecifications)
+                      (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   private var speed = 0
 

@@ -47,6 +47,7 @@ object SexualDefaultGenes extends MyEnum[SexualDefaultGene] {
 
   case object FERTILITY extends SexualDefaultGene("fertility", Map(("fertility", classOf[Double])))
   case object FECUNDITY extends SexualDefaultGene("fecundity", Map(("fecundity", classOf[Double])))
+  case object PREGNANCY_DURATION extends SexualDefaultGene("pregnancyDuration", Map(("pregnancyDuration", classOf[Double])))
 
-  val elements: Set[SexualDefaultGene] = Set(FERTILITY, FECUNDITY)
+  val elements: Set[SexualDefaultGene] = Set(FERTILITY, FECUNDITY, PREGNANCY_DURATION)
 }

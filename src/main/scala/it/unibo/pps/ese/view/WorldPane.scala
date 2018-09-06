@@ -7,11 +7,18 @@ import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, Tooltip}
 import WorldPrefernces._
 import ZoomPreferences._
+import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
+import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.genericworld.model
 import javafx.application.Platform
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.input.{KeyEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.paint.Color
+import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 
 import scala.util.Random
 
@@ -24,11 +31,11 @@ trait WorldPane extends ScrollPane with WorldView {
 }
 
 object WorldPane {
-  def apply(mainComponent: MainComponent, detailsPane: DetailsPane, width: Int, height: Int): WorldPane =
-    new WorldPaneImpl(mainComponent, detailsPane, width, height)
+  def apply(geneticsSimulator:GeneticsSimulator,mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int): WorldPane =
+    new WorldPaneImpl(geneticsSimulator,mainComponent, detailsPane,genomeDetailsPane, width, height)
 }
 
-private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPane, width: Int, height: Int) extends WorldPane {
+private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int) extends WorldPane {
 
   val selectionColor: Color = Color.Gold
 
@@ -73,17 +80,27 @@ private class WorldPaneImpl(mainComponent: MainComponent, detailsPane: DetailsPa
         graphicsContext.fill = entity.color
         val position: Position = getEntityViewPosition(entity)
         graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
-        mainComponent.getEntityDetails(entity.id)
+
       case None =>
     }
 
     val pos: Position = getEntityViewStartPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
+        val entityDetails:model.EntityInfo = mainComponent.getEntityDetails(entity.id).get
+        entityDetails.baseEntityInfo match {
+          case AnimalInfo(_,_,_,_,_,_) =>
+            genomeDetailsPane.setGenomeStats(GenomeStatsUtilities.buildGenomeStats(
+              geneticsSimulator,
+              entityDetails.baseEntityInfo.asInstanceOf[AnimalInfo])
+            )
+          case _=>
+        }
         currentSelected = Some(entity.id)
         graphicsContext.fill = selectionColor
         graphicsContext.fillRect(pos.x, pos.y, entitySize(), entitySize())
-        detailsPane.showDetails(entity)
+        detailsPane.showDetails(entity,entityDetails)
+
       case None =>
         currentSelected = None
         detailsPane.clearDetails()

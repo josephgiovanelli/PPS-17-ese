@@ -1,28 +1,36 @@
 package it.unibo.pps.ese.view
 
-import it.unibo.pps.ese.genericworld.controller.{EntityDetails, Observer}
+import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
+import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
+import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
-
   def addObserver(observer: Observer): Unit
 }
 
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
-  def getEntityDetails(id: String): EntityDetails
+  def getEntityDetails(id: String): Option[EntityInfo]
+  def setUp(simulationData: SimulationData)
 }
 
 object View {
-  def apply(): View = new ViewImpl()
+  def apply(geneticsSimulator: GeneticsSimulator): View = new ViewImpl(geneticsSimulator)
 }
 
-private class ViewImpl extends View with MainComponent {
+private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with MainComponent {
 
   var observers: List[Observer] = Nil
-  var mainView: WorldView = new MainScene(this)
+  var configurationView: ConfigurationView = null
+  var mainView: WorldView = new MainScene(geneticsSimulator,this)
   var currentView: ViewType.Value = ViewType.MainView
 
+  //da riaggiungere
+  //setScene(ViewType.ConfigurationView)
   setScene(ViewType.MainView)
 
   override def addObserver(observer: Observer): Unit = {
@@ -33,10 +41,14 @@ private class ViewImpl extends View with MainComponent {
     currentView = sceneType
     sceneType match {
       case ViewType.MainView =>
-        val v = new MainScene(this)
+        val v = new MainScene(geneticsSimulator,this)
         mainView = v
         this.scene = v
-      case _ =>
+      case ViewType.ConfigurationView => {
+        val v = new ConfigurationViewImpl(this)
+        configurationView = v
+        this.scene = v
+      }
     }
   }
 
@@ -47,8 +59,20 @@ private class ViewImpl extends View with MainComponent {
     }
   }
 
-  override def getEntityDetails(id: String): EntityDetails = {
+  override def getEntityDetails(id: String): Option[EntityInfo] = {
     observers.head.getEntityDetails(id)
+  }
+
+  override def setUp(simulationData: SimulationData): Unit =
+    currentView match {
+    case ViewType.ConfigurationView => {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      val controller: Controller = new SimulationBuilder[EmptySimulation].dimension(500, 500).data(simulationData).build
+      controller.attachView(this, 30)
+      controller.manage.play()
+      setScene(ViewType.MainView)
+    }
+    case _ =>
   }
 }
 

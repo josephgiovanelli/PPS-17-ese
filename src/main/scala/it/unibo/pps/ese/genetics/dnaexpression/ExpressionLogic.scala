@@ -37,6 +37,7 @@ object ExpressionLogic{
   }
 
   private[this] def affectQualityByAllele(a:AllelicBehaviour,animalFeature: AnimalFeature):AnimalFeature = {
+    animalFeature.addActiveStructuralAllele(a)
     a.featuresBehaviour.foreach(f=>{
       f._1.conversionMaps.foreach(e=>{
         animalFeature.affectQuality(e.qualityAffected,e.effectRatio*f._2)
@@ -70,6 +71,8 @@ object ExpressionLogic{
     }
 
     def affectQualityByAlleleCouple(a1:AllelicBehaviour,a2:AllelicBehaviour,animalFeature: AnimalFeature):AnimalFeature = {
+      animalFeature.addActiveStructuralAllele(a1)
+      animalFeature.addActiveStructuralAllele(a2)
       a1.featuresBehaviour.foreach(f=>{
         f._1.conversionMaps.foreach(e=>{
           val a2Effect:Double = a2.featuresBehaviour.find(_._1 == f._1).get._2

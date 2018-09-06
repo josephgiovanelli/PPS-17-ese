@@ -9,7 +9,11 @@
 |         | Integrazione decision support | Joseph e Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
 |         | Definire ed implementare fasi di interazione fra componenti per la decisione finale sulla mossa da compiere| Joseph | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
 | L'utente può definire le caratteristiche dell'animale tramite file di markup
-|         | Parsing yaml| Matteo | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
+|         | Definizione dei dati di input| Matteo e Diego | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         | Definizione struttura e gerarchia dei file yaml| Matteo | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         | Creazione utility lettura file| Matteo | 3 | 3 | 0 | 0 | 0 | 0 | 0 |
+|         | Import dei file yaml e definizione struttura interna dei dai| Matteo | 15 | 15 | 7 | 0 | 0 | 0 | 0 |
+|         | Verifica consistenza dei dati in input| Matteo | 5 | 5 | 5 | 5 | 5 | 0 | 0 |
 | Gli esseri viventi ed i loro movimenti vengono mostrati in un interfaccia grafica
 |         | Realizzare la visualizzazione del mondo| Luca | 60 | 60 | 60 | 45 | 25 | 15 | 0 |
 |         | Organizzare la struttura generale della View| Luca | 40 | 25 | 10 | 10 | 5 | 0 | 5 |

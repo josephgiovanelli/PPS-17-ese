@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.view
 
+import it.unibo.pps.ese.genetics.GeneticsSimulator
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
@@ -11,7 +12,7 @@ object WorldPrefernces {
 
 object ViewLauncher extends JFXApp {
 
-  val view: View = View()
+  val view: View = View(GeneticsSimulator)
   stage = view
 
   //val controller: Controller = new Controller(view)

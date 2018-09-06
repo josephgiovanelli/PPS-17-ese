@@ -1,8 +1,10 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.entitybehaviors.EntityPosition
+import it.unibo.pps.ese.entitybehaviors.{EntityPosition, ReproductionBaseInformationRequest, ReproductionBaseInformationResponse}
 import it.unibo.pps.ese.genericworld.model.support.{RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.utils.Point
+
+import scala.concurrent.ExecutionContext
 
 case class BaseInfoRequest() extends RequestEvent
 case class BaseInfoResponse(override val id: String,
@@ -12,16 +14,19 @@ case class BaseInfoResponse(override val id: String,
                             height: Double,
                             nutritionalValue: Double,
                             defense: Double,
-                            gender:String) extends ResponseEvent(id)
+                            gender:String,
+                            entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo) extends ResponseEvent
 
 case class BaseInfoComponent(override val entitySpecifications: EntitySpecifications,
-                        species: String,
-                        reign: ReignType.Value,
-                        gender:String,
-                        var position: Point,
-                        height: Double,
-                        var nutritionalValue: Double,
-                        defense: Double) extends WriterComponent(entitySpecifications) {
+                             species: String,
+                             reign: ReignType.Value,
+                             gender:String,
+                             var position: Point,
+                             height: Double,
+                             var nutritionalValue: Double,
+                             defense: Double,
+                             entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo)
+                            (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()
@@ -38,11 +43,17 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
         nutritionalValue = newNutritionalValue
       }
     case r: BaseInfoRequest =>
-      publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender))
+      this synchronized {
+        publish(BaseInfoResponse(r id, species, reign, position, height, nutritionalValue, defense, gender, entityInfo))
+      }
+    case r: ReproductionBaseInformationRequest =>
+        publish(ReproductionBaseInformationResponse(r id, gender, species))
     case ComputeNextState() =>
       publish(new ComputeNextStateAck)
     case GetInfo() =>
-      publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender))
+      this synchronized {
+        publish(BaseInfoResponse("", species, reign, position, height, nutritionalValue, defense, gender, entityInfo))
+      }
       publish(new GetInfoAck)
     case _ => Unit
   }
@@ -55,7 +66,8 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("height", ev height),
       EntityProperty("nutritionalValue", ev nutritionalValue),
       EntityProperty("defense", ev defense),
-      EntityProperty("gender", ev gender)
+      EntityProperty("gender", ev gender),
+      EntityProperty("entityInfo", ev entityInfo)
     )))
   }
 }

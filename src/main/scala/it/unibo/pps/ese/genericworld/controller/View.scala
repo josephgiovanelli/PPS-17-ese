@@ -1,14 +1,16 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.genericworld.model.{EntityInfoConversion, EntityState}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
-import it.unibo.pps.ese.view.{Entity, Position}
+import it.unibo.pps.ese.view.Entity
 import scalafx.scene.paint.Color
 
 case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
-  def getEntityDetails(position: String): EntityDetails
+  def getEntityDetails(id: String): Option[EntityInfo]
 }
 
 //class View {
@@ -43,6 +45,6 @@ object ViewHelpers {
     (data map toEntityViewData).toList
 
   implicit class ManageableObserver(manageableController: ManageableController) extends Observer {
-    override def getEntityDetails(id: String): EntityDetails = manageableController entityData id get
+    override def getEntityDetails(id: String): Option[EntityInfo] = (manageableController entityData id) map(_.state.copy())
   }
 }

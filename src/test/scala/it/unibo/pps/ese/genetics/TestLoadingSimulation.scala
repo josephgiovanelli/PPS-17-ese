@@ -9,7 +9,7 @@ import it.unibo.pps.ese.genetics.generators.SpeciesUtilities
 import it.unibo.pps.ese.genetics.generators.data.{InputDataAdapter, TranslatedAnimalData}
 class TestLoadingSimulation extends FunSuite{
   test("Test loading"){
-    val data = new YamlLoader().loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
+    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
     val animalData:TranslatedAnimalData = InputDataAdapter.translateAnimalData(
       data.animals.keySet.toSeq.head
     )
@@ -46,7 +46,7 @@ class TestLoadingSimulation extends FunSuite{
     assert(geneticsSimulator.plantSpeciesList.contains("ErbaGatta"))
     assert(geneticsSimulator.newPlant("ErbaGatta").qualities(QualityType.Availability).qualityValue==4.0)
 
-    assertThrows[IllegalStateException](geneticsSimulator.beginSimulation(data))
+//    assertThrows[IllegalStateException](geneticsSimulator.beginSimulation(data))
 
     val newAnimal = geneticsSimulator.newAnimal("Gatto")
     val translateAnimalGenome = geneticsSimulator.getAnimalInfoByGenome("Gatto",newAnimal.genome)
@@ -87,6 +87,15 @@ class TestLoadingSimulation extends FunSuite{
     assert(geneticsSimulator.obtainMutantAlleles("Gatto",
       sm(ChromosomeType.STRUCTURAL_ANIMAL).geneList.head).nonEmpty)
     println(female.qualities.values.size)
-
+    var males = 0
+    var females = 0
+    for(i<-1 to 1000) {
+      geneticsSimulator.newAnimal("Gatto").gender match {
+        case Male => males +=1
+        case Female =>  females +=1
+      }
+    }
+    println(initializedSimulation.getAllAnimals("Gatto").groupBy(a=> a.gender).map(c=>c._1+",size: "+c._2.size))
+    println(males,females)
   }
 }

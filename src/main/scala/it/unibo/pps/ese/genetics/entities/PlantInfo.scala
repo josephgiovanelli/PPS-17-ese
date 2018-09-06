@@ -9,6 +9,14 @@ trait PlantInfo extends EntityInfo{
 }
 object PlantInfo{
   def apply(plantData: PlantData,genome: Genome): PlantInfo = PlantInfoImpl(plantData,genome)
+
+  def unapply(arg: PlantInfo): Option[(Species,Gender,Map[QualityType,Quality])] =
+    Some(
+      arg.species,
+      arg.gender,
+      arg.qualities
+    )
+
   case class PlantInfoImpl(plantData: PlantData,genome: Genome) extends PlantInfo{
     override val species: Species = Species(Plant,plantData.name)
 
