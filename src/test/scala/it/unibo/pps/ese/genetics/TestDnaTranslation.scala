@@ -47,9 +47,10 @@ class TestDnaTranslation extends FunSuite{
 
     val gs= GeneWithAllelicForms(cg1,as2,RegulatorGene)
     val gs2 = GeneWithAllelicForms(cg2,as2,RegulatorGene)
+    val gs3 = GeneWithAllelicForms(cg2,as2,RegulatorGene)
 
-    val cs1 = Chromosome(ChromosomeType.SEXUAL_X,X,gs,gs2)
-    val cs2 = Chromosome(ChromosomeType.SEXUAL_X,X,gs,gs2)
+    val cs1 = Chromosome(ChromosomeType.SEXUAL_X,X,gs,gs2,gs3)
+    val cs2 = Chromosome(ChromosomeType.SEXUAL_X,X,gs,gs2,gs3)
 
     val cmapS:ConversionMap = ConversionMap(Fertility,1)
     val cmapS2:ConversionMap = ConversionMap(Fecundity,1)

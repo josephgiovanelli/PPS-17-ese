@@ -106,7 +106,7 @@ class TestSetupSpecies extends FunSuite{
       typology = "C",
       structuralChromosome = List(genedataStruc),
       regulationChromosome = List(genedatalc1,genedatalc2,genedatalc3,genedatalc4,genedatalc4),
-      sexualChromosome = List(genedataSx1,genedataSx2)
+      sexualChromosome = List(genedataSx1,genedataSx2,genedataSx2)
     ))
     val animalGenome:AnimalGenome = speciesSetup.generateAnimalGenome
     val animalFeature:AnimalInfo = speciesSetup.translateGenome(animalGenome)

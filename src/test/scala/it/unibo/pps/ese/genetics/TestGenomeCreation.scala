@@ -103,7 +103,7 @@ class TestGenomeCreation extends FunSuite{
       structuralChromosomeGenes = List(sgp),
       lifeCycleChromosomeGenes = List(lcgp1,lcgp2,lcgp3,lcgp4,lcgp4),
       feedingChromosomeGenes = List(fg),
-      sexualChromosomeGenes = List(sxgp1,sxgp2)
+      sexualChromosomeGenes = List(sxgp1,sxgp2,sxgp2)
     )
     println(speciesGenerator.generateAnimalGenome)
 
