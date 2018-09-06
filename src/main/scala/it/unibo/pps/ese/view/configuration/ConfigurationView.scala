@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration
 
-import it.unibo.pps.ese.view.configuration.dialogs.{ConfirmDialog, ListViewUtils}
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfirmDialog, EntitiesInfo, ListViewUtils}
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.MainComponent
@@ -50,7 +50,7 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
   buttonPane.left = errorLabel
   buttonPane.right = confirmButton
 
-  val animalsName: ObservableBuffer[String] = ObservableBuffer[String]()
+  val animalsName: ObservableBuffer[String] = ObservableBuffer[String](EntitiesInfo.instance().getAnimals toSeq)
   val animalsListView: ListView[String] = new ListView[String] {
     items = animalsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
@@ -61,7 +61,7 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
       })
   }
 
-  val plantsName: ObservableBuffer[String] = ObservableBuffer[String]()
+  val plantsName: ObservableBuffer[String] = ObservableBuffer[String](EntitiesInfo.instance().getPlants toSeq)
   val plantsListView: ListView[String] = new ListView[String] {
     items = plantsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
