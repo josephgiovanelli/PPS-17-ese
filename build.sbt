@@ -30,10 +30,16 @@ libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0"
 libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.6.0"
 
 import Tests._
+import CustomSettings._
 
 {
-  def groupByFirst(tests: Seq[TestDefinition]) =
-    tests map(t => Group("", Seq(t), SubProcess(ForkOptions())))
+  def isolateIncompatibleTests(tests: Seq[TestDefinition]) =
+    tests.groupBy(t => {
+      if(aloneTests.contains(t.name))
+        t.name
+      else
+        "DefaultGroup"
+    }) map(t => Group(t._1, t._2, SubProcess(ForkOptions()))) toSeq
 
-  testGrouping in Test := groupByFirst( (definedTests in Test).value )
+  testGrouping in Test := isolateIncompatibleTests( (definedTests in Test).value )
 }
