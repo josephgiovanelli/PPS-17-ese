@@ -34,15 +34,17 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
                                  fecundity: Double,
                                  geneticsSimulator: GeneticsSimulator,
                                  animalGenome: AnimalGenome,
-                                 pregnancyDuration: Long,
+                                 pregnancyDuration: Double,
+                                 clocksPerYear: Long,
                                  mutationProb: Double,
                                  energyRequirements: Double)
                                 (implicit val executionContext: ExecutionContext)
                                   extends WriterComponent(entitySpecifications)  {
 
   private val energyRequirementsPerChild = energyRequirements * 0.2 / math.round(energyRequirements)
-  var embryos: Seq[AnimalInfo] = Seq()
-  var inPregnancyTime: Long = 0
+  private val pregnancyDurationInClocks: Long = (clocksPerYear * pregnancyDuration).toLong
+  private var embryos: Seq[AnimalInfo] = Seq()
+  private var inPregnancyTime: Long = 0
 
   implicit val geneticEngine: GeneticsEngine = GeneticsEngine(geneticsSimulator, mutationProb)
 
@@ -59,11 +61,11 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
           println("Pregnant")
           inPregnancyTime += 1
           //TODO find a clever way
-          if(inPregnancyTime == pregnancyDuration / 3)
+          if(inPregnancyTime == pregnancyDurationInClocks / 3)
             publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / 2))
-          if(inPregnancyTime == pregnancyDuration / 3 * 2)
+          if(inPregnancyTime == pregnancyDurationInClocks / 3 * 2)
             publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / 2))
-          if(inPregnancyTime >= pregnancyDuration) {
+          if(inPregnancyTime >= pregnancyDurationInClocks) {
             publish(Create(embryos))
             embryos = Seq()
             publish(PregnancyEnd())

@@ -34,10 +34,11 @@ class TestChromosome extends FunSuite{
 
     val sgr1 = GeneWithAllelicForms(List('A'),List('A'),RegulatorGene)
     val sgr2 = GeneWithAllelicForms(List('A'),List('F'),RegulatorGene)
+    val sgr3 = GeneWithAllelicForms(List('A'),List('G'),RegulatorGene)
 
-    val cs1 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2)
-    val cs2 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2)
-    assert(cs1.geneList==List(sgr1,sgr2))
+    val cs1 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2,sgr3)
+    val cs2 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2,sgr3)
+    assert(cs1.geneList==List(sgr1,sgr2,sgr3))
 
     assertThrows[IllegalArgumentException](Chromosome(ChromosomeType.SEXUAL_Y,sgr1))
   }
@@ -63,9 +64,10 @@ class TestChromosome extends FunSuite{
 
     val sgr1 = GeneWithAllelicForms(List('A'),List('A'),RegulatorGene)
     val sgr2 = GeneWithAllelicForms(List('A'),List('F'),RegulatorGene)
+    val sgr3 = GeneWithAllelicForms(List('A'),List('G'),RegulatorGene)
 
-    val cs1 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2)
-    val cs2 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2)
+    val cs1 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2,sgr3)
+    val cs2 = Chromosome(ChromosomeType.SEXUAL_X,X,sgr1,sgr2,sgr3)
 
     val ccs1 = new ChromosomeCoupleImpl with SexualChromosomeCouple {
       type ChromosomeUnit = SexualChromosome

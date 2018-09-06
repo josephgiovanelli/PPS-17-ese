@@ -24,7 +24,8 @@ class ReproductionTest extends FunSuite {
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
       GeneticsSimulator,
       info.genome,
-      3,
+      0.5,
+      6,
       -1,
       info.qualities(EnergyRequirements).qualityValue
     )

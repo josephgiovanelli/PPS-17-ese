@@ -165,7 +165,8 @@ object EntityBuilderHelpers {
       animalInfo.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
       GeneticsSimulator,
       animalInfo.genome,
-      3,
+      animalInfo.qualities.getOrElse(PregnancyDuration, Quality(0, PregnancyDuration)).qualityValue,
+      20,
       0.1,
       animalInfo.qualities(EnergyRequirements).qualityValue
     )

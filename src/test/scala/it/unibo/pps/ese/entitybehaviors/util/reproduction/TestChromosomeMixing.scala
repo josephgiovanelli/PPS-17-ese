@@ -37,7 +37,7 @@ class TestChromosomeMixing extends FunSuite {
     val sg2 = BasicGene(Seq('B'), RegulatorGene)
     val sg3 = BasicGene(Seq('C'), RegulatorGene)
     val sg4 = BasicGene(Seq('D'), RegulatorGene)
-    val sc1 = Chromosome(ChromosomeType.SEXUAL_X, X, sg1, sg4)
+    val sc1 = Chromosome(ChromosomeType.SEXUAL_X, X, sg1, sg3, sg4)
     val sc2 = Chromosome(ChromosomeType.SEXUAL_Y, Y)
 
     val sexualCouple1 = SexualChromosomeCouple(sc1, sc1)
