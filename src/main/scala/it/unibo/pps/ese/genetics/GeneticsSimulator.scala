@@ -19,6 +19,7 @@ trait GeneticsSimulator {
   def addNewAnimalSpecies(animalData:AnimalData,num:Int):Seq[AnimalInfo]
   def addNewPlantSpecies(plantData:PlantData,num:Int):Seq[PlantInfo]
   def getAnimalInfoByGenome(species:String,genome: AnimalGenome):AnimalInfo
+  def checkNewMutation(species:String,genome: AnimalGenome):Seq[MGene]
   def getGeneStats(geneM:MGene, animalInfo: AnimalInfo):GeneStats
 }
 object GeneticsSimulator extends GeneticsSimulator{
@@ -108,5 +109,14 @@ object GeneticsSimulator extends GeneticsSimulator{
       case `plantSeq` => Plant.toString
       case _ => "Species"
     }
+  }
+
+  override def checkNewMutation(species:String,genome: AnimalGenome): Seq[MGene] = {
+    speciesSetup(species).checkNewApparitions(
+      genome.firstGenomeSequence.values.flatMap(c=>c.geneList).toList++
+      genome.secondGenomeSequence.values.flatMap(c=>c.geneList).toList++
+      genome.firstSexualChromosome.geneList++
+      genome.secondSexualChromosome.geneList
+    )
   }
 }

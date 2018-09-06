@@ -11,6 +11,7 @@ sealed trait SpeciesUtilities{
   def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal)
   def translateGenome(genome:AnimalGenome):AnimalInfo
   def obtainMutantAlleles(gene:MGene):Seq[MGene]
+  def checkNewApparitions(genes:Seq[MGene]):Seq[MGene]
   private[genetics] def getAllelicBehaviorOfGene(gene:GeneWithAllelicForms):AllelicBehaviour
   private[genetics] def getFeaturesOfGene(gene:GeneWithAllelicForms):Seq[QualityType]
   private[genetics] def getProbabilityOfGene(gene:GeneWithAllelicForms):Double
@@ -89,7 +90,7 @@ object SpeciesUtilities{
         sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
       )
       val mutantAllele: Seq[AlleleInfo] = allGeneData.flatMap(_.allelicForm).filter(_.probability == 0)
-
+      var notAppearedMutation: Seq[AlleleInfo] = mutantAllele
       def allGenes(genes: Seq[GeneData]): Seq[GeneWithPossibleAlleles] = {
         genes.map(geneData => {
           val alleles: Seq[AlleleWithProbability] = geneData
@@ -102,6 +103,18 @@ object SpeciesUtilities{
       }
     }
 
+    override def checkNewApparitions(genes: Seq[MGene]): Seq[MGene] = {
+      genes.filter{
+        case GeneWithAllelicForms(gi,ai,gt) =>
+          if(notAppearedMutation.exists(a=> a.geneSeq==gi && a.allelicSeq==ai)){
+            notAppearedMutation = notAppearedMutation.filter(a=> a.geneSeq==gi && a.allelicSeq==gt)
+            true
+          }else{
+            false
+          }
+        case _=> false
+      }
+    }
   }
 }
 

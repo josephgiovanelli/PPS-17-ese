@@ -2,7 +2,7 @@ package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
-import it.unibo.pps.ese.genetics.dna.{ChromosomeCouple, ChromosomeType, GeneInChromosome, MGene}
+import it.unibo.pps.ese.genetics.dna.{Chromosome, ChromosomeCouple, ChromosomeType, GeneInChromosome, GeneWithAllelicForms, MGene, StructuralGene}
 import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
 import it.unibo.pps.ese.genetics.entities.{Animal, AnimalInfo, Carnivorous, Female, Herbivore, Male, Plant, QualityType}
 import org.scalatest.{Outcome, fixture}
@@ -108,6 +108,36 @@ class TestGeneStatsRetrieving extends fixture.FunSuite {
       case (GeneInChromosome(t1, Some(g1)), GeneInChromosome(t2, Some(g2))) =>
       case _=> fail()
     }
+  }
+  test("Test the appearence of new mutant alleles"){ geneticsSimulator =>
+    val animal = geneticsSimulator.newAnimal("Gatto")
+    val sm = animal.genome.firstGenomeSequence
+    val sf = animal.genome.secondGenomeSequence
+
+    val structuralChromosome1 = animal.genome.autosomeChromosomeCouples(ChromosomeType.STRUCTURAL_ANIMAL).firstChromosome
+    val oldGenes = structuralChromosome1.geneList
+    val geneIdentifier:Seq[ProteinoGenicAmminoacid] = List('O','C','C')
+    val newGenes = oldGenes.map(g=>
+      if(g.geneId == geneIdentifier){
+        GeneWithAllelicForms(g.geneId,List('S','D','C'),StructuralGene)
+      }else{
+        g
+      }
+    )
+    val newC:Chromosome = Chromosome(
+      ChromosomeType.STRUCTURAL_ANIMAL,
+      newGenes :_*
+    )
+    val childGenome = Map(
+      sm(ChromosomeType.COMMON)|->|sf(ChromosomeType.COMMON),
+      newC|->| sf(ChromosomeType.STRUCTURAL_ANIMAL),
+      sm(ChromosomeType.LIFE_CYCLE)|->|sf(ChromosomeType.LIFE_CYCLE),
+      sm(ChromosomeType.FEEDING) |->| sf(ChromosomeType.FEEDING)
+    )|%-%| animal.genome.sexualChromosomeCouple
+    val child = geneticsSimulator.getAnimalInfoByGenome("Gatto",childGenome)
+    assert(geneticsSimulator.checkNewMutation("Gatto",childGenome).size==1)
+    assert(geneticsSimulator.checkNewMutation("Gatto",childGenome).isEmpty)
+
   }
   def checkGeneEquality(g:MGene,al:Seq[ProteinoGenicAmminoacid]):Boolean = g.completeCode == al
 
