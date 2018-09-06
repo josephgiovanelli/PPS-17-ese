@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Launcher extends JFXApp {
   require(parameters.raw.size == 1, "Application requires an input path corresponding to a simulation's config file")
-  
+
   val controller: Controller =
   new SimulationBuilder[EmptySimulation] dimension(500, 500) data parameters.raw.head build
 
