@@ -70,6 +70,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   val MIN_PREYS_FOR_COUPLING = 3
   val FERTILITY_THRESHOLD = 0.4
 
+  var digestionState: Boolean = false
+
   var forceReproduction: Option[ForceReproduction] = None
 
   val decisionSupport: DecisionSupport = DecisionSupport()
@@ -134,6 +136,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         //TODO if feature for publish only in receiver bus is added, two cases can be unified
       case r: PartnerForceReproduction if r.receiverId == entitySpecifications.id =>
         forceReproduction = Some(r)
+      case DigestionEnd() =>
+        digestionState = false
       case GetInfo() =>
         publish(BrainInfo(strong, actionField, visualField, attractiveness))
         publish(new GetInfoAck)
@@ -166,52 +170,55 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       var targets: Stream[EntityChoiceImpl] = preys
       var action: ActionKind.Value = ActionKind.EAT
       if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
-      if (targets.nonEmpty) {
-        val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
-        val entityAttribute = entityInVisualField(entityChoice.name)
+      if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
+        if (targets.nonEmpty) {
+          val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
+          val entityAttribute = entityInVisualField(entityChoice.name)
 
-        if (entityChoice.distance < actionField) {
-          me.position = entityAttribute.position
-          publish(InteractionEntity(entityAttribute name, action))
-          hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
-        } else {
-          (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+          if (entityChoice.distance < actionField) {
+            me.position = entityAttribute.position
+            publish(InteractionEntity(entityAttribute name, action))
+            hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
+            if (action.equals(ActionKind.EAT)) digestionState = true
+          } else {
+            (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+          }
+
+          position = Point(me.position.x, me.position.y)
         }
+        else {
+          position = hippocampus.searchingState match {
+            case SearchingState.INACTIVE =>
+              hippocampus.startNewSearch(action)
+              checkNewMemory
+            case SearchingState.ACTIVE =>
+              val d = hippocampus.computeDirection(position)
+              val p = getPosition(d)
+              p
+            case SearchingState.ENDED => getPosition(randomDirection)
+          }
 
-        position = Point(me.position.x, me.position.y)
-      }
-      else {
-        position = hippocampus.searchingState match {
-          case SearchingState.INACTIVE =>
-            hippocampus.startNewSearch(action)
-            checkNewMemory
-          case SearchingState.ACTIVE =>
-            val d = hippocampus.computeDirection(position)
-            val p = getPosition(d)
-            p
-          case SearchingState.ENDED => getPosition(randomDirection)
-        }
+          def checkNewMemory: Point = {
+            if (hippocampus.hasNewMemory) {
+              hippocampus.chooseNewMemory(position)
+              val d = hippocampus.computeDirection(position)
+              val p = getPosition(d)
+              p
+            } else getPosition(randomDirection)
+          }
 
-        def checkNewMemory: Point = {
-          if (hippocampus.hasNewMemory) {
-            hippocampus.chooseNewMemory(position)
-            val d = hippocampus.computeDirection(position)
-            val p = getPosition(d)
-            p
-          } else getPosition(randomDirection)
-        }
-
-        def randomDirection: Direction = {
-          Direction(new Random().nextInt(Direction.values.size-1))
-        }
+          def randomDirection: Direction = {
+            Direction(new Random().nextInt(Direction.values.size-1))
+          }
 
 
-        def getPosition(direction: Direction): Point = direction match {
-          case Direction.UP => (position.x, position.y - floorSpeed)
-          case Direction.DOWN => (position.x, position.y + floorSpeed)
-          case Direction.LEFT => (position.x - floorSpeed, position.y)
-          case Direction.RIGHT => (position.x + floorSpeed, position.y)
-          case Direction.NONE => checkNewMemory
+          def getPosition(direction: Direction): Point = direction match {
+            case Direction.UP => (position.x, position.y - floorSpeed)
+            case Direction.DOWN => (position.x, position.y + floorSpeed)
+            case Direction.LEFT => (position.x - floorSpeed, position.y)
+            case Direction.RIGHT => (position.x + floorSpeed, position.y)
+            case Direction.NONE => checkNewMemory
+          }
         }
       }
       decisionSupport.clearVisualField()

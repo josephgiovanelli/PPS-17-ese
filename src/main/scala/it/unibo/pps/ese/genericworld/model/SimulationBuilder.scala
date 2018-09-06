@@ -92,7 +92,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
 object EntityBuilderHelpers {
 
-  private val yearToClock = 10
+  private val yearToClock = 60
   private val mutationProb = 0.05
 
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)

@@ -11,6 +11,7 @@ object LifePhases extends Enumeration {
   val CHILD, ADULT, ELDERLY = Value
 }
 
+case class DigestionEnd() extends BaseEvent
 case class MealInformation(override val receiverId: String, eatenEnergy: Double) extends InteractionEvent
 case class PhysicalStatusInfo(averageLife: Double,
                                energyRequirements: Double,
@@ -36,13 +37,17 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
                                    yearToClock: Long)
                                   (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
-  val MAX_ENERGY = 10000
+  val MAX_ENERGY = 1000
+  val MIN_DIGESTION_TIME = 10
+  val MAX_DIGESTION_TIME = 40
 
   var currentYear: Int = 0
   var currentEnergy: Double = MAX_ENERGY
   var currentPhase: LifePhases.Value = LifePhases.CHILD
   var currentSpeed: Double = speed
-  var elapsedClocks: Int = 0
+  var elapsedClocksSinceLastYear: Int = 0
+  var elapsedClocksSinceDigestion: Int = 0
+  var digestionTime: Int = 0
   var extraEnergyRequirements: Double = 0
 
   override def initialize(): Unit = {
@@ -58,12 +63,24 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     subscribe {
       case ComputeNextState() =>
         this synchronized {
-          currentEnergy -= (energyRequirements + extraEnergyRequirements)
+          if (digestionTime == 0) {
+            currentEnergy -= (energyRequirements + extraEnergyRequirements)
+          }
+          else {
+            if (elapsedClocksSinceDigestion < digestionTime) {
+              elapsedClocksSinceDigestion += 1
+            }
+            else {
+              digestionTime = 0
+              elapsedClocksSinceDigestion = 0
+              publish(DigestionEnd())
+            }
+          }
         }
         publish(dynamicInfo)
         if (currentEnergy <= 0) publish(Kill(entitySpecifications id))
-        elapsedClocks += 1
-        if (elapsedClocks == yearToClock) yearCallback()
+        elapsedClocksSinceLastYear += 1
+        if (elapsedClocksSinceLastYear == yearToClock) yearCallback()
         publish(new ComputeNextStateAck)
       case PregnancyRequirements(value) =>
         extraEnergyRequirements += value
@@ -84,6 +101,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
               this synchronized {
                 currentEnergy += eatenEnergy
               }
+              digestionTime = (((eatenEnergy / MAX_ENERGY) * MAX_DIGESTION_TIME) + MIN_DIGESTION_TIME).toInt
+              elapsedClocksSinceDigestion = 0
               publish(dynamicInfo)
               publish(MealInformation(entityId, eatenEnergy))
               //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")
@@ -119,7 +138,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   }
 
   private def yearCallback(): Unit = this synchronized {
-    elapsedClocks = 0
+    elapsedClocksSinceLastYear = 0
     currentYear += 1
     if (currentPhase == LifePhases.CHILD && currentYear > endChildPhase) currentPhase = LifePhases.ADULT
     else if (currentPhase == LifePhases.ADULT && currentYear > endAdultPhase) currentPhase = LifePhases.ELDERLY
