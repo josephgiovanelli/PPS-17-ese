@@ -1,7 +1,7 @@
-gene: aag
+gene: aak
 id: sda
 dominance: 5.0
 consume: 5.0
 probability: 1.0
 effect:
-  fecundity: 200
+  pregnancyDuration: 20

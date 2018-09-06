@@ -1,7 +1,7 @@
-gene: aag
-id: sda
+gene: aaa
+id: zzz
 dominance: 5.0
 consume: 5.0
 probability: 1.0
 effect:
-  fecundity: 200
+  life: 3.0

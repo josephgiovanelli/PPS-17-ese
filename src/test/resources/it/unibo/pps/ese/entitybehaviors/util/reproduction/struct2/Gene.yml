@@ -1,14 +1,14 @@
 id: abb
 simpleName: gambe
-allelesPath: it/unibo/pps/ese/entitybehaviors/util/reproduction/struct/all
+allelesPath: it/unibo/pps/ese/entitybehaviors/util/reproduction/struct2/all
 properties:
   lunghezza:
     conversionMap:
       speed: 0.2
-      height: 0.5
+      height: 1.5
   muscolatura:
     conversionMap:
-      speed: 4.0
+      speed: 0.5
       ResistenceToAttack: 4.0
   tutte:
     conversionMap:

@@ -3,9 +3,9 @@ geneLength: 3
 alleleLength: 3
 reign: A
 typology: C
-structuralChromosome: it/unibo/pps/ese/controller/loader/struct
+structuralChromosome: it/unibo/pps/ese/entitybehaviors/util/reproduction/struct
 regulationChromosome:
-  allelesPath: it/unibo/pps/ese/controller/loader/reg
+  allelesPath: it/unibo/pps/ese/entitybehaviors/util/reproduction/reg
   names:
     life: aaa
     childhood: aab
@@ -13,7 +13,7 @@ regulationChromosome:
     oldness: aad
     decline: aae
 sexualChromosome:
-  allelesPath: it/unibo/pps/ese/controller/loader/sex
+  allelesPath: it/unibo/pps/ese/entitybehaviors/util/reproduction/sex
   names:
     fertility: aaf
     fecundity: aag

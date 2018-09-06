@@ -1,11 +1,12 @@
 package it.unibo.pps.ese.entitybehaviors
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.Deterministic
 import it.unibo.pps.ese.genericworld.model.{EntityUpdateState, _}
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Quality}
+import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Female, Male, Quality}
 import it.unibo.pps.ese.genetics.entities.QualityType.{EnergyRequirements, Fecundity}
 import it.unibo.pps.ese.utils.Point
 import org.scalatest.FunSuite
@@ -17,6 +18,34 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ReproductionTest extends FunSuite {
 
   private val i = (9 to 1 by -1).iterator
+
+  import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
+  StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
+  private val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0,
+    Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
+    Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
+  StaticRules.instance().setRules(worldRules)
+
+
+  private val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
+  private val geneticsSimulator = GeneticsSimulator
+  private val initializedSimulation = geneticsSimulator.beginSimulation(data)
+
+  test("Copulation") {
+    val world = World[Deterministic](10, 10)
+    val maleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Male).head
+    val femaleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Female).head
+    val male = behaviourEntityInit(baseEntityInit(maleInfo), maleInfo, Point(1,1), "male", None)
+    val female = behaviourEntityInit(baseEntityInit(femaleInfo), femaleInfo, Point(2,2), "female", Some(male.specifications.id))
+    world.addEntity(male)
+    world.addEntity(female)
+    Await.result(world.requireInfoUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    assert(world.entities.size == 5)
+  }
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo): Component = {
     ReproductionComponent(
@@ -37,31 +66,12 @@ class ReproductionTest extends FunSuite {
     entity
   }
 
-  StaticRules.instance().addSpecies(Set("Gatto", "Giraffa"))
-
-  test("Copulation") {
-    val world = World[Deterministic](10, 10)
-    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
-    val initializedSimulation = GeneticsSimulator.beginSimulation(data)
-    val maleInfo = initializedSimulation.getAllAnimals.head._2.head
-    val femaleInfo = initializedSimulation.getAllAnimals.head._2.head
-    val male = behaviourEntityInit(baseEntityInit(maleInfo), maleInfo, Point(1,1), "male", None)
-    val female = behaviourEntityInit(baseEntityInit(femaleInfo), femaleInfo, Point(2,2), "female", Some(male.specifications.id))
-    println("male id: ", male.specifications.id)
-    println("female id: ", female.specifications.id)
-    println("male id: ", male.id)
-    println("female id: ", female.id)
-    world.addEntity(male)
-    world.addEntity(female)
-    Await.result(world.requireInfoUpdate, Duration.Inf)
-    Await.result(world.requireStateUpdate, Duration.Inf)
-  }
-
   def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, active: Option[String]): Entity = {
-    println(info.species.name)
     entity addComponent FakeComponent(entity.specifications, info.species.name, gender, position, active)
     entity
   }
+
+
 
   case class FakeStatusInfo(species: String, status: EntityUpdateState.Value) extends BaseEvent
 
@@ -80,13 +90,13 @@ class ReproductionTest extends FunSuite {
 
     private def subscribeEvents(): Unit = subscribe {
       case ComputeNextState() =>
-        println("compute next state")
         if(partner.nonEmpty) {
-          println("send")
           publish(InteractionEntity(partner.get, ActionKind.COUPLE))
           partner = None
         }
         publish(new ComputeNextStateAck)
+      case r: BaseInfoRequest =>
+        publish(BaseInfoResponse(r.id, species, null, position, 0, 0, 0, "", null))
       case r: ReproductionBaseInformationRequest =>
         publish(ReproductionBaseInformationResponse(r id, gender, species))
       case r: ReproductionPhysicalInformationRequest =>

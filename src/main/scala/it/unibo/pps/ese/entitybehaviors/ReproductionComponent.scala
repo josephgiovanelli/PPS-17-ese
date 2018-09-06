@@ -71,7 +71,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
         //println("non-Pregnant")
         //TODO sync problem: if embryos created in this era?
         if(embryos.nonEmpty) {
-          println("Pregnant")
+          //println("PREGNANT at next state")
           inPregnancyTime += 1
           //TODO find a clever way
           if(inPregnancyTime == pregnancyDurationInClocks / 3)
@@ -83,7 +83,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
             embryos = Seq()
             publish(PregnancyEnd())
             //TODO death possible?
-            println("Childbirth")
+            //println("Childbirth")
           }
         }
         publish(new ComputeNextStateAck)
@@ -92,7 +92,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
         checkPartnerExistence(partnerId, partnerBaseInfo => {
           //println("partner exists")
           obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
-            println(partnerBaseInfo.state.head.state.status)
+            //println(partnerBaseInfo.state.head.state.status)
             import EntityInfoConversion._
             if (partnerBaseInfo.state.head.state.status == EntityUpdateState.UPDATED) {
               //force me and other animal to copulate at next move
@@ -168,11 +168,10 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
 
   private def copulate(partnerId: String, gender: String, species: String, partnerSpecies: String, myFertility: Double): Unit = {
     if(SexTypes.withNameOpt(gender).get == SexTypes.female) {
-      println("sending: ", entitySpecifications.id, " to ", partnerId)
       requireData[PartnerInfoRequest, PartnerInfoResponse](PartnerInfoRequest(partnerId, entitySpecifications.id))
       .onComplete {
         case Success(partner) =>
-          //println("embryos created")
+          //println("partner data obtained")
           createEmbryos(ReproductionInfo(animalGenome, myFertility, species),
             ReproductionInfo(partner.partnerGenome, partner.partnerFertility, partnerSpecies))
         case Failure(error) => throw error
@@ -188,6 +187,9 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
 
   private def createEmbryos(me: ReproductionInfo, partner: ReproductionInfo): Unit = {
     embryos = EmbryosUtil.createEmbryos(me, partner, fecundity)
-    publish(Pregnant())
+    if(embryos.nonEmpty) {
+      //println("Embryos created - PREGNANT")
+      publish(Pregnant())
+    }
   }
 }

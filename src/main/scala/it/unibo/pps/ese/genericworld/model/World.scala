@@ -70,7 +70,7 @@ sealed trait UpdatableWorld {
     _toAddBridges = Set.empty
     Future.sequence(bridges.map(x => x._1)).flatMap(y => {
       _entityBridges = _entityBridges ++: bridges.map(x => x._2).toSeq
-      println("Status Bridges: " + _entityBridges.size)
+      //println("Status Bridges: " + _entityBridges.size)
       serializeFutures(updateOrder(_entityBridges))(e => {
         _entitiesUpdateState = _entitiesUpdateState + (e.entitySpecifications.id -> EntityUpdateState.UPDATING)
         e.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList)) andThen {
@@ -91,7 +91,7 @@ sealed trait UpdatableWorld {
     _toAddBridges = Set.empty
     Future.sequence(bridges.map(x => x._1)).flatMap(_ => {
       _entityBridges = _entityBridges ++: bridges.map(x => x._2).toSeq
-      println("Info Bridges: " + _entityBridges.size)
+      //println("Info Bridges: " + _entityBridges.size)
       Future.traverse(_entityBridges)(e => e.requireInfo()) map (_ => new Done())
     })
   }
