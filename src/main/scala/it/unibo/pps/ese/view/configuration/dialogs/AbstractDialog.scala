@@ -30,6 +30,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   var uniqueFields: Map[TextField, Set[String]] = Map.empty
   var listFields: Seq[ObservableBuffer[String]] = Seq.empty
   var lengthFields: Map[TextField, Int] = Map.empty
+  var probabilityFields: Set[TextField] = Set.empty
 
   /*
   OkButton
@@ -88,6 +89,13 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   def lengthCheck(field: TextField): Boolean =
     if (lengthFields.keySet.contains(field)) field.text.value.length != lengthFields(field) else false
 
+  def probabilityCheck(field:TextField): Boolean =
+    if (probabilityFields.contains(field))
+      if (ParseUtils.parse[Double](field.getText.trim()).isEmpty)
+        true
+      else
+        field.text.value.toDouble < 0.0 || field.text.value.toDouble > 1.0
+    else false
 
   def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatory = mandatoryCheck(field)
@@ -95,8 +103,9 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     val double = doubleCheck(field)
     val unique = uniqueCheck(field)
     val length = lengthCheck(field)
+    val probability = probabilityCheck(field)
 
-    if (mandatory || int || double || unique || length)
+    if (mandatory || int || double || unique || length || probability)
       field.pseudoClassStateChanged(errorClass, true)
     else
       field.pseudoClassStateChanged(errorClass, false)
@@ -106,6 +115,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     else if (double) fields(field)._2.text.value = "Must be double"
     else if (unique) fields(field)._2.text.value = "Must be unique"
     else if (length) fields(field)._2.text.value = "Must be " + lengthFields(field) + " long"
+    else if (probability) fields(field)._2.text.value = "Must be a probability"
     else fields(field)._2.text.value = ""
 
     checkFields
@@ -116,6 +126,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     doubleFields.exists(field => doubleCheck(field)) ||
     uniqueFields.keySet.exists(field => uniqueCheck(field)) ||
     lengthFields.keySet.exists(field => lengthCheck(field)) ||
+    probabilityFields.exists(field => probabilityCheck(field)) ||
     listFields.exists(x => x.isEmpty)
 
 }
