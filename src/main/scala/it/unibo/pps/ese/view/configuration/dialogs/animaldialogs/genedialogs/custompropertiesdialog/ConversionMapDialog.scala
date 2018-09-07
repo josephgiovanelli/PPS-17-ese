@@ -9,7 +9,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.stage.Window
 
-case class ConversionMapDialog(window: Window, currentConversion: Option[(String, Double)], qualites: Set[String]) extends AbstractDialog[(String, Double)](window, None) {
+case class ConversionMapDialog(window: Window, currentConversion: Option[(String, Double)], qualities: Set[String]) extends AbstractDialog[(String, Double)](window, None) {
 
   /*
   Header
@@ -22,7 +22,7 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
   Fields
    */
 
-  val conversionName = new ComboBox(ObservableBuffer[String](qualites.toSeq))
+  val conversionName = new ComboBox(ObservableBuffer[String](qualities.toSeq))
   val previousConversionName = new TextField()
 
   val conversionValue: TextField = new TextField()
@@ -62,7 +62,7 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
     conversionValue.text.value = currentConversion.get._2.toString
     okButton.disable = false
   } else {
-    conversionName.value.value = qualites.head
+    conversionName.value.value = qualities.head
   }
 
   /*
