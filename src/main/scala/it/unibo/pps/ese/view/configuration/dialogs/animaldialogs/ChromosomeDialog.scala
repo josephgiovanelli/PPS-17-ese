@@ -122,7 +122,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
   Checks
    */
 
-  val mandatoryFields = Seq(structuralName, regulationName, sexualName)
+  val mandatoryFields: Seq[ObservableBuffer[String]] = Seq(structuralName, regulationName, sexualName)
 
   mandatoryFields.foreach(subject =>
     subject.onChange ((_, _) =>

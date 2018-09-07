@@ -30,8 +30,8 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   var currentView: ViewType.Value = ViewType.MainView
 
   //da riaggiungere
-  //setScene(ViewType.ConfigurationView)
-  setScene(ViewType.MainView)
+  setScene(ViewType.ConfigurationView)
+  //setScene(ViewType.MainView)
 
   override def addObserver(observer: Observer): Unit = {
     observers = observer :: observers
@@ -67,9 +67,9 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     currentView match {
     case ViewType.ConfigurationView => {
       import scala.concurrent.ExecutionContext.Implicits.global
-      val controller: Controller = new SimulationBuilder[EmptySimulation].dimension(500, 500).data(simulationData).build
+      /*val controller: Controller = new SimulationBuilder[EmptySimulation].dimension(500, 500).data(simulationData).build
       controller.attachView(this, 30)
-      controller.manage.play()
+      controller.manage.play()*/
       setScene(ViewType.MainView)
     }
     case _ =>

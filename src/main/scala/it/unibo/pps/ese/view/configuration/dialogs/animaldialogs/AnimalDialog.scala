@@ -1,32 +1,23 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
-import javafx.scene.Node
-
-import it.unibo.pps.ese.view.configuration.dialogs.{AnimalBaseInfo, EntitiesInfo, ParseUtils}
+import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, AnimalBaseInfo, EntitiesInfo}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.css.PseudoClass
-import scalafx.geometry.Insets
-import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.GridPane
-import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class AnimalDialog(window: Window, animal: Option[String] = None) extends Dialog[String] {
+case class AnimalDialog(window: Window, animal: Option[String] = None) extends AbstractDialog[String](window, animal) {
 
   /*
   Header
    */
 
-  initOwner(window)
   title = "Animal Dialog"
   headerText = "Create an animal"
-  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
-  val errorClass = PseudoClass("error")
 
   /*
   Fields
@@ -40,56 +31,30 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
   val typology = new ComboBox(typologySet)
   typology.selectionModel().select(0)
 
-  val fields: Map[TextField, (Label, Label)] = ListMap(
+  fields = ListMap(
     name -> (new Label("Name"), new Label("")),
     geneLength -> (new Label("Gene Length"), new Label("")),
     alleleLength -> (new Label("Allele Length"), new Label("")),
   )
 
-  val grid: GridPane = new GridPane() {
-    hgap = 10
-    padding = Insets(20, 100, 10, 10)
+  val grid: GridPane = createGrid
 
-    var count = 0
-    fields.foreach(field => {
-      add(field._2._1, 0, count)
-      add(field._1, 1, count)
-      count += 1
-      add(field._2._2, 1, count)
-      count += 1
-      field._2._2.textFill = Color.Red
-    })
-
-    add(new Label("Typology"), 0, count)
-    add(typology, 1, count)
-  }
+  grid.add(new Label("Typology"), 0, fields.size * 2)
+  grid.add(typology, 1, fields.size * 2)
 
   dialogPane().content = grid
 
   Platform.runLater(name.requestFocus())
 
   /*
-  OkButton
-   */
-
-  val okButtonType = new ButtonType("Insert Chromosome", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = true
-
-  /*
   Checks
    */
 
-  val mandatoryFields: Set[TextField] = fields.keySet
-  val intFields: Set[TextField] = Set(geneLength, alleleLength)
-  val uniqueFields: Set[TextField] = Set(name)
+  mandatoryFields = fields.keySet
+  intFields = Set(geneLength, alleleLength)
+  uniqueFields = Map(name -> (EntitiesInfo.instance().getPlants ++ EntitiesInfo.instance().getAnimals))
 
-  mandatoryFields.foreach(subject => {
-    subject.text.onChange ( (_, _, newValue) => {
-      okButton.disable = checkFields(subject, newValue)
-    })
-  })
+  createChecks()
 
   /*
   Restart information
@@ -119,31 +84,5 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends D
     }
     else
       null
-
-
-
-  private def checkFields(field: TextField, newValue: String): Boolean = {
-    val mandatoryCheck = field.getText.trim().isEmpty
-    val intCheck = if (intFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
-    val uniqueCheck = if (animal.isEmpty && uniqueFields.contains(field)) EntitiesInfo.instance().getPlants.contains(field.text.value) || EntitiesInfo.instance().getAnimals.contains(field.text.value)
-                      else false
-
-    if (mandatoryCheck || intCheck || uniqueCheck)
-      field.pseudoClassStateChanged(errorClass, true)
-    else
-      field.pseudoClassStateChanged(errorClass, false)
-
-    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
-    else if (intCheck) fields(field)._2.text.value = "Must be int"
-    else if (uniqueCheck) fields(field)._2.text.value = "Must be unique"
-    else fields(field)._2.text.value = ""
-
-    checkFields
-  }
-
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
-    intFields.exists(x => ParseUtils.parse[Int](x.getText.trim()).isEmpty) ||
-    (uniqueFields.exists(x => EntitiesInfo.instance().getPlants.contains(x.text.value)) && animal.isEmpty)
-
 
 }
