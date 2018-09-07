@@ -62,7 +62,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     })
   }
 
-  propertiesListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  propertiesListView.prefHeight =   MIN_ELEM *   ROW_HEIGHT
 
   val propertiesButton = new Button("Add")
   propertiesButton.onAction = _ => PropertiesDialog(window, animal, None, None, None, propertiesName).showAndWait() match {

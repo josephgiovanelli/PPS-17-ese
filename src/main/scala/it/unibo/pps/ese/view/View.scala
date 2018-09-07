@@ -70,6 +70,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
       /*val controller: Controller = new SimulationBuilder[EmptySimulation].dimension(500, 500).data(simulationData).build
       controller.attachView(this, 30)
       controller.manage.play()*/
+      println(simulationData)
       setScene(ViewType.MainView)
     }
     case _ =>

@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration
 
-import it.unibo.pps.ese.view.configuration.dialogs.{ConfirmDialog, ListViewUtils}
+import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.MainComponent
@@ -20,6 +20,8 @@ trait ConfigurationView {
 
 class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350) with ConfigurationView {
 
+  val ROW_HEIGHT = 26
+  val MIN_ELEM = 5
 
   this.getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
   val errorClass = PseudoClass("error")
@@ -73,8 +75,8 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
     })
   }
 
-  animalsListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
-  plantsListView.prefHeight <== ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  animalsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+  plantsListView.prefHeight <== MIN_ELEM * ROW_HEIGHT
 
   val animalsAddButton = new Button("Add")
   val plantsAddButton = new Button("Add")

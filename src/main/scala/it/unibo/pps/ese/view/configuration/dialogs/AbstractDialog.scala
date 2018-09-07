@@ -13,9 +13,23 @@ import scalafx.stage.Window
 
 abstract class AbstractDialog[A](window: Window, key: Option[String] = None) extends Dialog[A] {
 
+  val ROW_HEIGHT = 26
+  val MIN_ELEM = 3
+
+  object ParseUtils {
+    case class ParseOp[T](op: String => T)
+
+    implicit val popDouble: ParseOp[Double] = ParseOp[Double](_.toDouble)
+    implicit val popInt: ParseOp[Int] = ParseOp[Int](_.toInt)
+
+    def parse[T: ParseOp](s: String): Option[T] = try { Some(implicitly[ParseOp[T]].op(s)) }
+    catch { case _ => None }
+  }
+
   /*
   Dialog Setup
    */
+
   initOwner(window)
   dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
   val errorClass = PseudoClass("error")

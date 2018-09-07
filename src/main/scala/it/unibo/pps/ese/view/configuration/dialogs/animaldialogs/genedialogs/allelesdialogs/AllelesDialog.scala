@@ -61,7 +61,7 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
 
 
 
-  allelesListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val allelesButton = new Button("Add")
   allelesButton.onAction = _ => AlleleDialog(window, animal, gene, None, properties, chromosomeTypes).showAndWait() match {

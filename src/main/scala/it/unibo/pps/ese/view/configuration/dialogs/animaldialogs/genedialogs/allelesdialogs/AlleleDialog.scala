@@ -3,7 +3,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
-import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo, GeneInfo}
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -75,7 +75,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
     })
   }
 
-  effectsListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  effectsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   dialogPane().content = new VBox() {
     children ++= Seq(grid, new Label("Effects"), effectsListView, new Label("At least one effect"))

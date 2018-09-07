@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
-import javafx.scene.Node
 
 import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
@@ -11,8 +10,6 @@ import it.unibo.pps.ese.view.configuration.entitiesinfo.{ChromosomeTypes, Entiti
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.css.PseudoClass
-import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
@@ -65,9 +62,9 @@ case class ChromosomeDialog(window: Window, animal: String) extends AbstractDial
     })
   }
 
-  structuralChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
-  regulationChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
-  sexualChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  structuralChromosomeListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+  regulationChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
+  sexualChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
 
   val structuralButton = new Button("Add")
   structuralButton.onAction = _ => CustomGeneDialog(window, animal, None).showAndWait() match {

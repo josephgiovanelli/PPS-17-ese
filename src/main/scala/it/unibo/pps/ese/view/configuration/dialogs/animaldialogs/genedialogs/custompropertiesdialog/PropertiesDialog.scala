@@ -62,7 +62,7 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
     })
   }
 
-  conversionMapListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  conversionMapListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val conversionMapButton = new Button("Add")
   conversionMapButton.onAction = _ => ConversionMapDialog(window, None, qualities).showAndWait() match {
