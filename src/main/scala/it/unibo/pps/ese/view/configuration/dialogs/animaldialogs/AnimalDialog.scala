@@ -37,7 +37,7 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends A
     alleleLength -> (new Label("Allele Length"), new Label("")),
   )
 
-  val grid: GridPane = createGrid
+  val grid: GridPane = createGrid(0)
 
   grid.add(new Label("Typology"), 0, fields.size * 2)
   grid.add(typology, 1, fields.size * 2)

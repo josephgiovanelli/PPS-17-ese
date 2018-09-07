@@ -1,7 +1,5 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
-import javafx.scene.Node
-
 import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesDialog
@@ -9,12 +7,8 @@ import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.all
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
-import scalafx.css.PseudoClass
-import scalafx.geometry.Insets
-import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.GridPane
-import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
 case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Value, animal: String, gene: Option[String], propertiesSet: Set[_ <: DefaultGene] ) extends AbstractDialog[String](window, gene) {
@@ -51,7 +45,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
     idGene -> (new Label("Id"), new Label(""))
   )
 
-  val grid: GridPane = createGrid
+  val grid: GridPane = createGrid(0)
 
   grid.add(new Label("Name"), 0, fields.size * 2)
   grid.add(if (gene.isDefined) previousNameGene else nameGene, 1, fields.size * 2)
@@ -64,7 +58,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   Checks
    */
 
-  val genes = (currentAnimalChromosome.structuralChromosome ++
+  val genes: Set[String] = (currentAnimalChromosome.structuralChromosome ++
     currentAnimalChromosome.regulationChromosome ++
     currentAnimalChromosome.sexualChromosome).values.map(x => x._1.id) toSet
 

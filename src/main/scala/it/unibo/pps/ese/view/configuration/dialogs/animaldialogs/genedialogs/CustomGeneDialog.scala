@@ -1,7 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
 
-import javafx.scene.Node
 
 import it.unibo.pps.ese.controller.loader.{RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.view.configuration.dialogs.ConversionMap
@@ -13,25 +12,18 @@ import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.css.PseudoClass
-import scalafx.geometry.Insets
-import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
-import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class CustomGeneDialog(window: Window, animal: String, gene: Option[String] = None) extends Dialog[String] {
+case class CustomGeneDialog(window: Window, animal: String, gene: Option[String] = None) extends AbstractDialog[String](window, gene) {
 
   /*
   Header
    */
 
-  initOwner(window)
   title = "Custom Gene Dialog"
   headerText = "Define structural chromosome"
-  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
-  val errorClass = PseudoClass("error")
 
   /*
   Fields
@@ -40,25 +32,12 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   val idGene: TextField = new TextField()
   val nameGene: TextField = new TextField()
 
-  val fields: Map[TextField, (Label, Label)] = ListMap(
+  fields = ListMap(
     idGene -> (new Label("Id"), new Label("")),
     nameGene -> (new Label("Name"), new Label(""))
   )
 
-  val grid: GridPane = new GridPane() {
-    hgap = 10
-    padding = Insets(20, 100, 10, 10)
-
-    var count = 0
-    fields.foreach(field => {
-      add(field._2._1, 0, count)
-      add(field._1, 1, count)
-      count += 1
-      add(field._2._2, 1, count)
-      count += 1
-      field._2._2.textFill = Color.Red
-    })
-  }
+  val grid: GridPane = createGrid(0)
 
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
     case Some((_, chromosomeInfo)) => chromosomeInfo
@@ -76,9 +55,8 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
         PropertiesDialog(window, animal, gene,  Some(value), if (conversionMap.isEmpty) None else Some(conversionMap(value)), propertiesName).showAndWait() match {
-          case Some(ConversionMap(propertyName, map)) => {
+          case Some(ConversionMap(propertyName, map)) =>
             conversionMap += (propertyName -> map)
-          }
           case None => println("Dialog returned: None")
         }
         Platform.runLater(selectionModel().clearSelection())
@@ -90,11 +68,10 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   val propertiesButton = new Button("Add")
   propertiesButton.onAction = _ => PropertiesDialog(window, animal, None, None, None, propertiesName).showAndWait() match {
-    case Some(ConversionMap(propertyName, map)) => {
+    case Some(ConversionMap(propertyName, map)) =>
       conversionMap += (propertyName -> map)
       properties += (propertyName -> Double.getClass)
       propertiesName.insert(propertiesName.size, propertyName)
-    }
     case None => println("Dialog returned: None")
   }
 
@@ -110,19 +87,10 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
 
   /*
-  OkButton
-  */
-
-  val okButtonType = new ButtonType("Insert Alleles", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = true
-
-  /*
   Checks
    */
 
-  val mandatoryFields: Set[TextField] = fields.keySet
+
   val genes: Map[String, (GeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome ++
     currentAnimalChromosome.regulationChromosome ++
     currentAnimalChromosome.sexualChromosome
@@ -130,12 +98,16 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   val genesName: Set[String] = genes.keySet ++
     (RegulationDefaultGenes.elements ++ SexualDefaultGenes.elements).map(x => x.name)
 
-  mandatoryFields.foreach(subject =>
-    subject.text.onChange ((_, _, newValue) =>
-      okButton.disable = checkFields(subject, newValue)))
+  mandatoryFields = fields.keySet
+  listFields = Seq(propertiesName)
+  uniqueFields = Map(
+    nameGene -> genesName,
+    idGene -> genes.values.map(x => x._1.id).toSet
+  )
+  lengthFields = Map(idGene -> EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength)
 
-  propertiesName.onChange((_,_) =>
-    okButton.disable = checkFields)
+  createChecks()
+
 
   /*
   Restart information
@@ -161,31 +133,6 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     } else {
       null
     }
-
-  private def checkFields(field: TextField, newValue: String): Boolean = {
-    val mandatoryCheck = field.getText.trim().isEmpty
-    val lengthCheck = if (field.equals(idGene)) idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength
-                      else false
-    val uniqueNameCheck = if (field.equals(nameGene) && gene.isEmpty) genesName.contains(nameGene.text.value) else false
-    val uniqueIdCheck = if (field.equals(idGene) && gene.isEmpty) genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) else false
-
-    if (mandatoryCheck || lengthCheck || uniqueNameCheck || uniqueIdCheck)
-      field.pseudoClassStateChanged(errorClass, true)
-    else
-      field.pseudoClassStateChanged(errorClass, false)
-
-    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
-    else if (lengthCheck) fields(field)._2.text.value = "Must be " + EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength + " long"
-    else if (uniqueNameCheck || uniqueIdCheck) fields(field)._2.text.value = "Must be unique"
-    else fields(field)._2.text.value = ""
-    checkFields
-  }
-
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
-    idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength ||
-    (genesName.contains(nameGene.text.value) && gene.isEmpty) ||
-    (genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) && gene.isEmpty) ||
-    propertiesName.isEmpty
 
 }
 

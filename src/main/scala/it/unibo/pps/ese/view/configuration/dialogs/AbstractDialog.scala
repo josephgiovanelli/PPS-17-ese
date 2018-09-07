@@ -45,12 +45,12 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   Methods
    */
 
-  def createGrid: GridPane =
+  def createGrid(initRow: Int): GridPane =
     new GridPane() {
       hgap = 10
       padding = Insets(10, 100, 10, 10)
 
-      var count = 0
+      var count: Int = initRow
       fields.foreach(field => {
         add(field._2._1, 0, count)
         add(field._1, 1, count)

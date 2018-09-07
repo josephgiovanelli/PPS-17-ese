@@ -36,7 +36,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Abstr
 
 
 
-  dialogPane().content = createGrid
+  dialogPane().content = createGrid(0)
 
   Platform.runLater(name.requestFocus())
 
