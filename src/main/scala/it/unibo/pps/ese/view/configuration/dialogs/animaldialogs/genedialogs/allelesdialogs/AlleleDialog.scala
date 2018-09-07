@@ -2,6 +2,8 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 
 
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.entitiesinfo._
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, GeneInfo}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -40,10 +42,8 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
 
   val grid: GridPane = createGrid(0)
 
-  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeInfo
-    case None => throw new IllegalStateException()
-  }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
+
 
   val currentSpecificAnimalChromosome: Map[String, (GeneInfo, Map[String, AlleleInfo])] = chromosomeTypes match {
     case ChromosomeTypes.STRUCTURAL => currentAnimalChromosome.structuralChromosome
@@ -96,7 +96,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
   doubleFields = mandatoryFields - idAllele
   listFields = Seq(effectsName)
   uniqueFields = Map(idAllele -> allelesId)
-  lengthFields = Map(idAllele -> EntitiesInfo.instance().getAnimalInfo(animal).get._1.alleleLength)
+  lengthFields = Map(idAllele -> EntitiesInfo.instance().getAnimalBaseInfo(animal).alleleLength)
   probabilityFields = Set(probability)
 
   createChecks()

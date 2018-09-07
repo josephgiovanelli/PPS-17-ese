@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.view.configuration.dialogs.plantdialogs
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, EntitiesInfo, PlantInfo}
+import it.unibo.pps.ese.view.configuration.dialogs.AbstractDialog
+import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._

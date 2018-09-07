@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, AnimalBaseInfo, EntitiesInfo}
+import it.unibo.pps.ese.view.configuration.dialogs.AbstractDialog
+import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -61,15 +63,12 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends A
    */
 
   if (animal.isDefined) {
-    val animalInfo = EntitiesInfo.instance().getAnimalInfo(animal.get) match {
-      case Some((basicInfo, _)) => basicInfo
-      case None => throw new IllegalStateException()
-    }
+    val animalBaseInfo = EntitiesInfo.instance().getAnimalBaseInfo(animal.get)
     name.editable = false
     name.text.value = animal.get
-    geneLength.text.value = animalInfo.geneLength.toString
-    alleleLength.text.value = animalInfo.alleleLength.toString
-    typology.selectionModel().select(animalInfo.typology.toString)
+    geneLength.text.value = animalBaseInfo.geneLength.toString
+    alleleLength.text.value = animalBaseInfo.alleleLength.toString
+    typology.selectionModel().select(animalBaseInfo.typology.toString)
   }
 
   /*

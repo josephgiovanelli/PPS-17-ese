@@ -3,6 +3,8 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 
 import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.entitiesinfo._
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ConversionMap, CustomGeneInfo}
 
 import scala.collection.immutable.ListMap
 import scala.language.postfixOps
@@ -34,10 +36,7 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
   val grid: GridPane = createGrid(0)
 
 
-  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeInfo
-    case None => throw new IllegalStateException()
-  }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
   var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome
 

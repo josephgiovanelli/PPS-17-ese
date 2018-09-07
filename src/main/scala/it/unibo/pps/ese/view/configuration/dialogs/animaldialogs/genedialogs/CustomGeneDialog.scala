@@ -3,10 +3,11 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
 
 import it.unibo.pps.ese.controller.loader.{RegulationDefaultGenes, SexualDefaultGenes}
-import it.unibo.pps.ese.view.configuration.dialogs.ConversionMap
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesDialog
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog.PropertiesDialog
+import it.unibo.pps.ese.view.configuration.entitiesinfo._
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -39,10 +40,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   val grid: GridPane = createGrid(0)
 
-  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeInfo
-    case None => throw new IllegalStateException()
-  }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
   var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome
 
@@ -104,7 +102,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
     nameGene -> genesName,
     idGene -> genes.values.map(x => x._1.id).toSet
   )
-  lengthFields = Map(idGene -> EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength)
+  lengthFields = Map(idGene -> EntitiesInfo.instance().getAnimalBaseInfo(animal).geneLength)
 
   createChecks()
 

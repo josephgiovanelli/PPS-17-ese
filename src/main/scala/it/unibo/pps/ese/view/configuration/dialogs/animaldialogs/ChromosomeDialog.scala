@@ -5,6 +5,8 @@ import javafx.scene.Node
 import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.{CustomGeneDialog, DefaultGeneDialog}
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalChromosomeInfo
+import it.unibo.pps.ese.view.configuration.entitiesinfo.{ChromosomeTypes, EntitiesInfo}
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -28,10 +30,7 @@ case class ChromosomeDialog(window: Window, animal: String) extends AbstractDial
   Fields
    */
 
-  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeInfo
-    case None => throw new IllegalStateException()
-  }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
   val structuralName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.structuralChromosome.keySet toSeq)
   val structuralChromosomeListView: ListView[String] = new ListView[String] {

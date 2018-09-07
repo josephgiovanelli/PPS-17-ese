@@ -3,6 +3,7 @@ package it.unibo.pps.ese.view.configuration.dialogs
 import javafx.scene.Node
 
 import it.unibo.pps.ese.view.MainComponent
+import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 
 import scalafx.Includes._
 import scalafx.css.PseudoClass

@@ -1,9 +1,10 @@
 package it.unibo.pps.ese.view.configuration
 
-import it.unibo.pps.ese.view.configuration.dialogs.{ConfirmDialog, EntitiesInfo, ListViewUtils}
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfirmDialog, ListViewUtils}
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.AnimalDialog
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.MainComponent
+import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 
 import scalafx.Includes._
 import scalafx.application.Platform

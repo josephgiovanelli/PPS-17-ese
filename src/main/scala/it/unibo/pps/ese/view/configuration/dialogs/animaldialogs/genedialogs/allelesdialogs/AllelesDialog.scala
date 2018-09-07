@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs
 
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.entitiesinfo._
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, GeneInfo}
 
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -22,21 +24,20 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
   Fields
   */
 
-  val currentAnimalChromosome: Map[String, (GeneInfo, Map[String, AlleleInfo])] = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeTypes match {
-      case ChromosomeTypes.STRUCTURAL => chromosomeInfo.structuralChromosome
-      case ChromosomeTypes.REGULATION => chromosomeInfo.regulationChromosome
-      case ChromosomeTypes.SEXUAL => chromosomeInfo.sexualChromosome
-    }
-    case None => throw new IllegalStateException()
-  }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
-  var currentAlleles: Map[String, AlleleInfo] = currentAnimalChromosome.get(gene) match {
+  val currentSpecificAnimalChromosome: Map[String, (GeneInfo, Map[String, AlleleInfo])] = chromosomeTypes match {
+      case ChromosomeTypes.STRUCTURAL => currentAnimalChromosome.structuralChromosome
+      case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
+      case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
+    }
+
+  var currentAlleles: Map[String, AlleleInfo] = currentSpecificAnimalChromosome.get(gene) match {
     case Some((_, alleles)) => alleles
     case None => throw new IllegalStateException()
   }
 
-  var properties: Set[String] = currentAnimalChromosome(gene)._1.properties.keySet
+  var properties: Set[String] = currentSpecificAnimalChromosome(gene)._1.properties.keySet
   val allelesName: ObservableBuffer[String] = ObservableBuffer[String](currentAlleles.keySet toSeq)
   val allelesListView: ListView[String] = new ListView[String] {
     items = allelesName
