@@ -3,7 +3,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
-import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, GeneInfo}
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo, GeneInfo}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -45,7 +45,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
 
-  val currentSpecificAnimalChromosome: Map[String, (GeneInfo, Map[String, AlleleInfo])] = chromosomeTypes match {
+  val currentSpecificAnimalChromosome: Map[String, ChromosomeInfo] = chromosomeTypes match {
     case ChromosomeTypes.STRUCTURAL => currentAnimalChromosome.structuralChromosome
     case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
     case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
@@ -53,7 +53,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
 
 
   var currentAlleles: Map[String, AlleleInfo] = currentSpecificAnimalChromosome.get(gene) match {
-    case Some((_, alleles)) => alleles
+    case Some(chromosomeInfo) => chromosomeInfo.alleles
     case None => throw new IllegalStateException()
   }
 
@@ -90,7 +90,7 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
 
   val allelesId: Set[String] = (currentAnimalChromosome.structuralChromosome ++
     currentAnimalChromosome.regulationChromosome ++
-    currentAnimalChromosome.sexualChromosome).values.flatMap(x => x._2.keySet) toSet
+    currentAnimalChromosome.sexualChromosome).values.flatMap(x => x.alleles.keySet) toSet
 
   mandatoryFields = fields.keySet
   doubleFields = mandatoryFields - idAllele

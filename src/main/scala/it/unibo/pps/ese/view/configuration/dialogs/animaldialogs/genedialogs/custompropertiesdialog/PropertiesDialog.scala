@@ -4,7 +4,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
-import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ConversionMap, CustomGeneInfo}
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 
 import scala.collection.immutable.ListMap
 import scala.language.postfixOps
@@ -38,11 +38,11 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
 
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
-  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome
+  var currentStructuralChromosome: Map[String, CustomChromosomeInfo] = currentAnimalChromosome.structuralChromosome
 
   var conversionMap:  Map[String, Double] =
     if (currentConversionMap.isDefined) currentConversionMap.get
-    else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get)._1.conversionMap(property.get)
+    else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get).geneInfo.conversionMap(property.get)
     else Map.empty
 
   var qualities: Set[String] = QualityType.values.map(x => x.toString).toSet -- conversionMap.keySet

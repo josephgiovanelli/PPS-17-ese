@@ -74,9 +74,8 @@ object EntitiesInfo {
         case None => throw new IllegalStateException()
       }
       val currentStructuralChromosome = currentAnimalChromosome.structuralChromosome
-      val alleles: Map[String, AlleleInfo] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name)._2 else Map()
-      val tuple = (customGeneInfo, alleles)
-      currentAnimalChromosome.structuralChromosome += (customGeneInfo.name -> tuple)
+      val alleles: Map[String, AlleleInfo] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name).alleles else Map()
+      currentAnimalChromosome.structuralChromosome += (customGeneInfo.name -> CustomChromosomeInfo(customGeneInfo, alleles))
     }
 
     def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, defaultGeneInfo: DefaultGeneInfo): Unit = {
@@ -88,8 +87,8 @@ object EntitiesInfo {
         case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
         case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
       }
-      val alleles: Map[String, AlleleInfo] = if (currentDefaultChromosome.get(defaultGeneInfo.name).isDefined) currentDefaultChromosome(defaultGeneInfo.name)._2 else Map()
-      currentDefaultChromosome += (defaultGeneInfo.name -> (defaultGeneInfo, alleles))
+      val alleles: Map[String, AlleleInfo] = if (currentDefaultChromosome.get(defaultGeneInfo.name).isDefined) currentDefaultChromosome(defaultGeneInfo.name).alleles else Map()
+      currentDefaultChromosome += (defaultGeneInfo.name -> DefaultChromosomeInfo(defaultGeneInfo, alleles))
       chromosomeTypes match {
         case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome = currentDefaultChromosome
         case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome = currentDefaultChromosome
@@ -104,13 +103,13 @@ object EntitiesInfo {
       chromosomeTypes match {
         case ChromosomeTypes.STRUCTURAL =>
           val structuralGene = currentAnimalChromosome.structuralChromosome(gene)
-          currentAnimalChromosome.structuralChromosome += (gene -> (structuralGene._1, structuralGene._2 ++ alleles))
+          currentAnimalChromosome.structuralChromosome += (gene -> CustomChromosomeInfo(structuralGene.geneInfo, structuralGene.alleles ++ alleles))
         case ChromosomeTypes.REGULATION =>
           val regulationGene = currentAnimalChromosome.regulationChromosome(gene)
-          currentAnimalChromosome.regulationChromosome += (gene -> (regulationGene._1, regulationGene._2 ++ alleles))
+          currentAnimalChromosome.regulationChromosome += (gene -> DefaultChromosomeInfo(regulationGene.geneInfo, regulationGene.alleles ++ alleles))
         case ChromosomeTypes.SEXUAL =>
           val sexualGene = currentAnimalChromosome.sexualChromosome(gene)
-          currentAnimalChromosome.sexualChromosome += (gene -> (sexualGene._1, sexualGene._2 ++ alleles))
+          currentAnimalChromosome.sexualChromosome += (gene -> DefaultChromosomeInfo(sexualGene.geneInfo, sexualGene.alleles ++ alleles))
       }
     }
 
@@ -135,7 +134,7 @@ object EntitiesInfo {
       defaultChromosomeMapping(ChromosomeTypes.REGULATION, animal)
 
     private def structuralChromosomeMapping(animal: String): Iterable[CustomGeneData] =
-      getAnimalInfo(animal).get.animalChromosomeInfo.structuralChromosome.map(gene => CustomGeneData(Gene(gene._2._1.id, gene._2._1.name, "", propertiesMapping(gene._2._1.conversionMap)), alleleMapping(gene._2._1.id, gene._2._2)))
+      getAnimalInfo(animal).get.animalChromosomeInfo.structuralChromosome.map(gene => CustomGeneData(Gene(gene._2.geneInfo.id, gene._2.geneInfo.name, "", propertiesMapping(gene._2.geneInfo.conversionMap)), alleleMapping(gene._2.geneInfo.id, gene._2.alleles)))
 
     private def propertiesMapping(properties: Map[String, Map[String, Double]]): Map[String, PropertyInfo] =
       properties.map(property => property._1 -> PropertyInfo(property._2))
@@ -146,11 +145,11 @@ object EntitiesInfo {
         case None => throw new IllegalStateException()
       }
       var enumerationElements: Set[_ <: DefaultGene] = Set.empty
-      val defaultChromosomeInfo: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])] = chromosomeTypes match {
+      val defaultChromosomeInfo: Map[String, DefaultChromosomeInfo] = chromosomeTypes match {
         case ChromosomeTypes.REGULATION => enumerationElements = RegulationDefaultGenes.elements; currentAnimalChromosome.regulationChromosome
         case ChromosomeTypes.SEXUAL => enumerationElements = SexualDefaultGenes.elements; currentAnimalChromosome.sexualChromosome
       }
-      defaultChromosomeInfo.map(gene => DefaultGeneData(enumerationElements.filter(x => x.name.equals(gene._2._1.name)).head, gene._2._1.id, alleleMapping(gene._2._1.id, gene._2._2)))
+      defaultChromosomeInfo.map(gene => DefaultGeneData(enumerationElements.filter(x => x.name.equals(gene._2.geneInfo.name)).head, gene._2.geneInfo.id, alleleMapping(gene._2.geneInfo.id, gene._2.alleles)))
     }
 
     private def alleleMapping(gene: String, alleles: Map[String, AlleleInfo]): Iterable[AlleleData] =

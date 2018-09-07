@@ -42,10 +42,10 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
-  var currentStructuralChromosome: Map[String, (CustomGeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome
+  var currentStructuralChromosome: Map[String, CustomChromosomeInfo] = currentAnimalChromosome.structuralChromosome
 
-  var properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get)._1.properties else Map.empty
-  var conversionMap: Map[String, Map[String, Double]] = if (gene.isDefined) currentStructuralChromosome(gene.get)._1.conversionMap else Map.empty
+  var properties: Map[String, Class[_]] = if (gene.isDefined) currentStructuralChromosome(gene.get).geneInfo.properties else Map.empty
+  var conversionMap: Map[String, Map[String, Double]] = if (gene.isDefined) currentStructuralChromosome(gene.get).geneInfo.conversionMap else Map.empty
 
   val propertiesName: ObservableBuffer[String] = ObservableBuffer[String](properties.keySet toSeq)
   val propertiesListView: ListView[String] = new ListView[String] {
@@ -89,7 +89,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
    */
 
 
-  val genes: Map[String, (GeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome ++
+  val genes: Map[String, ChromosomeInfo] = currentAnimalChromosome.structuralChromosome ++
     currentAnimalChromosome.regulationChromosome ++
     currentAnimalChromosome.sexualChromosome
 
@@ -100,7 +100,7 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
   listFields = Seq(propertiesName)
   uniqueFields = Map(
     nameGene -> genesName,
-    idGene -> genes.values.map(x => x._1.id).toSet
+    idGene -> genes.values.map(x => x.geneInfo.id).toSet
   )
   lengthFields = Map(idGene -> EntitiesInfo.instance().getAnimalBaseInfo(animal).geneLength)
 
@@ -113,9 +113,9 @@ case class CustomGeneDialog(window: Window, animal: String, gene: Option[String]
 
   if (gene.isDefined) {
     nameGene.editable = false
-    nameGene.text.value = currentStructuralChromosome(gene.get)._1.name
+    nameGene.text.value = currentStructuralChromosome(gene.get).geneInfo.name
     idGene.editable = false
-    idGene.text.value = currentStructuralChromosome(gene.get)._1.id
+    idGene.text.value = currentStructuralChromosome(gene.get).geneInfo.id
   }
 
 

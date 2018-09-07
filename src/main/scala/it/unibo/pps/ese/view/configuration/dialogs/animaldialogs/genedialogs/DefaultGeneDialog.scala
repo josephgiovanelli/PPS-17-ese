@@ -4,7 +4,7 @@ import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesDialog
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
-import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, DefaultGeneInfo}
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -29,7 +29,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
 
-  val currentDefaultChromosome: Map[String, (DefaultGeneInfo, Map[String, AlleleInfo])] = chromosomeTypes match {
+  val currentDefaultChromosome: Map[String, DefaultChromosomeInfo] = chromosomeTypes match {
     case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
     case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
   }
@@ -60,7 +60,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
 
   val genes: Set[String] = (currentAnimalChromosome.structuralChromosome ++
     currentAnimalChromosome.regulationChromosome ++
-    currentAnimalChromosome.sexualChromosome).values.map(x => x._1.id) toSet
+    currentAnimalChromosome.sexualChromosome).values.map(x => x.geneInfo.id) toSet
 
   mandatoryFields = fields.keySet
   uniqueFields = Map(idGene -> genes)
@@ -75,10 +75,10 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
 
   if (gene.isDefined) {
     idGene.editable = false
-    idGene.text.value = currentDefaultChromosome(gene.get)._1.id
+    idGene.text.value = currentDefaultChromosome(gene.get).geneInfo.id
     previousNameGene.editable = false
-    previousNameGene.text.value = currentDefaultChromosome(gene.get)._1.properties.head._1
-    nameGene.selectionModel().select(currentDefaultChromosome(gene.get)._1.properties.head._1)
+    previousNameGene.text.value = currentDefaultChromosome(gene.get).geneInfo.properties.head._1
+    nameGene.selectionModel().select(currentDefaultChromosome(gene.get).geneInfo.properties.head._1)
   } else {
     nameGene.value.value = propertiesName.head
   }
@@ -89,7 +89,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
-      val defaultGene: DefaultGene = if (gene.isDefined) currentDefaultChromosome(gene.get)._1.defaultGene
+      val defaultGene: DefaultGene = if (gene.isDefined) currentDefaultChromosome(gene.get).geneInfo.defaultGene
                                      else propertiesSet.filter(x => x.name.equals(nameGene.selectionModel().getSelectedItem)).head
       EntitiesInfo.instance().setChromosomeBaseInfo(animal, chromosomeTypes, DefaultGeneInfo(defaultGene, idGene.text.value))
       AllelesDialog(window, animal, defaultGene.name, chromosomeTypes).showAndWait()
