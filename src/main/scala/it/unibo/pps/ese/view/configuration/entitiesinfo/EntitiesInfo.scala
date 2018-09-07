@@ -9,9 +9,9 @@ import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
 
 sealed trait EntitiesInfo {
 
-  def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit
-
-  def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit
+  /*
+  Animals
+   */
 
   def getAnimalInfo(id: String): Option[AnimalInfo]
 
@@ -19,9 +19,35 @@ sealed trait EntitiesInfo {
 
   def getAnimalChromosomeInfo(id: String): AnimalChromosomeInfo
 
-  def setPlantInfo(id: String, plantInfo: PlantInfo): Unit
+
+  def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit
+
+  def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit
+
+  def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, customGeneInfo: CustomGeneInfo): Unit
+
+  def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, defaultGeneInfo: DefaultGeneInfo): Unit
+
+  def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes.Value, gene: String, alleles: Map[String, AlleleInfo]): Unit
+
+
+  /*
+  Plants
+   */
 
   def getPlantInfo(id: String): Option[PlantInfo]
+
+  def setPlantInfo(id: String, plantInfo: PlantInfo): Unit
+
+  /*
+  Simulation
+   */
+
+  def getAnimals: Set[String]
+
+  def getPlants: Set[String]
+
+  def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): SimulationData
 }
 
 object ChromosomeTypes extends Enumeration {
@@ -39,14 +65,9 @@ object EntitiesInfo {
 
     private val typologyMap = Map("Carnivorous" -> "C", "Herbivore" -> "H")
 
-
-    def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit = {
-      val animalChromosomeInfo = if (animals.get(id).isDefined) animals(id).animalChromosomeInfo
-                                 else AnimalChromosomeInfo(Map.empty, Map.empty, Map.empty)
-      animals += (id -> AnimalInfo(animalBaseInfo, animalChromosomeInfo))
-    }
-
-    def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit = animals += (id -> AnimalInfo(animals(id).animalBaseInfo, animalChromosomeInfo))
+    /*
+    Animals
+     */
 
     def getAnimalInfo(id: String): Option[AnimalInfo] = animals.get(id)
 
@@ -60,19 +81,17 @@ object EntitiesInfo {
       case None => throw new IllegalStateException()
     }
 
-    def setPlantInfo(id: String, plantInfo: PlantInfo): Unit = plants += (id -> plantInfo)
+    def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit = {
+      val animalChromosomeInfo = if (animals.get(id).isDefined) animals(id).animalChromosomeInfo
+      else AnimalChromosomeInfo(Map.empty, Map.empty, Map.empty)
+      animals += (id -> AnimalInfo(animalBaseInfo, animalChromosomeInfo))
+    }
 
-    def getPlantInfo(id: String): Option[PlantInfo] = plants.get(id)
-
-    def getAnimals: Set[String] = animals.keySet
-
-    def getPlants: Set[String] = plants.keySet
+    def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit =
+      animals += (id -> AnimalInfo(animals(id).animalBaseInfo, animalChromosomeInfo))
 
     def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, customGeneInfo: CustomGeneInfo): Unit = {
-      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
-        case Some(animalInfo) => animalInfo.animalChromosomeInfo
-        case None => throw new IllegalStateException()
-      }
+      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(id)
       val currentStructuralChromosome = currentAnimalChromosome.structuralChromosome
       val alleles: Map[String, AlleleInfo] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name).alleles else Map()
       currentAnimalChromosome.structuralChromosome += (customGeneInfo.name -> CustomChromosomeInfo(customGeneInfo, alleles))
@@ -96,10 +115,8 @@ object EntitiesInfo {
     }
 
     def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes.Value, gene: String, alleles: Map[String, AlleleInfo]): Unit = {
-      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
-        case Some(animalInfo) => animalInfo.animalChromosomeInfo
-        case None => throw new IllegalStateException()
-      }
+      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(id)
+
       chromosomeTypes match {
         case ChromosomeTypes.STRUCTURAL =>
           val structuralGene = currentAnimalChromosome.structuralChromosome(gene)
@@ -113,9 +130,30 @@ object EntitiesInfo {
       }
     }
 
+    /*
+    Plants
+     */
+
+    def getPlantInfo(id: String): Option[PlantInfo] = plants.get(id)
+
+    def setPlantInfo(id: String, plantInfo: PlantInfo): Unit = plants += (id -> plantInfo)
+
+    /*
+    Simulation
+     */
+
+    def getAnimals: Set[String] = animals.keySet
+
+    def getPlants: Set[String] = plants.keySet
+
+
     def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): SimulationData =
       SimulationData(animalsMapping(animalsEntities), plantsMapping(plantsEntities))
 
+
+    /*
+    Mapping methods
+     */
 
     private def plantsMapping(plantsEntities: Map[String, Int]): Map[PlantData, Int] = {
       val mappedPlants: Map[String, PlantData] = plants.map(plant => plant._1 -> Plant(plant._1, 3, 3, "P", plant._2.height, 0, plant._2.hardness, plant._2.nutritionalValue, plant._2.availability))
@@ -140,10 +178,8 @@ object EntitiesInfo {
       properties.map(property => property._1 -> PropertyInfo(property._2))
 
     private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[DefaultGeneData] = {
-      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(animal) match {
-        case Some(animalInfo) => animalInfo.animalChromosomeInfo
-        case None => throw new IllegalStateException()
-      }
+      val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(animal)
+
       var enumerationElements: Set[_ <: DefaultGene] = Set.empty
       val defaultChromosomeInfo: Map[String, DefaultChromosomeInfo] = chromosomeTypes match {
         case ChromosomeTypes.REGULATION => enumerationElements = RegulationDefaultGenes.elements; currentAnimalChromosome.regulationChromosome
