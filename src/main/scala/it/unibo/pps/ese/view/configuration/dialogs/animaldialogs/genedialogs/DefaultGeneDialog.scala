@@ -17,17 +17,14 @@ import scalafx.scene.layout.GridPane
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Value, animal: String, gene: Option[String], propertiesSet: Set[_ <: DefaultGene] ) extends Dialog[String] {
+case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Value, animal: String, gene: Option[String], propertiesSet: Set[_ <: DefaultGene] ) extends AbstractDialog[String](window, gene) {
 
   /*
   Header
    */
 
-  initOwner(window)
   title = "Default Gene Dialog"
   headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
-  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
-  val errorClass = PseudoClass("error")
 
   /*
   Fields
@@ -50,50 +47,33 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   val nameGene = new ComboBox(propertiesName)
   val previousNameGene = new TextField()
 
-  val fields: Map[TextField, (Label, Label)] = ListMap(
+  fields = ListMap(
     idGene -> (new Label("Id"), new Label(""))
   )
 
-  val grid: GridPane = new GridPane() {
-    hgap = 10
-    padding = Insets(10, 100, 10, 10)
+  val grid: GridPane = createGrid
 
-    var count = 0
-    fields.foreach(field => {
-      add(field._2._1, 0, count)
-      add(field._1, 1, count)
-      count += 1
-      add(field._2._2, 1, count)
-      count += 1
-      field._2._2.textFill = Color.Red
-    })
-    add(new Label("Name"), 0, count)
-    add(if (gene.isDefined) previousNameGene else nameGene, 1, count)
-  }
+  grid.add(new Label("Name"), 0, fields.size * 2)
+  grid.add(if (gene.isDefined) previousNameGene else nameGene, 1, fields.size * 2)
+
 
   dialogPane().content = grid
 
-  /*
-  OkButton
-   */
-
-  val okButtonType = new ButtonType("Insert Alleles", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = true
 
   /*
   Checks
    */
 
-  val mandatoryFields: Set[TextField] = fields.keySet
-  val genes: Map[String, (GeneInfo, Map[String, AlleleInfo])] = currentAnimalChromosome.structuralChromosome ++
+  val genes = (currentAnimalChromosome.structuralChromosome ++
     currentAnimalChromosome.regulationChromosome ++
-    currentAnimalChromosome.sexualChromosome
+    currentAnimalChromosome.sexualChromosome).values.map(x => x._1.id) toSet
 
-  mandatoryFields.foreach(subject =>
-    subject.text.onChange ((_, _, newValue) =>
-      okButton.disable = checkFields(subject, newValue)))
+  mandatoryFields = fields.keySet
+  uniqueFields = Map(idGene -> genes)
+  lengthFields = Map(idGene -> EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength)
+
+
+  createChecks()
 
   /*
   Restart information
@@ -123,30 +103,6 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
     } else {
       null
     }
-
-  private def checkFields(field: TextField, newValue: String): Boolean = {
-    val mandatoryCheck = field.getText.trim().isEmpty
-    val lengthCheck = if (field.equals(idGene)) idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength
-                      else false
-    val uniqueIdCheck = if (field.equals(idGene) && gene.isEmpty) genes.values.map(x => x._1.id).toSet.contains(idGene.text.value)
-                        else false
-
-    if (mandatoryCheck || lengthCheck || uniqueIdCheck)
-      field.pseudoClassStateChanged(errorClass, true)
-    else
-      field.pseudoClassStateChanged(errorClass, false)
-
-    if (mandatoryCheck) fields(field)._2.text.value = "Must be filled"
-    else if (lengthCheck) fields(field)._2.text.value = "Must be " + EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength + " long"
-    else if (uniqueIdCheck) fields(field)._2.text.value = "Must be unique"
-    else fields(field)._2.text.value = ""
-    checkFields
-  }
-
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.getText.trim().isEmpty) ||
-    idGene.text.value.length != EntitiesInfo.instance().getAnimalInfo(animal).get._1.geneLength ||
-    (genes.values.map(x => x._1.id).toSet.contains(idGene.text.value) && gene.isEmpty)
-
 
 }
 

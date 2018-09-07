@@ -15,18 +15,14 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
 
-case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
+case class ChromosomeDialog(window: Window, animal: String) extends AbstractDialog(window, None) {
 
   /*
   Header
    */
 
-  initOwner(window)
   title = "Chromosome Dialog"
   headerText = "Define animal chromosome"
-  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
-  val errorClass = PseudoClass("error")
-
 
   /*
   Fields
@@ -122,22 +118,13 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
   Checks
    */
 
-  val mandatoryFields: Seq[ObservableBuffer[String]] = Seq(structuralName, regulationName, sexualName)
+  listFields = Seq(structuralName, regulationName, sexualName)
 
-  mandatoryFields.foreach(subject =>
-    subject.onChange ((_, _) =>
-      okButton.disable = checkFields))
+  createChecks()
 
   /*
-  OkButton
+  Support Methods
   */
-
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = checkFields
-
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.isEmpty)
 
   private def getCurrentRegulationChromosome: Set[RegulationDefaultGene] =
     currentAnimalChromosome.regulationChromosome.keySet.map(x => RegulationDefaultGenes.elements.filter(y => y.name.equals(x)).head)

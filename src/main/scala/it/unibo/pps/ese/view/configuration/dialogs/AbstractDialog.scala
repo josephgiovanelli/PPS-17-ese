@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 import scalafx.Includes._
+import scalafx.collections.ObservableBuffer
 import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.Node
@@ -12,15 +13,23 @@ import scalafx.stage.Window
 
 abstract class AbstractDialog[A](window: Window, key: Option[String] = None) extends Dialog[A] {
 
+  /*
+  Dialog Setup
+   */
   initOwner(window)
   dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
   val errorClass = PseudoClass("error")
 
+  /*
+  Fields
+   */
   var fields: Map[TextField, (Label, Label)] = Map.empty
   var mandatoryFields: Set[TextField] = Set.empty
   var intFields: Set[TextField] = Set.empty
   var doubleFields: Set[TextField] = Set.empty
   var uniqueFields: Map[TextField, Set[String]] = Map.empty
+  var listFields: Seq[ObservableBuffer[String]] = Seq.empty
+  var lengthFields: Map[TextField, Int] = Map.empty
 
   /*
   OkButton
@@ -31,6 +40,10 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   val okButton: Node = dialogPane().lookupButton(okButtonType)
   okButton.disable = true
 
+
+  /*
+  Methods
+   */
 
   def createGrid: GridPane =
     new GridPane() {
@@ -49,10 +62,16 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     }
 
 
-  def createChecks(): Unit =
+  def createChecks(): Unit = {
     mandatoryFields.foreach(subject =>
       subject.text.onChange ((_, _, newValue) =>
         okButton.disable = checkFields(subject, newValue)))
+
+    listFields.foreach(subject =>
+      subject.onChange ((_, _) =>
+        okButton.disable = checkFields))
+  }
+
 
   def mandatoryCheck(field: TextField): Boolean =
     field.getText.trim().isEmpty
@@ -66,14 +85,18 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   def uniqueCheck(field: TextField): Boolean =
     if (key.isEmpty && uniqueFields.keySet.contains(field)) uniqueFields(field).contains(field.text.value) else false
 
+  def lengthCheck(field: TextField): Boolean =
+    if (lengthFields.keySet.contains(field)) field.text.value.length != lengthFields(field) else false
+
 
   def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatory = mandatoryCheck(field)
     val int = intCheck(field)
     val double = doubleCheck(field)
     val unique = uniqueCheck(field)
+    val length = lengthCheck(field)
 
-    if (mandatory || int || double || unique)
+    if (mandatory || int || double || unique || length)
       field.pseudoClassStateChanged(errorClass, true)
     else
       field.pseudoClassStateChanged(errorClass, false)
@@ -82,6 +105,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     else if (int) fields(field)._2.text.value = "Must be int"
     else if (double) fields(field)._2.text.value = "Must be double"
     else if (unique) fields(field)._2.text.value = "Must be unique"
+    else if (length) fields(field)._2.text.value = "Must be " + lengthFields(field) + " long"
     else fields(field)._2.text.value = ""
 
     checkFields
@@ -90,6 +114,8 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   def checkFields: Boolean = mandatoryFields.exists(field => mandatoryCheck(field)) ||
     intFields.exists(field => intCheck(field)) ||
     doubleFields.exists(field => doubleCheck(field)) ||
-    uniqueFields.keySet.exists(field => uniqueCheck(field))
+    uniqueFields.keySet.exists(field => uniqueCheck(field)) ||
+    lengthFields.keySet.exists(field => lengthCheck(field)) ||
+    listFields.exists(x => x.isEmpty)
 
 }
