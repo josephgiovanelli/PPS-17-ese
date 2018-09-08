@@ -39,17 +39,32 @@ object Controller {
     //ASYNC CALLBACK
     consolidatedState attachNewDataListener(era => {
       println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
+
+      //val a = DataMiner(consolidatedState).bornCount(_era get())
+      //val b = DataMiner(consolidatedState).bornCount("Giraffa")
+      //val c = DataMiner(consolidatedState).bornCount("Giraffa", _era get())
+      //val d = DataMiner(consolidatedState).bornCount
+
+      //val a1 = DataMiner(consolidatedState).deadCount(_era get())
+      //val b1 = DataMiner(consolidatedState).deadCount("Giraffa")
+      //val c1 = DataMiner(consolidatedState).deadCount("Giraffa", _era get())
+      //val d1 = DataMiner(consolidatedState).deadCount
+
+      //val a2 = DataMiner(consolidatedState).aliveSpecies(_era get())
+      //val a3 = DataMiner(consolidatedState).extinctSpecies(_era get())
+      //val a4 = DataMiner(consolidatedState).extinctSpecies()
+      //val a5 = DataMiner(consolidatedState).simulationSpecies()
       //      if (_era == 10) {
       //        val tmp = (DataAggregator ingestedData) entitiesInEra  1
       //        tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
       //          val y = (DataAggregator ingestedData) entityDynamicLog  x.id
       //          //println(y)
       //
-      //          //              val originalData = (DataAggregator ingestedData) getAllDynamicLogs()
-      //          //              val saver = DataSaver()
-      //          //              val serialized = saver saveData("", originalData)
-      //          //              val deserialized = saver loadData serialized
-      //          //              println(deserialized)
+      //          val originalData = (DataAggregator ingestedData) getAllDynamicLogs()
+      //          val saver = DataSaver()
+      //          val serialized = saver saveData("", originalData)
+      //          val deserialized = saver loadData serialized
+      //          println(deserialized)
       //        })
       //      }
     })
