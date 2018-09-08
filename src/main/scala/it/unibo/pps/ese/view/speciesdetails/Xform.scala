@@ -200,10 +200,6 @@ class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinde
   }
 
   override def clearGeneStats(): Unit = {
-    s1.material = Materials.whiteMaterial
-    s2.material = Materials.whiteMaterial
-    c1.material = Materials.greyMaterial
-    c2.material = Materials.greyMaterial
     setMaterialsOfShapes(Materials.whiteMaterial,s1,s2)
     setMaterialsOfShapes(Materials.greyMaterial,c1,c2)
     val listener:MouseEvent => Unit = (me:MouseEvent)=> {}
