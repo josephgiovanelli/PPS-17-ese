@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genericworld.controller
 import java.util.concurrent.atomic.AtomicLong
 
 import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, ReadOnlyEntityRepository}
-import it.unibo.pps.ese.genericworld.model.{EntityState, ReadOnlyEntityState, World}
+import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.view.View
 
 import scala.concurrent.ExecutionContext
@@ -19,6 +19,7 @@ trait ManageableController {
   def pause(): Unit
   def exit(): Unit
   def entityData(id: String): Option[EntityState]
+  def watch(entity: String): Unit
 }
 
 object Controller {
@@ -35,6 +36,7 @@ object Controller {
     private[this] var _stop = false
     private[this] var _paused = true
     private[this] val _era: AtomicLong = new AtomicLong(1)
+    private[this] val sniffer = Sniffer(realTimeState)
 
     //ASYNC CALLBACK
     consolidatedState attachNewDataListener(era => {
@@ -64,12 +66,15 @@ object Controller {
           normalizeFrameRate(() => {
             if (_paused) this synchronized wait()
             view updateWorld (0, realTimeState getFilteredState(_ => true))
+            sniffer informAboutOrgansStatus view
           }, frameRate)
         }
       }) start()
     }
 
     override def manage: ManageableController = this
+
+    override def watch(entity: String): Unit = sniffer watch entity
 
     override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {
       case Seq(single) => Some(single)

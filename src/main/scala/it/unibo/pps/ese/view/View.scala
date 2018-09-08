@@ -1,15 +1,25 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
+
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
   def addObserver(observer: Observer): Unit
+
+
+  def eyes(active: Boolean)
+  def brain(active: Boolean)
+  def stomach(active: Boolean)
+  def reproductionOrgan(active: Boolean)
+  def pregnant(active: Boolean)
+  def embryo(state: EmbryoStatus.Value)
 }
 
 trait MainComponent {
@@ -60,6 +70,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   }
 
   override def getEntityDetails(id: String): Option[EntityInfo] = {
+    observers.head.setWatched(id)
     observers.head.getEntityDetails(id)
   }
 
@@ -74,6 +85,13 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     }
     case _ =>
   }
+
+  override def eyes(active: Boolean): Unit = println("eyes:" + active)
+  override def brain(active: Boolean): Unit = println("brain:" +active)
+  override def stomach(active: Boolean): Unit = println("stomach:" +active)
+  override def reproductionOrgan(active: Boolean): Unit = println("reprduction organ:" +active)
+  override def pregnant(active: Boolean): Unit = println("pregnat:" +active); println()
+  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" +state); println()
 }
 
 object ViewType extends Enumeration {
