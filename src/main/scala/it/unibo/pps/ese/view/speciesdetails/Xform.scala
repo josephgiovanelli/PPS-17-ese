@@ -3,7 +3,8 @@ package it.unibo.pps.ese.view.speciesdetails
  import it.unibo.pps.ese.genetics.dnaexpression.GeneStats
  import scalafx.Includes._
  import scalafx.scene.input.MouseEvent
- import scalafx.scene.shape.{Cylinder, Sphere}
+ import scalafx.scene.paint.{Color, PhongMaterial}
+ import scalafx.scene.shape.{Cylinder, Shape3D, Sphere}
  import scalafx.scene.transform.{Rotate, Scale, Translate}
 
 object Xform {
@@ -170,13 +171,12 @@ class Xform extends javafx.scene.Group {
 }
 sealed trait ModifiableSphereCouple{
   def setGeneStats(chromosomeWithGeneCouple: GeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene):Unit
+  def clearGeneStats():Unit
 }
 class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinder) extends Xform() with ModifiableSphereCouple {
   override def setGeneStats(chromosomeWithGeneCouple: GeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene): Unit = {
-    s1.material = Materials.blueMaterial
-    s2.material = Materials.greyMaterial
-    c1.material = Materials.greyMaterial
-    c2.material = Materials.blueMaterial
+    setMaterialsOfShapes(Materials.blueMaterial,s1,c2)
+    setMaterialsOfShapes(Materials.greyMaterial,s2,c1)
     val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
               val gCouple:GeneCouple = chromosomeWithGeneCouple
               val geneStats1:GeneStats = gCouple.gene1.geneStats
@@ -196,10 +196,30 @@ class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinde
                         geneStats = geneStats2
                       )
     }
-    s1.onMouseEntered = clickListener
-    s2.onMouseEntered = clickListener
+    setListeners(s1,s2)(clickListener)
+  }
 
-    s1.onMouseClicked = clickListener
-    s2.onMouseClicked = clickListener
+  override def clearGeneStats(): Unit = {
+    s1.material = Materials.whiteMaterial
+    s2.material = Materials.whiteMaterial
+    c1.material = Materials.greyMaterial
+    c2.material = Materials.greyMaterial
+    setMaterialsOfShapes(Materials.whiteMaterial,s1,s2)
+    setMaterialsOfShapes(Materials.greyMaterial,c1,c2)
+    val listener:MouseEvent => Unit = (me:MouseEvent)=> {}
+    setListeners(s1,s2)(listener)
+  }
+
+  private def setPropertyOfShapes(shapes:Shape3D*)(f:Shape3D=>Unit):Unit ={
+    shapes.foreach(f(_))
+  }
+  private def setMaterialsOfShapes(material:PhongMaterial,shapes:Shape3D*):Unit={
+    setPropertyOfShapes(shapes:_*)(s =>s.material = material)
+  }
+  private def setListeners(shapes:Shape3D*)(listener:MouseEvent => Unit):Unit = {
+    setPropertyOfShapes(shapes:_*)(s=>{
+      s.onMouseClicked = listener
+      s.onMouseEntered = listener
+    })
   }
 }
