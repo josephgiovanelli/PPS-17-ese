@@ -1,16 +1,19 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus
 
+import it.unibo.pps.ese.controller.saving.Memento
 import it.unibo.pps.ese.entitybehaviors.Direction
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.SearchingState.SearchingState
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{Position, Memory => _, _}
+import it.unibo.pps.ese.utils.Savable
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
-trait Hippocampus {
+trait Hippocampus extends Savable {
 
   def searchingState: SearchingState
   def updateTime()
@@ -37,19 +40,33 @@ object Hippocampus {
   def apply(worldWidth: Int, worldHeight: Int, locationalFieldSize: Double): Hippocampus =
     new HippocampusImpl(worldWidth, worldHeight, locationalFieldSize)
 
+  def apply(hippocampusMemento: HippocampusMemento): Hippocampus = new HippocampusImpl(hippocampusMemento)
 
-  private class HippocampusImpl(val worldWidth: Int, val worldHeight: Int, val locationalFieldSize: Double) extends Hippocampus {
+  type ShortTermMemories = mutable.Map[MemoryType, ListBuffer[ShortTermMemory]]
 
-    import scala.collection.mutable.Map
+  private class HippocampusImpl(
+                                 val worldWidth: Int,
+                                 val worldHeight: Int,
+                                 val locationalFieldSize: Double,
+                                 val neocortex: Neocortex = Neocortex(),
+                                 val memories: ShortTermMemories = mutable.Map(),
+                                 var memorySearchComponent: Option[MemorySearchComponent] = None,
+                                 var currentBestMemory: Option[Memory] = None
+                               ) extends Hippocampus {
 
-    type ShortTermMemoryMap = Map[MemoryType, ListBuffer[ShortTermMemory]]
+    def this(hippocampusMemento: HippocampusMemento) {
+      this(
+        hippocampusMemento.worldWidth,
+        hippocampusMemento.worldHeight,
+        hippocampusMemento.locationalFieldSize,
+        Neocortex(Memento.neocortexMemento.get),
+        hippocampusMemento.memories,
+        hippocampusMemento.memorySearchComponent,
+        hippocampusMemento.currentBestMemory)
+    }
 
 
-    val neocortex: Neocortex = Neocortex()
-    val memories: ShortTermMemoryMap = Map()
     val eventGain = new Random()
-    var memorySearchComponent: Option[MemorySearchComponent] = None
-    var currentBestMemory: Option[Memory] = None
 
     var searchingState: SearchingState = SearchingState.INACTIVE
 
@@ -149,5 +166,18 @@ object Hippocampus {
       }
 
     }
+
+    override def saveState(): Unit = {
+      Memento.hippocampusMemento = Some(HippocampusMemento(worldWidth, worldHeight, locationalFieldSize, memories,
+        memorySearchComponent, currentBestMemory, searchingState))
+    }
   }
+
+  case class HippocampusMemento(worldWidth: Int,
+                                worldHeight: Int,
+                                locationalFieldSize: Double,
+                                memories: ShortTermMemories,
+                                memorySearchComponent: Option[MemorySearchComponent],
+                                currentBestMemory: Option[Memory],
+                                searchingState: SearchingState)
 }
