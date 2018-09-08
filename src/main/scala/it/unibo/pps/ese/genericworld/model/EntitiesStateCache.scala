@@ -5,12 +5,15 @@ import it.unibo.pps.ese.genericworld.model.support.DataRepository
 case class EntityState(entityId: String, state: EntityInfo)
 case class EntityProperty(propertyId : String, value : Any)
 
-sealed trait EntitiesStateCache {
+sealed trait ReadOnlyEntityState {
+  def getEntityState(entityId: String): EntityState
+  def getFilteredState(filter: EntityState => Boolean ) : Seq[EntityState]
+}
+
+sealed trait EntitiesStateCache extends ReadOnlyEntityState {
   def publishEntityState(entityId: String)
   def hideEntityState(entityId: String)
   def addOrUpdateEntityState (entityId: String, element: EntityProperty) : Unit
-  def getEntityState(entityId: String): EntityState
-  def getFilteredState(filter: EntityState => Boolean ) : Seq[EntityState]
 }
 
 object EntitiesStateCache {

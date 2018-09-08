@@ -15,7 +15,7 @@ object DataMiner {
       _dataRepository.getAllDynamicLogs().map(x => x.structuralData.species).distinct
 
     override def populationTrend(): Seq[Int] =
-      (0 to _dataRepository.getAllDynamicLogs().map(x => x.dynamicData.map(y => y._1).max.toInt).max)
+      (1 to _dataRepository.getAllDynamicLogs().map(x => x.dynamicData.map(y => y._1).max.toInt).max)
         .map(i => _dataRepository.entitiesInEra(i).size)
   }
 }

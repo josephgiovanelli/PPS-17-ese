@@ -1,6 +1,9 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.genericworld.model.{EntityState, World}
+import java.util.concurrent.atomic.AtomicLong
+
+import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, ReadOnlyEntityRepository}
+import it.unibo.pps.ese.genericworld.model.{EntityState, ReadOnlyEntityState, World}
 import it.unibo.pps.ese.view.View
 
 import scala.concurrent.ExecutionContext
@@ -20,24 +23,47 @@ trait ManageableController {
 
 object Controller {
 
-  def apply(world: World, clockPeriod: FiniteDuration)
-           (implicit executionContext: ExecutionContext): Controller = BaseController(world, clockPeriod)
+  def apply(simulation: SimulationLoop, realTimeState: ReadOnlyEntityState, consolidatedState: ReadOnlyEntityRepository)
+           (implicit executionContext: ExecutionContext): Controller =
+    BaseController(simulation, realTimeState, consolidatedState)
 
-  private case class BaseController(world: World, clockPeriod: FiniteDuration)
+  private case class BaseController(simulation: SimulationLoop,
+                                    realTimeState: ReadOnlyEntityState,
+                                    consolidatedState: ReadOnlyEntityRepository)
                                    (implicit executionContext: ExecutionContext) extends Controller with ManageableController {
 
-    val simulationLoop = SimulationLoop(world, clockPeriod)
-    var stop = false
-    var paused = true
+    private[this] var _stop = false
+    private[this] var _paused = true
+    private[this] val _era: AtomicLong = new AtomicLong(1)
+
+    //ASYNC CALLBACK
+    consolidatedState attachNewDataListener(era => {
+      println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
+      //      if (_era == 10) {
+      //        val tmp = (DataAggregator ingestedData) entitiesInEra  1
+      //        tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
+      //          val y = (DataAggregator ingestedData) entityDynamicLog  x.id
+      //          //println(y)
+      //
+      //          //              val originalData = (DataAggregator ingestedData) getAllDynamicLogs()
+      //          //              val saver = DataSaver()
+      //          //              val serialized = saver saveData("", originalData)
+      //          //              val deserialized = saver loadData serialized
+      //          //              println(deserialized)
+      //        })
+      //      }
+    })
+
+    simulation attachEraListener(era => _era set era)
 
     override def attachView(view: View, frameRate: Int): Unit = {
       import ViewHelpers.{ManageableObserver, toViewData}
       view addObserver this
       new Thread (() => {
-        while(!stop) {
+        while(!_stop) {
           normalizeFrameRate(() => {
-            if (paused) this synchronized wait()
-            view updateWorld (0, world entitiesState)
+            if (_paused) this synchronized wait()
+            view updateWorld (0, realTimeState getFilteredState(_ => true))
           }, frameRate)
         }
       }) start()
@@ -45,23 +71,26 @@ object Controller {
 
     override def manage: ManageableController = this
 
-    override def entityData(id: String): Option[EntityState] = (world entitiesState).find(x => x.entityId == id)
+    override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {
+      case Seq(single) => Some(single)
+      case _ => None
+    }
 
     override def play(): Unit = this synchronized {
-      simulationLoop play()
-      paused = false
+      simulation play()
+      _paused = false
       notify()
     }
 
     override def pause(): Unit = this synchronized {
-      simulationLoop pause()
-      paused = true
+      simulation pause()
+      _paused = true
     }
 
     override def exit(): Unit = this synchronized {
-      simulationLoop dispose()
-      stop = true
-      paused = true
+      simulation dispose()
+      _stop = true
+      _paused = true
       notify()
     }
 
