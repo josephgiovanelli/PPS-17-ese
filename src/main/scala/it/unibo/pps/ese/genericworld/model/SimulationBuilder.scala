@@ -106,6 +106,7 @@ object EntityBuilderHelpers {
     entity addComponent initializeBrainComponent(entity, animalInfo, worldHeight, worldWidth)
     entity addComponent initializeAnimalPhysicalComponent(entity, animalInfo)
     entity addComponent initializeReproductionComponent(entity, animalInfo)
+    entity addComponent initializeOrgansTrackerComponent(entity)
     entity
   }
 
@@ -178,6 +179,11 @@ object EntityBuilderHelpers {
       mutationProb,
       animalInfo.qualities(EnergyRequirements).qualityValue
     )
+  }
+
+  private def initializeOrgansTrackerComponent(entity: Entity)
+                                              (implicit executionContext: ExecutionContext): Component = {
+    new OrgansTrackerComponent(entity specifications)
   }
 
   private def initializePlantPhysicalComponent(entity: Entity, plantInfo: PlantInfo)
