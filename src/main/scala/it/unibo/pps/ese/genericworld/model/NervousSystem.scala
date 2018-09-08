@@ -59,8 +59,7 @@ object NervousSystem {
     private[this] val _eventBus = EventBus()
     private[this] var _eventsMappings : List[(Class[_], _ => Seq[EntityProperty])]= List empty
     private[this] val _mapper : Event => Unit = ev => {
-      val mapper = _eventsMappings find(e => e._1.getName == ev.getClass.getName)
-      if (mapper isDefined) mapper get match {
+      _eventsMappings filter(e => e._1.getName == ev.getClass.getName) foreach {
         case (_, map: (Event => Seq[EntityProperty])) =>
           publish(IdentifiedEvent(getClass.getSimpleName, UpdateEntityState(map(ev))))
         case _ => Unit
