@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
+import it.unibo.pps.ese.controller.saving.Savable
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 
 object Memory {
@@ -13,9 +14,9 @@ object Memory {
     def updateTime()
   }
 
-  trait LongTermMemory extends Memory
+  trait LongTermMemory extends Memory with Savable[LongTermMemoryMemento]
 
-  trait ShortTermMemory extends Memory {
+  trait ShortTermMemory extends Memory with Savable[ShortTermMemoryMemento] {
     def elapsedTime: Int
   }
 
@@ -25,7 +26,12 @@ object Memory {
     def apply(memoryType: MemoryType, locationalField: LocationalField, score: Score): LongTermMemory =
       new LongTermMemoryImpl(memoryType, locationalField, score)
 
-    private class LongTermMemoryImpl(memoryType: MemoryType, locationalField: LocationalField, var score: Score) extends
+    def apply(longTermMemoryMemento: LongTermMemoryMemento): LongTermMemory =
+      new LongTermMemoryImpl(MemoryType(longTermMemoryMemento.memoryType), longTermMemoryMemento.locationalField, longTermMemoryMemento.score)
+
+    private class LongTermMemoryImpl(memoryType: MemoryType,
+                                     locationalField: LocationalField,
+                                     var score: Score) extends
       MemoryImpl(memoryType, locationalField, score) with LongTermMemory {
 
       val longTermMemoryDecadeValue = 1
@@ -33,23 +39,41 @@ object Memory {
       override def updateTime(): Unit = {
         score -= longTermMemoryDecadeValue
       }
+
+      override def serialize: LongTermMemoryMemento = {
+        LongTermMemoryMemento(memoryType.id, locationalField, score)
+      }
     }
 
-    implicit def shortTermMemorytoLongTermMemory(memoryType: MemoryType, shortTermMemory: ShortTermMemory): LongTermMemory = {
+    implicit def shortTermMemorytoLongTermMemory(memoryType: MemoryType,shortTermMemory: ShortTermMemory): LongTermMemory = {
       LongTermMemory(memoryType, shortTermMemory.locationalField, shortTermMemory.score)
     }
   }
 
   object ShortTermMemory {
     def apply(memoryType: MemoryType, locationalField: LocationalField, score: Score): ShortTermMemory =
-      new ShortTermMemoryImpl(memoryType, locationalField, score)
+      new ShortTermMemoryImpl(memoryType, locationalField, score, None)
 
-    private class ShortTermMemoryImpl(memoryType: MemoryType, locationalField: LocationalField, var score: Score) extends
-      MemoryImpl(memoryType, locationalField, score) with ShortTermMemory {
+    def apply(shortTermMemoryMemento: ShortTermMemoryMemento): ShortTermMemory =
+      new ShortTermMemoryImpl(MemoryType(shortTermMemoryMemento.memoryType), shortTermMemoryMemento.locationalField,
+        shortTermMemoryMemento.score, Some(shortTermMemoryMemento))
 
-      var elapsedTime: Int = 0
+    private class ShortTermMemoryImpl(memoryType: MemoryType,
+                                      locationalField: LocationalField,
+                                      var score: Score,
+                                      shortTermMemoryMemento: Option[ShortTermMemoryMemento])
+      extends MemoryImpl(memoryType, locationalField, score) with ShortTermMemory {
+
+      var elapsedTime: Int = shortTermMemoryMemento match {
+        case Some(m) => m.elapsedTime
+        case _ => 0
+      }
 
       override def updateTime(): Unit = elapsedTime+=1
+
+      override def serialize: ShortTermMemoryMemento = {
+        ShortTermMemoryMemento(memoryType.id, locationalField, score, elapsedTime)
+      }
     }
 
     implicit def longTermMemorytoShortTermMemory(memoryType: MemoryType, longTermMemory: LongTermMemory): ShortTermMemory = {
@@ -57,5 +81,8 @@ object Memory {
     }
   }
 
+  case class LongTermMemoryMemento(memoryType: Int, locationalField: LocationalField, score: Score)
+
+  case class ShortTermMemoryMemento(memoryType: Int, locationalField: LocationalField, score: Score, elapsedTime: Int)
 
 }

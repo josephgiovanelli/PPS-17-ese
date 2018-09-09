@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-trait Position {
+sealed trait Position {
 
   def x: Double
   def y: Double

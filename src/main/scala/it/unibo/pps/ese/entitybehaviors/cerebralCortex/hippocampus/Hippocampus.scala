@@ -44,6 +44,7 @@ object Hippocampus {
     new HippocampusImpl(worldWidth, worldHeight, locationalFieldSize, Some(hippocampusMemento))
 
   type ShortTermMemories = mutable.Map[MemoryType, ListBuffer[ShortTermMemory]]
+  type ShortTermMemoriesMemento = mutable.Map[Int, ListBuffer[ShortTermMemoryMemento]]
 
   private class HippocampusImpl(
                                  worldWidth: Int,
@@ -59,7 +60,7 @@ object Hippocampus {
       case _ => Neocortex()
     }
     val memories: ShortTermMemories = hippocampusMemento match {
-      case Some(h) => h.memories
+      case Some(h) => h.memories.map(t => (MemoryType(t._1), t._2.map(m => ShortTermMemory(m))))
       case _ => mutable.Map()
     }
     var memorySearchComponent: Option[MemorySearchComponent] = hippocampusMemento match {
@@ -174,16 +175,17 @@ object Hippocampus {
     }
 
     override def serialize: HippocampusMemento = {
-      HippocampusMemento(worldWidth, worldHeight, locationalFieldSize, neocortex.serialize,
-        memories, memorySearchComponent, currentBestMemory, searchingState)
+      HippocampusMemento(neocortex.serialize,
+        memories.map(t => (t._1.id, t._2.map(m => m.serialize))),
+        memorySearchComponent,
+        currentBestMemory,
+        searchingState)
     }
   }
 
-  case class HippocampusMemento(worldWidth: Int,
-                                worldHeight: Int,
-                                locationalFieldSize: Double,
+  case class HippocampusMemento(
                                 neocortexMemento: NeocortexMemento,
-                                memories: ShortTermMemories,
+                                memories: ShortTermMemoriesMemento,
                                 memorySearchComponent: Option[MemorySearchComponent],
                                 currentBestMemory: Option[Memory],
                                 searchingState: SearchingState)

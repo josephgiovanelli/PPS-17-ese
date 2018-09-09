@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
 import it.unibo.pps.ese.controller.saving.{Memento, Savable}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, ShortTermMemory}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{AbstractMemoryMemento, LongTermMemory, LongTermMemoryMemento, ShortTermMemory}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Neocortex.NeocortexMemento
 
@@ -21,11 +21,12 @@ object Neocortex {
   def apply(neocortexMemento: NeocortexMemento): Neocortex = new NeocortexImpl(Some(neocortexMemento))
 
   type LongTermMemories = mutable.Map[MemoryType, ListBuffer[LongTermMemory]]
+  type LongTermMemoriesMemento = mutable.Map[Int, ListBuffer[LongTermMemoryMemento]]
 
   private class NeocortexImpl(neocortexMemento: Option[NeocortexMemento]) extends Neocortex {
 
     val memories: LongTermMemories = neocortexMemento match {
-      case Some(n) => n.memories
+      case Some(n) => n.memories.map(t => (MemoryType(t._1), t._2.map(m => LongTermMemory(m))))
       case _ => mutable.Map()
     }
 
@@ -43,10 +44,10 @@ object Neocortex {
     }
 
     override def serialize: NeocortexMemento = {
-      NeocortexMemento(memories)
+      NeocortexMemento(memories.map(t => (t._1.id, t._2.map(m => m.serialize))))
     }
   }
 
-  case class NeocortexMemento(memories: LongTermMemories)
+  case class NeocortexMemento(memories: LongTermMemoriesMemento)
 
 }

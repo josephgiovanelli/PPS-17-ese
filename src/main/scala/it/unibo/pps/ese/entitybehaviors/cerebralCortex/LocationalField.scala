@@ -2,7 +2,7 @@ package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
 import it.unibo.pps.ese.utils.Point
 
-trait LocationalField {
+sealed trait LocationalField {
   def topLeftPosition: Position
   def bottomRightPosition: Position
   def centerPosition: Position
