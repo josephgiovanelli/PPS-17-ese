@@ -1,12 +1,12 @@
 package it.unibo.pps.ese.dataminer
 
-import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, ReignType}
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, ReadOnlyEntityState, ReignType}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 
 import scala.annotation.tailrec
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
-object DataAggregator {
+class DataAggregator(realTimeState: ReadOnlyEntityState) {
 
   private val _entityDataRepository = EntityDataRepository()
 
@@ -76,11 +76,18 @@ object DataAggregator {
   }
 
   @tailrec
-  def ingestData(era: Era, data: Seq[EntityState])(implicit context: ExecutionContext): Unit = {
+  private def ingestData(era: Era, data: Seq[EntityState]): Unit = {
     if (data isEmpty) return
     if (!(_entityDataRepository exists ((data head) entityId))) _entityDataRepository saveStaticEntityData (data head)
     _entityDataRepository saveDynamicEntityData (era, data head)
     ingestData(era, data tail)
+  }
+
+  def ingestData(era: Era)(implicit executionContext: ExecutionContext): Unit = {
+    Future {
+      ingestData(era, realTimeState getFilteredState(_ => true))
+      _entityDataRepository generateNewDataNotification era
+    }
   }
 
   def ingestedData: ReadOnlyEntityRepository = _entityDataRepository

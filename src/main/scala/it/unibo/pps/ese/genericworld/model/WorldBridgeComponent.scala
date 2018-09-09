@@ -30,6 +30,8 @@ case class Create(sons: Iterable[AnimalInfo]) extends BaseEvent
 case class GetInfo() extends BaseEvent with HighPriorityEvent
 case class GetInfoAck() extends BaseEvent with HighPriorityEvent
 
+case class GiveBirth(ids: Seq[String]) extends BaseEvent
+
 case class NewMutantAlleles(mutantGenes:Seq[MGene]) extends BaseEvent
 sealed trait WorldBridge {
   def initializeInfo(): Future[Done]
@@ -69,9 +71,14 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
       if (!disposed) //Necessary?
       requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest).onComplete({
         case Success(info) =>
+          val ids: Seq[String] = Seq.empty
           publish(NewMutantAlleles(sons.flatMap(s=>GeneticsSimulator.checkNewMutation(s.species.name,s.genome)).toSeq))
           sons.map(i => EntityBuilderHelpers.initializeEntity(i, info.position, world.info.height, world.info.width))
-              .foreach(entity =>world addEntity entity)
+              .foreach(entity => {
+                ids :+ entity.id
+                world addEntity entity
+              })
+          publish(GiveBirth(ids))
         case Failure(exception) =>
           exception
       })

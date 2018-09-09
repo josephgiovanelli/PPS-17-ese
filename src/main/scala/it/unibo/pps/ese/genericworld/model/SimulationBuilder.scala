@@ -4,11 +4,12 @@ import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.dataminer.DataAggregator
 import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
-import it.unibo.pps.ese.genericworld.controller.Controller
+import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationLoop}
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Quality, Reign}
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
@@ -84,9 +85,12 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       .map(x => initializeEntity(x._1, x._2))
       .foreach(world addEntity)
 
-    //Await.result(world.requireInfoUpdate, Duration.Inf)
-    //val a = world.entitiesState
-    Controller(world, 250 millis)
+    val simulation = SimulationLoop(world, 250 millis)
+    val aggregator = new DataAggregator(world entitiesState)
+    simulation attachEraListener (era => {
+      aggregator ingestData era
+    })
+    Controller(simulation, world entitiesState, aggregator ingestedData)
   }
 }
 
@@ -102,6 +106,8 @@ object EntityBuilderHelpers {
     entity addComponent initializeBrainComponent(entity, animalInfo, worldHeight, worldWidth)
     entity addComponent initializeAnimalPhysicalComponent(entity, animalInfo)
     entity addComponent initializeReproductionComponent(entity, animalInfo)
+    entity addComponent initializeOrgansTrackerComponent(entity)
+    entity addComponent initializeInteractionTrackerComponent(entity)
     entity
   }
 
@@ -174,6 +180,16 @@ object EntityBuilderHelpers {
       mutationProb,
       animalInfo.qualities(EnergyRequirements).qualityValue
     )
+  }
+
+  private def initializeOrgansTrackerComponent(entity: Entity)
+                                              (implicit executionContext: ExecutionContext): Component = {
+    new OrgansTrackerComponent(entity specifications)
+  }
+
+  private def initializeInteractionTrackerComponent(entity: Entity)
+                                              (implicit executionContext: ExecutionContext): Component = {
+    new InteractionTrackerComponent(entity specifications)
   }
 
   private def initializePlantPhysicalComponent(entity: Entity, plantInfo: PlantInfo)

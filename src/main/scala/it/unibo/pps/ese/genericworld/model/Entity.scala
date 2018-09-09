@@ -49,7 +49,8 @@ object Entity {
     self : NervousSystemExtension =>
     override def addComponent(component: Component): Unit = {
       component match {
-        case c : NervousSystemComponent => c nervousSystem_= nervousSystem
+        case c: NervousSystemComponent => c nervousSystem_= nervousSystem
+        case _ => Unit
       }
       super.addComponent(component)
       component initialize()

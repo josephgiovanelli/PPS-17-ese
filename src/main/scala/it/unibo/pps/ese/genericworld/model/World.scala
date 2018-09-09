@@ -4,9 +4,7 @@ import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genericworld.model.support.{Done, InteractionEnvelope, InteractionEvent}
 
-import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
 import scala.util.{Failure, Success}
 
 case class WorldInfo(width: Long, height: Long)
@@ -21,15 +19,16 @@ sealed trait World {
   def entities : Seq[Entity]
   def addEntity(entity: Entity)(implicit context: ExecutionContext): Unit
   def removeEntity(id: String): Unit
-  def entitiesState : Seq[EntityState]
+  def entitiesState : ReadOnlyEntityState
   def requireStateUpdate(implicit context: ExecutionContext): Future[Done]
   def requireInfoUpdate(implicit context: ExecutionContext): Future[Done]
 }
 
 sealed trait CachedWorld {
-  private[this] val _queryableState = EntitiesStateCache apply
+  private[this] val _queryableState: EntitiesStateCache = EntitiesStateCache apply
 
   def stateMapper: EntityState => EntityState
+  def readOnlyCache: ReadOnlyEntityState = _queryableState
   def publishState(entityId: String): Unit = _queryableState publishEntityState entityId
   def hideState(entityId: String): Unit = _queryableState hideEntityState entityId
   def updateState(entityId: String, entityProperty: EntityProperty): Unit =
@@ -169,7 +168,7 @@ object World {
       hideState(id)
     }
 
-    override def entitiesState: Seq[EntityState] = state (_ => true, map = false)
+    override def entitiesState: ReadOnlyEntityState = readOnlyCache
 
     override def interact[A <: InteractionEvent](envelope: InteractionEnvelope[A])
                                                 (implicit context: ExecutionContext): Unit = deliver[A](envelope)
