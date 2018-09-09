@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.entitybehaviors.LifePhases
+import it.unibo.pps.ese.entitybehaviors.{EmbryoStatus, LifePhases}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityKinds, SexTypes}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds.EntityKinds
 import it.unibo.pps.ese.utils.Point
@@ -51,5 +51,20 @@ object EntityInfoConversion {
 
   implicit class PlantPhysicalComponentConversions(obj: EntityInfo) {
     def availability: Double = obj.selectDynamic("availability").asInstanceOf[Double]
+  }
+
+  implicit class OrgansTrackerComponentConversion(obj: EntityInfo) {
+    def eyes: Boolean = obj.selectDynamic("eyes").asInstanceOf[Boolean]
+    def hippocampus: Boolean = obj.selectDynamic("hippocampus").asInstanceOf[Boolean]
+    def stomach: Boolean = obj.selectDynamic("stomach").asInstanceOf[Boolean]
+    def pregnant: Boolean = obj.selectDynamic("pregnant").asInstanceOf[Boolean]
+    def embryo : EmbryoStatus.Value = obj.selectDynamic("embryo").asInstanceOf[EmbryoStatus.Value]
+    def reproductionOrgan: Boolean = obj.selectDynamic("reproductionOrgan").asInstanceOf[Boolean]
+  }
+
+  implicit class InteractionTrackerComponentConversion(obj: EntityInfo) {
+    def eat: Seq[String] = obj.selectDynamic("eat").asInstanceOf[Seq[String]]
+    def couple: Seq[String] = obj.selectDynamic("couple").asInstanceOf[Seq[String]]
+    def create: Seq[String] = obj.selectDynamic("create").asInstanceOf[Seq[String]]
   }
 }
