@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors
 
-import it.unibo.pps.ese.genericworld.model._
+import it.unibo.pps.ese.genericworld.model.{EntityProperty, _}
 import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 
 import scala.concurrent.ExecutionContext
@@ -96,7 +96,9 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("stomach", ev stomach),
       EntityProperty("pregnant", ev pregnant),
       EntityProperty("embryo", ev embryo),
-      EntityProperty("reproductionOrgan", ev reproductionOrgan)
+      EntityProperty("reproductionOrgan", ev reproductionOrgan),
+      //da levare
+      EntityProperty("genes", Seq.empty)
     )))
 
     addMapping[ClearOrgans]((classOf[ClearOrgans], _ => Seq(
