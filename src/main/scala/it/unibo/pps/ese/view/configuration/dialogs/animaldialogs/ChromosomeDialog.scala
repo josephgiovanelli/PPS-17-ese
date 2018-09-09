@@ -1,41 +1,33 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
-import javafx.scene.Node
 
 import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.{CustomGeneDialog, DefaultGeneDialog}
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalChromosomeInfo
+import it.unibo.pps.ese.view.configuration.entitiesinfo.{ChromosomeTypes, EntitiesInfo}
 
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.css.PseudoClass
-import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.Window
 
-case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
+case class ChromosomeDialog(window: Window, animal: String) extends AbstractDialog(window, None) {
 
   /*
   Header
    */
 
-  initOwner(window)
   title = "Chromosome Dialog"
   headerText = "Define animal chromosome"
-  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
-  val errorClass = PseudoClass("error")
-
 
   /*
   Fields
    */
 
-  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalInfo(animal) match {
-    case Some((_, chromosomeInfo)) => chromosomeInfo
-    case None => throw new IllegalStateException()
-  }
+  val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
   val structuralName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.structuralChromosome.keySet toSeq)
   val structuralChromosomeListView: ListView[String] = new ListView[String] {
@@ -70,9 +62,9 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
     })
   }
 
-  structuralChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
-  regulationChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
-  sexualChromosomeListView.prefHeight = ListViewUtils.MIN_ELEM * ListViewUtils.ROW_HEIGHT
+  structuralChromosomeListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+  regulationChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
+  sexualChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
 
   val structuralButton = new Button("Add")
   structuralButton.onAction = _ => CustomGeneDialog(window, animal, None).showAndWait() match {
@@ -122,22 +114,13 @@ case class ChromosomeDialog(window: Window, animal: String) extends Dialog {
   Checks
    */
 
-  val mandatoryFields = Seq(structuralName, regulationName, sexualName)
+  listFields = Seq(structuralName, regulationName, sexualName)
 
-  mandatoryFields.foreach(subject =>
-    subject.onChange ((_, _) =>
-      okButton.disable = checkFields))
+  createChecks()
 
   /*
-  OkButton
+  Support Methods
   */
-
-  val okButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = checkFields
-
-  private def checkFields: Boolean = mandatoryFields.exists(x => x.isEmpty)
 
   private def getCurrentRegulationChromosome: Set[RegulationDefaultGene] =
     currentAnimalChromosome.regulationChromosome.keySet.map(x => RegulationDefaultGenes.elements.filter(y => y.name.equals(x)).head)

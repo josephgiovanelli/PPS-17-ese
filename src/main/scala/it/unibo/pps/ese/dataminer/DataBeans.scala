@@ -45,7 +45,11 @@ case class AnimalDynamicDataImpl(age: Integer,
                                  lifePhase: LifePhase,
                                  speed: Double,
                                  position: Point,
-                                 nutritionalValue: Double) extends AnimalDynamicData
+                                 nutritionalValue: Double,
+                                 coupling: Seq[String],
+                                 eating: Seq[String],
+                                 givingBirth: Seq[String],
+                                 producedMutantGenes: Seq[String]) extends AnimalDynamicData
 
 case class PlantDynamicDataImpl(position: Point,
                                 nutritionalValue: Double) extends PlantDynamicData

@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, DataSaver}
 import it.unibo.pps.ese.genericworld.model.World
 
 import scala.concurrent.{Await, ExecutionContext}
@@ -10,6 +9,7 @@ sealed trait SimulationLoop {
   def play(): Unit
   def pause(): Unit
   def dispose(): Unit
+  def attachEraListener(listener: Long => Unit): Unit
 }
 
 object SimulationLoop {
@@ -20,21 +20,21 @@ object SimulationLoop {
   private case class BaseSimulationLoop(model: World, period: FiniteDuration)
                                        (implicit executionContext: ExecutionContext) extends SimulationLoop {
 
-    private[this] val timer = new java.util.Timer()
-    private[this] var scheduledTask = None: Option[java.util.TimerTask]
-    private[this] var era: Long = 0
+    private[this] val _timer = new java.util.Timer()
+    private[this] var _scheduledTask = None: Option[java.util.TimerTask]
+    private[this] var _era: Long = 0
+    private[this] var _eraListeners: Seq[Long => Unit] = Seq empty
 
     override def play(): Unit = {
 
-      if (scheduledTask isDefined) throw new IllegalStateException("Loop already running")
+      if (_scheduledTask isDefined) throw new IllegalStateException("Loop already running")
 
       val task = new java.util.TimerTask {
         def run(): Unit = {
 
-          DataAggregator ingestData (era, model entitiesState)
-          era += 1
+          _era += 1
 
-          println("Era " + era + "computation started")
+          println("Era " + _era + " computation started")
 
           val ret =
             for {
@@ -44,38 +44,25 @@ object SimulationLoop {
 
           Await.result(ret, Duration.Inf)
 
-          val populationTrend = DataMiner(DataAggregator ingestedData) populationTrend()
-          //val worldSpecies = DataMiner(DataAggregator ingestedData) worldSpecies()
-          println("Era " + era + " computation finished (Population trend: " + populationTrend + ")")
-          //println(worldSpecies)
+          println("Era " + _era + " computation finished")
 
-          if (era == 10) {
-            val tmp = (DataAggregator ingestedData) entitiesInEra  1
-            tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
-              val y = (DataAggregator ingestedData) entityDynamicLog  x.id
-              //println(y)
-
-//              val originalData = (DataAggregator ingestedData) getAllDynamicLogs()
-//              val saver = DataSaver()
-//              val serialized = saver saveData("", originalData)
-//              val deserialized = saver loadData serialized
-//              println(deserialized)
-            })
-          }
+          _eraListeners foreach(_(_era))
         }
       }
-      timer.scheduleAtFixedRate(task, 0, period.toMillis)
-      scheduledTask = Some(task)
+      _timer scheduleAtFixedRate(task, 0, period.toMillis)
+      _scheduledTask = Some(task)
     }
 
     override def pause(): Unit = {
-      this.scheduledTask.getOrElse(throw new IllegalStateException("No task defined")) cancel()
-      this.scheduledTask = None
+      _scheduledTask.getOrElse(throw new IllegalStateException("No task defined")) cancel()
+      _scheduledTask = None
     }
 
     override def dispose(): Unit = {
-      this.timer.cancel()
+      _timer cancel()
     }
+
+    override def attachEraListener(listener: Long => Unit): Unit = _eraListeners = _eraListeners :+ listener
   }
 }
 

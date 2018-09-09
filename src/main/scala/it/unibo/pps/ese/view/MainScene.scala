@@ -7,6 +7,7 @@ import scalafx.scene.control._
 import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
+import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
 
@@ -71,6 +72,7 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   val statisticsTab = new Tab()
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
+  statisticsTab.content = StatisticsDetailsPane()
 
   val genomeTab = new Tab()
   genomeTab.text = "Genome"

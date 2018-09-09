@@ -3,15 +3,19 @@ package it.unibo.pps.ese.dataminer
 import it.unibo.pps.ese.genericworld.model.support.DataRepository
 
 sealed trait ReadOnlyEntityRepository {
+  protected var _newDataListeners: Seq[Era => Unit] = Seq empty
+
   def exists(entityId: EntityId): Boolean
   def entitiesInEra(era: Era): Seq[EntityTimedRecord]
   def entityDynamicLog(entityId: EntityId): Option[EntityLog]
   def getAllDynamicLogs(): Seq[EntityLog]
+  def attachNewDataListener(listener: Era => Unit): Unit = _newDataListeners = _newDataListeners :+ listener
 }
 
 sealed trait EntityDataRepository extends ReadOnlyEntityRepository {
   def saveStaticEntityData(data: EntityStaticRecord): Unit
   def saveDynamicEntityData(era: Era, data: EntityDynamicRecord): Unit
+  def generateNewDataNotification(era: Era): Unit = _newDataListeners foreach(_(era))
 }
 
 object EntityDataRepository {
