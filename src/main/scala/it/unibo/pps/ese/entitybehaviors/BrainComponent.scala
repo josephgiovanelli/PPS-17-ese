@@ -8,9 +8,10 @@ import it.unibo.pps.ese.entitybehaviors.Direction.Direction
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{MemoryType, Position}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.SearchingState
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.{HippocampusMemento, SearchingState}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityAttributesImpl => _, _}
+import it.unibo.pps.ese.genericworld.model.Entity.{AbstractBaseEntity, AbstractEntityMemento, BaseEntityMemento}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.utils.Point
@@ -43,209 +44,226 @@ object Direction extends Enumeration {
   val RIGHT, LEFT, UP, DOWN, NONE = Value
 }
 
-class BrainComponent(override val entitySpecifications: EntitySpecifications,
-                          heightWorld: Int,
-                          widthWorld: Int,
-                          strong: Double,
-                          actionField: Double,
-                          visualField: Double,
-                          attractiveness: Double)
-                         (implicit val executionContext: ExecutionContext)
-  extends WriterComponent(entitySpecifications) with Savable[BrainComponentMemento] {
+object BrainComponent {
+
+  def apply(entitySpecifications: EntitySpecifications, heightWorld: Int, widthWorld: Int, strong: Double,
+            actionField: Double, visualField: Double, attractiveness: Double)(implicit executionContext: ExecutionContext): BrainComponent =
+    new BrainComponent(entitySpecifications, heightWorld, widthWorld, strong, actionField, visualField, attractiveness, None)(executionContext)
+
+  def apply(heightWorld: Int, widthWorld: Int, strong: Double, actionField: Double, visualField: Double,
+            attractiveness: Double, brainComponentMemento: BrainComponentMemento)(implicit executionContext: ExecutionContext): BrainComponent =
+    new BrainComponent(Entity(brainComponentMemento.abstractEntityMemento),
+      heightWorld, widthWorld, strong, actionField, visualField, attractiveness, Some(brainComponentMemento))(executionContext)
 
 
-  implicit def toPoint(tuple2: (Int, Int)): Point = {
-    def bound(i: Int, bound: Int): Int = if (i < 0) 0 else if (i > bound) bound else i
-    def boundWidth(x: Int): Int = bound(x, widthWorld)
-    def boundHeight(y: Int): Int = bound(y, heightWorld)
-    Point(boundWidth(tuple2._1), boundHeight(tuple2._2))
-  }
-
-  implicit def actionKindToMemoryType(actionKind: ActionKind): MemoryType = actionKind match {
-    case ActionKind.EAT => MemoryType.HUNTING
-    case ActionKind.COUPLE => MemoryType.COUPLE
-  }
-
-  implicit def pointToPosition(point: Point): Position = {
-    Position(point.x, point.y)
-  }
+  class BrainComponent(override val entitySpecifications: EntitySpecifications,
+                       heightWorld: Int,
+                       widthWorld: Int,
+                       strong: Double,
+                       actionField: Double,
+                       visualField: Double,
+                       attractiveness: Double,
+                       brainComponentMemento: Option[BrainComponentMemento])
+                      (implicit val executionContext: ExecutionContext)
+    extends WriterComponent(entitySpecifications) with Savable[BrainComponentMemento] {
 
 
-  val ENERGY_THRESHOLD = 60
-  val MIN_PREYS_FOR_COUPLING = 3
-  val FERTILITY_THRESHOLD = 0.4
-
-  var digestionState: Boolean = false
-
-  var forceReproduction: Option[ForceReproduction] = None
-
-  val decisionSupport: DecisionSupport = DecisionSupport()
-
-  val hippocampus: Hippocampus = Hippocampus(widthWorld, heightWorld, visualField)
-
-  var entityInVisualField: Map[String, EntityAttributesImpl] = Map.empty
-
-  override def initialize(): Unit = {
-    subscribeEvents()
-    configureMappings()
-  }
-
-  private def subscribeEvents(): Unit = {
-    import EntityInfoConversion._
-    subscribe {
-      case ComputeNextState() =>
-        if(forceReproduction.isDefined) {
-          publish(ForceReproductionForward(forceReproduction.get))
-          forceReproduction = None
-          publish(new ComputeNextStateAck)
-        } else {
-          hippocampus.updateTime()
-
-          val data = for {
-            dynamicData <- requireData[DynamicParametersRequest, DynamicParametersResponse](new DynamicParametersRequest)
-            baseInfo <- requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest)
-            external <- requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => distanceBetween(x.state.position, baseInfo position) <= visualField))
-          } yield (external, dynamicData)
-
-          data onComplete{
-            case Success((extData, dynData)) =>
-              entityInVisualField = Map.empty
-              //TODO mortal bug
-              //              println()
-              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "male"))
-              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "female"))
-              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "male"))
-              //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "female"))
-
-              extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
-
-              //              println()
-              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.male ))
-              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.female ))
-              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
-              //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
-
-              nextMove(dynData speed, dynData energy, dynData fertility) onComplete (r => {
-                publish(EntityPosition(r.get))
-                publish(new ComputeNextStateAck)
-              })
-            case Failure(error) => throw error
-          }
-
-          def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
-            x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
-            x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
-        }
-      case r: AutoForceReproduction =>
-        forceReproduction = Some(r)
-        //TODO if feature for publish only in receiver bus is added, two cases can be unified
-      case r: PartnerForceReproduction if r.receiverId == entitySpecifications.id =>
-        forceReproduction = Some(r)
-      case DigestionEnd() =>
-        digestionState = false
-      case GetInfo() =>
-        publish(BrainInfo(strong, actionField, visualField, attractiveness))
-        publish(new GetInfoAck)
-      case _ => Unit
+    implicit def toPoint(tuple2: (Int, Int)): Point = {
+      def bound(i: Int, bound: Int): Int = if (i < 0) 0 else if (i > bound) bound else i
+      def boundWidth(x: Int): Int = bound(x, widthWorld)
+      def boundHeight(y: Int): Int = bound(y, heightWorld)
+      Point(boundWidth(tuple2._1), boundHeight(tuple2._2))
     }
-  }
 
-  private def configureMappings(): Unit = {
-    addMapping[EntityPosition]((classOf[EntityPosition], ev => Seq(EntityProperty("position", ev position))))
-    addMapping[BrainInfo]((classOf[BrainInfo], ev => Seq(
-      EntityProperty("strong", ev strong),
-      EntityProperty("actionField", ev actionField),
-      EntityProperty("visualField", ev visualField),
-      EntityProperty("attractiveness", ev attractiveness)
-    )))
-  }
+    implicit def actionKindToMemoryType(actionKind: ActionKind): MemoryType = actionKind match {
+      case ActionKind.EAT => MemoryType.HUNTING
+      case ActionKind.COUPLE => MemoryType.COUPLE
+    }
 
-  private def nextMove(speed: Double, energy: Double, fertility: Double): SupervisedFuture[Point] = {
+    implicit def pointToPosition(point: Point): Position = {
+      Position(point.x, point.y)
+    }
 
-    requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest) map (data => {
-      var position = data position
-      val floorSpeed = speed.toInt
-      val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id,
-        EntityKinds(Symbol(data species)), data height, strong, data defense, (data.position.x, data.position.y),
-        attractiveness, SexTypes.withNameOpt(data gender).get)
-      decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
-      val partners = decisionSupport.discoverPartners(me)
-      val preys = decisionSupport.discoverPreys(me)
-      //println(partners)
-      var targets: Stream[EntityChoiceImpl] = preys
-      var action: ActionKind.Value = ActionKind.EAT
-      if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
-      if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
-        if (targets.nonEmpty) {
-          publish(UseEyes())
-          val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
-          val entityAttribute = entityInVisualField(entityChoice.name)
 
-          if (entityChoice.distance < actionField) {
-            me.position = entityAttribute.position
-            publish(InteractionEntity(entityAttribute name, action))
-            hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
-            if (action.equals(ActionKind.EAT)) digestionState = true
+    val ENERGY_THRESHOLD = 60
+    val MIN_PREYS_FOR_COUPLING = 3
+    val FERTILITY_THRESHOLD = 0.4
+
+    var digestionState: Boolean = brainComponentMemento match {
+      case Some(b) => b.digestionState
+      case _ => false
+    }
+    var forceReproduction: Option[ForceReproduction] = brainComponentMemento match {
+      case Some(b) => b.forceReproduction
+      case _ =>  None
+    }
+    val decisionSupport: DecisionSupport = DecisionSupport()
+    val hippocampus: Hippocampus = brainComponentMemento match {
+      case Some(b) => Hippocampus(widthWorld, heightWorld, visualField, b.hippocampusMemento)
+      case _ => Hippocampus(widthWorld, heightWorld, visualField)
+    }
+    var entityInVisualField: Map[String, EntityAttributesImpl] = brainComponentMemento match {
+      case Some(b) => b.entityInVisualField
+      case _ => Map.empty
+    }
+
+    override def initialize(): Unit = {
+      subscribeEvents()
+      configureMappings()
+    }
+
+    private def subscribeEvents(): Unit = {
+      import EntityInfoConversion._
+      subscribe {
+        case ComputeNextState() =>
+          if(forceReproduction.isDefined) {
+            publish(ForceReproductionForward(forceReproduction.get))
+            forceReproduction = None
+            publish(new ComputeNextStateAck)
           } else {
-            (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
-          }
+            hippocampus.updateTime()
 
-          position = Point(me.position.x, me.position.y)
-        }
-        else {
-          publish(UseHippocampus())
-          position = hippocampus.searchingState match {
-            case SearchingState.INACTIVE =>
-              hippocampus.startNewSearch(action)
-              checkNewMemory
-            case SearchingState.ACTIVE =>
-              getPosition(hippocampus.computeDirection(position))
-            case SearchingState.ENDED => getPosition(randomDirection)
-          }
+            val data = for {
+              dynamicData <- requireData[DynamicParametersRequest, DynamicParametersResponse](new DynamicParametersRequest)
+              baseInfo <- requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest)
+              external <- requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => distanceBetween(x.state.position, baseInfo position) <= visualField))
+            } yield (external, dynamicData)
 
-          def checkNewMemory: Point = {
-            if (hippocampus.hasNewMemory) {
-              hippocampus.chooseNewMemory(position)
-              getPosition(hippocampus.computeDirection(position))
-            } else getPosition(randomDirection)
-          }
+            data onComplete{
+              case Success((extData, dynData)) =>
+                entityInVisualField = Map.empty
+                //TODO mortal bug
+                //              println()
+                //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "male"))
+                //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Gatto").forall(e => e.state.selectDynamic("gender") == "female"))
+                //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "male"))
+                //              println(extData.state.filter(e => e.state.selectDynamic("species") == "Giraffa").forall(e => e.state.selectDynamic("gender") == "female"))
 
-          def randomDirection: Direction = {
-            Direction(new Random().nextInt(Direction.values.size-1))
-          }
+                extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
 
+                //              println()
+                //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.male ))
+                //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.female ))
+                //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
+                //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
 
-          def getPosition(direction: Direction): Point = direction match {
-            case Direction.UP => (position.x, position.y - floorSpeed)
-            case Direction.DOWN => (position.x, position.y + floorSpeed)
-            case Direction.LEFT => (position.x - floorSpeed, position.y)
-            case Direction.RIGHT => (position.x + floorSpeed, position.y)
-            case Direction.NONE => checkNewMemory
+                nextMove(dynData speed, dynData energy, dynData fertility) onComplete (r => {
+                  publish(EntityPosition(r.get))
+                  publish(new ComputeNextStateAck)
+                })
+              case Failure(error) => throw error
+            }
+
+            def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
+              x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
+              x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
           }
-        }
+        case r: AutoForceReproduction =>
+          forceReproduction = Some(r)
+        //TODO if feature for publish only in receiver bus is added, two cases can be unified
+        case r: PartnerForceReproduction if r.receiverId == entitySpecifications.id =>
+          forceReproduction = Some(r)
+        case DigestionEnd() =>
+          digestionState = false
+        case GetInfo() =>
+          publish(BrainInfo(strong, actionField, visualField, attractiveness))
+          publish(new GetInfoAck)
+        case _ => Unit
       }
-      decisionSupport.clearVisualField()
-      position
-    })
-  }
+    }
 
-  private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
+    private def configureMappings(): Unit = {
+      addMapping[EntityPosition]((classOf[EntityPosition], ev => Seq(EntityProperty("position", ev position))))
+      addMapping[BrainInfo]((classOf[BrainInfo], ev => Seq(
+        EntityProperty("strong", ev strong),
+        EntityProperty("actionField", ev actionField),
+        EntityProperty("visualField", ev visualField),
+        EntityProperty("attractiveness", ev attractiveness)
+      )))
+    }
 
-  override def serialize: BrainComponentMemento = {
-    BrainComponentMemento(entitySpecifications, heightWorld, widthWorld, strong, actionField, visualField,
-      attractiveness, digestionState, forceReproduction, entityInVisualField)
+    private def nextMove(speed: Double, energy: Double, fertility: Double): SupervisedFuture[Point] = {
+
+      requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest) map (data => {
+        var position = data position
+        val floorSpeed = speed.toInt
+        val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id,
+          EntityKinds(Symbol(data species)), data height, strong, data defense, (data.position.x, data.position.y),
+          attractiveness, SexTypes.withNameOpt(data gender).get)
+        decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
+        val partners = decisionSupport.discoverPartners(me)
+        val preys = decisionSupport.discoverPreys(me)
+        //println(partners)
+        var targets: Stream[EntityChoiceImpl] = preys
+        var action: ActionKind.Value = ActionKind.EAT
+        if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
+        if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
+          if (targets.nonEmpty) {
+            publish(UseEyes())
+            val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
+            val entityAttribute = entityInVisualField(entityChoice.name)
+
+            if (entityChoice.distance < actionField) {
+              me.position = entityAttribute.position
+              publish(InteractionEntity(entityAttribute name, action))
+              hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
+              if (action.equals(ActionKind.EAT)) digestionState = true
+            } else {
+              (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
+            }
+
+            position = Point(me.position.x, me.position.y)
+          }
+          else {
+            publish(UseHippocampus())
+            position = hippocampus.searchingState match {
+              case SearchingState.INACTIVE =>
+                hippocampus.startNewSearch(action)
+                checkNewMemory
+              case SearchingState.ACTIVE =>
+                getPosition(hippocampus.computeDirection(position))
+              case SearchingState.ENDED => getPosition(randomDirection)
+            }
+
+            def checkNewMemory: Point = {
+              if (hippocampus.hasNewMemory) {
+                hippocampus.chooseNewMemory(position)
+                getPosition(hippocampus.computeDirection(position))
+              } else getPosition(randomDirection)
+            }
+
+            def randomDirection: Direction = {
+              Direction(new Random().nextInt(Direction.values.size-1))
+            }
+
+
+            def getPosition(direction: Direction): Point = direction match {
+              case Direction.UP => (position.x, position.y - floorSpeed)
+              case Direction.DOWN => (position.x, position.y + floorSpeed)
+              case Direction.LEFT => (position.x - floorSpeed, position.y)
+              case Direction.RIGHT => (position.x + floorSpeed, position.y)
+              case Direction.NONE => checkNewMemory
+            }
+          }
+        }
+        decisionSupport.clearVisualField()
+        position
+      })
+    }
+
+    private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
+
+    override def serialize: BrainComponentMemento = {
+      BrainComponentMemento(entitySpecifications.serialize, digestionState, forceReproduction, hippocampus.serialize, entityInVisualField)
+    }
   }
 }
 
+
 case class BrainComponentMemento(
-                                  entitySpecifications: EntitySpecifications,
-                                  heightWorld: Int,
-                                  widthWorld: Int,
-                                  strong: Double,
-                                  actionField: Double,
-                                  visualField: Double,
-                                  attractiveness: Double,
+                                  abstractEntityMemento: AbstractEntityMemento,
                                   digestionState: Boolean,
                                   forceReproduction: Option[ForceReproduction],
+                                  hippocampusMemento: HippocampusMemento,
                                   entityInVisualField: Map[String, EntityAttributesImpl]
                                 )
