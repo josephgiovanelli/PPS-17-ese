@@ -185,7 +185,7 @@ object EntityBuilderHelpers {
 
   private def initializeOrgansTrackerComponent(entity: Entity)
                                               (implicit executionContext: ExecutionContext): Component = {
-    new OrgansTrackerComponent(entity specifications)
+    OrgansTrackerComponent(entity specifications)
   }
 
   private def initializeInteractionTrackerComponent(entity: Entity)
