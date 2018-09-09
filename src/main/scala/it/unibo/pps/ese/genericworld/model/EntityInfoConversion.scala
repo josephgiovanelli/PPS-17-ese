@@ -54,7 +54,7 @@ object EntityInfoConversion {
   }
 
   implicit class OrgansTrackerComponentConversion(obj: EntityInfo) {
-    def brain: Boolean = obj.selectDynamic("brain").asInstanceOf[Boolean]
+    def eyes: Boolean = obj.selectDynamic("eyes").asInstanceOf[Boolean]
     def hippocampus: Boolean = obj.selectDynamic("hippocampus").asInstanceOf[Boolean]
     def stomach: Boolean = obj.selectDynamic("stomach").asInstanceOf[Boolean]
     def pregnant: Boolean = obj.selectDynamic("pregnant").asInstanceOf[Boolean]

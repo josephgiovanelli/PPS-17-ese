@@ -6,14 +6,16 @@ import it.unibo.pps.ese.genericworld.model.support.BaseEvent
 import scala.concurrent.ExecutionContext
 
 
-case class OrgansTrackerInfo(brain: Boolean,
-                              hippocampus: Boolean,
-                              stomach: Boolean,
-                              pregnant: Boolean,
-                              embryo: Option[EmbryoStatus.Value],
-                              reproductionOrgan: Boolean) extends BaseEvent
+case class OrgansTrackerInfo(eyes: Boolean,
+                             hippocampus: Boolean,
+                             stomach: Boolean,
+                             pregnant: Boolean,
+                             embryo: Option[EmbryoStatus.Value],
+                             reproductionOrgan: Boolean) extends BaseEvent
 
 case class ClearOrgans() extends BaseEvent
+case class ActivateEyes() extends BaseEvent
+case class ActivateHippocampus() extends BaseEvent
 case class ActivateStomach() extends BaseEvent
 case class DeactivateStomach() extends BaseEvent
 case class ActivateReproductionOrgan() extends BaseEvent
@@ -28,7 +30,7 @@ object EmbryoStatus extends Enumeration {
 class OrgansTrackerComponent(override val entitySpecifications: EntitySpecifications)
                                   (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
-  var brain: Boolean = false
+  var eyes: Boolean = false
   var hippocampus: Boolean = false
   var stomach: Boolean = false
   var pregnant: Boolean = false
@@ -43,11 +45,18 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
   private def subscribeEvents(): Unit = {
     subscribe {
       case ComputeNextState() =>
-        brain = false
+        eyes = false
         hippocampus = false
         reproductionOrgan = false
         publish(ClearOrgans())
         publish(new ComputeNextStateAck)
+
+      case UseEyes() =>
+        eyes = true
+        publish(ActivateEyes())
+      case UseHippocampus() =>
+        hippocampus = true
+        publish(ActivateHippocampus())
 
       case InteractionEntity(_, action) =>
         if (action == ActionKind.EAT) {
@@ -74,7 +83,7 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
         publish(EndPregnancy())
 
       case GetInfo() =>
-        publish(OrgansTrackerInfo(brain, hippocampus, stomach, pregnant, embryo, reproductionOrgan))
+        publish(OrgansTrackerInfo(eyes, hippocampus, stomach, pregnant, embryo, reproductionOrgan))
         publish(new GetInfoAck)
       case _ => Unit
     }
@@ -82,7 +91,7 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
 
   private def configureMappings(): Unit = {
     addMapping[OrgansTrackerInfo]((classOf[OrgansTrackerInfo], ev => Seq(
-      EntityProperty("brain", ev brain),
+      EntityProperty("eyes", ev eyes),
       EntityProperty("hippocampus", ev hippocampus),
       EntityProperty("stomach", ev stomach),
       EntityProperty("pregnant", ev pregnant),
@@ -91,9 +100,17 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
     )))
 
     addMapping[ClearOrgans]((classOf[ClearOrgans], _ => Seq(
-      EntityProperty("brain", brain),
+      EntityProperty("eyes", eyes),
       EntityProperty("hippocampus", hippocampus),
       EntityProperty("reproductionOrgan", reproductionOrgan)
+    )))
+
+    addMapping[ActivateEyes]((classOf[ActivateEyes], _ => Seq(
+      EntityProperty("eyes", eyes)
+    )))
+
+    addMapping[ActivateHippocampus]((classOf[ActivateHippocampus], _ => Seq(
+      EntityProperty("hippocampus", hippocampus)
     )))
 
     addMapping[ActivateStomach]((classOf[ActivateStomach], _ => Seq(

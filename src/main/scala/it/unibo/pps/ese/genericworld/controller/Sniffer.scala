@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.genericworld.controller
 
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.SexTypes
 import it.unibo.pps.ese.genericworld.model.{EntityInfoConversion, ReadOnlyEntityState}
 import it.unibo.pps.ese.view.View
 
@@ -14,11 +15,12 @@ case class Sniffer(realTimeState: ReadOnlyEntityState) {
     if(watched.isDefined) {
       import EntityInfoConversion._
       val entity = realTimeState getEntityState watched.get
-      view eyes entity.state.brain
+      view eyes entity.state.eyes
       view brain entity.state.hippocampus
-      view reproductionOrgan entity.state.reproductionOrgan
-      view pregnant entity.state.pregnant
+      if (entity.state.gender == SexTypes.female) view pregnant entity.state.pregnant
       if (entity.state.pregnant) view embryo entity.state.embryo
+      view reproductionOrgan entity.state.reproductionOrgan
+
     }
   }
 
