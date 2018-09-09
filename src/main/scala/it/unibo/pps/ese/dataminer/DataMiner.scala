@@ -12,6 +12,11 @@ sealed trait DataMiner {
   def extinctSpecies(): Seq[Species]
   def extinctSpecies(era: Era): Seq[Species]
 
+  def aliveCount: Long
+  def aliveCount(era: Era): Long
+  def aliveCount(species: Species): Long
+  def aliveCount(species: Species, era: Era): Long
+
   def deadCount: Long
   def deadCount(era: Era): Long
   def deadCount(species: Species): Long
@@ -22,9 +27,15 @@ sealed trait DataMiner {
   def bornCount(species: Species): Long
   def bornCount(species: Species, era: Era): Long
 
+  def couplingCount: Long
+  def couplingCount(era: Era): Long
+  def couplingCount(species: Species): Long
+  def couplingCount(species: Species, era: Era): Long
 
-  //def couplingCount(species: Species, era: Era = -1): Long
-  //def mutantAlleles(era: Era = -1): Seq[String]
+  def mutantAlleles: Seq[String]
+  def mutantAlleles(era: Era): Seq[String]
+  def mutantAlleles(species: Species): Seq[String]
+  def mutantAlleles(species: Species, era: Era): Seq[String]
 }
 object DataMiner {
   def apply(repository: ReadOnlyEntityRepository): DataMiner = new BaseDataMiner(repository)
@@ -43,6 +54,14 @@ object DataMiner {
 
     private def entitiesInEraBySpecies(species: Species, era: Era): Seq[EntityId] =
       _dataRepository.entitiesInEra(era).filter(x => x.structuralData.species == species).map(x => x.id)
+
+    private def animalsDynamicData(era: Era, species: Species = ""): Seq[AnimalDynamicData] =
+      _dataRepository
+        .entitiesInEra(era)
+        .collect {
+          case b: EntityTimedRecord
+            if b.dynamicData.isInstanceOf[AnimalDynamicData] && (species == "" || b.structuralData.species == species)
+          => b.dynamicData.asInstanceOf[AnimalDynamicData]}
 
     override def startEra: Long =
       _dataRepository.getAllDynamicLogs()
@@ -82,6 +101,21 @@ object DataMiner {
     override def extinctSpecies(): Seq[Species] =
       (startEra to lastEra).map(x => extinctSpecies(x)).fold(Seq empty)(_++_)
 
+    override def aliveCount: Long =
+      _dataRepository getAllDynamicLogs() size
+
+    override def aliveCount(species: Species): Long =
+      _dataRepository getAllDynamicLogs() count (x => x.structuralData.species == species)
+
+    override def aliveCount(era: Era): Long = {
+      require(era >= startEra && era <= lastEra)
+      _dataRepository entitiesInEra era size
+    }
+
+    override def aliveCount(species: Species, era: Era): Long = {
+      require(era >= startEra && era <= lastEra)
+      entitiesInEraBySpecies(species, era) size
+    }
 
     override def deadCount: Long = (startEra to lastEra).map(x => deadCount(x)).sum
 
@@ -121,6 +155,36 @@ object DataMiner {
 
       if (era == startEra) entitiesInEraBySpecies(species, era) size
       else (entitiesInEraBySpecies(species, era) filterNot (entitiesInEraBySpecies(species, era - 1) contains)) size
+    }
+
+    override def couplingCount: Long = (startEra to lastEra).map(x => couplingCount(x)).sum
+
+    override def couplingCount(species: Species): Long = (startEra to lastEra).map(x => couplingCount(species, x)).sum
+
+    override def couplingCount(era: Era): Long = {
+      require(era >= startEra && era <= lastEra)
+      animalsDynamicData(era).foldLeft(0)(_ + _.coupling.size)
+    }
+
+    override def couplingCount(species: Species, era: Era): Long = {
+      require(era >= startEra && era <= lastEra)
+      animalsDynamicData(era, species).foldLeft(0)(_ + _.coupling.size)
+    }
+
+    override def mutantAlleles: Seq[String] =
+      (startEra to lastEra).map(x => mutantAlleles(x)).foldLeft(Seq[String]())(_ ++ _)
+
+    override def mutantAlleles(species: Species): Seq[String] =
+      (startEra to lastEra).map(x => mutantAlleles(species, x)).foldLeft(Seq[String]())(_ ++ _)
+
+    override def mutantAlleles(era: Era): Seq[String] = {
+      require(era >= startEra && era <= lastEra)
+      animalsDynamicData(era).foldLeft(Seq[String]())(_ ++ _.producedMutantGenes)
+    }
+
+    override def mutantAlleles(species: Species, era: Era): Seq[String] = {
+      require(era >= startEra && era <= lastEra)
+      animalsDynamicData(era, species).foldLeft(Seq[String]())(_ ++ _.producedMutantGenes)
     }
   }
 }
