@@ -54,11 +54,19 @@ object EntityInfoConversion {
   }
 
   implicit class OrgansTrackerComponentConversion(obj: EntityInfo) {
-    def brain: Boolean = obj.selectDynamic("brain").asInstanceOf[Boolean]
+    def eyes: Boolean = obj.selectDynamic("eyes").asInstanceOf[Boolean]
     def hippocampus: Boolean = obj.selectDynamic("hippocampus").asInstanceOf[Boolean]
     def stomach: Boolean = obj.selectDynamic("stomach").asInstanceOf[Boolean]
     def pregnant: Boolean = obj.selectDynamic("pregnant").asInstanceOf[Boolean]
     def embryo : EmbryoStatus.Value = obj.selectDynamic("embryo").asInstanceOf[EmbryoStatus.Value]
     def reproductionOrgan: Boolean = obj.selectDynamic("reproductionOrgan").asInstanceOf[Boolean]
+    //da levare
+    def genes: Seq[String] = obj.selectDynamic("genes").asInstanceOf[Seq[String]]
+  }
+
+  implicit class InteractionTrackerComponentConversion(obj: EntityInfo) {
+    def eat: Seq[String] = obj.selectDynamic("eat").asInstanceOf[Seq[String]]
+    def couple: Seq[String] = obj.selectDynamic("couple").asInstanceOf[Seq[String]]
+    def create: Seq[String] = obj.selectDynamic("create").asInstanceOf[Seq[String]]
   }
 }

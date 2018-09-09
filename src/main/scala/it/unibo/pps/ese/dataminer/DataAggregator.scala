@@ -48,7 +48,11 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
       state.lifePhase.toString,
       state actualSpeed,
       state position,
-      state nutritionalValue
+      state nutritionalValue,
+      state eat,
+      state couple,
+      state create,
+      state genes
     )
 
   private def mapToPlantDynamicData(state: EntityInfo): DynamicData =

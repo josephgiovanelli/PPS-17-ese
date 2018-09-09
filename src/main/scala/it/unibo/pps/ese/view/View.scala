@@ -87,11 +87,14 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   }
 
   override def eyes(active: Boolean): Unit = println("eyes:" + active)
-  override def brain(active: Boolean): Unit = println("brain:" +active)
-  override def stomach(active: Boolean): Unit = println("stomach:" +active)
-  override def reproductionOrgan(active: Boolean): Unit = println("reprduction organ:" +active)
-  override def pregnant(active: Boolean): Unit = println("pregnat:" +active); println()
-  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" +state); println()
+  override def brain(active: Boolean): Unit = println("brain:" + active)
+  override def stomach(active: Boolean): Unit = println("stomach:" + active)
+  override def reproductionOrgan(active: Boolean): Unit = {
+    println("reprduction organ:" + active)
+    println("________________________________________")
+  }
+  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
+  override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
 }
 
 object ViewType extends Enumeration {

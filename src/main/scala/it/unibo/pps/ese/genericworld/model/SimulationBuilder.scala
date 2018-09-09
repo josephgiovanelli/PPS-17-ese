@@ -108,6 +108,7 @@ object EntityBuilderHelpers {
     entity addComponent initializeAnimalPhysicalComponent(entity, animalInfo)
     entity addComponent initializeReproductionComponent(entity, animalInfo)
     entity addComponent initializeOrgansTrackerComponent(entity)
+    entity addComponent initializeInteractionTrackerComponent(entity)
     entity
   }
 
@@ -185,6 +186,11 @@ object EntityBuilderHelpers {
   private def initializeOrgansTrackerComponent(entity: Entity)
                                               (implicit executionContext: ExecutionContext): Component = {
     new OrgansTrackerComponent(entity specifications)
+  }
+
+  private def initializeInteractionTrackerComponent(entity: Entity)
+                                              (implicit executionContext: ExecutionContext): Component = {
+    new InteractionTrackerComponent(entity specifications)
   }
 
   private def initializePlantPhysicalComponent(entity: Entity, plantInfo: PlantInfo)

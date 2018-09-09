@@ -30,6 +30,9 @@ object ActionKind extends Enumeration {
   val EAT, COUPLE = Value
 }
 
+case class UseHippocampus() extends BaseEvent
+case class UseEyes() extends BaseEvent
+
 case class EntityPosition(position: Point) extends BaseEvent
 case class InteractionEntity(entityId: String, action: ActionKind.Value) extends BaseEvent
 case class DynamicParametersRequest() extends RequestEvent
@@ -174,6 +177,7 @@ class BrainComponent(override val entitySpecifications: EntitySpecifications,
       if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
       if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
         if (targets.nonEmpty) {
+          publish(UseEyes())
           val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
           val entityAttribute = entityInVisualField(entityChoice.name)
 
@@ -189,6 +193,7 @@ class BrainComponent(override val entitySpecifications: EntitySpecifications,
           position = Point(me.position.x, me.position.y)
         }
         else {
+          publish(UseHippocampus())
           position = hippocampus.searchingState match {
             case SearchingState.INACTIVE =>
               hippocampus.startNewSearch(action)
