@@ -2,6 +2,7 @@ package it.unibo.pps.ese.entitybehaviors
 
 import java.util.Random
 
+import it.unibo.pps.ese.controller.saving.Savable
 import it.unibo.pps.ese.entitybehaviors.ActionKind.ActionKind
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{MemoryType, Position}
@@ -39,14 +40,15 @@ object Direction extends Enumeration {
   val RIGHT, LEFT, UP, DOWN, NONE = Value
 }
 
-case class BrainComponent(override val entitySpecifications: EntitySpecifications,
+class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
                           widthWorld: Int,
                           strong: Double,
                           actionField: Double,
                           visualField: Double,
                           attractiveness: Double)
-                         (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
+                         (implicit val executionContext: ExecutionContext)
+  extends WriterComponent(entitySpecifications) with Savable[BrainComponentMemento] {
 
 
   implicit def toPoint(tuple2: (Int, Int)): Point = {
@@ -192,18 +194,14 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
               hippocampus.startNewSearch(action)
               checkNewMemory
             case SearchingState.ACTIVE =>
-              val d = hippocampus.computeDirection(position)
-              val p = getPosition(d)
-              p
+              getPosition(hippocampus.computeDirection(position))
             case SearchingState.ENDED => getPosition(randomDirection)
           }
 
           def checkNewMemory: Point = {
             if (hippocampus.hasNewMemory) {
               hippocampus.chooseNewMemory(position)
-              val d = hippocampus.computeDirection(position)
-              val p = getPosition(d)
-              p
+              getPosition(hippocampus.computeDirection(position))
             } else getPosition(randomDirection)
           }
 
@@ -228,4 +226,21 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
 
+  override def serialize: BrainComponentMemento = {
+    BrainComponentMemento(entitySpecifications, heightWorld, widthWorld, strong, actionField, visualField,
+      attractiveness, digestionState, forceReproduction, entityInVisualField)
+  }
 }
+
+case class BrainComponentMemento(
+                                  entitySpecifications: EntitySpecifications,
+                                  heightWorld: Int,
+                                  widthWorld: Int,
+                                  strong: Double,
+                                  actionField: Double,
+                                  visualField: Double,
+                                  attractiveness: Double,
+                                  digestionState: Boolean,
+                                  forceReproduction: Option[ForceReproduction],
+                                  entityInVisualField: Map[String, EntityAttributesImpl]
+                                )

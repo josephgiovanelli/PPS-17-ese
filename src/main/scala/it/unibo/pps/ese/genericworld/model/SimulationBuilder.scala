@@ -101,6 +101,7 @@ object EntityBuilderHelpers {
 
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)
                       (implicit executionContext: ExecutionContext): Entity = {
+    //caricare vecchio ID
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
     entity addComponent initializeBrainComponent(entity, animalInfo, worldHeight, worldWidth)
