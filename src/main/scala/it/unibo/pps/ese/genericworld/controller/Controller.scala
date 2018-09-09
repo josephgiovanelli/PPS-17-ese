@@ -3,6 +3,8 @@ package it.unibo.pps.ese.genericworld.controller
 import java.util.concurrent.atomic.AtomicLong
 
 import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, ReadOnlyEntityRepository}
+import it.unibo.pps.ese.entitybehaviors.StaticRules
+import it.unibo.pps.ese.entitywatchers.{Stalker, StoryTeller, Surgeon}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.view.View
 
@@ -36,11 +38,21 @@ object Controller {
     private[this] var _stop = false
     private[this] var _paused = true
     private[this] val _era: AtomicLong = new AtomicLong(1)
-    private[this] val sniffer = Sniffer(realTimeState)
+    private[this] val surgeon = Surgeon(realTimeState)
+    private[this] val stalker = Stalker()
+    private[this] val storyTeller = StoryTeller(consolidatedState)
+
+    //consolidatedState.entityDynamicLog("").get.dynamicData.foreach(x => x._2.)
 
     //ASYNC CALLBACK
     consolidatedState attachNewDataListener(era => {
       println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
+
+      storyTeller extinctSpecies DataMiner(consolidatedState).extinctSpecies(era)
+      storyTeller mutantAlleles DataMiner(consolidatedState).mutantAlleles(era)
+      storyTeller bornRegistry era
+      storyTeller deadRegistry era
+      storyTeller couplingRegistry era
 
       //val a = DataMiner(consolidatedState).bornCount(_era get())
       //val b = DataMiner(consolidatedState).bornCount("Giraffa")
@@ -74,6 +86,7 @@ object Controller {
     simulation attachEraListener(era => _era set era)
 
     override def attachView(view: View, frameRate: Int): Unit = {
+      storyTeller attachView view
       import ViewHelpers.{ManageableObserver, toViewData}
       view addObserver this
       new Thread (() => {
@@ -81,7 +94,7 @@ object Controller {
           normalizeFrameRate(() => {
             if (_paused) this synchronized wait()
             view updateWorld (0, realTimeState getFilteredState(_ => true))
-            sniffer informAboutOrgansStatus view
+            surgeon informAboutOrgansStatus view
           }, frameRate)
         }
       }) start()
@@ -89,7 +102,7 @@ object Controller {
 
     override def manage: ManageableController = this
 
-    override def watch(entity: String): Unit = sniffer watch entity
+    override def watch(entity: String): Unit = surgeon inspection entity
 
     override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {
       case Seq(single) => Some(single)

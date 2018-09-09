@@ -20,6 +20,12 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
   def reproductionOrgan(active: Boolean)
   def pregnant(active: Boolean)
   def embryo(state: EmbryoStatus.Value)
+
+  def extinctSpecies(species: String)
+  def mutantAllele(gene: String)
+  def bornRegistry(species: String, babies: Long)
+  def deadRegistry(species: String, dead: Long)
+  def couplingRegistry(species: String, entities: Long)
 }
 
 trait MainComponent {
@@ -89,12 +95,19 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   override def eyes(active: Boolean): Unit = println("eyes:" + active)
   override def brain(active: Boolean): Unit = println("brain:" + active)
   override def stomach(active: Boolean): Unit = println("stomach:" + active)
+  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
+  override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
   override def reproductionOrgan(active: Boolean): Unit = {
     println("reprduction organ:" + active)
     println("________________________________________")
   }
-  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
-  override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
+
+
+  override def extinctSpecies(species: String): Unit = println("Specie " + species + " Estinta")
+  override def mutantAllele(gene: String): Unit = println("Alleli mutanti comparsi per il gene: " + gene)
+  override def bornRegistry(species: String, babies: Long): Unit = println("Sono nati " + babies + " entità della specie " + species)
+  override def deadRegistry(species: String, dead: Long): Unit = println("Sono morti " + dead + " entità della specie " + species)
+  override def couplingRegistry(species: String, entities: Long): Unit = println("Si sono accoppiati " + entities + " entità della specie " + species)
 }
 
 object ViewType extends Enumeration {
