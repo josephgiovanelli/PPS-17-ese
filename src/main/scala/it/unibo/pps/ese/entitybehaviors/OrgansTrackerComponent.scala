@@ -129,16 +129,15 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
 
     addMapping[InitPregnancy]((classOf[InitPregnancy], _ => Seq(
       EntityProperty("pregnant", pregnant),
-      EntityProperty("embryo", embryo)
+      EntityProperty("embryo", embryo.get)
     )))
 
     addMapping[GrowEmbryo]((classOf[GrowEmbryo], _ => Seq(
-      EntityProperty("embryo", embryo)
+      EntityProperty("embryo", embryo.get)
     )))
 
     addMapping[EndPregnancy]((classOf[EndPregnancy], _ => Seq(
-      EntityProperty("pregnant", pregnant),
-      EntityProperty("embryo", embryo)
+      EntityProperty("pregnant", pregnant)
     )))
 
     addMapping[NewMutantAlleles]((classOf[NewMutantAlleles], ev => Seq(

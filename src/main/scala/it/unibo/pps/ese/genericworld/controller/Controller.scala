@@ -2,14 +2,12 @@ package it.unibo.pps.ese.genericworld.controller
 
 import java.util.concurrent.atomic.AtomicLong
 
-import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, ReadOnlyEntityRepository}
-import it.unibo.pps.ese.entitybehaviors.StaticRules
+import it.unibo.pps.ese.dataminer.{DataMiner, ReadOnlyEntityRepository}
 import it.unibo.pps.ese.entitywatchers.{Stalker, StoryTeller, Surgeon}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.view.View
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.FiniteDuration
 
 sealed trait Controller {
   def attachView(view: View, frameRate: Int): Unit
@@ -39,10 +37,9 @@ object Controller {
     private[this] var _paused = true
     private[this] val _era: AtomicLong = new AtomicLong(1)
     private[this] val surgeon = Surgeon(realTimeState)
-    private[this] val stalker = Stalker()
+    private[this] val stalker = Stalker(consolidatedState)
     private[this] val storyTeller = StoryTeller(consolidatedState)
 
-    //consolidatedState.entityDynamicLog("").get.dynamicData.foreach(x => x._2.)
 
     //ASYNC CALLBACK
     consolidatedState attachNewDataListener(era => {
