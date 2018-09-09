@@ -61,4 +61,10 @@ object EntityInfoConversion {
     def embryo : EmbryoStatus.Value = obj.selectDynamic("embryo").asInstanceOf[EmbryoStatus.Value]
     def reproductionOrgan: Boolean = obj.selectDynamic("reproductionOrgan").asInstanceOf[Boolean]
   }
+
+  implicit class InteractionTrackerComponentConversion(obj: EntityInfo) {
+    def eat: Seq[String] = obj.selectDynamic("eat").asInstanceOf[Seq[String]]
+    def couple: Seq[String] = obj.selectDynamic("couple").asInstanceOf[Seq[String]]
+    def create: Seq[String] = obj.selectDynamic("create").asInstanceOf[Seq[String]]
+  }
 }
