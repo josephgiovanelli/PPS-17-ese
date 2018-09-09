@@ -1,5 +1,5 @@
-package it.unibo.pps.ese.utils
+package it.unibo.pps.ese.controller.saving
 
-trait Savable {
-  def saveState()
+trait Savable[T] {
+  def serialize: T
 }
