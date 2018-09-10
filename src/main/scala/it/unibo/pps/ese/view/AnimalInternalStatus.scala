@@ -2,13 +2,16 @@ package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 
+sealed trait Reason
+case object Coupling extends Reason
+case object Eating extends Reason
 
 sealed trait BrainStatus
-case object HippoCampusActive extends BrainStatus
+case class HippoCampusActive(reason:Reason) extends BrainStatus
 case object HippoCampusDisabled extends BrainStatus
 
 sealed trait EyesStatus
-case object EyesActive extends EyesStatus
+case class EyesActive(reason:Reason) extends EyesStatus
 case object EyesDisabled extends EyesStatus
 
 sealed trait ReproductiveApparatusStatus

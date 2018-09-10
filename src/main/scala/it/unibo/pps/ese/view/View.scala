@@ -14,23 +14,26 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
   def addObserver(observer: Observer): Unit
 
 
-  def eyes(active: Boolean)
-  def brain(active: Boolean)
-  def stomach(active: Boolean)
-  def reproductionOrgan(active: Boolean)
-  def pregnant(active: Boolean)
-  def embryo(state: EmbryoStatus.Value)
+//  def eyes(active: Boolean)
+//  def brain(active: Boolean)
+//  def stomach(active: Boolean)
+//  def reproductionOrgan(active: Boolean)
+//  def pregnant(active: Boolean)
+//  def embryo(state: EmbryoStatus.Value)
 
-  def extinctSpecies(species: String)
-  def mutantAllele(gene: String)
-  def bornRegistry(species: String, babies: Long)
-  def deadRegistry(species: String, dead: Long)
-  def couplingRegistry(species: String, entities: Long)
+  def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
+  def updateHistoryLog(newLog:HistoryLog):Unit
+//  def extinctSpecies(species: String)
+//  def mutantAllele(gene: String)
+//  def bornRegistry(species: String, babies: Long)
+//  def deadRegistry(species: String, dead: Long)
+//  def couplingRegistry(species: String, entities: Long)
 }
 
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
+  def unwatchEntity(id:String):Unit
   def setUp(simulationData: SimulationData)
 }
 
@@ -92,22 +95,43 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     case _ =>
   }
 
-  override def eyes(active: Boolean): Unit = println("eyes:" + active)
-  override def brain(active: Boolean): Unit = println("brain:" + active)
-  override def stomach(active: Boolean): Unit = println("stomach:" + active)
-  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
-  override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
-  override def reproductionOrgan(active: Boolean): Unit = {
-    println("reprduction organ:" + active)
-    println("________________________________________")
+//  override def eyes(active: Boolean): Unit = println("eyes:" + active)
+//  override def brain(active: Boolean): Unit = println("brain:" + active)
+//  override def stomach(active: Boolean): Unit = println("stomach:" + active)
+//  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
+
+  override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = ???
+
+//  override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
+//  override def reproductionOrgan(active: Boolean): Unit = {
+//    println("reprduction organ:" + active)
+//    println("________________________________________")
+//  }
+
+
+
+//  override def extinctSpecies(species: String): Unit = println("Specie " + species + " Estinta")
+//  override def mutantAllele(gene: String): Unit = println("Alleli mutanti comparsi per il gene: " + gene)
+//  override def bornRegistry(species: String, babies: Long): Unit = println("Sono nati " + babies + " entità della specie " + species)
+//  override def deadRegistry(species: String, dead: Long): Unit = println("Sono morti " + dead + " entità della specie " + species)
+//  override def couplingRegistry(species: String, entities: Long): Unit = println("Si sono accoppiati " + entities + " entità della specie " + species)
+  override def updateHistoryLog(newLog: HistoryLog): Unit = {
+    newLog.extinctSpecies.foreach(s=>println("Specie " + s + " Estinta"))
+    newLog.mutantAlleles.foreach(gene=>println("Alleli mutanti comparsi per il gene: " + gene))
+    newLog.bornRegistry.foreach{case(species,babies)=>
+      println("Sono nati " + babies + " entità della specie " + species)
+    }
+    newLog.deadRegistry.foreach{case(species,dead)=>
+      println("Sono morti " + dead + " entità della specie " + species)
+    }
+    newLog.couplingRegistry.foreach{case(species,entities)=>
+      println("Si sono accoppiati " + entities + " entità della specie " + species)
+    }
   }
 
-
-  override def extinctSpecies(species: String): Unit = println("Specie " + species + " Estinta")
-  override def mutantAllele(gene: String): Unit = println("Alleli mutanti comparsi per il gene: " + gene)
-  override def bornRegistry(species: String, babies: Long): Unit = println("Sono nati " + babies + " entità della specie " + species)
-  override def deadRegistry(species: String, dead: Long): Unit = println("Sono morti " + dead + " entità della specie " + species)
-  override def couplingRegistry(species: String, entities: Long): Unit = println("Si sono accoppiati " + entities + " entità della specie " + species)
+  override def unwatchEntity(id: String): Unit = {
+    observers.foreach(_.unsetWatched(id))
+  }
 }
 
 object ViewType extends Enumeration {

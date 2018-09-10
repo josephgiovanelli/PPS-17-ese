@@ -41,7 +41,6 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
 
   private var currentWorld: Map[Position, Entity] = Map()
   private var currentSelected: Option[String] = None
-
   private var worldViewWidth: DoubleProperty = DoubleProperty(worldWidth*entitySize())
   private var worldViewHeigth: DoubleProperty = DoubleProperty(worldHeigth*entitySize())
   worldViewWidth <== entitySize*worldWidth
@@ -102,6 +101,9 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
         detailsPane.showDetails(entity,entityDetails)
 
       case None =>
+        if(currentSelected.isDefined){
+          mainComponent.unwatchEntity(currentSelected.get)
+        }
         currentSelected = None
         detailsPane.clearDetails()
         genomeDetailsPane.clearGenomeStats()
@@ -158,6 +160,7 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
               currentSelected = None
               detailsPane.clearDetails()
               genomeDetailsPane.clearGenomeStats()
+
             }
 
           case None =>
