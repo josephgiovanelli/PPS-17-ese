@@ -104,6 +104,7 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
       case None =>
         currentSelected = None
         detailsPane.clearDetails()
+        genomeDetailsPane.clearGenomeStats()
     }
 
 
@@ -137,11 +138,28 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
         })
         currentSelected match {
           case Some(id) =>
-            val entity: Entity = getEntityById(id).get
-            val position: Position = getEntityViewPosition(entity)
-            currentSelected = Some(entity.id)
-            graphicsContext.fill = selectionColor
-            graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
+            if(getEntityById(id).isDefined){
+              val entity: Entity = getEntityById(id).get
+              val position: Position = getEntityViewPosition(entity)
+              val entityDetails:model.EntityInfo = mainComponent.getEntityDetails(entity.id).get
+              entityDetails.baseEntityInfo match {
+                case AnimalInfo(_,_,_,_,_,_) =>
+                  genomeDetailsPane.setGenomeStats(GenomeStatsUtilities.buildGenomeStats(
+                    geneticsSimulator,
+                    entityDetails.baseEntityInfo.asInstanceOf[AnimalInfo])
+                  )
+                case _=>
+              }
+              detailsPane.showDetails(entity,entityDetails)
+              currentSelected = Some(entity.id)
+              graphicsContext.fill = selectionColor
+              graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
+            }else{
+              currentSelected = None
+              detailsPane.clearDetails()
+              genomeDetailsPane.clearGenomeStats()
+            }
+
           case None =>
         }
       }

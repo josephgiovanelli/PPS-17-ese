@@ -12,6 +12,8 @@ sealed trait SpeciesUtilities{
   def translateGenome(genome:AnimalGenome):AnimalInfo
   def obtainMutantAlleles(gene:MGene):Seq[MGene]
   def checkNewApparitions(genes:Seq[MGene]):Seq[MGene]
+  def obtainNotAppearedMutation:Seq[AlleleInfo]
+  private[genetics] def restoreOldNotAppearedAlleles(oldNotAppearedAlleles:Seq[AlleleInfo]):Unit
   private[genetics] def getAllelicBehaviorOfGene(gene:GeneWithAllelicForms):AllelicBehaviour
   private[genetics] def getFeaturesOfGene(gene:GeneWithAllelicForms):Seq[QualityType]
   private[genetics] def getProbabilityOfGene(gene:GeneWithAllelicForms):Double
@@ -21,6 +23,7 @@ object SpeciesUtilities{
   def apply(animalData:TranslatedAnimalData):SpeciesUtilities = new SpeciesSetup(animalData)
   private[this] class SpeciesSetup(animalData: TranslatedAnimalData) extends SpeciesUtilities {
     import SpeciesValues._
+    var restored: Boolean = false
     val geneFeatures: Seq[GeneFeatures] = allGeneData.map(geneData => {
       val allelicBehaviours: Seq[AllelicBehaviour] = geneData
         .allelicForm
@@ -115,6 +118,16 @@ object SpeciesUtilities{
         case _=> false
       }
     }
+
+    override def obtainNotAppearedMutation: Seq[AlleleInfo] = notAppearedMutation
+
+    override private[genetics] def restoreOldNotAppearedAlleles(oldNotAppearedAlleles: Seq[AlleleInfo]): Unit =
+      if(restored){
+        throw new IllegalStateException()
+      }else{
+        notAppearedMutation = oldNotAppearedAlleles
+        restored = true
+      }
   }
 }
 

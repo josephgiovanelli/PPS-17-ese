@@ -4,13 +4,15 @@ import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, Simulatio
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, GeneWithAllelicForms, IdentifierGene, MGene}
-import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
+import it.unibo.pps.ese.genetics.dnaexpression.{AlleleInfo, AllelicGeneStats, BasicGeneStats, GeneStats}
 import it.unibo.pps.ese.genetics.entities.{Animal, AnimalInfo, Carnivorous, Herbivore, Plant, PlantInfo, QualityType}
 import it.unibo.pps.ese.genetics.generators.{PlantGenerator, SpeciesUtilities}
 import it.unibo.pps.ese.genetics.generators.data.InputDataAdapter._
 
 trait GeneticsSimulator {
   def beginSimulation(simulationData:SimulationData):InitializedSimulation
+  def restoreSimulation(savedData: SavedData):InitializedSimulation
+  def obtainDataToSave:SavedData
   def speciesList:Seq[String]
   def plantSpeciesList:Seq[String]
   def newPlant(species: String):PlantInfo
@@ -22,20 +24,35 @@ trait GeneticsSimulator {
   def checkNewMutation(species:String,genome: AnimalGenome):Seq[MGene]
   def getGeneStats(geneM:MGene, animalInfo: AnimalInfo):GeneStats
 }
+
+case class SavedData(simulationData: SimulationData,notAppearedMutations:Map[String,Seq[AlleleInfo]])
+
 object GeneticsSimulator extends GeneticsSimulator{
+  var simulationData:Option[SimulationData] = None
   private[this] var started:Boolean=false
   private var speciesSetup:Map[String,SpeciesUtilities] = Map()
   private var plantSetup:Map[String,PlantInfo] = Map()
-  override def beginSimulation(simulationData: SimulationData): InitializedSimulation
-  = {
+  override def beginSimulation(simulationData: SimulationData): InitializedSimulation = {
     _checkState()
+    this.simulationData = Some(simulationData)
     val initializedSimulation = InitializedSimulation(simulationData)
+    setupSimulation(initializedSimulation)
+  }
+
+  override def restoreSimulation(savedData: SavedData):InitializedSimulation = {
+    _checkState()
+    this.simulationData = Some(savedData.simulationData)
+    val initializedSimulation = InitializedSimulation(savedData.simulationData,savedData.notAppearedMutations)
+    setupSimulation(initializedSimulation)
+  }
+
+  private[this] def _checkState():Unit = {
+//    if (started) throw new IllegalStateException() else started = true
+  }
+  private[this] def setupSimulation(initializedSimulation: InitializedSimulation):InitializedSimulation = {
     speciesSetup = initializedSimulation.initialSetup
     plantSetup = initializedSimulation.getAllPlant.map({case (k,v) => (k,v.head)})
     initializedSimulation
-  }
-  private[this] def _checkState():Unit = {
-//    if (started) throw new IllegalStateException() else started = true
   }
   override def speciesList: Seq[String] = speciesSetup.keySet.toSeq
 
@@ -119,4 +136,14 @@ object GeneticsSimulator extends GeneticsSimulator{
       genome.secondSexualChromosome.geneList
     )
   }
+
+  override def obtainDataToSave: SavedData =
+    SavedData(
+      this.simulationData.getOrElse(throw new IllegalStateException()),
+      this.speciesSetup.map{case (k,v)=>
+        k -> v.obtainNotAppearedMutation
+      }
+    )
+
+
 }

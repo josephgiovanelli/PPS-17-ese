@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.genetics.dnaexpression.AlleleInfo
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
 import it.unibo.pps.ese.genetics.generators.data.InputDataAdapter
 import it.unibo.pps.ese.genetics.generators.{PlantGenerator, SpeciesUtilities}
@@ -13,6 +14,13 @@ sealed trait InitializedSimulation{
 
 object InitializedSimulation {
   def apply(simulationData: SimulationData): InitializedSimulation = InitializedSimulationImpl(simulationData)
+  def apply(simulationData: SimulationData,notAppearedMutations:Map[String,Seq[AlleleInfo]]): InitializedSimulation = {
+    val initializedSimulation = InitializedSimulationImpl(simulationData)
+    notAppearedMutations.foreach{case(k,v) =>
+        initializedSimulation.initialSetup(k).restoreOldNotAppearedAlleles(v)
+    }
+    initializedSimulation
+  }
 
   private[this] case class InitializedSimulationImpl(simulationData: SimulationData) extends InitializedSimulation{
     val speciesSetup:Map[String,SpeciesUtilities] = buildSpeciesSetups(simulationData)

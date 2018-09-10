@@ -6,6 +6,7 @@ import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.view.bodyViewer.BodyPane
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
 import scalafx.geometry.{Insets, Orientation}
@@ -18,7 +19,7 @@ object ZoomPreferences {
 }
 
 
-private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
+private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1400, height: Double = 900) extends Scene(width, height) with WorldView {
 
   val generationTextLabel: String = "Generation: "
 
@@ -38,16 +39,18 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   worldTab.text = "World"
   worldTab.closable = false
 
+  val bodyPane = BodyPane()
   val genomePane = GenomeDetailsPane(None)
 
   val worldContainerPane = new SplitPane()
+  val historyPane = HistoryPane()
   val detailsPane = DetailsPane(mainComponent)
   val worldPane: WorldPane = WorldPane(geneticsSimulator,mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal
-  worldContainerPane.items ++= List(worldPane, detailsPane)
-  worldContainerPane.dividerPositions = 0.7
+  worldContainerPane.items ++= List(historyPane,worldPane, detailsPane)
+  worldContainerPane.setDividerPositions(0.3,0.8,0.15)
   worldTab.content = worldContainerPane
 
   val zoomSlider = new Slider(ZoomPreferences.minZoom, ZoomPreferences.maxZoom, ZoomPreferences.prefZoom)
@@ -79,8 +82,13 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   genomeTab.closable = false
   genomeTab.content = genomePane
 
+  val bodyTab = new Tab()
+  bodyTab.text = "Body Parts"
+  bodyTab.closable = false
+  bodyTab.content = bodyPane
+
   val simulationPane = new TabPane()
-  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab)
+  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab,bodyTab)
   val mainPane = new BorderPane()
   mainPane.top = topPane
   mainPane.center = simulationPane
