@@ -101,7 +101,7 @@ object Hippocampus {
 
     override def startNewSearch(memoryType: MemoryType): Unit = {
 
-      val list = ListBuffer() ++= memories.getOrElse(memoryType, List()) ++ neocortex.getMemeories(memoryType).getOrElse(List())
+      val list: ListBuffer[Memory] = ListBuffer() ++= memories.getOrElse(memoryType, List()) ++ neocortex.getMemeories(memoryType).getOrElse(List())
       if (list.nonEmpty)searchingState = SearchingState.ACTIVE else searchingState = SearchingState.ENDED
       memorySearchComponent = Some(MemorySearchComponent(memoryType, list))
     }
@@ -176,7 +176,9 @@ object Hippocampus {
 
     override def serialize: HippocampusMemento = {
       HippocampusMemento(neocortex.serialize,
-        memories.map(t => (t._1.id, t._2.map(m => m.serialize))),
+        memories.map(t => (t._1.id, t._2.map(m => m.serialize match {
+          case s: ShortTermMemoryMemento => s
+          case _ => throw new IllegalStateException("Hippocampus can only hold ShortTermMemory")}))),
         memorySearchComponent,
         currentBestMemory,
         searchingState)

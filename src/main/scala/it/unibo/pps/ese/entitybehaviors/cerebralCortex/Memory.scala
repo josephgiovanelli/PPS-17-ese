@@ -6,7 +6,12 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 object Memory {
   type Score = Double
 
-  sealed trait Memory {
+  def apply(abstractMemoryMemento: AbstractMemoryMemento): Memory = abstractMemoryMemento match {
+    case l: LongTermMemoryMemento => LongTermMemory(l)
+    case s: ShortTermMemoryMemento => ShortTermMemory(s)
+  }
+
+  sealed trait Memory extends Savable[AbstractMemoryMemento] {
     def memoryType: MemoryType
     def locationalField: LocationalField
     def score: Score
@@ -14,9 +19,9 @@ object Memory {
     def updateTime()
   }
 
-  trait LongTermMemory extends Memory with Savable[LongTermMemoryMemento]
+  trait LongTermMemory extends Memory
 
-  trait ShortTermMemory extends Memory with Savable[ShortTermMemoryMemento] {
+  trait ShortTermMemory extends Memory {
     def elapsedTime: Int
   }
 
@@ -81,8 +86,10 @@ object Memory {
     }
   }
 
-  case class LongTermMemoryMemento(memoryType: Int, locationalField: LocationalField, score: Score)
+  sealed abstract class AbstractMemoryMemento
 
-  case class ShortTermMemoryMemento(memoryType: Int, locationalField: LocationalField, score: Score, elapsedTime: Int)
+  case class LongTermMemoryMemento(memoryType: Int, locationalField: LocationalField, score: Score) extends AbstractMemoryMemento
+
+  case class ShortTermMemoryMemento(memoryType: Int, locationalField: LocationalField, score: Score, elapsedTime: Int) extends AbstractMemoryMemento
 
 }

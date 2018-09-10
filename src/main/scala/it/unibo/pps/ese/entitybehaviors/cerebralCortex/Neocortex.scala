@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
 import it.unibo.pps.ese.controller.saving.{Memento, Savable}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{AbstractMemoryMemento, LongTermMemory, LongTermMemoryMemento, ShortTermMemory}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, LongTermMemoryMemento, ShortTermMemory}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Neocortex.NeocortexMemento
 
@@ -44,7 +44,9 @@ object Neocortex {
     }
 
     override def serialize: NeocortexMemento = {
-      NeocortexMemento(memories.map(t => (t._1.id, t._2.map(m => m.serialize))))
+      NeocortexMemento(memories.map(t => (t._1.id, t._2.map(m => m.serialize match {
+        case l: LongTermMemoryMemento => l
+        case _ => throw new IllegalStateException("Neocortex can only hold LongTermMemory")}))))
     }
   }
 

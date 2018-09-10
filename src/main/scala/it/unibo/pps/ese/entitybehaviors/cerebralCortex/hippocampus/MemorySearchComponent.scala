@@ -1,15 +1,17 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus
 
+import it.unibo.pps.ese.controller.saving.Savable
 import it.unibo.pps.ese.entitybehaviors.Direction
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{LocationalField, Position}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, Memory, ShortTermMemory}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{LocationalField, Memory, MemoryType, Position}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{AbstractMemoryMemento, LongTermMemory, Memory, ShortTermMemory}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.MemorySearchComponent.MemorySearchComponentMemento
 
 import scala.collection.mutable.ListBuffer
 
 
-private[hippocampus] trait MemorySearchComponent {
+private[hippocampus] trait MemorySearchComponent extends Savable[MemorySearchComponentMemento] {
   def memoryType: MemoryType
   def updateTime()
   def hasNewMemory: Boolean
@@ -20,6 +22,10 @@ private[hippocampus] object MemorySearchComponent {
 
   def apply(memoryType: MemoryType, memories: ListBuffer[Memory]): MemorySearchComponent =
     new MemorySearchComponentImpl(memoryType, memories)
+
+  def apply(memorySearchComponentMemento: MemorySearchComponentMemento): MemorySearchComponent =
+    new MemorySearchComponentImpl(MemoryType(memorySearchComponentMemento.memoryType),
+      memorySearchComponentMemento.memories.map(m => Memory(m)))
 
   private class MemorySearchComponentImpl(val memoryType: MemoryType, val memories: ListBuffer[Memory]) extends MemorySearchComponent {
     var currentMemory: Option[Memory] = None
@@ -59,5 +65,12 @@ private[hippocampus] object MemorySearchComponent {
     private def getMemoryCoefficient(memory: Memory, position: Position): Double = {
       memory.score/memory.locationalField.distanceFromPosition(position)
     }
+
+    override def serialize: MemorySearchComponentMemento = {
+      MemorySearchComponentMemento(memoryType.id, memories.map(m => m.serialize))
+    }
   }
+
+  case class MemorySearchComponentMemento(memoryType: Int,
+                                          memories: ListBuffer[AbstractMemoryMemento])
 }

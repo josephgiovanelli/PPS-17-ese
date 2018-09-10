@@ -29,8 +29,9 @@ object EmbryoStatus extends Enumeration {
 
 object OrgansTrackerComponent {
 
-  def apply(entitySpecifications: EntitySpecifications): OrgansTrackerComponent = new OrgansTrackerComponent(entitySpecifications, None)
-  def apply(organsTrackerComponentMemento: OrgansTrackerComponentMemento): OrgansTrackerComponent =
+  def apply(entitySpecifications: EntitySpecifications)(implicit executionContext: ExecutionContext): OrgansTrackerComponent =
+    new OrgansTrackerComponent(entitySpecifications, None)
+  def apply(organsTrackerComponentMemento: OrgansTrackerComponentMemento)(implicit executionContext: ExecutionContext): OrgansTrackerComponent =
     new OrgansTrackerComponent(organsTrackerComponentMemento.entitySpecifications, Some(organsTrackerComponentMemento))
 
   class OrgansTrackerComponent(override val entitySpecifications: EntitySpecifications,
