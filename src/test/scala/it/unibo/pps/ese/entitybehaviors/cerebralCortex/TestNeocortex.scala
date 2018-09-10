@@ -15,9 +15,9 @@ class TestNeocortex extends FunSuite {
     import Properties._
 
     val neocortex: Neocortex = Neocortex()
-    neocortex.addMemory(MemoryType.HUNTING, LongTermMemory(MemoryType.HUNTING, LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(0,20)), 150))
-    neocortex.addMemory(MemoryType.HUNTING, LongTermMemory(MemoryType.HUNTING, LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(10,30)), 160))
-    neocortex.addMemory(MemoryType.COUPLE, LongTermMemory(MemoryType.HUNTING, LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(100,130)), 260))
+    neocortex.addMemory(LongTermMemory(MemoryType.HUNTING, LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(0,20)), 150))
+    neocortex.addMemory(LongTermMemory(MemoryType.HUNTING, LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(10,30)), 160))
+    neocortex.addMemory(LongTermMemory(MemoryType.COUPLE, LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(100,130)), 260))
     assert(neocortex.getMemeories(MemoryType.HUNTING).get.size==2)
     assert(neocortex.getMemeories(MemoryType.COUPLE).get.size==1)
   }

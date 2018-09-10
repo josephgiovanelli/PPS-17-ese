@@ -21,14 +21,14 @@ private[hippocampus] trait MemorySearchComponent extends Savable[MemorySearchCom
 private[hippocampus] object MemorySearchComponent {
 
   def apply(memoryType: MemoryType, memories: ListBuffer[Memory]): MemorySearchComponent =
-    new MemorySearchComponentImpl(memoryType, memories)
+    new MemorySearchComponentImpl(memoryType, memories, None)
 
   def apply(memorySearchComponentMemento: MemorySearchComponentMemento): MemorySearchComponent =
     new MemorySearchComponentImpl(MemoryType(memorySearchComponentMemento.memoryType),
-      memorySearchComponentMemento.memories.map(m => Memory(m)))
+      memorySearchComponentMemento.memories.map(m => Memory(m)),
+      memorySearchComponentMemento.currentMemory.map(m => Memory(m)))
 
-  private class MemorySearchComponentImpl(val memoryType: MemoryType, val memories: ListBuffer[Memory]) extends MemorySearchComponent {
-    var currentMemory: Option[Memory] = None
+  private class MemorySearchComponentImpl(val memoryType: MemoryType, val memories: ListBuffer[Memory], var currentMemory: Option[Memory]) extends MemorySearchComponent {
 
     override def updateTime(): Unit = {
       memories --= memories.filter(m => m match {
@@ -67,10 +67,11 @@ private[hippocampus] object MemorySearchComponent {
     }
 
     override def serialize: MemorySearchComponentMemento = {
-      MemorySearchComponentMemento(memoryType.id, memories.map(m => m.serialize))
+      MemorySearchComponentMemento(memoryType.id, memories.map(m => m.serialize), currentMemory.map(m => m.serialize))
     }
   }
 
   case class MemorySearchComponentMemento(memoryType: Int,
-                                          memories: ListBuffer[AbstractMemoryMemento])
+                                          memories: ListBuffer[AbstractMemoryMemento],
+                                          currentMemory: Option[AbstractMemoryMemento])
 }

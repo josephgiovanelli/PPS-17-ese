@@ -11,7 +11,7 @@ import scala.collection.mutable.ListBuffer
 
 private[cerebralCortex] trait Neocortex extends Savable[NeocortexMemento] {
   def memories: mutable.Map[MemoryType, ListBuffer[LongTermMemory]]
-  def addMemory(memoryType: MemoryType, memory: LongTermMemory)
+  def addMemory(memory: LongTermMemory)
   def getMemeories(memoryType: MemoryType): Option[ListBuffer[LongTermMemory]]
 }
 
@@ -31,7 +31,8 @@ object Neocortex {
     }
 
 
-    override def addMemory(memoryType: MemoryType, memory: LongTermMemory): Unit = {
+    override def addMemory(memory: LongTermMemory): Unit = {
+      val memoryType = memory.memoryType
       memories.get(memoryType) match {
         case None => memories(memoryType) = ListBuffer()
         case _ =>

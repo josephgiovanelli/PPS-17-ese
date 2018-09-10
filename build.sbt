@@ -30,6 +30,8 @@ libraryDependencies += "com.github.wookietreiber" %% "scala-chart" % "latest.int
 libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0"
 libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.6.0"
 
+libraryDependencies += "io.suzaku" %% "boopickle" % "1.3.0"
+
 import Tests._
 import CustomSettings._
 

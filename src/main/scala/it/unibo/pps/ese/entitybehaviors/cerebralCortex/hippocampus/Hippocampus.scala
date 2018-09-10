@@ -8,7 +8,8 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Neocortex.NeocortexMemento
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.HippocampusMemento
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.SearchingState.SearchingState
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{Position, Memory => _, _}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.MemorySearchComponent.MemorySearchComponentMemento
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{Memory, Position, _}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -64,16 +65,16 @@ object Hippocampus {
       case _ => mutable.Map()
     }
     var memorySearchComponent: Option[MemorySearchComponent] = hippocampusMemento match {
-      case Some(h) => h.memorySearchComponent
+      case Some(h) => h.memorySearchComponent.map(m => MemorySearchComponent(m))
       case _ => None
     }
     var currentBestMemory: Option[Memory] = hippocampusMemento match {
-      case Some(h) => h.currentBestMemory
+      case Some(h) => h.currentBestMemory.map(m => Memory(m))
       case _ => None
     }
 
     var searchingState: SearchingState = hippocampusMemento match {
-      case Some(h) => h.searchingState
+      case Some(h) => SearchingState(h.searchingState)
       case _ => SearchingState.INACTIVE
     }
 
@@ -144,7 +145,7 @@ object Hippocampus {
           case Some(memory) =>
             memory.score += computeGain
             if (memory.score > longTermMemoryThreshold) {
-              neocortex.addMemory(memoryType, LongTermMemory(memory.memoryType, memory.locationalField, memory.score))
+              neocortex.addMemory(LongTermMemory(memory.memoryType, memory.locationalField, memory.score))
             }
         }
       }
@@ -179,16 +180,16 @@ object Hippocampus {
         memories.map(t => (t._1.id, t._2.map(m => m.serialize match {
           case s: ShortTermMemoryMemento => s
           case _ => throw new IllegalStateException("Hippocampus can only hold ShortTermMemory")}))),
-        memorySearchComponent,
-        currentBestMemory,
-        searchingState)
+        memorySearchComponent.map(m => m.serialize),
+        currentBestMemory.map(m => m.serialize),
+        searchingState.id)
     }
   }
 
   case class HippocampusMemento(
                                 neocortexMemento: NeocortexMemento,
                                 memories: ShortTermMemoriesMemento,
-                                memorySearchComponent: Option[MemorySearchComponent],
-                                currentBestMemory: Option[Memory],
-                                searchingState: SearchingState)
+                                memorySearchComponent: Option[MemorySearchComponentMemento],
+                                currentBestMemory: Option[AbstractMemoryMemento],
+                                searchingState: Int)
 }
