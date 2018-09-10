@@ -14,13 +14,13 @@ case class ResultEra(me: Point, actions: Map[String, Seq[String]], others: Map[S
 
 case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
-  var stalked: Option[String] = synchronized { None }
-  var currentEra: Int = synchronized { 0 }
-  var birthEra: Int = synchronized { 0 }
-  var deadEra: Option[Int] = synchronized { None }
-  var trueEra: Option[Int] = synchronized { None }
+  var stalked: Option[String] = None
+  var currentEra: Long = 0
+  var birthEra: Long = 0
+  var deadEra: Option[Long] = None
+  var trueEra: Option[Long] = None
 
-  def stalk(entityId: String): Unit = synchronized {
+  def stalk(entityId: String): Unit = {
     if (stalked.isEmpty) {
       stalked = Some(entityId)
       birthEra = getBirthEra.toInt
@@ -30,15 +30,15 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
     }
   }
 
-  def informAboutTrueEra(era: Long): Unit = synchronized {
-    trueEra = Some(era.toInt)
+  def informAboutTrueEra(era: Long): Unit = {
+    trueEra = Some(era)
   }
 
-  def unstalk: Unit = synchronized {
+  def unstalk: Unit = {
     stalked = None
   }
 
-  def report: ResultEra = synchronized {
+  def report: ResultEra = {
 
     var me: Point = null
     var actions: Map[String, Seq[String]] = Map.empty
@@ -84,19 +84,19 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
     ResultEra(me, actions, others)
   }
 
-  def getBirthEra: Era = synchronized {
+  def getBirthEra: Era = {
     consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._1).min
   }
 
-  def isStalkedDeadInThisEra: Boolean = synchronized {
+  def isStalkedDeadInThisEra: Boolean = {
     !consolidatedState.entitiesInEra(currentEra).map(entity => entity.id).contains(stalked.get)
   }
 
-  def getAllStalkedActions: Seq[DynamicData] = synchronized {
+  def getAllStalkedActions: Seq[DynamicData] = {
     consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._2)
   }
 
-  def getPositionInThisEra(entity: String): Point = synchronized {
+  def getPositionInThisEra(entity: String): Point = {
     consolidatedState.entitiesInEra(currentEra).filter(x => x.id == entity).head.dynamicData.position
   }
 }
