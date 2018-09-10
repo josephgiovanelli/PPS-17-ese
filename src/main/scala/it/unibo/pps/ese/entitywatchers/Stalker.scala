@@ -15,27 +15,26 @@ case class ResultEra(me: Point, actions: Map[String, Seq[String]], others: Map[S
 case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
   var stalked: Option[String] = None
-  var currentEra: Long = 0
-  var birthEra: Long = 0
-  var deadEra: Option[Long] = None
-  var trueEra: Option[Long] = None
+  var currentEra: Int = 0
+  var birthEra: Int = 0
+  var deadEra: Option[Int] = None
+  var trueEra: Option[Int] = None
 
-  def stalk(entityId: String): Unit = {
+  def stalk(entityId: String): Unit =  {
     stalked = Some(entityId)
-    birthEra = getBirthEra
+    birthEra = getBirthEra.toInt
     currentEra = birthEra
     deadEra = None
-    trueEra = None
   }
 
   def informAboutTrueEra(era: Long): Unit = {
-    trueEra = Some(era)
+    trueEra = Some(era.toInt)
   }
 
   def unstalk: Unit =
     stalked = None
 
-  def report: ResultEra = {
+  def report: ResultEra =  {
 
     var me: Point = null
     var actions: Map[String, Seq[String]] = Map.empty
@@ -43,14 +42,18 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
     if (stalked.isDefined) {
 
-      val entitiesInCurrentEra: Seq[EntityTimedRecord] = consolidatedState.entitiesInEra(currentEra)
+      var entitiesInCurrentEra: Seq[EntityTimedRecord] = consolidatedState.entitiesInEra(currentEra)
 
+      if (trueEra.isDefined)
+        println("!!!!!!!!!!!!!!!!!!!!!!!!" + (currentEra, trueEra.get))
 
       if (deadEra.isEmpty && isStalkedDeadInThisEra(entitiesInCurrentEra)) {
         deadEra = Some(currentEra)
+        println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
       }
       if ((deadEra.isDefined && currentEra == deadEra.get) || (trueEra.isDefined && currentEra == trueEra.get)) {
         currentEra = birthEra
+        entitiesInCurrentEra = consolidatedState.entitiesInEra(currentEra)
       }
 
       var allInteractionEntitiesId: Seq[String] = Seq.empty
@@ -69,21 +72,27 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
           actions += ("couple" -> impl.coupling)
           actions += ("give birth" -> impl.givingBirth)
       }
+
       currentEra += 1
+
     }
 
     ResultEra(me, actions, others)
   }
 
-  def getBirthEra: Era =
+  def getBirthEra: Era =  {
     consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._1).min
+  }
 
-  def isStalkedDeadInThisEra(entitiesInCurrentEra: Seq[EntityTimedRecord]): Boolean =
+  def isStalkedDeadInThisEra(entitiesInCurrentEra: Seq[EntityTimedRecord]): Boolean =  {
     !entitiesInCurrentEra.map(entity => entity.id).contains(stalked.get)
+  }
 
-  def getAllStalkedActions: Seq[DynamicData] =
+  def getAllStalkedActions: Seq[DynamicData] =  {
     consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._2)
+  }
 
-  def getPositionInThisEra(entitiesInCurrentEra: Seq[EntityTimedRecord], entity: String): Point =
+  def getPositionInThisEra(entitiesInCurrentEra: Seq[EntityTimedRecord], entity: String): Point =  {
     entitiesInCurrentEra.filter(x => x.id == entity).head.dynamicData.position
+  }
 }
