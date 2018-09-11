@@ -129,11 +129,11 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
 
     addMapping[InitPregnancy]((classOf[InitPregnancy], _ => Seq(
       EntityProperty("pregnant", pregnant),
-      EntityProperty("embryo", embryo.get)
+      EntityProperty("embryo", embryo)
     )))
 
     addMapping[GrowEmbryo]((classOf[GrowEmbryo], _ => Seq(
-      EntityProperty("embryo", embryo.get)
+      EntityProperty("embryo", embryo)
     )))
 
     addMapping[EndPregnancy]((classOf[EndPregnancy], _ => Seq(

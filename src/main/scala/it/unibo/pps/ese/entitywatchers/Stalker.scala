@@ -23,7 +23,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
   def stalk(entityId: String): Unit = {
     if (stalked.isEmpty) {
       stalked = Some(entityId)
-      birthEra = getBirthEra.toInt
+      birthEra = getBirthEra
       //birthEra = consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._1).min.toInt
       currentEra = birthEra
       deadEra = None

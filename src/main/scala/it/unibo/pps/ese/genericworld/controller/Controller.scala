@@ -20,6 +20,7 @@ trait ManageableController {
   def exit(): Unit
   def entityData(id: String): Option[EntityState]
   def watch(entity: String): Unit
+  def unwatch(): Unit
 }
 
 object Controller {
@@ -43,15 +44,10 @@ object Controller {
 
     //ASYNC CALLBACK
     consolidatedState attachNewDataListener(era => {
-      /*println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
+      println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
 
-      storyTeller extinctSpecies DataMiner(consolidatedState).extinctSpecies(era)
-      storyTeller mutantAlleles DataMiner(consolidatedState).mutantAlleles(era)
-      storyTeller bornRegistry era
-      storyTeller deadRegistry era
-      storyTeller couplingRegistry era*/
-
-      stalker.informAboutTrueEra(era)
+      //storyTeller updateHistoryLog era
+      //stalker.informAboutTrueEra(era)
 
       //val a = DataMiner(consolidatedState).bornCount(_era get())
       //val b = DataMiner(consolidatedState).bornCount("Giraffa")
@@ -93,8 +89,8 @@ object Controller {
           normalizeFrameRate(() => {
             if (_paused) this synchronized wait()
             view updateWorld (0, realTimeState getFilteredState(_ => true))
-            //surgeon informAboutOrgansStatus view
-            stalker.report
+            surgeon informAboutOrgansStatus view
+            //stalker.report
           }, frameRate)
         }
       }) start()
@@ -103,9 +99,11 @@ object Controller {
     override def manage: ManageableController = this
 
     override def watch(entity: String): Unit = {
-      stalker.stalk(entity)
-      surgeon inspection entity
+      //stalker.stalk(entity)
+      surgeon inspects entity
     }
+
+    override def unwatch(): Unit = surgeon leaves()
 
     override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {
       case Seq(single) => Some(single)

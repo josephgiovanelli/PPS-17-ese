@@ -3,6 +3,7 @@ package it.unibo.pps.ese.view
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 
 sealed trait Reason
+case object Evaluating extends Reason
 case object Coupling extends Reason
 case object Eating extends Reason
 

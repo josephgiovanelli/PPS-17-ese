@@ -26,11 +26,12 @@ case class BrainInfo(strong: Double,
 
 object ActionKind extends Enumeration {
   type ActionKind = Value
-  val EAT, COUPLE = Value
+  val EAT, COUPLE, NOTHING = Value
 }
 
 case class UseHippocampus() extends BaseEvent
 case class UseEyes() extends BaseEvent
+case class EntityWill(will: ActionKind.Value) extends BaseEvent
 
 case class EntityPosition(position: Point) extends BaseEvent
 case class InteractionEntity(entityId: String, action: ActionKind.Value) extends BaseEvent
@@ -150,11 +151,14 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   private def configureMappings(): Unit = {
     addMapping[EntityPosition]((classOf[EntityPosition], ev => Seq(EntityProperty("position", ev position))))
+    addMapping[ComputeNextState]((classOf[ComputeNextState], _ => Seq(EntityProperty("will", ActionKind.NOTHING))))
+    addMapping[EntityWill]((classOf[EntityWill], ev => Seq(EntityProperty("will", ev will))))
     addMapping[BrainInfo]((classOf[BrainInfo], ev => Seq(
       EntityProperty("strong", ev strong),
       EntityProperty("actionField", ev actionField),
       EntityProperty("visualField", ev visualField),
-      EntityProperty("attractiveness", ev attractiveness)
+      EntityProperty("attractiveness", ev attractiveness),
+      EntityProperty("will", ActionKind.NOTHING)
     )))
   }
 
@@ -174,6 +178,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       var action: ActionKind.Value = ActionKind.EAT
       if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
       if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
+        publish(EntityWill(action))
         if (targets.nonEmpty) {
           publish(UseEyes())
           val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))

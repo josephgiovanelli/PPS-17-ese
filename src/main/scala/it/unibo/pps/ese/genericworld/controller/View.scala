@@ -50,5 +50,7 @@ object ViewHelpers {
     override def getEntityDetails(id: String): Option[EntityInfo] = (manageableController entityData id) map(_.state.copy())
 
     override def setWatched(id: String): Unit = manageableController watch id
+
+    override def unsetWatched(id: String): Unit = manageableController unwatch()
   }
 }
