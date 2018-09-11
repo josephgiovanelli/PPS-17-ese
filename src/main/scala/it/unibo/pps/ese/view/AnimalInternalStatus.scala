@@ -29,37 +29,70 @@ sealed trait  AnimalInternalStatus {
   def reproductiveApparatusStatus:ReproductiveApparatusStatus
   def digestiveSystemStatus:DigestiveSystemStatus
 }
-sealed trait FemaleInternalStatus extends AnimalInternalStatus{
-  def fetusStatus:Option[EmbryoStatus.Value]
-}
-  object AnimalInternalStatus{
-    def apply(brainStatus: BrainStatus,
-              eyesStatus: EyesStatus,
-              reproductiveApparatusStatus: ReproductiveApparatusStatus,
-              digestiveSystemStatus:DigestiveSystemStatus
-             ): AnimalInternalStatus =
-      AnimalInternalStatusImpl(brainStatus,eyesStatus,reproductiveApparatusStatus,digestiveSystemStatus)
+case class MaleInternalStatus(
+                               brainStatus: BrainStatus,
+                               eyesStatus: EyesStatus,
+                               reproductiveApparatusStatus: ReproductiveApparatusStatus,
+                               digestiveSystemStatus:DigestiveSystemStatus
+                             )extends AnimalInternalStatus
+case class FemaleInternalStatus(
+                                 brainStatus: BrainStatus,
+                                 eyesStatus: EyesStatus,
+                                 reproductiveApparatusStatus: ReproductiveApparatusStatus,
+                                 digestiveSystemStatus:DigestiveSystemStatus,
+                                 fetusStatus:Option[EmbryoStatus.Value]
+                               ) extends AnimalInternalStatus
 
-    private case class AnimalInternalStatusImpl(
-                                                 brainStatus: BrainStatus,
-                                                 eyesStatus: EyesStatus,
-                                                 reproductiveApparatusStatus: ReproductiveApparatusStatus,
-                                                 digestiveSystemStatus:DigestiveSystemStatus
-                                               ) extends AnimalInternalStatus
-  }
-  object FemaleInternalStatus{
-    def apply(brainStatus: BrainStatus,
-              eyesStatus: EyesStatus,
-              reproductiveApparatusStatus: ReproductiveApparatusStatus,
-              digestiveSystemStatus:DigestiveSystemStatus,
-              fetusStatus:Option[EmbryoStatus.Value]): FemaleInternalStatus =
-      FemaleInternalStatusImpl(brainStatus,eyesStatus,reproductiveApparatusStatus,digestiveSystemStatus,fetusStatus)
-    
-    private case class FemaleInternalStatusImpl(brainStatus: BrainStatus,
-                                                eyesStatus: EyesStatus,
-                                                reproductiveApparatusStatus: ReproductiveApparatusStatus,
-                                                digestiveSystemStatus:DigestiveSystemStatus,
-                                                fetusStatus:Option[EmbryoStatus.Value])
-      extends FemaleInternalStatus
-}
+//  object AnimalInternalStatus{
+//    def apply(brainStatus: BrainStatus,
+//              eyesStatus: EyesStatus,
+//              reproductiveApparatusStatus: ReproductiveApparatusStatus,
+//              digestiveSystemStatus:DigestiveSystemStatus
+//             ): AnimalInternalStatus =
+//      AnimalInternalStatusImpl(brainStatus,eyesStatus,reproductiveApparatusStatus,digestiveSystemStatus)
+//    def unapply(arg: AnimalInternalStatus): Option[(
+//      BrainStatus,
+//        EyesStatus,
+//        ReproductiveApparatusStatus,
+//        DigestiveSystemStatus,
+//      )] = Some(
+//      arg.brainStatus,
+//      arg.eyesStatus,
+//      arg.reproductiveApparatusStatus,
+//      arg.digestiveSystemStatus,
+//    )
+//    private case class AnimalInternalStatusImpl(
+//                                                 brainStatus: BrainStatus,
+//                                                 eyesStatus: EyesStatus,
+//                                                 reproductiveApparatusStatus: ReproductiveApparatusStatus,
+//                                                 digestiveSystemStatus:DigestiveSystemStatus
+//                                               ) extends AnimalInternalStatus
+//  }
+//  object FemaleInternalStatus{
+//    def apply(brainStatus: BrainStatus,
+//              eyesStatus: EyesStatus,
+//              reproductiveApparatusStatus: ReproductiveApparatusStatus,
+//              digestiveSystemStatus:DigestiveSystemStatus,
+//              fetusStatus:Option[EmbryoStatus.Value]): FemaleInternalStatus =
+//      FemaleInternalStatusImpl(brainStatus,eyesStatus,reproductiveApparatusStatus,digestiveSystemStatus,fetusStatus)
+//
+//    def unapply(arg: FemaleInternalStatus): Option[(
+//      BrainStatus,
+//      EyesStatus,
+//      ReproductiveApparatusStatus,
+//      DigestiveSystemStatus,
+//      Option[EmbryoStatus.Value]
+//      )] = Some(
+//      arg.brainStatus,
+//      arg.eyesStatus,
+//      arg.reproductiveApparatusStatus,
+//      arg.digestiveSystemStatus,
+//      arg.fetusStatus
+//    )
+//    private case class FemaleInternalStatusImpl(brainStatus: BrainStatus,
+//                                                eyesStatus: EyesStatus,
+//                                                reproductiveApparatusStatus: ReproductiveApparatusStatus,
+//                                                digestiveSystemStatus:DigestiveSystemStatus,
+//                                                fetusStatus:Option[EmbryoStatus.Value])
+//      extends FemaleInternalStatus
 

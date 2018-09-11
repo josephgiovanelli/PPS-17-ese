@@ -12,22 +12,8 @@ import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
   def addObserver(observer: Observer): Unit
-
-
-//  def eyes(active: Boolean)
-//  def brain(active: Boolean)
-//  def stomach(active: Boolean)
-//  def reproductionOrgan(active: Boolean)
-//  def pregnant(active: Boolean)
-//  def embryo(state: EmbryoStatus.Value)
-
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
   def updateHistoryLog(newLog:HistoryLog):Unit
-//  def extinctSpecies(species: String)
-//  def mutantAllele(gene: String)
-//  def bornRegistry(species: String, babies: Long)
-//  def deadRegistry(species: String, dead: Long)
-//  def couplingRegistry(species: String, entities: Long)
 }
 
 trait MainComponent {
@@ -36,7 +22,12 @@ trait MainComponent {
   def unwatchEntity(id:String):Unit
   def setUp(simulationData: SimulationData)
 }
-
+trait BodyViewer {
+  def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
+}
+trait HistoryViewer{
+  def updateHistoryLog(newLog:HistoryLog):Unit
+}
 object View {
   def apply(geneticsSimulator: GeneticsSimulator): View = new ViewImpl(geneticsSimulator)
 }
@@ -95,19 +86,11 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     case _ =>
   }
 
-//  override def eyes(active: Boolean): Unit = println("eyes:" + active)
-//  override def brain(active: Boolean): Unit = println("brain:" + active)
-//  override def stomach(active: Boolean): Unit = println("stomach:" + active)
-//  override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
 
-  override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = ???
-
-//  override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
-//  override def reproductionOrgan(active: Boolean): Unit = {
-//    println("reprduction organ:" + active)
-//    println("________________________________________")
-//  }
-
+  override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
+    import Conversions._
+    mainView.updateAnimalInternalStatus(animalInternalStatus)
+  }
 
 
 //  override def extinctSpecies(species: String): Unit = println("Specie " + species + " Estinta")

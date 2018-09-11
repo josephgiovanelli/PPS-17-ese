@@ -19,23 +19,40 @@ import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.input.{KeyEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
+import it.unibo.pps.ese.view.bodyViewer.BodyPane
 
 import scala.util.Random
 
 trait WorldView {
   def updateWorld(generation: Int, world: List[Entity]): Unit
 }
-
-trait WorldPane extends ScrollPane with WorldView {
+trait WorldPane extends ScrollPane with WorldView{
   var entitySize: IntegerProperty = IntegerProperty(ZoomPreferences.prefZoom)
 }
 
 object WorldPane {
-  def apply(geneticsSimulator:GeneticsSimulator,mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int): WorldPane =
-    new WorldPaneImpl(geneticsSimulator,mainComponent, detailsPane,genomeDetailsPane, width, height)
+  def apply(
+             geneticsSimulator:GeneticsSimulator,
+             mainComponent: MainComponent,
+             detailsPane: DetailsPane,
+             genomeDetailsPane: GenomeDetailsPane,
+             width: Int,
+             height: Int
+           ): WorldPane =
+    new WorldPaneImpl(
+      geneticsSimulator,mainComponent,
+      detailsPane,genomeDetailsPane,
+      width, height)
 }
 
-private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int) extends WorldPane {
+private class WorldPaneImpl(
+                             geneticsSimulator:GeneticsSimulator,
+                             mainComponent: MainComponent,
+                             detailsPane: DetailsPane,
+                             genomeDetailsPane: GenomeDetailsPane,
+                             width: Int,
+                             height: Int
+                           ) extends WorldPane {
 
   val selectionColor: Color = Color.Gold
 
@@ -120,8 +137,6 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
       drawWorld(currentWorld.values.toList)
     }
   }*/
-
-
   override def updateWorld(generation: Int, world: List[Entity]): Unit = {
     drawWorld(world)
   }
@@ -189,5 +204,4 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
     val pos: Position = getEntityViewStartPosition(x, y)
     Position(pos.x/entitySize(), pos.y/entitySize())
   }
-
 }

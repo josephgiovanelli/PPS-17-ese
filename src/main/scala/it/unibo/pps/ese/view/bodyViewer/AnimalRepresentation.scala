@@ -10,13 +10,13 @@ abstract class AnimalRepresentation{
   val brain: Image = new Image("it.unibo.pps.ese.view/Common/brain.png")
   val activatedBrain: Image = new Image("it.unibo.pps.ese.view/Common/brainIppo.png")
   val eyes: Image = new Image("it.unibo.pps.ese.view/Common/eyesNormal.png")
-  val activatedEyes: Image = new Image("it.unibo.pps.ese.view/Common/eyesBig.png")
+  val activatedEyes: Image = new Image("it.unibo.pps.ese.view/Common/eyesBig2.png")
   def digestiveSystem:Image
   def digestiveSystemActivated:Image
   val reproductiveSystemActivated:Image
   var actualBrain:Image = brain
   var actualEyes:Image = eyes
-  var actualDigestiveSystem:Image = digestiveSystem
+  var actualDigestiveSystem:Image=digestiveSystem
 
   def drawRepresentation:Canvas = {
     val canvas = new Canvas(600,900)
@@ -26,7 +26,6 @@ abstract class AnimalRepresentation{
     gc.fill = Color.White
     val pad:Double = 150.0
     gc.fillOval(0,0,550,800)
-    println(actualDigestiveSystem)
     gc.drawImage(actualDigestiveSystem,4+pad,200)
     gc.drawImage(actualBrain,22+pad,10)
     gc.drawImage(actualEyes,55+pad,88.5)
@@ -47,7 +46,7 @@ abstract class AnimalRepresentation{
     }
     drawRepresentation
   }
-  def activeDigestiveSystem(digestiveSystemStatus: DigestiveSystemStatus):Canvas = {
+  def setDigestiveSystemStatus(digestiveSystemStatus: DigestiveSystemStatus):Canvas = {
     actualDigestiveSystem = digestiveSystemStatus match {
       case Digesting=> digestiveSystemActivated
       case NotDigesting => digestiveSystem
@@ -55,7 +54,7 @@ abstract class AnimalRepresentation{
     drawRepresentation
   }
 
-  def activeReproductiveSystem(reproductiveApparatusStatus: ReproductiveApparatusStatus):Canvas = {
+  def setReproductiveSystemStatus(reproductiveApparatusStatus: ReproductiveApparatusStatus):Canvas = {
     actualDigestiveSystem = reproductiveApparatusStatus match {
       case Reproducing=> reproductiveSystemActivated
       case NotReproducing =>digestiveSystem
@@ -89,7 +88,7 @@ sealed trait FemaleRepresentation extends AnimalRepresentation{
   val bigFetusDigesting:Image =  new Image("it.unibo.pps.ese.view/Women/pregnant/preg8Dig.png")
 
   override def drawRepresentation: Canvas = {
-    actualDigestiveSystem = digestiveSystem
+    actualDigestiveSystem = this.digestiveSystem
     super.drawRepresentation
   }
   override def digestiveSystem:Image = embryoStatus match {
@@ -103,6 +102,12 @@ sealed trait FemaleRepresentation extends AnimalRepresentation{
     case Some(EmbryoStatus.mid) =>mediumFetusDigesting
     case Some(EmbryoStatus.advanced) =>  bigFetusDigesting
     case _ => activatedDigestiveSystem
+  }
+
+  override def setReproductiveSystemStatus(reproductiveApparatusStatus: ReproductiveApparatusStatus): Canvas
+  = embryoStatus match {
+    case Some(_) if reproductiveApparatusStatus == Reproducing => throw new IllegalStateException()
+    case _ => super.setReproductiveSystemStatus(reproductiveApparatusStatus)
   }
 }
 

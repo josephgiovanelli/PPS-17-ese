@@ -19,7 +19,11 @@ object ZoomPreferences {
 }
 
 
-private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1400, height: Double = 900) extends Scene(width, height) with WorldView {
+private class MainScene(
+                         geneticsSimulator: GeneticsSimulator,
+                         mainComponent: MainComponent,
+                         width: Double = 1400, height: Double = 900)
+  extends Scene(width, height) with WorldView  with BodyViewer with HistoryViewer{
 
   val generationTextLabel: String = "Generation: "
 
@@ -102,5 +106,13 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   override def updateWorld(generation: Int, world: List[Entity]): Unit = {
     generationLabel.text = generationTextLabel + generation
     worldPane.updateWorld(generation, world)
+  }
+
+  override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
+    bodyPane.updateAnimalInternalStatus(animalInternalStatus)
+  }
+
+  override def updateHistoryLog(newLog: HistoryLog): Unit = {
+    historyPane.updateHistoryLog(newLog)
   }
 }

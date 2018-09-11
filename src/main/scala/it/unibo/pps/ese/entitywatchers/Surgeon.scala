@@ -31,7 +31,7 @@ case class Surgeon(realTimeState: ReadOnlyEntityState) {
         val digestiveSystemStatus: DigestiveSystemStatus = if (state.stomach) Digesting else NotDigesting
 
         var animalInternalStatus: AnimalInternalStatus =
-          AnimalInternalStatus(brainStatus, eyesStatus, reproductiveApparatusStatus, digestiveSystemStatus)
+          MaleInternalStatus(brainStatus, eyesStatus, reproductiveApparatusStatus, digestiveSystemStatus)
 
         if (state.gender == SexTypes.female)
           animalInternalStatus =
