@@ -12,6 +12,7 @@ case class EntityDetails(id: String, species: String, position: Position)
 trait Observer {
   def getEntityDetails(id: String): Option[EntityInfo]
   def setWatched(id: String): Unit
+  def unsetWatched(id: String):Unit
 }
 
 //class View {
