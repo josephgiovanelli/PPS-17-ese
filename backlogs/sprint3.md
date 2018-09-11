@@ -10,7 +10,7 @@
 |         |________ | Luca | 120 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Visualizzazione delle dinamiche interne all'animale e gli avvenimenti salienti del mondo di simulazione
 |         |Sviluppo schermata di visualizzazione della storia | Diego | 40 | 40 | 30 | 0 | 0 | 0 | 0 | 0 |
-|         |Sviluppo schermata di visualizzazione delle dinamiche interne all'animale | Diego | 50 | 50 | 40 | 0 | 0 | 0 | 0 | 0 |
+|         |Sviluppo schermata di visualizzazione delle dinamiche interne all'animale | Diego | 50 | 50 | 35 | 0 | 0 | 0 | 0 | 0 |
 |         |Realizzazione immagini delle componenti da visualizzare | Diego | 20 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Visualizzazione di dati statistici sulla simulazione
 |         |________ | Giuseppe | 120 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
