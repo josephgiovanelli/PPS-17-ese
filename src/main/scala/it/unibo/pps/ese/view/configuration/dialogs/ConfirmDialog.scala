@@ -94,7 +94,7 @@ case class ConfirmDialog(window: Window, mainComponent: MainComponent, setUp: Bo
       if (setUp) {
         mainComponent.setUp(EntitiesInfo.instance().getSimulationData(animals, plants))
       } else {
-        mainComponent.addEntities(animals ++ plants)
+        mainComponent.addEntities(animals, plants)
       }
     }
     else

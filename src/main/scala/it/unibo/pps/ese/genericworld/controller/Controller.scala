@@ -21,7 +21,7 @@ trait ManageableController {
   def entityData(id: String): Option[EntityState]
   def watch(entity: String): Unit
   def unwatch(): Unit
-  def add(entitySpecies: Map[String, Int])
+  def add(animals: Map[String, Int], plants: Map[String, Int]): Unit
 }
 
 object Controller {
@@ -106,8 +106,8 @@ object Controller {
 
     override def unwatch(): Unit = surgeon leaves()
 
-    override def add(entities: Map[String, Int]): Unit = {
-      simulation.addEntities(entities)
+    override def add(animals: Map[String, Int], plants: Map[String, Int]): Unit = {
+      simulation.addEntities(animals, plants)
     }
 
     override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {

@@ -99,15 +99,17 @@ object EntityBuilderHelpers {
     }.dropWhile(_.size < n).head
   }
 
-  def initializeEntities(entities: Map[String, Int], worldHeight: Long , worldWidth: Long): Seq[Entity] = {
+  def initializeEntities(animals: Map[String, Int], plants: Map[String, Int], worldHeight: Long , worldWidth: Long): Seq[Entity] = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    entities.flatMap(entity => Seq.fill(entity._2)(entity._1))
-      .zip(distinctRandomPoints(entities.size, worldHeight.toInt, worldWidth.toInt))
-      .map(entity =>
-      GeneticsSimulator.newAnimal(entity._1) match {
-        case animalInfo: AnimalInfo => initializeEntity(animalInfo, entity._2, worldHeight, worldWidth)
-        case plantInfo: PlantInfo => initializeEntity(plantInfo, entity._2)
-    }) toSeq
+    val animalEntities = animals.flatMap(entity => Seq.fill(entity._2)(entity._1))
+      .zip(distinctRandomPoints(animals.size, worldHeight.toInt, worldWidth.toInt))
+      .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2, worldHeight, worldWidth)).toSeq
+
+    val plantEntities = plants.flatMap(entity => Seq.fill(entity._2)(entity._1))
+        .zip(distinctRandomPoints(plants.size, worldHeight.toInt, worldWidth.toInt))
+        .map(entity => initializeEntity(GeneticsSimulator.newPlant(entity._1), entity._2)).toSeq
+
+    animalEntities ++ plantEntities
   }
 
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)

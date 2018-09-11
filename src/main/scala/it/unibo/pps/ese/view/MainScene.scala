@@ -40,6 +40,7 @@ private class MainScene(
   val saveItem = new MenuItem("Save")
   val exitItem = new MenuItem("Exit")
   fileMenu.items = List(newItem, openItem, saveItem, new SeparatorMenuItem, exitItem)
+  editMenu.items = List(addEntitiesItem)
   menuBar.menus = List(fileMenu,editMenu)
   exitItem.onAction = (e: ActionEvent) => {
     sys.exit(0)

@@ -11,7 +11,7 @@ sealed trait SimulationLoop {
   def dispose(): Unit
   def attachEraListener(listener: Long => Unit): Unit
 
-  def addEntities(entities: Map[String, Int]): Unit
+  def addEntities(animals: Map[String, Int], plants: Map[String, Int]): Unit
 }
 
 object SimulationLoop {
@@ -66,8 +66,10 @@ object SimulationLoop {
 
     override def attachEraListener(listener: Long => Unit): Unit = _eraListeners = _eraListeners :+ listener
 
-    override def addEntities(entities: Map[String, Int]): Unit =
-      EntityBuilderHelpers.initializeEntities(entities, model.width, model.height).foreach(entity => model.addEntity(entity))
+    override def addEntities(animals: Map[String, Int], plants: Map[String, Int]): Unit = {
+      EntityBuilderHelpers.initializeEntities(animals, plants, model.width, model.height).foreach(entity => model.addEntity(entity))
+      println("è andataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    }
   }
 }
 
