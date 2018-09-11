@@ -32,7 +32,7 @@ abstract class AnimalRepresentation{
 //      150.0->140.0,
 //      100.0->160.0)
 //    )
-    gc.drawImage(actualDigestiveSystem,4+pad,200)
+    gc.drawImage(actualDigestiveSystem,1+pad,200)
     gc.drawImage(actualBrain,22+pad,10)
     gc.drawImage(actualEyes,55+pad,88.5)
     canvas

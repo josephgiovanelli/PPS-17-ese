@@ -4,8 +4,9 @@ import javafx.scene.text.{Font, Text}
 import scalafx.scene.Node
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color
-import scalafx.scene.text.TextFlow
+import scalafx.scene.text.{TextAlignment, TextFlow}
 import scalafx.Includes._
+import scalafx.geometry.Pos
 object TextUtilities {
   implicit class RichText(string:String){
     def toTextStyled(style:String,color: Color,font: Font):Text ={
@@ -31,11 +32,14 @@ object TextUtilities {
     }
     def toHBox:HBox = {
       val hBox = new HBox()
-      hBox.children += toTextStyled(
+      val text:Text = toTextStyled(
         style = "",
         color = Color.Black,
         font = Font.font("Calibri", 24)
       )
+      hBox.alignment = Pos.BaselineCenter
+      text.textAlignment = TextAlignment.Center
+      hBox.children += text
       hBox
     }
   }
