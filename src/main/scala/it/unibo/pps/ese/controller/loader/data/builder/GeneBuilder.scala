@@ -76,9 +76,9 @@ object GeneBuilder {
 
     def buildCustom(implicit st: TypeTag[T]): CustomGeneData = {
       require(status.tpe <:< st.tpe)
-      //TODO check no conversion map
+      //TODO resolve ambiguity with Default
       st.tpe match {
-        case t if t =:= typeOf[CustomGene] =>
+        case t if t <:< typeOf[CustomGene] =>
           val illegalState = completeGeneRequirements
           if(illegalState.isEmpty) {
             new CustomGeneDataImpl(name, id, properties, alleles, conversionMap) with CompleteCustomGeneData
