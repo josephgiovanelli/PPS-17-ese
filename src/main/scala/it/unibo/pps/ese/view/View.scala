@@ -100,18 +100,20 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
 //  override def deadRegistry(species: String, dead: Long): Unit = println("Sono morti " + dead + " entità della specie " + species)
 //  override def couplingRegistry(species: String, entities: Long): Unit = println("Si sono accoppiati " + entities + " entità della specie " + species)
   override def updateHistoryLog(newLog: HistoryLog): Unit = {
-    newLog.extinctSpecies.foreach(s=>println("Specie " + s + " Estinta"))
-    newLog.mutantAlleles.foreach(gene=>println("Alleli mutanti comparsi per il gene: " + gene))
-    newLog.bornRegistry.foreach{case(species,babies)=>
-      println("Sono nati " + babies + " entità della specie " + species)
-    }
-    newLog.deadRegistry.foreach{case(species,dead)=>
-      println("Sono morti " + dead + " entità della specie " + species)
-    }
-    newLog.couplingRegistry.foreach{case(species,entities)=>
-      println("Si sono accoppiati " + entities + " entità della specie " + species)
-    }
-  }
+//    newLog.extinctSpecies.foreach(s=>println("Specie " + s + " Estinta"))
+//    newLog.mutantAlleles.foreach(gene=>println("Alleli mutanti comparsi per il gene: " + gene))
+//    newLog.bornRegistry.foreach{case(species,babies)=>
+//      println("Sono nati " + babies + " entità della specie " + species)
+//    }
+//    newLog.deadRegistry.foreach{case(species,dead)=>
+//      println("Sono morti " + dead + " entità della specie " + species)
+//    }
+//    newLog.couplingRegistry.foreach{case(species,entities)=>
+//      println("Si sono accoppiati " + entities + " entità della specie " + species)
+//    }
+  import Conversions._
+  mainView.updateHistoryLog(newLog)
+}
 
   override def unwatchEntity(id: String): Unit = {
     observers.foreach(_.unsetWatched(id))

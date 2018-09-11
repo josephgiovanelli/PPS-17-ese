@@ -47,7 +47,7 @@ object Controller {
     consolidatedState attachNewDataListener(era => {
       println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
 
-      //storyTeller updateHistoryLog era
+      storyTeller updateHistoryLog era
       //stalker.informAboutTrueEra(era)
 
       //val a = DataMiner(consolidatedState).bornCount(_era get())

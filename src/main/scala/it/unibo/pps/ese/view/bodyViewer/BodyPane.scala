@@ -38,6 +38,7 @@ object BodyPane {
     }
     val root = new Group()
     children +=root
+    updateAnimalInternalStatus(FemaleInternalStatus(HippoCampusDisabled,EyesDisabled,NotReproducing,Digesting,None))
     override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
       isAOldState(animalInternalStatus) match {
         case false=>

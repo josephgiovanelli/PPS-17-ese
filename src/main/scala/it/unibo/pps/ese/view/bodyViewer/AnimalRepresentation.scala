@@ -22,10 +22,16 @@ abstract class AnimalRepresentation{
     val canvas = new Canvas(600,900)
     val gc = canvas.graphicsContext2D
     gc.fill = Color.color(0.2, 0.2, 0.2, 1.0)
-    gc.fillRect(0,0,600,800)
+//    gc.fillRect(0,0,600,800)
     gc.fill = Color.White
     val pad:Double = 150.0
     gc.fillOval(0,0,550,800)
+//    gc.fillPolygon(Seq(
+//      0.0->60.0,
+//      50.0->40.0,
+//      150.0->140.0,
+//      100.0->160.0)
+//    )
     gc.drawImage(actualDigestiveSystem,4+pad,200)
     gc.drawImage(actualBrain,22+pad,10)
     gc.drawImage(actualEyes,55+pad,88.5)
