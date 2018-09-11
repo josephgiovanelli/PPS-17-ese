@@ -90,7 +90,7 @@ object Controller {
           normalizeFrameRate(() => {
             if (_paused) this synchronized wait()
             view updateWorld (0, realTimeState getFilteredState(_ => true))
-            //surgeon informAboutOrgansStatus view
+            surgeon informAboutOrgansStatus view
             //println(stalker.report)
           }, frameRate)
         }

@@ -10,7 +10,7 @@ abstract class AnimalRepresentation{
   val brain: Image = new Image("it.unibo.pps.ese.view/Common/brain.png")
   val activatedBrain: Image = new Image("it.unibo.pps.ese.view/Common/brainIppo.png")
   val eyes: Image = new Image("it.unibo.pps.ese.view/Common/eyesNormal.png")
-  val activatedEyes: Image = new Image("it.unibo.pps.ese.view/Common/eyesBig2.png")
+  val activatedEyes: Image = new Image("it.unibo.pps.ese.view/Common/eyesBig.png")
   def digestiveSystem:Image
   def digestiveSystemActivated:Image
   val reproductiveSystemActivated:Image
@@ -19,22 +19,28 @@ abstract class AnimalRepresentation{
   var actualDigestiveSystem:Image=digestiveSystem
 
   def drawRepresentation:Canvas = {
-    val canvas = new Canvas(600,900)
+    val width = 300
+    val height = 900
+    val canvas = new Canvas(width,height)
     val gc = canvas.graphicsContext2D
-    gc.fill = Color.color(0.2, 0.2, 0.2, 1.0)
-//    gc.fillRect(0,0,600,800)
-    gc.fill = Color.White
-    val pad:Double = 150.0
-    gc.fillOval(0,0,550,800)
+//    gc.fill = Color.color(0.2, 0.2, 0.2, 1.0)
+    gc.fill = Color.Transparent
+    gc.fillRect(0,0,width,height)
+    val pad:Double = 50.0
+//    gc.fill = Color.White
+//    gc.fillOval(150,0,550,800)
 //    gc.fillPolygon(Seq(
 //      0.0->60.0,
 //      50.0->40.0,
 //      150.0->140.0,
 //      100.0->160.0)
 //    )
-    gc.drawImage(actualDigestiveSystem,1+pad,200)
+
+    gc.drawImage(actualDigestiveSystem,2+pad,200)
     gc.drawImage(actualBrain,22+pad,10)
-    gc.drawImage(actualEyes,55+pad,88.5)
+    gc.drawImage(actualEyes,55+pad,68.5)
+    gc.fill = Color.web("3498db")
+//    gc.fillRect(0,100,210,1)
     canvas
   }
 

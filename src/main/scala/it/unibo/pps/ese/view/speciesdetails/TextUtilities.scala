@@ -30,6 +30,13 @@ object TextUtilities {
         font = Font.font("Calibri", 24)
       )
     }
+    def toTextOrgan:Text = {
+      toTextStyled(
+        style = "",
+        color=Color.web("67809F"),
+        font = Font.font("Calibri", 24)
+      )
+    }
     def toHBox:HBox = {
       val hBox = new HBox()
       val text:Text = toTextStyled(
