@@ -12,13 +12,13 @@ import org.kaikikm.threadresloader.ResourceLoader
 object YamlLoader extends Loader {
 
   object CustomYaml extends DefaultYamlProtocol {
-    implicit val simulationFormat = yamlFormat2(Simulation)
-    implicit val plantFormat = yamlFormat9(Plant)
-    implicit val defaultChromosomeDataFormat = yamlFormat2(DefaultChromosomeData)
-    implicit val animalFormat = yamlFormat8(Animal)
-    implicit val propertyInfoFormat = yamlFormat1(PropertyInfo)
-    implicit val geneFormat = yamlFormat4(Gene)
-    implicit val alleleFormat = yamlFormat6(Allele)
+    implicit val simulationFormat: YamlFormat[Simulation] = yamlFormat2(Simulation)
+    implicit val plantFormat: YamlFormat[Plant] = yamlFormat9(Plant)
+    implicit val defaultChromosomeDataFormat: YamlFormat[DefaultChromosomeData] = yamlFormat2(DefaultChromosomeData)
+    implicit val animalFormat: YamlFormat[Animal] = yamlFormat8(Animal)
+    implicit val propertyInfoFormat: YamlFormat[PropertyInfo] = yamlFormat1(PropertyInfo)
+    implicit val geneFormat: YamlFormat[Gene] = yamlFormat4(Gene)
+    implicit val alleleFormat: YamlFormat[Allele] = yamlFormat6(Allele)
   }
 
   import CustomYaml._

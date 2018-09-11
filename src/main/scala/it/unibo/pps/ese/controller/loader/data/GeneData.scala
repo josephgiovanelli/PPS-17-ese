@@ -10,8 +10,6 @@ trait GeneData {
 abstract class AbsGeneData(val properties: Map[String, Class[_]], _alleles: Iterable[AlleleData]) extends GeneData {
   val alleles:  Set[AlleleData] = _alleles.toSet
   require(alleles.size == _alleles.size)
-  require(alleles.nonEmpty)
-  require(alleles.map(_.probability).sum == 1.0)
   alleles.foreach(
     all => {
       require(all.effect.keySet.subsetOf(properties.keySet),
