@@ -115,6 +115,8 @@ class ReproductionTest extends FunSuite {
         EntityProperty("status", ev status)
       )))
     }
+
+    override def serialize: AbstractComponentMemento = ???
   }
 
 }

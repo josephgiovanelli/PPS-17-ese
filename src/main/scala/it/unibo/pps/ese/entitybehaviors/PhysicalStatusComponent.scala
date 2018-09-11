@@ -146,4 +146,6 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     if (currentYear == floor(averageLife * percentageDecay)) publish(Kill(entitySpecifications id))
     publish(dynamicInfo)
   }
+
+  override def serialize: AbstractComponentMemento = ???
 }

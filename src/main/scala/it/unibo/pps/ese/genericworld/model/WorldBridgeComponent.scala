@@ -141,4 +141,6 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     world.publishState(entitySpecifications id)
     result
   })
+
+  override def serialize: AbstractComponentMemento = ???
 }

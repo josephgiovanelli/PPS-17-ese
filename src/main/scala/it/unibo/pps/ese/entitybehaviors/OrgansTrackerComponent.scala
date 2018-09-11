@@ -172,6 +172,7 @@ object OrgansTrackerComponent {
       )))
     }
 
+    override def serialize: AbstractComponentMemento = ???
   }
 }
 

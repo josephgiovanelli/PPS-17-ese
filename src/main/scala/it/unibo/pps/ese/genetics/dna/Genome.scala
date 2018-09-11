@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.genetics.dna
 
+import it.unibo.pps.ese.controller.saving.Memento
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 
 sealed trait Genome{
@@ -8,7 +9,7 @@ sealed trait Genome{
   def firstGenomeSequence:Map[ChromosomeType,Chromosome]
   def secondGenomeSequence:Map[ChromosomeType,Chromosome]
 }
-sealed trait AnimalGenome extends Genome{
+sealed trait AnimalGenome extends Genome with Savable[]{
   def sexualChromosomeCouple:SexualChromosomeCouple
   def firstSexualChromosome:SexualChromosome
   def secondSexualChromosome:SexualChromosome
@@ -66,3 +67,6 @@ object AnimalGenome{
 
   }
 }
+
+case class AnimalGenomeMemento(autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple],
+                               sexualChromosomeCouple: SexualChromosomeCouple) extends Memento

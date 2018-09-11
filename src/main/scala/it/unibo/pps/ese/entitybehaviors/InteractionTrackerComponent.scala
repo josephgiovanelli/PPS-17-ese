@@ -74,4 +74,5 @@ class InteractionTrackerComponent(override val entitySpecifications: EntitySpeci
     )))
   }
 
+  override def serialize: AbstractComponentMemento = ???
 }

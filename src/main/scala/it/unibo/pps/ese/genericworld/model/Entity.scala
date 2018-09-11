@@ -34,8 +34,8 @@ object Entity {
 
   def apply(abstractEntityMemento: AbstractEntityMemento)(implicit executionContext: ExecutionContext): EntitySpecifications = {
     abstractEntityMemento match {
-      case m: BaseEntityMemento => new BaseEntity(m.entityId, m.components)
-      case m: ImprovedEntityMemento => new ImprovedEntity(m.id, m.components) with NervousSystemExtension
+      case m: BaseEntityMemento => new BaseEntity(m.entityId, m.components.map(m => Component(m)))
+      case m: ImprovedEntityMemento => new ImprovedEntity(m.id, m.components.map(m => Component(m))) with NervousSystemExtension
     }
   }
 
@@ -61,7 +61,7 @@ object Entity {
     extends AbstractBaseEntity(entityId, components) {
 
     override def serialize: BaseEntityMemento = {
-      BaseEntityMemento(entityId, getComponents)
+      BaseEntityMemento(entityId, getComponents.map(c => c.serialize))
     }
   }
 
@@ -83,13 +83,13 @@ object Entity {
     override def dispose(): Unit = nervousSystem dispose()
 
     override def serialize: ImprovedEntityMemento = {
-      ImprovedEntityMemento(id, getComponents)
+      ImprovedEntityMemento(id, getComponents.map(c => c.serialize))
     }
   }
 
   sealed abstract class AbstractEntityMemento extends Memento
 
-  case class BaseEntityMemento(entityId: String, components : Seq[Component]) extends AbstractEntityMemento
+  case class BaseEntityMemento(entityId: String, components : Seq[AbstractComponentMemento]) extends AbstractEntityMemento
 
-  case class ImprovedEntityMemento(id: String, components : Seq[Component]) extends AbstractEntityMemento
+  case class ImprovedEntityMemento(id: String, components : Seq[AbstractComponentMemento]) extends AbstractEntityMemento
 }

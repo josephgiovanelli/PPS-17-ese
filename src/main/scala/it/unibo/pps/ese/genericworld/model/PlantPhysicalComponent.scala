@@ -46,4 +46,6 @@ case class PlantPhysicalComponent(override val entitySpecifications: EntitySpeci
       EntityProperty("availability", ev availability)
     )))
   }
+
+  override def serialize: AbstractComponentMemento = ???
 }

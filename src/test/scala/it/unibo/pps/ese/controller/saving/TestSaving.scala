@@ -4,11 +4,16 @@ import java.nio.ByteBuffer
 
 import org.scalatest.FunSuite
 import boopickle.Default._
+import it.unibo.pps.ese.entitybehaviors.ReproductionComponent
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Neocortex.NeocortexMemento
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.HippocampusMemento
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{LocationalField, MemoryType, Neocortex, Position}
+import it.unibo.pps.ese.genericworld.model.{BrainComponentMemento, Entity}
+import it.unibo.pps.ese.genericworld.model.Entity.{AbstractEntityMemento, ImprovedEntityMemento}
+
+import scala.concurrent.ExecutionContext
 
 
 class TestSaving extends FunSuite {
@@ -100,7 +105,7 @@ class TestSaving extends FunSuite {
     var m: HippocampusMemento = h.serialize
     var buf = Pickle.intoBytes(m)
     var m2: HippocampusMemento = Unpickle[HippocampusMemento].fromBytes(buf)
-    var h2 = Hippocampus(1000, 1000, 5, m2)
+    var h2 = Hippocampus(m2)
     assert(m==h2.serialize)
 
     h.updateTime()
@@ -109,17 +114,42 @@ class TestSaving extends FunSuite {
     m = h.serialize
     buf = Pickle.intoBytes(m)
     m2 = Unpickle[HippocampusMemento].fromBytes(buf)
-    h2 = Hippocampus(1000, 1000, 5, m2)
+    h2 = Hippocampus(m2)
     assert(m==h2.serialize)
     assert(m.memorySearchComponent.get.memories==m2.memorySearchComponent.get.memories)
+    val currentPosition: Position = Position(10, 10)
+    assert(h.computeDirection(currentPosition)==h2.computeDirection(currentPosition))
 
     h.chooseNewMemory(Position(5,5))
     m = h.serialize
     buf = Pickle.intoBytes(m)
     m2 = Unpickle[HippocampusMemento].fromBytes(buf)
-    h2 = Hippocampus(1000, 1000, 5, m2)
+    h2 = Hippocampus(m2)
     assert(m==h2.serialize)
     assert(h.hasNewMemory==h2.hasNewMemory)
   }
+
+  test("Test ReproductionComponent"){
+    val r = ReproductionComponent()
+    r.addMemory(LongTermMemory(MemoryType.HUNTING, LocationalField(1000, 1000, 5, Position(5,5)), 50))
+    val m: NeocortexMemento = r.serialize
+    var buf = Pickle.intoBytes(m)
+    val m2: NeocortexMemento = Unpickle[NeocortexMemento].fromBytes(buf)
+    val r2 = Neocortex(m2)
+    assert(m==r2.serialize)
+  }
+
+//  test("Test save Entity") {
+//    val e = Entity("improved", "e1")(ExecutionContext.Implicits.global)
+////    e.addComponent()
+//    val m: ImprovedEntityMemento = e.serialize match {
+//      case i: ImprovedEntityMemento => i
+//      case _ => throw new IllegalStateException()
+//    }
+//    var buf = Pickle.intoBytes(m)
+//    val m2: ImprovedEntityMemento = Unpickle[ImprovedEntityMemento].fromBytes(buf)
+//    val n2 = Entity(m2)
+//    assert(m==n2.serialize)
+//  }
 
 }

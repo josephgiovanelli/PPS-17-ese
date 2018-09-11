@@ -70,4 +70,6 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("entityInfo", ev entityInfo)
     )))
   }
+
+  override def serialize: AbstractComponentMemento = ???
 }

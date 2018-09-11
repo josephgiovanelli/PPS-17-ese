@@ -61,19 +61,18 @@ object BrainComponent {
       Hippocampus(widthWorld, heightWorld, visualField),
       Map.empty)(executionContext)
 
-  def apply(heightWorld: Int, widthWorld: Int, strong: Double, actionField: Double, visualField: Double,
-            attractiveness: Double, brainComponentMemento: BrainComponentMemento)(implicit executionContext: ExecutionContext): BrainComponent =
+  def apply(brainComponentMemento: BrainComponentMemento)(implicit executionContext: ExecutionContext): BrainComponent =
     new BrainComponent(
       Entity(brainComponentMemento.abstractEntityMemento),
-      heightWorld,
-      widthWorld,
-      strong,
-      actionField,
-      visualField,
-      attractiveness,
+      brainComponentMemento.heightWorld,
+      brainComponentMemento.widthWorld,
+      brainComponentMemento.strong,
+      brainComponentMemento.actionField,
+      brainComponentMemento.visualField,
+      brainComponentMemento.attractiveness,
       brainComponentMemento.digestionState,
-      brainComponentMemento.forceReproduction,
-      Hippocampus(widthWorld, heightWorld, visualField, brainComponentMemento.hippocampusMemento),
+      brainComponentMemento.forceReproductionMemento,
+      Hippocampus(brainComponentMemento.hippocampusMemento),
       brainComponentMemento.entityInVisualField)(executionContext)
 
 
@@ -89,7 +88,7 @@ object BrainComponent {
                        val hippocampus: Hippocampus,
                        var entityInVisualField: Map[String, EntityAttributesImpl])
                       (implicit val executionContext: ExecutionContext)
-    extends WriterComponent(entitySpecifications) with Savable[BrainComponentMemento] {
+    extends WriterComponent(entitySpecifications) {
 
 
     implicit def toPoint(tuple2: (Int, Int)): Point = {
@@ -263,14 +262,18 @@ object BrainComponent {
     private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
 
     override def serialize: BrainComponentMemento = {
-      BrainComponentMemento(entitySpecifications.serialize, digestionState, forceReproduction, hippocampus.serialize, entityInVisualField)
+      BrainComponentMemento(
+        entitySpecifications.serialize,
+        heightWorld,
+        widthWorld,
+        strong,
+        actionField,
+        visualField,
+        attractiveness,
+        digestionState,
+        forceReproduction.map(f => f.serialize),
+        hippocampus.serialize,
+        entityInVisualField)
     }
   }
 }
-
-
-case class BrainComponentMemento(abstractEntityMemento: AbstractEntityMemento,
-                                  digestionState: Boolean,
-                                  forceReproduction: Option[ForceReproduction],
-                                  hippocampusMemento: HippocampusMemento,
-                                  entityInVisualField: Map[String, EntityAttributesImpl]) extends Memento

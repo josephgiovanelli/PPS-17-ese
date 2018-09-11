@@ -50,11 +50,11 @@ object Hippocampus {
       None,
       SearchingState.INACTIVE)
 
-  def apply(worldWidth: Int, worldHeight: Int, locationalFieldSize: Double, hippocampusMemento: HippocampusMemento): Hippocampus =
+  def apply(hippocampusMemento: HippocampusMemento): Hippocampus =
     new HippocampusImpl(
-      worldWidth,
-      worldHeight,
-      locationalFieldSize,
+      hippocampusMemento.worldWidth,
+      hippocampusMemento.worldHeight,
+      hippocampusMemento.locationalFieldSize,
       Neocortex(hippocampusMemento.neocortexMemento),
       hippocampusMemento.memories.map(t => (MemoryType(t._1), t._2.map(m => ShortTermMemory(m)))),
       hippocampusMemento.memorySearchComponent.map(m => MemorySearchComponent(m)),
@@ -177,7 +177,11 @@ object Hippocampus {
     }
 
     override def serialize: HippocampusMemento = {
-      HippocampusMemento(neocortex.serialize,
+      HippocampusMemento(
+        worldWidth,
+        worldHeight,
+        locationalFieldSize,
+        neocortex.serialize,
         memories.map(t => (t._1.id, t._2.map(m => m.serialize match {
           case s: ShortTermMemoryMemento => s
           case _ => throw new IllegalStateException("Hippocampus can only hold ShortTermMemory")}))),
@@ -187,7 +191,10 @@ object Hippocampus {
     }
   }
 
-  case class HippocampusMemento(neocortexMemento: NeocortexMemento,
+  case class HippocampusMemento(worldWidth: Int,
+                                worldHeight: Int,
+                                locationalFieldSize: Double,
+                                neocortexMemento: NeocortexMemento,
                                 memories: ShortTermMemoriesMemento,
                                 memorySearchComponent: Option[MemorySearchComponentMemento],
                                 currentBestMemory: Option[AbstractMemoryMemento],

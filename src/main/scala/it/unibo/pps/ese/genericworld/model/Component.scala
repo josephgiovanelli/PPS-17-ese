@@ -1,12 +1,26 @@
 package it.unibo.pps.ese.genericworld.model
 
+import it.unibo.pps.ese.controller.saving.{Memento, Savable}
+import it.unibo.pps.ese.entitybehaviors.{AbstractForceReproductionMemento, BrainComponent, ForceReproduction}
+import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.HippocampusMemento
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
+import it.unibo.pps.ese.genericworld.model.Entity.AbstractEntityMemento
 import it.unibo.pps.ese.genericworld.model.support._
+import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.genetics.dna.AnimalGenome
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Component {
+trait Component extends Savable[AbstractComponentMemento] {
   def initialize(): Unit
   def entitySpecifications : EntitySpecifications
+}
+
+object Component {
+  def apply(abstractComponentMemento: AbstractComponentMemento)(implicit executionContext: ExecutionContext): Component =
+    abstractComponentMemento match {
+    case b: BrainComponentMemento => BrainComponent(b)
+  }
 }
 
 trait NervousSystemComponent extends Component {
@@ -38,3 +52,27 @@ abstract class ReaderComponent(entitySpecifications: EntitySpecifications)
   extends BaseReaderComponent(entitySpecifications)
 abstract class WriterComponent(entitySpecifications: EntitySpecifications)
   extends BaseWriterComponent(entitySpecifications)
+
+sealed abstract class AbstractComponentMemento extends Memento
+
+case class BrainComponentMemento(abstractEntityMemento: AbstractEntityMemento,
+                                 heightWorld: Int,
+                                 widthWorld: Int,
+                                 strong: Double,
+                                 actionField: Double,
+                                 visualField: Double,
+                                 attractiveness: Double,
+                                 digestionState: Boolean,
+                                 forceReproductionMemento: Option[AbstractForceReproductionMemento],
+                                 hippocampusMemento: HippocampusMemento,
+                                 entityInVisualField: Map[String, EntityAttributesImpl]) extends AbstractComponentMemento
+
+case class ReprodcutionComponentMemento(abstractEntityMemento: AbstractEntityMemento,
+                                        fecundity: Double,
+                                        geneticsSimulator: GeneticsSimulator,
+                                        animalGenome: AnimalGenome,
+                                        pregnancyDuration: Double,
+                                        clocksPerYear: Long,
+                                        mutationProb: Double,
+                                        energyRequirements: Double) extends AbstractComponentMemento
+

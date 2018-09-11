@@ -38,4 +38,6 @@ class ExampleComponent(override val entitySpecifications: EntitySpecifications)
   private def configureMappings(): Unit = {
     addMapping[ExampleEvent]((classOf[ExampleEvent], ev => Seq(EntityProperty("fakeSpeed", ev speed))))
   }
+
+  override def serialize: AbstractComponentMemento = ???
 }
