@@ -4,11 +4,11 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Neocortex.NeocortexMement
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.HippocampusMemento
 import it.unibo.pps.ese.genetics.SavedData
 
-trait Memento {
+trait WorldMemento extends Memento {
   def isDefined: Boolean
 }
 
-object Memento extends Memento {
+object WorldMemento extends WorldMemento {
   var geneticsSimulatorMemento: Option[SavedData] = None
 
   override def isDefined: Boolean = {

@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-import it.unibo.pps.ese.controller.saving.Savable
+import it.unibo.pps.ese.controller.saving.{Memento, Savable}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 
 object Memory {
@@ -29,10 +29,17 @@ object Memory {
 
   object LongTermMemory {
     def apply(memoryType: MemoryType, locationalField: LocationalField, score: Score): LongTermMemory =
-      new LongTermMemoryImpl(memoryType, locationalField, score)
+      new LongTermMemoryImpl(
+        memoryType,
+        locationalField,
+        score)
 
     def apply(longTermMemoryMemento: LongTermMemoryMemento): LongTermMemory =
-      new LongTermMemoryImpl(MemoryType(longTermMemoryMemento.memoryType), longTermMemoryMemento.locationalField, longTermMemoryMemento.score)
+      new LongTermMemoryImpl(
+        MemoryType(longTermMemoryMemento.memoryType),
+        longTermMemoryMemento.locationalField,
+        longTermMemoryMemento.score)
+
 
     private class LongTermMemoryImpl(memoryType: MemoryType,
                                      locationalField: LocationalField,
@@ -86,7 +93,7 @@ object Memory {
     }
   }
 
-  sealed abstract class AbstractMemoryMemento
+  sealed abstract class AbstractMemoryMemento extends Memento
 
   case class LongTermMemoryMemento(memoryType: Int, locationalField: LocationalField, score: Score) extends AbstractMemoryMemento
 

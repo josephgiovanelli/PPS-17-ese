@@ -9,8 +9,8 @@ object Saver extends Saver {
   val basePath: String = "./src/main/resources/saves"
 
   override def saveState(): Unit = {
-    if (Memento.isDefined) {
-      import Memento._
+    if (WorldMemento.isDefined) {
+      import WorldMemento._
 
 
     } else {

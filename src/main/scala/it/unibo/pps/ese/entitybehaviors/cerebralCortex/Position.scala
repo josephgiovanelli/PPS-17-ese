@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-sealed trait Position {
+import it.unibo.pps.ese.controller.saving.Memento
+
+sealed trait Position extends Memento {
 
   def x: Double
   def y: Double

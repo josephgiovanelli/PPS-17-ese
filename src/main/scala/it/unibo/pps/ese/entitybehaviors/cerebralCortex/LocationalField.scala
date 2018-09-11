@@ -1,8 +1,9 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
+import it.unibo.pps.ese.controller.saving.Memento
 import it.unibo.pps.ese.utils.Point
 
-sealed trait LocationalField {
+sealed trait LocationalField extends Memento {
   def topLeftPosition: Position
   def bottomRightPosition: Position
   def centerPosition: Position

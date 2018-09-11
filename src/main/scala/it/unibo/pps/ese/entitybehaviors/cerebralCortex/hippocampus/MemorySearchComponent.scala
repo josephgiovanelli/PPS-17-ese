@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus
 
-import it.unibo.pps.ese.controller.saving.Savable
+import it.unibo.pps.ese.controller.saving.{Memento, Savable}
 import it.unibo.pps.ese.entitybehaviors.Direction
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{LocationalField, Memory, MemoryType, Position}
@@ -21,14 +21,20 @@ private[hippocampus] trait MemorySearchComponent extends Savable[MemorySearchCom
 private[hippocampus] object MemorySearchComponent {
 
   def apply(memoryType: MemoryType, memories: ListBuffer[Memory]): MemorySearchComponent =
-    new MemorySearchComponentImpl(memoryType, memories, None)
+    new MemorySearchComponentImpl(
+      memoryType,
+      memories,
+      None)
 
   def apply(memorySearchComponentMemento: MemorySearchComponentMemento): MemorySearchComponent =
-    new MemorySearchComponentImpl(MemoryType(memorySearchComponentMemento.memoryType),
+    new MemorySearchComponentImpl(
+      MemoryType(memorySearchComponentMemento.memoryType),
       memorySearchComponentMemento.memories.map(m => Memory(m)),
       memorySearchComponentMemento.currentMemory.map(m => Memory(m)))
 
-  private class MemorySearchComponentImpl(val memoryType: MemoryType, val memories: ListBuffer[Memory], var currentMemory: Option[Memory]) extends MemorySearchComponent {
+  private class MemorySearchComponentImpl(val memoryType: MemoryType,
+                                          val memories: ListBuffer[Memory],
+                                          var currentMemory: Option[Memory]) extends MemorySearchComponent {
 
     override def updateTime(): Unit = {
       memories --= memories.filter(m => m match {
@@ -73,5 +79,5 @@ private[hippocampus] object MemorySearchComponent {
 
   case class MemorySearchComponentMemento(memoryType: Int,
                                           memories: ListBuffer[AbstractMemoryMemento],
-                                          currentMemory: Option[AbstractMemoryMemento])
+                                          currentMemory: Option[AbstractMemoryMemento]) extends Memento
 }

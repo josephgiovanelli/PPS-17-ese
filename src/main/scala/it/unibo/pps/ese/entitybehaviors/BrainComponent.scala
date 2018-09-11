@@ -2,7 +2,7 @@ package it.unibo.pps.ese.entitybehaviors
 
 import java.util.Random
 
-import it.unibo.pps.ese.controller.saving.Savable
+import it.unibo.pps.ese.controller.saving.{Memento, Savable}
 import it.unibo.pps.ese.entitybehaviors.ActionKind.ActionKind
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{MemoryType, Position}
@@ -48,12 +48,33 @@ object BrainComponent {
 
   def apply(entitySpecifications: EntitySpecifications, heightWorld: Int, widthWorld: Int, strong: Double,
             actionField: Double, visualField: Double, attractiveness: Double)(implicit executionContext: ExecutionContext): BrainComponent =
-    new BrainComponent(entitySpecifications, heightWorld, widthWorld, strong, actionField, visualField, attractiveness, None)(executionContext)
+    new BrainComponent(
+      entitySpecifications,
+      heightWorld,
+      widthWorld,
+      strong,
+      actionField,
+      visualField,
+      attractiveness,
+      false,
+      None,
+      Hippocampus(widthWorld, heightWorld, visualField),
+      Map.empty)(executionContext)
 
   def apply(heightWorld: Int, widthWorld: Int, strong: Double, actionField: Double, visualField: Double,
             attractiveness: Double, brainComponentMemento: BrainComponentMemento)(implicit executionContext: ExecutionContext): BrainComponent =
-    new BrainComponent(Entity(brainComponentMemento.abstractEntityMemento),
-      heightWorld, widthWorld, strong, actionField, visualField, attractiveness, Some(brainComponentMemento))(executionContext)
+    new BrainComponent(
+      Entity(brainComponentMemento.abstractEntityMemento),
+      heightWorld,
+      widthWorld,
+      strong,
+      actionField,
+      visualField,
+      attractiveness,
+      brainComponentMemento.digestionState,
+      brainComponentMemento.forceReproduction,
+      Hippocampus(widthWorld, heightWorld, visualField, brainComponentMemento.hippocampusMemento),
+      brainComponentMemento.entityInVisualField)(executionContext)
 
 
   class BrainComponent(override val entitySpecifications: EntitySpecifications,
@@ -63,7 +84,10 @@ object BrainComponent {
                        actionField: Double,
                        visualField: Double,
                        attractiveness: Double,
-                       brainComponentMemento: Option[BrainComponentMemento])
+                       var digestionState: Boolean,
+                       var forceReproduction: Option[ForceReproduction],
+                       val hippocampus: Hippocampus,
+                       var entityInVisualField: Map[String, EntityAttributesImpl])
                       (implicit val executionContext: ExecutionContext)
     extends WriterComponent(entitySpecifications) with Savable[BrainComponentMemento] {
 
@@ -89,23 +113,8 @@ object BrainComponent {
     val MIN_PREYS_FOR_COUPLING = 3
     val FERTILITY_THRESHOLD = 0.4
 
-    var digestionState: Boolean = brainComponentMemento match {
-      case Some(b) => b.digestionState
-      case _ => false
-    }
-    var forceReproduction: Option[ForceReproduction] = brainComponentMemento match {
-      case Some(b) => b.forceReproduction
-      case _ =>  None
-    }
     val decisionSupport: DecisionSupport = DecisionSupport()
-    val hippocampus: Hippocampus = brainComponentMemento match {
-      case Some(b) => Hippocampus(widthWorld, heightWorld, visualField, b.hippocampusMemento)
-      case _ => Hippocampus(widthWorld, heightWorld, visualField)
-    }
-    var entityInVisualField: Map[String, EntityAttributesImpl] = brainComponentMemento match {
-      case Some(b) => b.entityInVisualField
-      case _ => Map.empty
-    }
+
 
     override def initialize(): Unit = {
       subscribeEvents()
@@ -260,10 +269,8 @@ object BrainComponent {
 }
 
 
-case class BrainComponentMemento(
-                                  abstractEntityMemento: AbstractEntityMemento,
+case class BrainComponentMemento(abstractEntityMemento: AbstractEntityMemento,
                                   digestionState: Boolean,
                                   forceReproduction: Option[ForceReproduction],
                                   hippocampusMemento: HippocampusMemento,
-                                  entityInVisualField: Map[String, EntityAttributesImpl]
-                                )
+                                  entityInVisualField: Map[String, EntityAttributesImpl]) extends Memento

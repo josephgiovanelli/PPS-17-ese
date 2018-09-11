@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors.cerebralCortex
 
-import it.unibo.pps.ese.controller.saving.{Memento, Savable}
+import it.unibo.pps.ese.controller.saving.{Memento, Savable, WorldMemento}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, LongTermMemoryMemento, ShortTermMemory}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Neocortex.NeocortexMemento
@@ -51,6 +51,6 @@ object Neocortex {
     }
   }
 
-  case class NeocortexMemento(memories: LongTermMemoriesMemento)
+  case class NeocortexMemento(memories: LongTermMemoriesMemento) extends Memento
 
 }

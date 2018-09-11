@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
-import it.unibo.pps.ese.controller.saving.{Memento, Savable}
+import it.unibo.pps.ese.controller.saving.{Memento, Savable, WorldMemento}
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, GeneWithAllelicForms, IdentifierGene, MGene}
@@ -10,7 +10,7 @@ import it.unibo.pps.ese.genetics.entities.{Animal, AnimalInfo, Carnivorous, Herb
 import it.unibo.pps.ese.genetics.generators.{PlantGenerator, SpeciesUtilities}
 import it.unibo.pps.ese.genetics.generators.data.InputDataAdapter._
 
-trait GeneticsSimulator extends Savable[Unit] {
+trait GeneticsSimulator extends Savable[SavedData] {
   def beginSimulation(simulationData:SimulationData):InitializedSimulation
   def restoreSimulation(savedData: SavedData):InitializedSimulation
   def obtainDataToSave:SavedData
@@ -25,8 +25,6 @@ trait GeneticsSimulator extends Savable[Unit] {
   def checkNewMutation(species:String,genome: AnimalGenome):Seq[MGene]
   def getGeneStats(geneM:MGene, animalInfo: AnimalInfo):GeneStats
 }
-
-case class SavedData(simulationData: SimulationData,notAppearedMutations:Map[String,Seq[AlleleInfo]])
 
 object GeneticsSimulator extends GeneticsSimulator{
   var simulationData:Option[SimulationData] = None
@@ -146,7 +144,10 @@ object GeneticsSimulator extends GeneticsSimulator{
       }
     )
 
-  override def serialize: Unit = {
-    Memento.geneticsSimulatorMemento = Some(obtainDataToSave)
+  override def serialize: SavedData = {
+    obtainDataToSave
   }
 }
+
+case class SavedData(simulationData: SimulationData,
+                     notAppearedMutations:Map[String,Seq[AlleleInfo]]) extends Memento

@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.controller.saving.Savable
+import it.unibo.pps.ese.controller.saving.{Memento, Savable}
 import it.unibo.pps.ese.genericworld.model.Entity.AbstractEntityMemento
 
 import scala.concurrent.ExecutionContext
@@ -28,14 +28,14 @@ sealed trait NervousSystemExtension {
 object Entity {
 
   def apply(instance: String, id: String)(implicit executionContext: ExecutionContext): Entity = instance match {
-    case "base" => new BaseEntity(id)
-    case "improved" => new ImprovedEntity(id) with NervousSystemExtension
+    case "base" => new BaseEntity(id, Seq.empty)
+    case "improved" => new ImprovedEntity(id, Seq.empty) with NervousSystemExtension
   }
 
   def apply(abstractEntityMemento: AbstractEntityMemento)(implicit executionContext: ExecutionContext): EntitySpecifications = {
     abstractEntityMemento match {
-      case m: BaseEntityMemento => new BaseEntity(m)
-      case m: ImprovedEntityMemento => new ImprovedEntity(m) with NervousSystemExtension
+      case m: BaseEntityMemento => new BaseEntity(m.entityId, m.components)
+      case m: ImprovedEntityMemento => new ImprovedEntity(m.id, m.components) with NervousSystemExtension
     }
   }
 
@@ -55,19 +55,19 @@ object Entity {
     override def dispose(): Unit = Unit
   }
 
-  private class BaseEntity(entityId: String, components: Seq[Component] = Seq.empty)
+  private class BaseEntity(entityId: String,
+                           components: Seq[Component])
+                          (implicit val executionContext: ExecutionContext)
     extends AbstractBaseEntity(entityId, components) {
-
-    def this(baseEntityMemento: BaseEntityMemento)(implicit executionContext: ExecutionContext) {
-      this(baseEntityMemento.entityId, baseEntityMemento.components)
-    }
 
     override def serialize: BaseEntityMemento = {
       BaseEntityMemento(entityId, getComponents)
     }
   }
 
-  private class ImprovedEntity(id: String, components: Seq[Component] = Seq.empty)(implicit val executionContext: ExecutionContext)
+  private class ImprovedEntity(id: String,
+                               components: Seq[Component])
+                              (implicit val executionContext: ExecutionContext)
     extends AbstractBaseEntity(id, components) {
 
     self : NervousSystemExtension =>
@@ -80,10 +80,6 @@ object Entity {
       component initialize()
     }
 
-    def this(improvedEntityMemento: ImprovedEntityMemento)(implicit executionContext: ExecutionContext) {
-      this(improvedEntityMemento.id, improvedEntityMemento.components)
-    }
-
     override def dispose(): Unit = nervousSystem dispose()
 
     override def serialize: ImprovedEntityMemento = {
@@ -91,7 +87,7 @@ object Entity {
     }
   }
 
-  sealed abstract class AbstractEntityMemento
+  sealed abstract class AbstractEntityMemento extends Memento
 
   case class BaseEntityMemento(entityId: String, components : Seq[Component]) extends AbstractEntityMemento
 
