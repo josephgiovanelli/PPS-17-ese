@@ -45,7 +45,7 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
       errorLabel.text.value += "missed"
     } else {
       confirmButton.pseudoClassStateChanged(errorClass, false)
-      ConfirmDialog(currentWindow, mainComponent).showAndWait()
+      ConfirmDialog(currentWindow, mainComponent, true).showAndWait()
     }
   }
 

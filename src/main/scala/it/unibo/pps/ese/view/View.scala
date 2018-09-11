@@ -21,6 +21,7 @@ trait MainComponent {
   def getEntityDetails(id: String): Option[EntityInfo]
   def unwatchEntity(id:String):Unit
   def setUp(simulationData: SimulationData)
+  def addEntities(entities: Map[String, Int])
 }
 trait BodyViewer {
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
@@ -115,6 +116,11 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   override def unwatchEntity(id: String): Unit = {
     observers.foreach(_.unsetWatched(id))
   }
+
+  override def addEntities(entities: Map[String, Int]): Unit = {
+    observers.foreach(_.addEntities(entities))
+  }
+
 }
 
 object ViewType extends Enumeration {

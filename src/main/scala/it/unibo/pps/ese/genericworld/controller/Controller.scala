@@ -21,6 +21,7 @@ trait ManageableController {
   def entityData(id: String): Option[EntityState]
   def watch(entity: String): Unit
   def unwatch(): Unit
+  def add(entitySpecies: Map[String, Int])
 }
 
 object Controller {
@@ -89,8 +90,8 @@ object Controller {
           normalizeFrameRate(() => {
             if (_paused) this synchronized wait()
             view updateWorld (0, realTimeState getFilteredState(_ => true))
-            surgeon informAboutOrgansStatus view
-            //stalker.report
+            //surgeon informAboutOrgansStatus view
+            //println(stalker.report)
           }, frameRate)
         }
       }) start()
@@ -104,6 +105,10 @@ object Controller {
     }
 
     override def unwatch(): Unit = surgeon leaves()
+
+    override def add(entities: Map[String, Int]): Unit = {
+      simulation.addEntities(entities)
+    }
 
     override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {
       case Seq(single) => Some(single)
