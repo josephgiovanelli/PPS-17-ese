@@ -2,13 +2,16 @@ package it.unibo.pps.ese.view
 
 import scalafx.Includes._
 import javafx.event.ActionEvent
+
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.bodyViewer.BodyPane
+import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
+
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
 
@@ -22,9 +25,12 @@ object ZoomPreferences {
 private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1400, height: Double = 900) extends Scene(width, height) with WorldView {
 
   val generationTextLabel: String = "Generation: "
+  val currentWindow: scalafx.stage.Window = this.window()
 
   val menuBar = new MenuBar()
   val fileMenu = new Menu("File")
+  val editMenu = new Menu("Edit")
+  val addEntitiesItem = new MenuItem("Add Entities")
   val newItem = new MenuItem("New")
   val openItem = new MenuItem("Open")
   val saveItem = new MenuItem("Save")
@@ -33,6 +39,10 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
 
   exitItem.onAction = (e: ActionEvent) => {
     sys.exit(0)
+  }
+
+  addEntitiesItem.onAction = (e: ActionEvent) => {
+    ConfirmDialog(currentWindow, mainComponent, setUp = false).showAndWait()
   }
 
   val worldTab = new Tab()

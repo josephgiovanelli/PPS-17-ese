@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.genericworld.model.World
+import it.unibo.pps.ese.genericworld.model.{Entity, EntityBuilderHelpers, World}
 
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
@@ -10,6 +10,8 @@ sealed trait SimulationLoop {
   def pause(): Unit
   def dispose(): Unit
   def attachEraListener(listener: Long => Unit): Unit
+
+  def addEntities(entities: Map[String, Int]): Unit
 }
 
 object SimulationLoop {
@@ -63,6 +65,9 @@ object SimulationLoop {
     }
 
     override def attachEraListener(listener: Long => Unit): Unit = _eraListeners = _eraListeners :+ listener
+
+    override def addEntities(entities: Map[String, Int]): Unit =
+      EntityBuilderHelpers.initializeEntities(entities, model.width, model.height).foreach(entity => model.addEntity(entity))
   }
 }
 

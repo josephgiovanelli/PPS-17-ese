@@ -10,6 +10,8 @@ import scalafx.scene.paint.Color
 case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
+  def addEntities(entities: Map[String, Int]): Unit
+
   def getEntityDetails(id: String): Option[EntityInfo]
   def setWatched(id: String): Unit
   def unsetWatched(id: String):Unit
@@ -52,5 +54,7 @@ object ViewHelpers {
     override def setWatched(id: String): Unit = manageableController watch id
 
     override def unsetWatched(id: String): Unit = manageableController unwatch()
+
+    override def addEntities(entities: Map[String, Int]): Unit = manageableController add entities
   }
 }

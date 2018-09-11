@@ -11,7 +11,7 @@ import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends AbstractDialog[Unit](window, None) {
+case class ConfirmDialog(window: Window, mainComponent: MainComponent, setUp: Boolean) extends AbstractDialog[Unit](window, None) {
 
   /*
   Header
@@ -91,7 +91,11 @@ case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends A
     if (dialogButton == okButtonType) {
       val animals = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
       val plants = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
-      mainComponent.setUp(EntitiesInfo.instance().getSimulationData(animals, plants))
+      if (setUp) {
+        mainComponent.setUp(EntitiesInfo.instance().getSimulationData(animals, plants))
+      } else {
+        mainComponent.addEntities(animals ++ plants)
+      }
     }
     else
       null

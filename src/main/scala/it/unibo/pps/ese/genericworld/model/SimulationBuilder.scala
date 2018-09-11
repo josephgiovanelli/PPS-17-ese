@@ -52,14 +52,6 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
   private lazy val controller: Controller = {
 
-    def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {
-      import scala.util.Random
-      require(n < x * y)
-      Stream.continually((Random.nextInt(x), Random.nextInt(y))).scanLeft(Set[Point]()) {
-        (accumulator, el) => accumulator + Point(el._1, el._2)
-      }.dropWhile(_.size < n).head
-    }
-
     import EntityBuilderHelpers._
 
     StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
@@ -98,6 +90,25 @@ object EntityBuilderHelpers {
 
   private val yearToClock = 10
   private val mutationProb = 0.05
+
+  def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {
+    import scala.util.Random
+    require(n < x * y)
+    Stream.continually((Random.nextInt(x), Random.nextInt(y))).scanLeft(Set[Point]()) {
+      (accumulator, el) => accumulator + Point(el._1, el._2)
+    }.dropWhile(_.size < n).head
+  }
+
+  def initializeEntities(entities: Map[String, Int], worldHeight: Long , worldWidth: Long): Seq[Entity] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    entities.flatMap(entity => Seq.fill(entity._2)(entity._1))
+      .zip(distinctRandomPoints(entities.size, worldHeight.toInt, worldWidth.toInt))
+      .map(entity =>
+      GeneticsSimulator.newAnimal(entity._1) match {
+        case animalInfo: AnimalInfo => initializeEntity(animalInfo, entity._2, worldHeight, worldWidth)
+        case plantInfo: PlantInfo => initializeEntity(plantInfo, entity._2)
+    }) toSeq
+  }
 
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)
                       (implicit executionContext: ExecutionContext): Entity = {
