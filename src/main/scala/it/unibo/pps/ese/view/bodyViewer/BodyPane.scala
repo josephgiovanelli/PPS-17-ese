@@ -12,22 +12,22 @@ import scalafx.scene.paint.Color
 import javafx.scene.layout.{Border, BorderStroke, BorderStrokeStyle}
 import javafx.scene.shape.{HLineTo, MoveTo, Path, VLineTo}
 import scalafx.scene.canvas.Canvas
+import scalafx.scene.control.ScrollPane
 import scalafx.scene.image.Image
 import scalafx.scene.layout._
-sealed trait BodyPane extends Pane{
+sealed trait BodyPane extends ScrollPane{
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
 }
 object BodyPane {
   def apply():BodyPane= new BodyPaneImpl()
   private[this] class BodyPaneImpl() extends BodyPane {
-//    background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
     val back:Image = new Image("it.unibo.pps.ese.view/backO3.jpg")
-
-    background = new Background(Array(new BackgroundFill(new ImagePattern(back),CornerRadii.Empty, Insets.Empty)))
-    val root = new Group()
     val canvasGroup = new Group()
-    children +=root
-
+    val root = new Pane()
+    root.prefHeight = 850
+    root.prefWidth = 1400
+    content = root
+    root.background = new Background(Array(new BackgroundFill(new ImagePattern(back),CornerRadii.Empty, Insets.Empty)))
     val vBox = new VBox(10)
     val hBox1 = OrganDescriptionBox()
     val hBox2 = OrganDescriptionBox()
