@@ -4,7 +4,7 @@ import it.unibo.pps.ese.controller.loader.beans.{Allele, Gene, Plant, PropertyIn
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.{AnimalBuilder, GeneBuilder, PlantBuilder}
+import it.unibo.pps.ese.controller.loader.data.builder.{AnimalBuilder, GeneBuilder, PlantBuilder, SimulationBuilder}
 import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
@@ -151,7 +151,10 @@ object EntitiesInfo {
 
 
     def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): CompleteSimulationData =
-      SimulationData(animalsMapping(animalsEntities), plantsMapping(plantsEntities))
+      SimulationBuilder()
+      .addAnimals(animalsMapping(animalsEntities))
+      .addPlants(plantsMapping(plantsEntities))
+      .buildComplete
 
 
     /*
@@ -184,7 +187,7 @@ object EntitiesInfo {
             .addSexualChromosome(sexualChromosomeMapping(animal._1))
             .buildComplete
         }
-      })
+      }).asInstanceOf[Map[String, CompleteAnimalData]]
       //TODO required if CompleteAnimalData is a type
       //.asInstanceOf[Map[String, CompleteAnimalData]]
       mappedAnimals.map(mappedAnimal => mappedAnimal._2 -> animalsEntities(mappedAnimal._1))
