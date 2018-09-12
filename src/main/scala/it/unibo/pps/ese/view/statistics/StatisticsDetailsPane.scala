@@ -69,11 +69,13 @@ object StatisticsDetailsPane {
           )
         }
 
+        categoryLine.getData.clear()
         series.map(x => xySeriesCategory(x._1, x._2)).foreach(x => categoryLine.getData.add(x))
       }
 
       def populationDistributionChart(series: Seq[(String, Long)]): Unit = {
-        pieChart.data = ObservableBuffer(series.map {case (x, y) => PieChart.Data(x, y)})
+        pieChart.getData.clear()
+        ObservableBuffer(series.map {case (x, y) => PieChart.Data(x, y)}).foreach(x => pieChart.getData.add(x))
       }
 
       def birthChart(series: Seq[(String, Seq[(String, Long)])]): Unit = {
@@ -85,6 +87,7 @@ object StatisticsDetailsPane {
           )
         }
 
+        barChart.getData.clear()
         series.map(x => xySeriesBar(x._1, x._2)).foreach(y => barChart.getData.add(y))
       }
 
@@ -96,6 +99,7 @@ object StatisticsDetailsPane {
             ObservableBuffer(data.map {case (x, y) => XYChart.Data[String, Number](x, y)})
           )
 
+        areaChart.getData.clear()
         series.map(x => xySeriesArea(x._1, x._2)).foreach(y => areaChart.getData.add(y))
       }
 
