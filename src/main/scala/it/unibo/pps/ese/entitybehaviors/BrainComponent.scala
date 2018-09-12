@@ -36,7 +36,7 @@ case class EntityWill(will: ActionKind.Value) extends BaseEvent
 case class EntityPosition(position: Point) extends BaseEvent
 case class InteractionEntity(entityId: String, action: ActionKind.Value) extends BaseEvent
 case class DynamicParametersRequest() extends RequestEvent
-case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double) extends ResponseEvent
+case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double, satisfaction: Double) extends ResponseEvent
 
 object Direction extends Enumeration {
   type Direction = Value
@@ -73,6 +73,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   val ENERGY_THRESHOLD = 60
   val MIN_PREYS_FOR_COUPLING = 3
   val FERTILITY_THRESHOLD = 0.4
+  //TODO must be different than 100
+  val SATISFACTION_THRESHOLD = 100
 
   var digestionState: Boolean = false
 
@@ -124,7 +126,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
               //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
               //              println(entityInVisualField.values.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
 
-              nextMove(dynData speed, dynData energy, dynData fertility) onComplete (r => {
+              nextMove(dynData speed, dynData energy, dynData fertility, dynData satisfaction) onComplete (r => {
                 publish(EntityPosition(r.get))
                 publish(new ComputeNextStateAck)
               })
@@ -162,7 +164,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     )))
   }
 
-  private def nextMove(speed: Double, energy: Double, fertility: Double): SupervisedFuture[Point] = {
+  private def nextMove(speed: Double, energy: Double, fertility: Double, satisfaction: Double): SupervisedFuture[Point] = {
 
     requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest) map (data => {
       var position = data position
@@ -176,7 +178,11 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       //println(partners)
       var targets: Stream[EntityChoiceImpl] = preys
       var action: ActionKind.Value = ActionKind.EAT
-      if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
+      if (energy > ENERGY_THRESHOLD
+        && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0
+        && fertility > FERTILITY_THRESHOLD
+        && satisfaction < SATISFACTION_THRESHOLD)
+          targets = partners; action = ActionKind.COUPLE
       if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
         publish(EntityWill(action))
         if (targets.nonEmpty) {
