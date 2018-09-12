@@ -2,8 +2,6 @@ package it.unibo.pps.ese.view.bodyViewer
 
 
 import scalafx.Includes._
-import org.fxyz3d.shapes.primitives.{CapsuleMesh, SpringMesh}
-import org.fxyz3d.utils.CameraTransformer
 import scalafx.application.JFXApp
 import scalafx.scene.layout.Pane
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
