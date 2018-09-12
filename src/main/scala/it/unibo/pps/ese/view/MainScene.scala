@@ -57,14 +57,14 @@ private class MainScene(
   val genomePane = GenomeDetailsPane(None)
 
   val worldContainerPane = new SplitPane()
-  val historyPane = HistoryPane()
+  val historyPane:HistoryPane = HistoryPane()
   val detailsPane = DetailsPane(mainComponent)
   val worldPane: WorldPane = WorldPane(geneticsSimulator,mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal
   worldContainerPane.items ++= List(historyPane,worldPane, detailsPane)
-  worldContainerPane.setDividerPositions(0.3,0.8,0.15)
+  worldContainerPane.setDividerPositions(0.3,0.75,0.15)
   worldTab.content = worldContainerPane
 
   val zoomSlider = new Slider(ZoomPreferences.minZoom, ZoomPreferences.maxZoom, ZoomPreferences.prefZoom)

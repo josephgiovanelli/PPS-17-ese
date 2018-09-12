@@ -8,6 +8,8 @@ import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.view.speciesdetails.QualityBoxUtilities._
+import it.unibo.pps.ese.view.speciesdetails.TextUtilities._
+
 trait DetailsPane extends ScrollPane {
 
   def showDetails(e: Entity,entityDetails: EntityInfo): Unit
@@ -22,8 +24,14 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 
   val nameLabel = Label("")
   val mainPane = new BorderPane()
+  mainPane.translateY = 5
+
+  val title:HBox = "Entity Details".toHBox
+  title.prefWidth <==width
+  mainPane.top = title
   val button:Button = new Button("Genome")
   val vBox:VBox = new VBox()
+  vBox.translateY = 10
   vBox.spacing = 10
   mainPane.center = vBox
 
