@@ -7,7 +7,7 @@ sealed trait DataMiner {
   def startEra: Era
   def lastEra: Era
 
-  def populationTrend(): Seq[Long]
+  def populationTrend(): Seq[(Long, Long)]
   def simulationSpecies(): Seq[Species]
   def aliveSpecies(era: Era): Seq[Species]
 
@@ -80,9 +80,9 @@ object DataMiner {
         .map(x => x.dynamicData.map(y => y._1).max)
         .max
 
-    override def populationTrend(): Seq[Long] =
+    override def populationTrend(): Seq[(Long, Long)] =
       (startEra to lastEra)
-        .map(i => _dataRepository.entitiesInEra(i).size.toLong)
+        .map(i => (i, _dataRepository.entitiesInEra(i).size.toLong))
 
     override def simulationSpecies(): Seq[Species] =
       _dataRepository.getAllDynamicLogs().map(x => x.structuralData.species).distinct

@@ -10,7 +10,7 @@ import scalafx.scene.layout._
 case class ChartsData(populationTrend: Seq[(String, Seq[(String, Long)])],
                       populationDistribution: Seq[(String, Long)],
                       births: Seq[(String, Seq[(String, Long)])],
-                      mutations: Seq[(String, List[(String, Long)])])
+                      mutations: Seq[(String, Seq[(String, Long)])])
 
 sealed trait StatisticsDetailsPane extends ScrollPane {
   def initializeCharts(chartsData: ChartsData)
@@ -88,7 +88,7 @@ object StatisticsDetailsPane {
         series.map(x => xySeriesBar(x._1, x._2)).foreach(y => barChart.getData.add(y))
       }
 
-      def mutationsChart(series: Seq[(String, List[(String, Long)])]): Unit = {
+      def mutationsChart(series: Seq[(String, Seq[(String, Long)])]): Unit = {
 
         def xySeriesArea(name: String, data: Seq[(String, Long)]) =
           XYChart.Series[String, Number](

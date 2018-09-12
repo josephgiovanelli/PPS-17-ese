@@ -80,7 +80,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
               })
           publish(GiveBirth(ids))
         case Failure(exception) =>
-          exception
+          throw exception
       })
     case ComputeNextStateAck() =>
       runningJobAccumulator.incrementAndGet

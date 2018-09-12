@@ -5,6 +5,7 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.Entity
+import it.unibo.pps.ese.view.statistics.ChartsData
 import scalafx.scene.paint.Color
 
 case class EntityDetails(id: String, species: String, position: Position)
@@ -12,6 +13,7 @@ case class EntityDetails(id: String, species: String, position: Position)
 trait Observer {
   def getEntityDetails(id: String): Option[EntityInfo]
   def setWatched(id: String): Unit
+  def historicalData(): ChartsData
 }
 
 //class View {
@@ -49,5 +51,7 @@ object ViewHelpers {
     override def getEntityDetails(id: String): Option[EntityInfo] = (manageableController entityData id) map(_.state.copy())
 
     override def setWatched(id: String): Unit = manageableController watch id
+
+    override def historicalData(): ChartsData = manageableController historicalData()
   }
 }

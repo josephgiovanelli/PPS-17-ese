@@ -2,12 +2,12 @@ package it.unibo.pps.ese.genericworld.controller
 
 import java.util.concurrent.atomic.AtomicLong
 
-import it.unibo.pps.ese.dataminer.{DataAggregator, DataMiner, ReadOnlyEntityRepository}
+import it.unibo.pps.ese.dataminer.{DataMiner, ReadOnlyEntityRepository}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.view.View
+import it.unibo.pps.ese.view.statistics.ChartsData
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.FiniteDuration
 
 sealed trait Controller {
   def attachView(view: View, frameRate: Int): Unit
@@ -20,6 +20,7 @@ trait ManageableController {
   def exit(): Unit
   def entityData(id: String): Option[EntityState]
   def watch(entity: String): Unit
+  def historicalData(): ChartsData
 }
 
 object Controller {
@@ -121,6 +122,23 @@ object Controller {
         Thread.sleep((1000 / fps) - (stop - start))
         //this synchronized wait((1000 / fps) - (stop - start))
       }
+    }
+
+    override def historicalData(): ChartsData = {
+      val miner = DataMiner(consolidatedState)
+      val populationTrend = miner populationTrend()
+      val startEra = miner startEra
+      val lastEra = miner lastEra
+      val populationDistribution = (miner aliveSpecies lastEra) map (x => (x, miner aliveCount(x, lastEra)))
+      val births = (miner aliveSpecies lastEra) map (x =>
+        (x, (startEra to lastEra) map (y => (y.toString, miner bornCount(x, y)))))
+      val mutations = (miner aliveSpecies lastEra) map (x =>
+        (x toString, (startEra to lastEra) map (y => (y.toString, (miner mutantAlleles (x, y) size) toLong))))
+      ChartsData(
+        Seq[(String, Seq[(String, Long)])](("global", populationTrend.map(x => (x._1.toString, x._2)))),
+        populationDistribution,
+        births,
+        mutations)
     }
   }
 }

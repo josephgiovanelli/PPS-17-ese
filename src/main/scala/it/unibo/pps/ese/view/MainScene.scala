@@ -69,10 +69,13 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   topPane.bottom = generationPane
   topPane.center = zoomPane
 
+  val statisticsPane = StatisticsDetailsPane()
   val statisticsTab = new Tab()
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
-  statisticsTab.content = StatisticsDetailsPane()
+  statisticsTab.content = statisticsPane
+  statisticsTab.onSelectionChanged = _ =>
+    if (statisticsTab.isSelected) statisticsPane initializeCharts (mainComponent historicalData())
 
   val genomeTab = new Tab()
   genomeTab.text = "Genome"

@@ -7,7 +7,7 @@ import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
-
+import it.unibo.pps.ese.view.statistics.ChartsData
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
@@ -25,6 +25,7 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
+  def historicalData(): ChartsData
   def setUp(simulationData: SimulationData)
 }
 
@@ -95,6 +96,8 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   }
   override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
   override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
+
+  override def historicalData(): ChartsData = observers.head.historicalData()
 }
 
 object ViewType extends Enumeration {
