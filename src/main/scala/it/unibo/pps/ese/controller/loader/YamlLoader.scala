@@ -28,7 +28,7 @@ object YamlLoader extends Loader {
     val simulation = loadFileContent(configPath).parseYaml.convertTo[Simulation]
     val animals: Map[CompleteAnimalData, Int] = simulation.animals.map({
       case (k, v) =>
-        val animal: AnimalData[_<:CompleteCustomGeneData, _<:CompleteDefaultGeneData] = loadAnimal(k)
+        val animal: CompleteAnimalData = loadAnimal(k)
         val ret: (CompleteAnimalData, Int) = (animal, v)
         ret
     })
@@ -38,7 +38,7 @@ object YamlLoader extends Loader {
 
   private def loadPlant(path: String): PlantData = loadFileContent(path).parseYaml.convertTo[Plant]
 
-  private def loadAnimal(path: String): AnimalData[_<:CompleteCustomGeneData, _<:CompleteDefaultGeneData] = {
+  private def loadAnimal(path: String): CompleteAnimalData = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
     val structuralChromosome: Seq[CompleteCustomGeneData] = loadStructuralChromosome(loadedAnimal.structuralChromosome)
     val regulationChromosome: Seq[CompleteDefaultGeneData] = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
