@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.genetics.generators.data
 
+import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.{AlleleData, AnimalData, CustomGeneData, DefaultGeneData}
 import it.unibo.pps.ese.genetics.dnaexpression.GeneData
 import it.unibo.pps.ese.genetics.dnaexpression.AllelicData.AllelicInfoImpl
@@ -8,7 +9,7 @@ import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.genetics.dnaexpression.{AlleleInfo, ConversionMap, Feature}
 import it.unibo.pps.ese.genetics.dna.amminoAcidSeqFromString
 private[genetics] object InputDataAdapter {
-  implicit def translateAnimalData(aD:AnimalData):TranslatedAnimalData = {
+  implicit def translateAnimalData(aD:CompleteAnimalData):TranslatedAnimalData = {
     import ConversionUtilities._
     TranslatedAnimalDataImpl(
       aD.name,

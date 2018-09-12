@@ -1,8 +1,9 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData
+import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
-import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus.{AnimalTemplate, AnimalWithGeneLength, AnimalWithName}
+import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus.{AnimalTemplate, AnimalWithGeneLength, AnimalWithName, FullAnimal}
 import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.GeneStatus
 
 import scala.reflect.runtime.universe._
@@ -25,7 +26,7 @@ class AnimalBuilder[T <: AnimalStatus](name: String = null,
     new AnimalBuilder(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
       sexualChromosome)
 
-  //def buildComplete(implicit ev: T =:= FullAnimal): AnimalData = ???
+  //def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData = ???
 
 //  //TODO define animal template trait
 //  def buildTemplate(implicit ev: T =:= AnimalTemplate): AnimalData = {

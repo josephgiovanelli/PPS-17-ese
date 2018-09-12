@@ -6,13 +6,13 @@ trait CustomGeneData extends GeneData {
   def conversionMap: Map[String, Map[String, Double]]
 }
 
-trait CompleteCustomGeneData extends CustomGeneData
 trait PartialCustomGeneData extends CustomGeneData
+trait CompleteCustomGeneData extends PartialCustomGeneData
 
 object CustomGeneData {
-  def apply(gene: Gene, alleles: Iterable[AlleleData]): CustomGeneData =
+  def apply(gene: Gene, alleles: Iterable[AlleleData]): CompleteCustomGeneData =
     new CustomGeneDataImpl(gene.simpleName, gene.id, gene.properties.keySet.map((_, classOf[Double])).toMap, alleles,
-      gene.properties.map({case (k,v) => (k, v.conversionMap)}))
+      gene.properties.map({case (k,v) => (k, v.conversionMap)})) with CompleteCustomGeneData
 
   def apply(name: String, id: String, properties: Map[String, Class[_]], alleleData: Iterable[AlleleData],
             conversionMap: Map[String, Map[String, Double]]): CustomGeneData

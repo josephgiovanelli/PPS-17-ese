@@ -3,6 +3,7 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
+import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.util.io.Folder
 import net.jcazevedo.moultingyaml._
@@ -23,23 +24,29 @@ object YamlLoader extends Loader {
 
   import CustomYaml._
 
-  override def loadSimulation(configPath: String): SimulationData = {
+  override def loadSimulation(configPath: String): SimulationData[CompleteAnimalData] = {
     val simulation = loadFileContent(configPath).parseYaml.convertTo[Simulation]
-    SimulationData(simulation.animals.map({case (k, v) => (loadAnimal(k), v)}),
-      simulation.plants.map({case (k, v) => (loadPlant(k), v)}))
+    val animals: Map[CompleteAnimalData, Int] = simulation.animals.map({
+      case (k, v) =>
+        val animal: AnimalData[_<:CompleteCustomGeneData, _<:CompleteDefaultGeneData] = loadAnimal(k)
+        val ret: (CompleteAnimalData, Int) = (animal, v)
+        ret
+    })
+    //SimulationData.ttt(animals)
+    SimulationData.testBuild(animals, simulation.plants.map({case (k, v) => (loadPlant(k), v)}))
   }
 
   private def loadPlant(path: String): PlantData = loadFileContent(path).parseYaml.convertTo[Plant]
 
-  private def loadAnimal(path: String): AnimalData = {
+  private def loadAnimal(path: String): AnimalData[_<:CompleteCustomGeneData, _<:CompleteDefaultGeneData] = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
-    val structuralChromosome = loadStructuralChromosome(loadedAnimal.structuralChromosome)
-    val regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
-    val sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome)
-    AnimalData(loadedAnimal, structuralChromosome, regulationChromosome, sexualChromosome)
+    val structuralChromosome: Seq[CompleteCustomGeneData] = loadStructuralChromosome(loadedAnimal.structuralChromosome)
+    val regulationChromosome: Seq[CompleteDefaultGeneData] = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
+    val sexualChromosome: Seq[CompleteDefaultGeneData] = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome)
+    AnimalData.buildtest(loadedAnimal, structuralChromosome, regulationChromosome, sexualChromosome)
   }
 
-  private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData): Seq[DefaultGeneData] = {
+  private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData): Seq[CompleteDefaultGeneData] = {
     require(chromosomeData.names.keySet == genesSet.map(_.name))
     val alleles = loadAlleles(chromosomeData.allelesPath)
     //TODO check no wrong alleles
@@ -48,7 +55,7 @@ object YamlLoader extends Loader {
     })
   }
 
-  private def loadStructuralChromosome(genesPath: String): Seq[CustomGeneData] =  {
+  private def loadStructuralChromosome(genesPath: String): Seq[CompleteCustomGeneData] =  {
     Folder(genesPath).getFilesAsStream(Folder.YAML)
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
       .map(g => CustomGeneData(g, loadAlleles(g.allelesPath)))

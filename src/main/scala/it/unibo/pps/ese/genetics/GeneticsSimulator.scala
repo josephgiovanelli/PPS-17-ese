@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.genetics
 
+import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
@@ -10,13 +12,13 @@ import it.unibo.pps.ese.genetics.generators.{PlantGenerator, SpeciesUtilities}
 import it.unibo.pps.ese.genetics.generators.data.InputDataAdapter._
 
 trait GeneticsSimulator {
-  def beginSimulation(simulationData:SimulationData):InitializedSimulation
+  def beginSimulation(simulationData:CompleteSimulationData):InitializedSimulation
   def speciesList:Seq[String]
   def plantSpeciesList:Seq[String]
   def newPlant(species: String):PlantInfo
   def newAnimal(species:String):AnimalInfo
   def obtainMutantAlleles(species:String,gene:MGene):Seq[MGene]
-  def addNewAnimalSpecies(animalData:AnimalData,num:Int):Seq[AnimalInfo]
+  def addNewAnimalSpecies(animalData:CompleteAnimalData, num:Int):Seq[AnimalInfo]
   def addNewPlantSpecies(plantData:PlantData,num:Int):Seq[PlantInfo]
   def getAnimalInfoByGenome(species:String,genome: AnimalGenome):AnimalInfo
   def checkNewMutation(species:String,genome: AnimalGenome):Seq[MGene]
@@ -26,7 +28,7 @@ object GeneticsSimulator extends GeneticsSimulator{
   private[this] var started:Boolean=false
   private var speciesSetup:Map[String,SpeciesUtilities] = Map()
   private var plantSetup:Map[String,PlantInfo] = Map()
-  override def beginSimulation(simulationData: SimulationData): InitializedSimulation
+  override def beginSimulation(simulationData: CompleteSimulationData): InitializedSimulation
   = {
     _checkState()
     val initializedSimulation = InitializedSimulation(simulationData)
@@ -49,7 +51,7 @@ object GeneticsSimulator extends GeneticsSimulator{
 
   override def newPlant(species: String): PlantInfo = plantSetup(species)
 
-  override def addNewAnimalSpecies(animalData: AnimalData, num: Int): Seq[AnimalInfo] = {
+  override def addNewAnimalSpecies(animalData: CompleteAnimalData, num: Int): Seq[AnimalInfo] = {
     val name = animalData.name
     val newSetup = SpeciesUtilities(animalData)
     speciesSetup = speciesSetup + (name->newSetup)

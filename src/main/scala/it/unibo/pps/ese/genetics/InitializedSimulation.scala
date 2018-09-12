@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
 import it.unibo.pps.ese.genetics.generators.data.InputDataAdapter
 import it.unibo.pps.ese.genetics.generators.{PlantGenerator, SpeciesUtilities}
@@ -12,9 +13,9 @@ sealed trait InitializedSimulation{
 }
 
 object InitializedSimulation {
-  def apply(simulationData: SimulationData): InitializedSimulation = InitializedSimulationImpl(simulationData)
+  def apply(simulationData: CompleteSimulationData): InitializedSimulation = InitializedSimulationImpl(simulationData)
 
-  private[this] case class InitializedSimulationImpl(simulationData: SimulationData) extends InitializedSimulation{
+  private[this] case class InitializedSimulationImpl(simulationData: CompleteSimulationData) extends InitializedSimulation{
     val speciesSetup:Map[String,SpeciesUtilities] = buildSpeciesSetups(simulationData)
 
     override private[genetics] def initialSetup = speciesSetup
@@ -36,7 +37,7 @@ object InitializedSimulation {
     }
   }
 
-  private[this] def buildSpeciesSetups(simulationData: SimulationData):Map[String,SpeciesUtilities] = {
+  private[this] def buildSpeciesSetups(simulationData: CompleteSimulationData):Map[String,SpeciesUtilities] = {
     simulationData
       .animals
       .keys

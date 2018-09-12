@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genericworld.model
 import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.dataminer.DataAggregator
 import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
@@ -35,14 +35,14 @@ object SimulationBuilder {
 }
 
 class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
-  (width: Int = 0, height: Int = 0, data: SimulationData = null)(implicit executionContext: ExecutionContext) {
+(width: Int = 0, height: Int = 0, data: CompleteSimulationData = null)(implicit executionContext: ExecutionContext) {
 
   import SimulationBuilder.Simulation._
 
   def dimension(width: Int, height: Int): SimulationBuilder[Simulation with Dimension] =
     new SimulationBuilder(width, height, data)
 
-  def data(data: SimulationData): SimulationBuilder[Simulation with Data] =
+  def data(data: CompleteSimulationData): SimulationBuilder[Simulation with Data] =
     new SimulationBuilder(width, height, data)
 
   def data(simulationConfigPath: String): SimulationBuilder[Simulation with Data] =

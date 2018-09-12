@@ -35,8 +35,19 @@ class ReproductionTest extends FunSuite {
     val world = World[Deterministic](10, 10)
     val maleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Male).head
     val femaleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Female).head
-    val male = behaviourEntityInit(baseEntityInit(maleInfo), maleInfo, Point(1,1), "male", None)
-    val female = behaviourEntityInit(baseEntityInit(femaleInfo), femaleInfo, Point(2,2), "female", Some(male.specifications.id))
+    val male = behaviourEntityInit(
+      baseEntityInit(maleInfo),
+      maleInfo,
+      Point(1,1),
+      "male",
+      400,
+      None)
+    val female = behaviourEntityInit(baseEntityInit(femaleInfo),
+      femaleInfo,
+      Point(2,2),
+      "female",
+      400,
+      Some(male.specifications.id))
     world.addEntity(male)
     world.addEntity(female)
     Await.result(world.requireInfoUpdate, Duration.Inf)
@@ -45,6 +56,36 @@ class ReproductionTest extends FunSuite {
     Await.result(world.requireStateUpdate, Duration.Inf)
     Await.result(world.requireStateUpdate, Duration.Inf)
     assert(world.entities.size == 5)
+  }
+
+  //TODO one sufficient
+  test("Two animals with 0 fertility can copulate, but without producing children") {
+    val world = World[Deterministic](10, 10)
+    val maleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Male).head
+    val femaleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Female).head
+    val male = behaviourEntityInit(
+      baseEntityInit(maleInfo),
+      maleInfo,
+      Point(1,1),
+      "male",
+      0,
+      None)
+    val female = behaviourEntityInit(baseEntityInit(femaleInfo),
+      femaleInfo,
+      Point(2,2),
+      "female",
+      0,
+      Some(male.specifications.id))
+    world.addEntity(male)
+    world.addEntity(female)
+    Await.result(world.requireInfoUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    assert(world.entities.size == 2)
+    Await.result(world.requireStateUpdate, Duration.Inf)
+    Await.result(world.requireStateUpdate, Duration.Inf)
   }
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo): Component = {
@@ -66,8 +107,8 @@ class ReproductionTest extends FunSuite {
     entity
   }
 
-  def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, active: Option[String]): Entity = {
-    entity addComponent FakeComponent(entity.specifications, info.species.name, gender, position, active)
+  def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, fertility: Double, active: Option[String]): Entity = {
+    entity addComponent FakeComponent(entity.specifications, info.species.name, gender, position, fertility, active)
     entity
   }
 
@@ -79,6 +120,7 @@ class ReproductionTest extends FunSuite {
                            species: String,
                            gender: String,
                            position: Point,
+                           fertility: Double,
                            var partner: Option[String])
                           (implicit val executionContext: ExecutionContext)
     extends WriterComponent(entitySpecifications) {
@@ -100,7 +142,7 @@ class ReproductionTest extends FunSuite {
       case r: ReproductionBaseInformationRequest =>
         publish(ReproductionBaseInformationResponse(r id, gender, species))
       case r: ReproductionPhysicalInformationRequest =>
-        publish(ReproductionPhysicalInformationResponse(r id, 400))
+        publish(ReproductionPhysicalInformationResponse(r id, fertility))
       case GetInfo() =>
         this synchronized {
           publish(FakeStatusInfo(species, EntityUpdateState.WAITING))

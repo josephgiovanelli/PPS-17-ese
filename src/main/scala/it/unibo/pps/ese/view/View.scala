@@ -1,13 +1,13 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
-
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
@@ -25,7 +25,7 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
-  def setUp(simulationData: SimulationData)
+  def setUp(simulationData: CompleteSimulationData)
 }
 
 object View {
@@ -74,7 +74,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     observers.head.getEntityDetails(id)
   }
 
-  override def setUp(simulationData: SimulationData): Unit =
+  override def setUp(simulationData: CompleteSimulationData): Unit =
     currentView match {
     case ViewType.ConfigurationView => {
       import scala.concurrent.ExecutionContext.Implicits.global
