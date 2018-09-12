@@ -88,8 +88,8 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
   }
 
   def ingestData(era: Era)(implicit executionContext: ExecutionContext): Unit = {
+    ingestData(era, realTimeState getFilteredState(_ => true))
     Future {
-      ingestData(era, realTimeState getFilteredState(_ => true))
       _entityDataRepository generateNewDataNotification era
     }
   }

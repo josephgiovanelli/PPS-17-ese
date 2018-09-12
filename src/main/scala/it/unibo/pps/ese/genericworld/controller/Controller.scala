@@ -41,7 +41,6 @@ object Controller {
     //ASYNC CALLBACK
     consolidatedState attachNewDataListener(era => {
       println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
-
       //val a = DataMiner(consolidatedState).bornCount(_era get())
       //val b = DataMiner(consolidatedState).bornCount("Giraffa")
       //val c = DataMiner(consolidatedState).bornCount("Giraffa", _era get())

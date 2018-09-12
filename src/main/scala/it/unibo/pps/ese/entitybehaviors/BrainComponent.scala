@@ -173,6 +173,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       var targets: Stream[EntityChoiceImpl] = preys
       var action: ActionKind.Value = ActionKind.EAT
       if (energy > ENERGY_THRESHOLD && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0 && fertility > FERTILITY_THRESHOLD) { targets = partners; action = ActionKind.COUPLE }
+      targets = preys
+      action = ActionKind.EAT
       if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
         if (targets.nonEmpty) {
           publish(UseEyes())

@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.dataminer
 
+import scala.collection.mutable
+
 sealed trait DataMiner {
 
   def startEra: Era
@@ -43,6 +45,11 @@ object DataMiner {
   private class BaseDataMiner(repository: ReadOnlyEntityRepository) extends DataMiner {
 
     private[this] val _dataRepository = repository
+
+    //DA VALUTARNE L'USO
+    private def memoize[I, O](f: I => O): I => O = new mutable.HashMap[I, O]() {self =>
+      override def apply(key: I): O = self.synchronized(getOrElseUpdate(key, f(key)))
+    }
 
     private implicit class PimpedSeq[A](seq: Seq[A]) {
       def filterIf(condition: () => Boolean)(filter: A => Boolean): Seq[A] =

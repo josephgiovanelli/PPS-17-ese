@@ -108,9 +108,9 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
               //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")
             case Failure(error) => throw error
           }
-      case MealInformation(_, _) =>
+      case MealInformation(targetId, _) =>
         //println("OMG!!1!!1! I've been killed! (Id : " + entitySpecifications.id +")")
-        //publish(Kill(entitySpecifications id))
+        publish(Kill(entitySpecifications id))
       case GetInfo() =>
         publish(dynamicInfo)
         publish(PhysicalStatusInfo(averageLife, energyRequirements, endChildPhase, endAdultPhase, percentageDecay, speed, fertility))
