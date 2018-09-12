@@ -8,19 +8,30 @@ import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatu
 import scala.reflect.runtime.universe._
 
 trait AnimalBuilder[T <: AnimalStatus] {
-
+  def setName(name: String): AnimalBuilder[T with AnimalWithName]
+  def setGeneLength(geneLength: Int): AnimalBuilder[T with AnimalWithGeneLength]
+  def setAlleleLength(alleleLength: Int): AnimalBuilder[T with AnimalWithAlleleLength]
+  def setReign(reign: String): AnimalBuilder[T with AnimalWithReign]
+  def setTypology(typology: String): AnimalBuilder[T with AnimalWithTypology]
+  def addStructuralChromosome(structuralChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome]
+  def addRegulationChromosome(regulationChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithRegChromosome]
+  def addSexualChromosome(sexualChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithSexChromosome]
+  def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData
 }
 
 object AnimalBuilder {
 
-  class AnimalBuilderImpl[T <: AnimalStatus](name: String = null,
-                                             geneLength: Int = 0,
-                                             alleleLength: Int = 0,
-                                             reign: String = null,
-                                             typology: String = null,
-                                             structuralChromosome: Iterable[_ <: PartialCustomGeneData] = Seq(),
-                                             regulationChromosome: Iterable[_ <: PartialDefaultGeneData] = Seq(),
-                                             sexualChromosome: Iterable[_ <: PartialDefaultGeneData] = Seq())
+  def apply(): AnimalBuilder[EmptyAnimal] = new AnimalBuilderImpl[EmptyAnimal](null, 0, 0,
+    null, null, Seq() , Seq() , Seq())
+
+  private class AnimalBuilderImpl[T <: AnimalStatus](name: String,
+                                             geneLength: Int,
+                                             alleleLength: Int,
+                                             reign: String,
+                                             typology: String,
+                                             structuralChromosome: Iterable[_ <: PartialCustomGeneData],
+                                             regulationChromosome: Iterable[_ <: PartialDefaultGeneData],
+                                             sexualChromosome: Iterable[_ <: PartialDefaultGeneData])
                                             (implicit val status: TypeTag[T]) extends AnimalBuilder[T]{
     //TODO use copy method?
     def setName(name: String): AnimalBuilder[T with AnimalWithName] =
@@ -44,6 +55,12 @@ object AnimalBuilder {
         sexualChromosome)
 
     def addStructuralChromosome(structuralChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome] = {
+      structuralChromosome.head.buildCustom match {
+        case c: CompleteCustomGeneData =>
+          println("complete")
+        case _ =>
+          println("no complete")
+      }
       new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome.map(_.buildCustom), regulationChromosome,
         sexualChromosome)
     }
@@ -94,15 +111,15 @@ object AnimalBuilder {
 
   sealed trait AnimalStatus
   object AnimalStatus {
-    sealed trait EmptyAnimal
-    sealed trait AnimalWithName
-    sealed trait AnimalWithGeneLength
-    sealed trait AnimalWithAlleleLength
-    sealed trait AnimalWithReign
-    sealed trait AnimalWithTypology
-    sealed trait AnimalWithStructChromosome
-    sealed trait AnimalWithRegChromosome
-    sealed trait AnimalWithSexChromosome
+    sealed trait EmptyAnimal extends AnimalStatus
+    sealed trait AnimalWithName extends AnimalStatus
+    sealed trait AnimalWithGeneLength extends AnimalStatus
+    sealed trait AnimalWithAlleleLength extends AnimalStatus
+    sealed trait AnimalWithReign extends AnimalStatus
+    sealed trait AnimalWithTypology extends AnimalStatus
+    sealed trait AnimalWithStructChromosome extends AnimalStatus
+    sealed trait AnimalWithRegChromosome extends AnimalStatus
+    sealed trait AnimalWithSexChromosome extends AnimalStatus
 
     type AnimalWithBaseInfo = EmptyAnimal with AnimalWithName with AnimalWithGeneLength with AnimalWithAlleleLength
       with  AnimalWithReign with AnimalWithTypology

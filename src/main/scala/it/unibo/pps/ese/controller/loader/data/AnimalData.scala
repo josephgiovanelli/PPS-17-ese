@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.loader.data
 
 import it.unibo.pps.ese.controller.loader.beans.Animal
 
-trait AnimalData[C<:CustomGeneData, D<:DefaultGeneData] extends EntityData {
+trait AnimalData[C<:PartialCustomGeneData, D<:PartialDefaultGeneData] extends EntityData {
   def typology: String
   def structuralChromosome: Set[C]
   def regulationChromosome: Set[D]
@@ -13,7 +13,7 @@ object AnimalData {
   type PartialAnimalData = AnimalData[_ <: PartialCustomGeneData, _ <: PartialDefaultGeneData]
   type CompleteAnimalData = AnimalData[_ <: CompleteCustomGeneData, _ <: CompleteDefaultGeneData]
 
-  def apply[C<:CustomGeneData, D<:DefaultGeneData](animal: Animal, structuralChromosome: Iterable[C], regulationChromosome: Iterable[D],
+  def apply[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](animal: Animal, structuralChromosome: Iterable[C], regulationChromosome: Iterable[D],
             sexualChromosome: Iterable[D]): AnimalData[C, D] = {
     new AnimalDataImpl(animal.name,
       animal.geneLength,
@@ -25,7 +25,7 @@ object AnimalData {
       sexualChromosome)
   }
 
-  def buildtest[C<:CustomGeneData, D<:DefaultGeneData](animal: Animal, structuralChromosome: Iterable[C], regulationChromosome: Iterable[D],
+  def buildtest[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](animal: Animal, structuralChromosome: Iterable[C], regulationChromosome: Iterable[D],
                                                    sexualChromosome: Iterable[D]): AnimalData[C, D] = {
     new AnimalDataImpl(animal.name,
       animal.geneLength,
@@ -37,7 +37,7 @@ object AnimalData {
       sexualChromosome)
   }
 
-  def apply[C<:CustomGeneData, D<:DefaultGeneData](name: String,
+  def apply[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](name: String,
             geneLength: Int,
             alleleLength: Int,
             reign: String,
@@ -47,7 +47,7 @@ object AnimalData {
             sexualChromosome: Iterable[D]): AnimalData[C, D] =
     new AnimalDataImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome, sexualChromosome)
 
-  class AnimalDataImpl[C<:CustomGeneData, D<:DefaultGeneData](val name: String,
+  class AnimalDataImpl[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](val name: String,
                                val geneLength: Int,
                                val alleleLength: Int,
                                val reign: String,
@@ -61,7 +61,7 @@ object AnimalData {
     require(_regulationChromosome.size == regulationChromosome.size)
     val sexualChromosome: Set[D] = _sexualChromosome.toSet
     require(_sexualChromosome.size == sexualChromosome.size)
-    require((structuralChromosome ++ regulationChromosome ++ sexualChromosome).forall(g => g.id.length == geneLength &&
-      g.alleles.forall(a => a.id.length == alleleLength)))
+//    require((structuralChromosome ++ regulationChromosome ++ sexualChromosome).forall(g => g.id.length == geneLength &&
+//      g.alleles.forall(a => a.id.length == alleleLength)))
   }
 }

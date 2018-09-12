@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genetics.generators.data
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
-import it.unibo.pps.ese.controller.loader.data.{AlleleData, AnimalData, CustomGeneData, DefaultGeneData}
+import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.genetics.dnaexpression.GeneData
 import it.unibo.pps.ese.genetics.dnaexpression.AllelicData.AllelicInfoImpl
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
@@ -22,8 +22,8 @@ private[genetics] object InputDataAdapter {
     )
   }
   private[this] object ConversionUtilities{
-    def defaultGeneDataToCustomGeneData(dgd: DefaultGeneData):CustomGeneData ={
-      object MyCustomGeneData extends CustomGeneData{
+    def defaultGeneDataToCustomGeneData(dgd: CompleteDefaultGeneData):CompleteCustomGeneData ={
+      object MyCustomGeneData extends CompleteCustomGeneData{
 
         override def conversionMap: Map[String, Map[String, Double]] = Map(dgd.name->Map(dgd.name->1.0))
         override def id: String = dgd.id
@@ -33,11 +33,22 @@ private[genetics] object InputDataAdapter {
         override def properties: Map[String, Class[_]] = dgd.properties
 
         override def alleles: Set[AlleleData] = dgd.alleles
+
+        override def getConversionMap: Option[Map[String, Map[String, Double]]] = None
+
+        //TODO can't extend my interface
+        override def getId: Option[String] = None
+
+        override def getName: Option[String] = None
+
+        override def getProperties: Option[Map[String, Class[_]]] = None
+
+        override def getAlleles: Option[Set[AlleleData]] = None
       }
       MyCustomGeneData
     }
 
-    def customGeneDataToGeneData(customGeneData: CustomGeneData):GeneData = {
+    def customGeneDataToGeneData(customGeneData: CompleteCustomGeneData):GeneData = {
       def getQualityTypeByString(s:String):QualityType = {
         QualityType.values.find(q=>q.entryName.toLowerCase()==s.toLowerCase).get
       }

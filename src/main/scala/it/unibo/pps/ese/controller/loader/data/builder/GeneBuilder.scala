@@ -15,9 +15,9 @@ trait GeneBuilder[T <: GeneStatus] {
   def addProperties(properties: Map[String, Class[_]]): GeneBuilder[T with GeneWithProperties]
   def addAlleles(alleles: Set[AlleleData]): GeneBuilder[T with GeneWithAlleles]
   def addConversionMap(conversionMap: Map[String, Map[String, Double]]): GeneBuilder[T with GeneWithConversionMap]
-  def buildDefault(implicit st: TypeTag[T]): PartialDefaultGeneData
+  def buildDefault(): PartialDefaultGeneData
   def buildCompleteDefault(implicit ev: T =:= DefaultGene, st: TypeTag[T]): CompleteDefaultGeneData
-  def buildCustom(implicit st: TypeTag[T]): PartialCustomGeneData
+  def buildCustom(): PartialCustomGeneData
   def buildCompleteCustom(implicit ev: T =:= CustomGene, st: TypeTag[T]): CompleteCustomGeneData
   def status: TypeTag[T]
 }
@@ -57,10 +57,10 @@ object GeneBuilder {
       new GeneBuilderImpl(gene.id, gene.simpleName, gene.properties.keySet.map((_, classOf[Double])).toMap, alleles,
         gene.properties.map({case (k,v) => (k, v.conversionMap)}))
 
-    def buildDefault(implicit st: TypeTag[T]): PartialDefaultGeneData = {
-      require(status.tpe <:< st.tpe)
+    def buildDefault(): PartialDefaultGeneData = {
+      //require(status.tpe <:< st.tpe)
       //TODO check no conversion map
-      st.tpe match {
+      status.tpe match {
         case t if t <:< typeOf[DefaultGene] =>
           val illegalState = completeGeneRequirements
           if(illegalState.isEmpty) {
@@ -82,10 +82,10 @@ object GeneBuilder {
       new DefaultGeneDataImpl(id, name, properties, alleles) with CompleteDefaultGeneData
     }
 
-    def buildCustom(implicit st: TypeTag[T]): PartialCustomGeneData = {
-      require(status.tpe <:< st.tpe)
+    def buildCustom(): PartialCustomGeneData = {
+      //require(status.tpe <:< st.tpe)
       //TODO resolve ambiguity with Default
-      st.tpe match {
+      status.tpe match {
         case t if t <:< typeOf[CustomGene] =>
           val illegalState = completeGeneRequirements
           if(illegalState.isEmpty) {

@@ -7,22 +7,22 @@ import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder
 trait CustomGeneBuildFixture {
   def customGBFixture = new {
     val complete = GeneBuilder()
-      .setId("")
-      .setName("")
-      .addAlleles(Set[AlleleData](Allele("", "", 0, 0, 1.0, Map())))
+      .setId("idcc")
+      .setName("namecc")
+      .addAlleles(Set[AlleleData](Allele("idcc", "", 0, 0, 1.0, Map())))
       .addProperties(Map())
       .addConversionMap(Map())
 
     val staticIncomplete = GeneBuilder()
-      .setId("")
-      .addAlleles(Set[AlleleData](Allele("", "", 0, 0, 1.0, Map())))
+      .setId("idcsi")
+      .addAlleles(Set[AlleleData](Allele("idcsi", "", 0, 0, 1.0, Map())))
       .addProperties(Map())
       .addConversionMap(Map())
 
     val dynamicIncomplete = GeneBuilder()
-      .setId("")
-      .setName("")
-      .addAlleles(Set[AlleleData](Allele("", "", 0, 0, 0.5, Map())))
+      .setId("iddi")
+      .setName("namecdi")
+      .addAlleles(Set[AlleleData](Allele("iddi", "", 0, 0, 0.5, Map())))
       .addProperties(Map())
       .addConversionMap(Map())
   }

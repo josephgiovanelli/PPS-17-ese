@@ -16,5 +16,5 @@ object SimulationData {
   def testBuild(animals: Map[CompleteAnimalData, Int], plants: Map[PlantData, Int]): SimulationData[CompleteAnimalData] =
     SimulationDataImpl(animals, plants)
   def ttt(animals: Map[CompleteAnimalData, Int]) = {}
-  case class SimulationDataImpl[C <: CustomGeneData, D <: DefaultGeneData](animals: Map[CompleteAnimalData, Int], plants: Map[PlantData, Int]) extends SimulationData[CompleteAnimalData]
+  case class SimulationDataImpl[C <: PartialCustomGeneData, D <: PartialDefaultGeneData](animals: Map[CompleteAnimalData, Int], plants: Map[PlantData, Int]) extends SimulationData[CompleteAnimalData]
 }

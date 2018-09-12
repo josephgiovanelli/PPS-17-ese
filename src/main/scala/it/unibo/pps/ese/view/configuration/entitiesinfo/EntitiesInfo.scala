@@ -168,19 +168,19 @@ object EntitiesInfo {
       Map()
     }
 
-    private def sexualChromosomeMapping(animal: String): Iterable[DefaultGeneData] =
+    private def sexualChromosomeMapping(animal: String): Iterable[CompleteDefaultGeneData] =
       defaultChromosomeMapping(ChromosomeTypes.SEXUAL, animal)
 
-    private def regulationChromosomeMapping(animal: String): Iterable[DefaultGeneData] =
+    private def regulationChromosomeMapping(animal: String): Iterable[CompleteDefaultGeneData] =
       defaultChromosomeMapping(ChromosomeTypes.REGULATION, animal)
 
-    private def structuralChromosomeMapping(animal: String): Iterable[CustomGeneData] =
+    private def structuralChromosomeMapping(animal: String): Iterable[CompleteCustomGeneData] =
       getAnimalInfo(animal).get.animalChromosomeInfo.structuralChromosome.map(gene => CustomGeneData(Gene(gene._2.geneInfo.id, gene._2.geneInfo.name, "", propertiesMapping(gene._2.geneInfo.conversionMap)), alleleMapping(gene._2.geneInfo.id, gene._2.alleles)))
 
     private def propertiesMapping(properties: Map[String, Map[String, Double]]): Map[String, PropertyInfo] =
       properties.map(property => property._1 -> PropertyInfo(property._2))
 
-    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[DefaultGeneData] = {
+    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[CompleteDefaultGeneData] = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(animal)
 
       var enumerationElements: Set[_ <: DefaultGene] = Set.empty
