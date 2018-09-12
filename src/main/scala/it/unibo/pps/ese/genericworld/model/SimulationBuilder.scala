@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genericworld.model
 import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
 import it.unibo.pps.ese.dataminer.DataAggregator
 import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
@@ -15,6 +15,7 @@ import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Qual
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
 import it.unibo.pps.ese.utils.Point
 
+import scala.collection.immutable
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 
@@ -54,16 +55,14 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
     import EntityBuilderHelpers._
 
-    StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0,
-      Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
-      Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
-    StaticRules.instance().setRules(worldRules)
-
     val world = World[Stochastic](width, height)
 
     val geneticsSimulator = GeneticsSimulator
     val initializedSimulation = geneticsSimulator.beginSimulation(data)
+
+    StaticRules.instance().addSpecies((geneticsSimulator.speciesList ++ geneticsSimulator.plantSpeciesList) toSet)
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0)
+    StaticRules.instance().setRules(worldRules)
 
     geneticsSimulator.speciesList
       .flatMap(x => initializedSimulation.getAllAnimals(x))
@@ -76,6 +75,8 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       .zip(distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
       .map(x => initializeEntity(x._1, x._2))
       .foreach(world addEntity)
+
+
 
     val simulation = SimulationLoop(world, 250 millis)
     val aggregator = new DataAggregator(world entitiesState)
@@ -99,17 +100,32 @@ object EntityBuilderHelpers {
     }.dropWhile(_.size < n).head
   }
 
-  def initializeEntities(animals: Map[String, Int], plants: Map[String, Int], worldHeight: Long , worldWidth: Long): Seq[Entity] = {
+  def initializeEntities(animals: Map[String, Int],
+                         plants: Map[String, Int],
+                         newAnimals: Map[AnimalData, Int],
+                         newPlants: Map[PlantData, Int],
+                         worldHeight: Long ,
+                         worldWidth: Long): Seq[Entity] = {
+
     import scala.concurrent.ExecutionContext.Implicits.global
-    val animalEntities = animals.flatMap(entity => Seq.fill(entity._2)(entity._1))
-      .zip(distinctRandomPoints(animals.size, worldHeight.toInt, worldWidth.toInt))
+    val animalEntities: Seq[Entity] = animals.flatMap(entity => Seq.fill(entity._2)(entity._1))
+      .zip(distinctRandomPoints(animals.values.sum, worldHeight.toInt, worldWidth.toInt))
       .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2, worldHeight, worldWidth)).toSeq
 
-    val plantEntities = plants.flatMap(entity => Seq.fill(entity._2)(entity._1))
-        .zip(distinctRandomPoints(plants.size, worldHeight.toInt, worldWidth.toInt))
+    val plantEntities: Seq[Entity] = plants.flatMap(entity => Seq.fill(entity._2)(entity._1))
+        .zip(distinctRandomPoints(plants.values.sum, worldHeight.toInt, worldWidth.toInt))
         .map(entity => initializeEntity(GeneticsSimulator.newPlant(entity._1), entity._2)).toSeq
 
-    animalEntities ++ plantEntities
+    val newAnimalEntities: Seq[Entity] = newAnimals.flatMap(entity => GeneticsSimulator.addNewAnimalSpecies(entity._1, entity._2))
+      .zip(distinctRandomPoints(newAnimals.values.sum, worldHeight.toInt, worldWidth.toInt))
+      .map(entity => initializeEntity(entity._1, entity._2, worldHeight, worldWidth)).toSeq
+
+    val newPlantEntities: Seq[Entity] = newPlants.flatMap(entity => GeneticsSimulator.addNewPlantSpecies(entity._1, entity._2))
+      .zip(distinctRandomPoints(newPlants.values.sum, worldHeight.toInt, worldWidth.toInt))
+      .map(entity => initializeEntity(entity._1, entity._2)).toSeq
+
+
+    animalEntities ++ plantEntities ++ newAnimalEntities ++ newPlantEntities
   }
 
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)

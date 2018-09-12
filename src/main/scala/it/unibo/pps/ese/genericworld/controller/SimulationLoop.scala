@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.genericworld.controller
 
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData}
+import it.unibo.pps.ese.entitybehaviors.StaticRules
 import it.unibo.pps.ese.genericworld.model.{Entity, EntityBuilderHelpers, World}
 
 import scala.concurrent.{Await, ExecutionContext}
@@ -11,7 +13,7 @@ sealed trait SimulationLoop {
   def dispose(): Unit
   def attachEraListener(listener: Long => Unit): Unit
 
-  def addEntities(animals: Map[String, Int], plants: Map[String, Int]): Unit
+  def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[AnimalData, Int], newPlants: Map[PlantData, Int]): Unit
 }
 
 object SimulationLoop {
@@ -66,9 +68,9 @@ object SimulationLoop {
 
     override def attachEraListener(listener: Long => Unit): Unit = _eraListeners = _eraListeners :+ listener
 
-    override def addEntities(animals: Map[String, Int], plants: Map[String, Int]): Unit = {
-      EntityBuilderHelpers.initializeEntities(animals, plants, model.width, model.height).foreach(entity => model.addEntity(entity))
-      println("è andataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[AnimalData, Int], newPlants: Map[PlantData, Int]): Unit = {
+      EntityBuilderHelpers.initializeEntities(animals, plants, newAnimals, newPlants, model.width, model.height).foreach(entity => model.addEntity(entity))
+      StaticRules.instance().updateRules()
     }
   }
 }

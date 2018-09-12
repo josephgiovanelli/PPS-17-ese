@@ -2,6 +2,7 @@ package it.unibo.pps.ese.entitybehaviors.decisionsupport
 
 import it.unibo.pps.ese.entitybehaviors.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds.entityKinds
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 
 
@@ -63,10 +64,15 @@ object SexTypes extends Enumeration {
 
 object EntityKinds extends Enumeration {
   type EntityKinds = Value
-  val entityKinds: Set[String] = StaticRules.instance().getSpecies()
+  var entityKinds: Set[String] = StaticRules.instance().getSpecies()
   entityKinds.foreach(Value)
+  private var constants: Map[Symbol, EntityKinds.Value] = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
 
-  private val constants: Map[Symbol, EntityKinds.Value] = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
+  def updateSpecies() = {
+    entityKinds = StaticRules.instance().getSpecies()
+    entityKinds.foreach(Value)
+    constants = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
+  }
   def apply(c: Symbol): EntityKinds = constants(c)
   def unapply(arg: EntityKinds): Option[Symbol] = Some(Symbol(values.find(x => arg.equals(x)).get.toString))
 }
@@ -104,6 +110,9 @@ object WorldRulesImpl {
   implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
   implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
-  case class WorldRulesImpl(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)])
+  case class WorldRulesImpl(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
+    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set
+    def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set
+  }
 }
 

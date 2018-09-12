@@ -73,7 +73,6 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   val ENERGY_THRESHOLD = 60
   val MIN_PREYS_FOR_COUPLING = 3
   val FERTILITY_THRESHOLD = 0.4
-  //TODO must be different than 100
   val SATISFACTION_THRESHOLD = 40
 
   var digestionState: Boolean = false

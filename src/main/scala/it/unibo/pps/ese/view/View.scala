@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view
 
-import it.unibo.pps.ese.controller.loader.data.SimulationData
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
@@ -21,7 +21,7 @@ trait MainComponent {
   def getEntityDetails(id: String): Option[EntityInfo]
   def unwatchEntity(id:String):Unit
   def setUp(simulationData: SimulationData)
-  def addEntities(animals: Map[String, Int], plants: Map[String, Int]): Unit
+  def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[AnimalData, Int], newPlants: Map[PlantData, Int]): Unit
 }
 trait BodyViewer {
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
@@ -119,8 +119,8 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     observers.foreach(_.unsetWatched(id))
   }
 
-  override def addEntities(animals: Map[String, Int], plants: Map[String, Int]): Unit = {
-    observers.foreach(_.addEntities(animals, plants))
+  override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[AnimalData, Int], newPlants: Map[PlantData, Int]): Unit = {
+    observers.foreach(_.addEntities(animals, plants, newAnimals, newPlants))
   }
 
 }

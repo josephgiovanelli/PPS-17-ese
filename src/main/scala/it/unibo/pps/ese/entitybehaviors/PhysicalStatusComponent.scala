@@ -46,7 +46,6 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   var currentEnergy: Double = MAX_ENERGY
   var currentPhase: LifePhases.Value = LifePhases.CHILD
   var currentSpeed: Double = speed
-  //TODO must be 0
   var currentFertility: Double = 0
   var elapsedClocksSinceLastYear: Int = 0
   var elapsedClocksSinceDigestion: Int = 0

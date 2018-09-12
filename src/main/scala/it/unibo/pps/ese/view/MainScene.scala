@@ -8,7 +8,7 @@ import scalafx.scene.control._
 import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.bodyViewer.BodyPane
-import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationDialog, ConfirmDialog}
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
 
@@ -35,12 +35,13 @@ private class MainScene(
   val fileMenu = new Menu("File")
   val editMenu = new Menu("Edit")
   val addEntitiesItem = new MenuItem("Add Entities")
+  val addSpeciesItem = new MenuItem("Add Species")
   val newItem = new MenuItem("New")
   val openItem = new MenuItem("Open")
   val saveItem = new MenuItem("Save")
   val exitItem = new MenuItem("Exit")
   fileMenu.items = List(newItem, openItem, saveItem, new SeparatorMenuItem, exitItem)
-  editMenu.items = List(addEntitiesItem)
+  editMenu.items = List(addEntitiesItem, addSpeciesItem)
   menuBar.menus = List(fileMenu,editMenu)
   exitItem.onAction = (e: ActionEvent) => {
     sys.exit(0)
@@ -48,6 +49,10 @@ private class MainScene(
 
   addEntitiesItem.onAction = (e: ActionEvent) => {
     ConfirmDialog(currentWindow, mainComponent, setUp = false).showAndWait()
+  }
+
+  addSpeciesItem.onAction = (e: ActionEvent) => {
+    ConfigurationDialog(currentWindow, mainComponent, setUp = false).showAndWait()
   }
 
   val worldTab = new Tab()

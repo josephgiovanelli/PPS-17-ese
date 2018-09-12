@@ -135,12 +135,15 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     checkFields
   }
 
-  def checkFields: Boolean = mandatoryFields.exists(field => mandatoryCheck(field)) ||
-    intFields.exists(field => intCheck(field)) ||
-    doubleFields.exists(field => doubleCheck(field)) ||
-    uniqueFields.keySet.exists(field => uniqueCheck(field)) ||
-    lengthFields.keySet.exists(field => lengthCheck(field)) ||
-    probabilityFields.exists(field => probabilityCheck(field)) ||
-    listFields.exists(x => x.isEmpty)
+  def checkFields: Boolean = {
+    (mandatoryFields.exists(field => mandatoryCheck(field)) && mandatoryFields.nonEmpty) ||
+      (intFields.exists(field => intCheck(field)) && intFields.nonEmpty) ||
+      (doubleFields.exists(field => doubleCheck(field)) && doubleFields.nonEmpty) ||
+      (uniqueFields.keySet.exists(field => uniqueCheck(field)) && uniqueFields.nonEmpty) ||
+      (lengthFields.keySet.exists(field => lengthCheck(field)) && lengthFields.nonEmpty) ||
+      (probabilityFields.exists(field => probabilityCheck(field)) && probabilityFields.nonEmpty) ||
+      listFields.exists(x => x.isEmpty)
+  }
+
 
 }

@@ -2,6 +2,7 @@ package it.unibo.pps.ese.genericworld.controller
 
 import java.util.concurrent.atomic.AtomicLong
 
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData}
 import it.unibo.pps.ese.dataminer.{DataMiner, ReadOnlyEntityRepository}
 import it.unibo.pps.ese.entitywatchers.{Stalker, StoryTeller, Surgeon}
 import it.unibo.pps.ese.genericworld.model._
@@ -21,7 +22,7 @@ trait ManageableController {
   def entityData(id: String): Option[EntityState]
   def watch(entity: String): Unit
   def unwatch(): Unit
-  def add(animals: Map[String, Int], plants: Map[String, Int]): Unit
+  def add(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[AnimalData, Int], newPlants: Map[PlantData, Int]): Unit
 }
 
 object Controller {
@@ -106,8 +107,8 @@ object Controller {
 
     override def unwatch(): Unit = surgeon leaves()
 
-    override def add(animals: Map[String, Int], plants: Map[String, Int]): Unit = {
-      simulation.addEntities(animals, plants)
+    override def add(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[AnimalData, Int], newPlants: Map[PlantData, Int]): Unit = {
+      simulation.addEntities(animals, plants, newAnimals, newPlants)
     }
 
     override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {
