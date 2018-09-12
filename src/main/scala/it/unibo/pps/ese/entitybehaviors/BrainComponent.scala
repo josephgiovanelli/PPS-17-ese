@@ -74,7 +74,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   val MIN_PREYS_FOR_COUPLING = 3
   val FERTILITY_THRESHOLD = 0.4
   //TODO must be different than 100
-  val SATISFACTION_THRESHOLD = 100
+  val SATISFACTION_THRESHOLD = 40
 
   var digestionState: Boolean = false
 
@@ -181,8 +181,9 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       if (energy > ENERGY_THRESHOLD
         && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0
         && fertility > FERTILITY_THRESHOLD
-        && satisfaction < SATISFACTION_THRESHOLD)
-          targets = partners; action = ActionKind.COUPLE
+        && satisfaction < SATISFACTION_THRESHOLD) {
+        targets = partners; action = ActionKind.COUPLE
+      }
       if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
         publish(EntityWill(action))
         if (targets.nonEmpty) {
