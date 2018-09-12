@@ -18,7 +18,7 @@ trait FullAnimalData[C<:PartialCustomGeneData, D<:PartialDefaultGeneData] extend
 
 object AnimalData {
   type PartialAnimalData = AnimalData[_ <: PartialCustomGeneData, _ <: PartialDefaultGeneData]
-  type CompleteAnimalData = FullAnimalData[_ <: CompleteCustomGeneData, _ <: CompleteDefaultGeneData]
+  trait CompleteAnimalData extends FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
 
   def apply[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](animal: Animal, structuralChromosome: Iterable[C], regulationChromosome: Iterable[D],
             sexualChromosome: Iterable[D]): FullAnimalData[C, D] = {

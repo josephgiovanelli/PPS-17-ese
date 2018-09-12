@@ -4,6 +4,7 @@ import it.unibo.pps.ese.controller.loader.beans.{Allele, Gene, Plant, PropertyIn
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.loader.data._
+import it.unibo.pps.ese.controller.loader.data.builder.{AnimalBuilder, GeneBuilder, PlantBuilder}
 import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
@@ -157,30 +158,57 @@ object EntitiesInfo {
     Mapping methods
      */
 
-    private def plantsMapping(plantsEntities: Map[String, Int]): Map[PlantData, Int] = {
-      val mappedPlants: Map[String, PlantData] = plants.map(plant => plant._1 -> Plant(plant._1, 3, 3, "P", plant._2.height, 0, plant._2.hardness, plant._2.nutritionalValue, plant._2.availability))
+    private def plantsMapping(plantsEntities: Map[String, Int]): Map[CompletePlantData, Int] = {
+      val mappedPlants: Map[String, CompletePlantData] = plants.map(
+        plant =>
+          plant._1 ->
+            PlantBuilder()
+              .setInfo(Plant(plant._1, 3, 3, "P", plant._2.height, 0, plant._2.hardness, plant._2.nutritionalValue,
+                plant._2.availability))
+              .buildComplete
+      )
       mappedPlants.map(mappedPlant => mappedPlant._2 -> plantsEntities(mappedPlant._1))
     }
 
     private def animalsMapping(animalsEntities: Map[String, Int]): Map[CompleteAnimalData, Int] = {
-//      val mappedAnimals: Map[String, CompleteAnimalData] = animals.map(animal => animal._1 -> AnimalData(animal._1, animal._2.animalBaseInfo.geneLength, animal._2.animalBaseInfo.alleleLength, "A", typologyMap(animal._2.animalBaseInfo.typology), structuralChromosomeMapping(animal._1), regulationChromosomeMapping(animal._1), sexualChromosomeMapping(animal._1)))
-//      mappedAnimals.map(mappedAnimal => mappedAnimal._2 -> animalsEntities(mappedAnimal._1))
-      Map()
+      val mappedAnimals: Map[String, CompleteAnimalData] = animals.map(animal => {
+        animal._1 -> {
+          AnimalBuilder()
+            .setName(animal._1)
+            .setGeneLength(animal._2.animalBaseInfo.geneLength)
+            .setAlleleLength(animal._2.animalBaseInfo.alleleLength)
+            .setReign("A")
+            .setTypology(typologyMap(animal._2.animalBaseInfo.typology))
+            .addStructuralChromosome(structuralChromosomeMapping(animal._1))
+            .addRegulationChromosome(regulationChromosomeMapping(animal._1))
+            .addSexualChromosome(sexualChromosomeMapping(animal._1))
+            .buildComplete
+        }
+      })
+      //TODO required if CompleteAnimalData is a type
+      //.asInstanceOf[Map[String, CompleteAnimalData]]
+      mappedAnimals.map(mappedAnimal => mappedAnimal._2 -> animalsEntities(mappedAnimal._1))
+        .asInstanceOf[Map[CompleteAnimalData, Int]]
     }
 
-    private def sexualChromosomeMapping(animal: String): Iterable[CompleteDefaultGeneData] =
+    private def sexualChromosomeMapping(animal: String): Iterable[GeneBuilder[_]] =
       defaultChromosomeMapping(ChromosomeTypes.SEXUAL, animal)
 
-    private def regulationChromosomeMapping(animal: String): Iterable[CompleteDefaultGeneData] =
+    private def regulationChromosomeMapping(animal: String): Iterable[GeneBuilder[_]] =
       defaultChromosomeMapping(ChromosomeTypes.REGULATION, animal)
 
-    private def structuralChromosomeMapping(animal: String): Iterable[CompleteCustomGeneData] =
-      getAnimalInfo(animal).get.animalChromosomeInfo.structuralChromosome.map(gene => CustomGeneData(Gene(gene._2.geneInfo.id, gene._2.geneInfo.name, "", propertiesMapping(gene._2.geneInfo.conversionMap)), alleleMapping(gene._2.geneInfo.id, gene._2.alleles)))
+    private def structuralChromosomeMapping(animal: String): Iterable[GeneBuilder[_]] =
+      getAnimalInfo(animal).get.animalChromosomeInfo.structuralChromosome.map(
+        gene =>
+        GeneBuilder()
+          .setCustomInfo(Gene(gene._2.geneInfo.id, gene._2.geneInfo.name, "", propertiesMapping(gene._2.geneInfo.conversionMap)))
+          .addAlleles(alleleMapping(gene._2.geneInfo.id, gene._2.alleles))
+      )
 
     private def propertiesMapping(properties: Map[String, Map[String, Double]]): Map[String, PropertyInfo] =
       properties.map(property => property._1 -> PropertyInfo(property._2))
 
-    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[CompleteDefaultGeneData] = {
+    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[GeneBuilder[_]] = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(animal)
 
       var enumerationElements: Set[_ <: DefaultGene] = Set.empty
@@ -188,7 +216,13 @@ object EntitiesInfo {
         case ChromosomeTypes.REGULATION => enumerationElements = RegulationDefaultGenes.elements; currentAnimalChromosome.regulationChromosome
         case ChromosomeTypes.SEXUAL => enumerationElements = SexualDefaultGenes.elements; currentAnimalChromosome.sexualChromosome
       }
-      defaultChromosomeInfo.map(gene => DefaultGeneData(enumerationElements.filter(x => x.name.equals(gene._2.geneInfo.name)).head, gene._2.geneInfo.id, alleleMapping(gene._2.geneInfo.id, gene._2.alleles)))
+      defaultChromosomeInfo.map(
+        gene =>
+        GeneBuilder()
+        .setDefaultInfo(enumerationElements.filter(x => x.name.equals(gene._2.geneInfo.name)).head)
+        .setId(gene._2.geneInfo.id)
+        .addAlleles(alleleMapping(gene._2.geneInfo.id, gene._2.alleles))
+      )
     }
 
     private def alleleMapping(gene: String, alleles: Map[String, AlleleInfo]): Iterable[AlleleData] =

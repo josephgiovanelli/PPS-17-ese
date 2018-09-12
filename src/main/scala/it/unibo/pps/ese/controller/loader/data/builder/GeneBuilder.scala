@@ -13,13 +13,15 @@ trait GeneBuilder[T <: GeneStatus] {
   def setId(id: String): GeneBuilder[T with GeneWithId]
   def setName(name: String): GeneBuilder[T with GeneWithName]
   def addProperties(properties: Map[String, Class[_]]): GeneBuilder[T with GeneWithProperties]
-  def addAlleles(alleles: Set[AlleleData]): GeneBuilder[T with GeneWithAlleles]
+  def addAlleles(alleles: Iterable[AlleleData]): GeneBuilder[T with GeneWithAlleles]
   def addConversionMap(conversionMap: Map[String, Map[String, Double]]): GeneBuilder[T with GeneWithConversionMap]
   def buildDefault(): PartialDefaultGeneData
   def buildCompleteDefault(implicit ev: T =:= DefaultGene, st: TypeTag[T]): CompleteDefaultGeneData
   def buildCustom(): PartialCustomGeneData
   def buildCompleteCustom(implicit ev: T =:= CustomGene, st: TypeTag[T]): CompleteCustomGeneData
   def status: TypeTag[T]
+  def setDefaultInfo(defaultGene: it.unibo.pps.ese.controller.loader.DefaultGene): GeneBuilder[T with DefaultGeneTemplate]
+  def setCustomInfo(gene: Gene): GeneBuilder[T with CustomGeneTemplate with GeneWithId]
 }
 
 object GeneBuilder {
@@ -29,7 +31,7 @@ object GeneBuilder {
   private class GeneBuilderImpl[T <: GeneStatus](id: String,
                                                  name: String,
                                                  properties: Map[String, Class[_]],
-                                                 alleles: Set[AlleleData],
+                                                 alleles: Iterable[AlleleData],
                                                  conversionMap: Map[String, Map[String, Double]])
                                                 (implicit val status: TypeTag[T]) extends GeneBuilder[T] {
 
@@ -42,7 +44,7 @@ object GeneBuilder {
     def addProperties(properties: Map[String, Class[_]]): GeneBuilder[T with GeneWithProperties] =
       new GeneBuilderImpl(id, name, properties, alleles, conversionMap)
 
-    def addAlleles(alleles: Set[AlleleData]): GeneBuilder[T with GeneWithAlleles] = {
+    def addAlleles(alleles: Iterable[AlleleData]): GeneBuilder[T with GeneWithAlleles] = {
       require(alleles.nonEmpty)
       new GeneBuilderImpl(id, name, properties, alleles, conversionMap)
     }

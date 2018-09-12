@@ -113,7 +113,6 @@ object AnimalBuilder {
 
     def build(): PartialAnimalData = {
       //require(status.tpe <:< st.tpe)
-      //TODO check no conversion map
       status.tpe match {
         case t if t <:< typeOf[FullAnimal] =>
           val check = checkComplete()

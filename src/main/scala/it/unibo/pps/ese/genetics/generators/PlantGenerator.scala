@@ -1,20 +1,20 @@
 package it.unibo.pps.ese.genetics.generators
 
-import it.unibo.pps.ese.controller.loader.data.PlantData
+import it.unibo.pps.ese.controller.loader.data.CompletePlantData
 import it.unibo.pps.ese.genetics.Utilities.seqOfElement
 import it.unibo.pps.ese.genetics.dna._
 import it.unibo.pps.ese.genetics.entities.PlantInfo
 
 sealed trait PlantGenerator{
-  def createPlantInfoByPlantData(plantData: PlantData):PlantInfo
-  def createNumberOfPlants(num:Int,plantData: PlantData):Seq[PlantInfo] ={
+  def createPlantInfoByPlantData(plantData: CompletePlantData):PlantInfo
+  def createNumberOfPlants(num:Int,plantData: CompletePlantData):Seq[PlantInfo] ={
     seqOfElement(num,createPlantInfoByPlantData(plantData))
   }
 }
 
 object PlantGenerator extends PlantGenerator {
 
-  def createPlantInfoByPlantData(plantData: PlantData):PlantInfo = {
+  def createPlantInfoByPlantData(plantData: CompletePlantData):PlantInfo = {
     import NametoGeneUtilities._
     val commonGenes = List(stringToReignGene(plantData.reign),speciesNameToGene(plantData.name))
     val cc1 = Chromosome(ChromosomeType.COMMON,commonGenes :_*)

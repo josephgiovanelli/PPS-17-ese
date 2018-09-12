@@ -1,9 +1,8 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
+import it.unibo.pps.ese.controller.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
-import it.unibo.pps.ese.controller.loader.data.{AnimalData, PlantData, SimulationData}
-import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, GeneWithAllelicForms, IdentifierGene, MGene}
 import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
@@ -19,7 +18,7 @@ trait GeneticsSimulator {
   def newAnimal(species:String):AnimalInfo
   def obtainMutantAlleles(species:String,gene:MGene):Seq[MGene]
   def addNewAnimalSpecies(animalData:CompleteAnimalData, num:Int):Seq[AnimalInfo]
-  def addNewPlantSpecies(plantData:PlantData,num:Int):Seq[PlantInfo]
+  def addNewPlantSpecies(plantData:CompletePlantData,num:Int):Seq[PlantInfo]
   def getAnimalInfoByGenome(species:String,genome: AnimalGenome):AnimalInfo
   def checkNewMutation(species:String,genome: AnimalGenome):Seq[MGene]
   def getGeneStats(geneM:MGene, animalInfo: AnimalInfo):GeneStats
@@ -58,7 +57,7 @@ object GeneticsSimulator extends GeneticsSimulator{
     newSetup.generateNumberOfAnimal(num)
   }
 
-  override def addNewPlantSpecies(plantData: PlantData, num: Int): Seq[PlantInfo] = {
+  override def addNewPlantSpecies(plantData: CompletePlantData, num: Int): Seq[PlantInfo] = {
     plantSetup  = plantSetup + (plantData.name -> PlantGenerator.createPlantInfoByPlantData(plantData))
     PlantGenerator.createNumberOfPlants(num,plantData)
   }

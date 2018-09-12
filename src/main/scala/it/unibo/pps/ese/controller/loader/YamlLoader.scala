@@ -5,6 +5,7 @@ import java.io.InputStream
 import it.unibo.pps.ese.controller.loader.beans._
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data._
+import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder
 import it.unibo.pps.ese.controller.util.io.Folder
 import net.jcazevedo.moultingyaml._
 import org.kaikikm.threadresloader.ResourceLoader
@@ -36,7 +37,8 @@ object YamlLoader extends Loader {
     SimulationData.testBuild(animals, simulation.plants.map({case (k, v) => (loadPlant(k), v)}))
   }
 
-  private def loadPlant(path: String): PlantData = loadFileContent(path).parseYaml.convertTo[Plant]
+  private def loadPlant(path: String): CompletePlantData =
+    PlantBuilder().setInfo(loadFileContent(path).parseYaml.convertTo[Plant]).buildComplete
 
   private def loadAnimal(path: String): CompleteAnimalData = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
