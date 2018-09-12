@@ -11,14 +11,14 @@ trait CompleteCustomGeneData extends PartialCustomGeneData
 
 object CustomGeneData {
   def apply(gene: Gene, alleles: Iterable[AlleleData]): CompleteCustomGeneData =
-    new CustomGeneDataImpl(gene.simpleName, gene.id, gene.properties.keySet.map((_, classOf[Double])).toMap, alleles,
+    new CustomGeneDataImpl(gene.id, gene.simpleName, gene.properties.keySet.map((_, classOf[Double])).toMap, alleles,
       gene.properties.map({case (k,v) => (k, v.conversionMap)})) with CompleteCustomGeneData
 
   def apply(name: String, id: String, properties: Map[String, Class[_]], alleleData: Iterable[AlleleData],
             conversionMap: Map[String, Map[String, Double]]): CustomGeneData
-  = new CustomGeneDataImpl(name, id, properties, alleleData, conversionMap)
+  = new CustomGeneDataImpl(id, name, properties, alleleData, conversionMap)
 
-  class CustomGeneDataImpl(_name: String, _id: String, _properties: Map[String, Class[_]],
+  class CustomGeneDataImpl(_id: String, _name: String, _properties: Map[String, Class[_]],
                                    _alleleData: Iterable[AlleleData], _conversionMap: Map[String, Map[String, Double]])
     extends {
       val id: String = _id

@@ -8,12 +8,12 @@ trait CompleteDefaultGeneData extends PartialDefaultGeneData
 
 object DefaultGeneData {
   def apply(defaultGene: DefaultGene, id: String, alleleData: Iterable[AlleleData] = Seq()): CompleteDefaultGeneData
-  = new DefaultGeneDataImpl(defaultGene.name, id, defaultGene.properties, alleleData) with CompleteDefaultGeneData
+  = new DefaultGeneDataImpl(id, defaultGene.name, defaultGene.properties, alleleData) with CompleteDefaultGeneData
 
   def apply(name: String, id: String, properties: Map[String, Class[_]], alleleData: Iterable[AlleleData]): DefaultGeneData
-  = new DefaultGeneDataImpl(name, id, properties, alleleData)
+  = new DefaultGeneDataImpl(id, name, properties, alleleData)
 
-  class DefaultGeneDataImpl(_name: String, _id: String, _properties: Map[String, Class[_]],
+  class DefaultGeneDataImpl(_id: String, _name: String, _properties: Map[String, Class[_]],
                                     _alleles: Iterable[AlleleData]) extends {
     override val id: String = _id
     override val name: String = _name

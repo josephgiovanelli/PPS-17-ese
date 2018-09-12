@@ -47,7 +47,7 @@ object AnimalData {
             sexualChromosome: Iterable[D]): AnimalData[C, D] =
     new AnimalDataImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome, sexualChromosome)
 
-  private class AnimalDataImpl[C<:CustomGeneData, D<:DefaultGeneData](val name: String,
+  class AnimalDataImpl[C<:CustomGeneData, D<:DefaultGeneData](val name: String,
                                val geneLength: Int,
                                val alleleLength: Int,
                                val reign: String,
