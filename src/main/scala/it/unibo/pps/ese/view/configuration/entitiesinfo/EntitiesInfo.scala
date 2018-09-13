@@ -48,6 +48,9 @@ sealed trait EntitiesInfo {
   def getPlants: Set[String]
 
   def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): SimulationData
+
+  def loadSimulationData(animalData: Seq[AnimalData], plantData: Seq[PlantData]): Unit
+
 }
 
 object ChromosomeTypes extends Enumeration {
@@ -150,9 +153,14 @@ object EntitiesInfo {
     def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): SimulationData =
       SimulationData(animalsMapping(animalsEntities), plantsMapping(plantsEntities))
 
+    def loadSimulationData(animalData: Seq[AnimalData], plantData: Seq[PlantData]): Unit = {
+      animals ++= animalsMapping(animalData)
+      plants ++= plantsMapping(plantData)
+    }
+
 
     /*
-    Mapping methods
+    Mapping methods EntitiesInfo to SimulationData
      */
 
     private def plantsMapping(plantsEntities: Map[String, Int]): Map[PlantData, Int] = {
@@ -190,6 +198,53 @@ object EntitiesInfo {
 
     private def alleleMapping(gene: String, alleles: Map[String, AlleleInfo]): Iterable[AlleleData] =
       alleles.map(allele => Allele(gene, allele._2.id, allele._2.dominance, allele._2.consume, allele._2.probability, allele._2.effect))
+
+
+    /*
+    Mapping methods SimulationData to EntitiesInfo
+     */
+
+    private def plantsMapping(plantData: Seq[PlantData]): Map[String, PlantInfo] =
+      plantData.map(plant => plant.name -> PlantInfo(plant.height, plant.nutritionalValue, plant.hardness, plant.availability)).toMap
+
+    private def animalsMapping(animalData: Seq[AnimalData]): Map[String, AnimalInfo] =
+      animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
+
+    private def animalBaseInfoMapping(animal: AnimalData): AnimalBaseInfo =
+      AnimalBaseInfo(animal.geneLength, animal.alleleLength, animal.typology)
+
+    private def animalChromosomeInfoMapping(animal: AnimalData): AnimalChromosomeInfo =
+      AnimalChromosomeInfo(structuralChromosomeMapping(animal.structuralChromosome), regulationChromosomeMapping(animal.regulationChromosome), sexualChromosomeMapping(animal.sexualChromosome))
+
+    private def sexualChromosomeMapping(sexualChromosome: Set[DefaultGeneData]): Map[String, DefaultChromosomeInfo] =
+      sexualChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.SEXUAL)).toMap
+
+    private def regulationChromosomeMapping(regulationChromosome: Set[DefaultGeneData]): Map[String, DefaultChromosomeInfo] =
+      regulationChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.REGULATION)).toMap
+
+    private def structuralChromosomeMapping(structuralChromosome: Set[CustomGeneData]): Map[String, CustomChromosomeInfo] =
+      structuralChromosome.map(customGene => customGene.name -> customChromosomeMapping(customGene)).toMap
+
+    private def defaultChromosomeMapping(defaultGene: DefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultChromosomeInfo =
+      DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.alleles))
+
+    private def customChromosomeMapping(customGene: CustomGeneData): CustomChromosomeInfo =
+      CustomChromosomeInfo(customGeneInfoMapping(customGene), allelesMapping(customGene.alleles))
+
+    private def defaultGeneInfoMapping(defaultGene: DefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultGeneInfo = chromosomeTypes match {
+      case ChromosomeTypes.REGULATION => DefaultGeneInfo(RegulationDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.id)
+      case ChromosomeTypes.SEXUAL => DefaultGeneInfo(SexualDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.id)
+    }
+
+    private def customGeneInfoMapping(customGeneData: CustomGeneData): CustomGeneInfo =
+      CustomGeneInfo(customGeneData.id, customGeneData.name, customGeneData.properties, customGeneData.conversionMap)
+
+    private def allelesMapping(alleles: Set[AlleleData]): Map[String, AlleleInfo] =
+      alleles.map(allele => allele.id -> alleleMapping(allele)).toMap
+
+    private def alleleMapping(allele: AlleleData): AlleleInfo =
+      AlleleInfo(allele.gene, allele.id, allele.dominance, allele.consume, allele.probability, allele.effect)
+
   }
 }
 
