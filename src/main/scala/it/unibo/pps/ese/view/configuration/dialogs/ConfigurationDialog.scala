@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 import it.unibo.pps.ese.view.MainComponent
+import it.unibo.pps.ese.view.configuration.ConfigurationView
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.{AnimalDialog, ChromosomeDialog}
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
@@ -14,7 +15,11 @@ import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class ConfigurationDialog(window: Window, mainComponent: MainComponent, setUp: Boolean) extends AbstractDialog[Unit](window, None) {
+case class ConfigurationDialog(window: Window,
+                               mainComponent: MainComponent,
+                               setUp: Boolean,
+                               previousAnimalsCount: Map[String, Int] = Map.empty,
+                               previousPlantsCount: Map[String, Int] = Map.empty) extends AbstractDialog[Unit](window, None) {
 
   /*
   Header
@@ -101,7 +106,13 @@ case class ConfigurationDialog(window: Window, mainComponent: MainComponent, set
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
-      ConfirmDialog(window, mainComponent, setUp, newAnimalSpecies, newPlantSpecies).showAndWait()
+      ConfirmDialog(window,
+        mainComponent,
+        setUp,
+        newAnimalSpecies,
+        newPlantSpecies,
+        previousAnimalsCount,
+        previousPlantsCount).showAndWait()
     }
     else
       null

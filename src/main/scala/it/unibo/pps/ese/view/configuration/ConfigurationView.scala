@@ -25,7 +25,7 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
 
   val confirmButton = new Button("Confirm")
   confirmButton.onAction = _ => {
-     ConfigurationDialog(this.window(), mainComponent, setUp = true).showAndWait()
+     ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
   }
 
   content = new VBox() {
