@@ -43,7 +43,10 @@ object StaticRules {
 
     override def setRules(rules: WorldRules): Unit = {
       worldRules = Some(rules)
-      updateRules()
+      if(worldRules.get.compatibleCouplingKinds.isEmpty || worldRules.get.compatibleHuntingKinds.isEmpty) {
+        updateRules()
+      }
+
     }
     override def getRules(): WorldRules = worldRules.get
   }
