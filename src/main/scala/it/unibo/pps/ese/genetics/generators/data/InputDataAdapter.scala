@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.genetics.generators.data
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
+import it.unibo.pps.ese.controller.loader.data.CustomGeneData.CompleteCustomGeneData
+import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.CompleteDefaultGeneData
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.genetics.dnaexpression.GeneData
 import it.unibo.pps.ese.genetics.dnaexpression.AllelicData.AllelicInfoImpl
@@ -23,7 +25,7 @@ private[genetics] object InputDataAdapter {
   }
   private[this] object ConversionUtilities{
     def defaultGeneDataToCustomGeneData(dgd: CompleteDefaultGeneData):CompleteCustomGeneData ={
-      object MyCustomGeneData extends CompleteCustomGeneData{
+      object MyCustomGeneData extends FullCustomGeneData[CompleteAlleleData] {
 
         override def conversionMap: Map[String, Map[String, Double]] = Map(dgd.name->Map(dgd.name->1.0))
         override def id: String = dgd.id
@@ -32,7 +34,7 @@ private[genetics] object InputDataAdapter {
 
         override def properties: Map[String, Class[_]] = dgd.properties
 
-        override def alleles: Set[AlleleData] = dgd.alleles
+        override def alleles: Set[CompleteAlleleData] = dgd.alleles.asInstanceOf[Set[CompleteAlleleData]]
 
         override def getConversionMap: Option[Map[String, Map[String, Double]]] = None
 
@@ -43,7 +45,7 @@ private[genetics] object InputDataAdapter {
 
         override def getProperties: Option[Map[String, Class[_]]] = None
 
-        override def getAlleles: Option[Set[AlleleData]] = None
+        override def getAlleles: Option[Set[CompleteAlleleData]] = None
       }
       MyCustomGeneData
     }

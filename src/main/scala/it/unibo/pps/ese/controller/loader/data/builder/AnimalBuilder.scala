@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
+import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
+import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus._

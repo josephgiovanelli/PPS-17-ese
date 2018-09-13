@@ -1,5 +1,8 @@
 package it.unibo.pps.ese.controller.loader.data
 
+import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
+import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
+
 trait AnimalData[C<:PartialCustomGeneData, D<:PartialDefaultGeneData] extends EntityData {
   def getTypology: Option[String]
   def getStructuralChromosome: Option[Iterable[C]]

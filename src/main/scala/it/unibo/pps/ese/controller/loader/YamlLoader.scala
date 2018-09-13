@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.loader.beans._
 import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.{AnimalBuilder, GeneBuilder, PlantBuilder, SimulationBuilder}
+import it.unibo.pps.ese.controller.loader.data.builder._
 import it.unibo.pps.ese.controller.util.io.Folder
 import net.jcazevedo.moultingyaml._
 import org.kaikikm.threadresloader.ResourceLoader
@@ -120,9 +120,19 @@ object YamlLoader extends Loader {
       )
   }
 
-  private def loadAlleles(allelesPath: String): Seq[AlleleData] = {
+  private def loadAlleles(allelesPath: String): Seq[CompleteAlleleData] = {
     Folder(allelesPath).getFilesAsStream(Folder.YAML)
-      .map(loadFileContent(_).parseYaml.convertTo[Allele])
+      .map(path => {
+        val all = loadFileContent(path).parseYaml.convertTo[Allele]
+        AlleleBuilder()
+          .setId(all.id)
+          .setGene(all.gene)
+          .setConsume(all.consume)
+          .setDominance(all.dominance)
+          .setEffect(all.effect)
+          .setProbability(all.probability)
+          .buildComplete
+      })
   }
 
   private def loadFileContent(path: String): String = {

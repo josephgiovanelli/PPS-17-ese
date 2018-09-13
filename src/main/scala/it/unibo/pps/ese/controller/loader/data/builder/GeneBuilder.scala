@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
 import it.unibo.pps.ese.controller.loader.beans.Gene
+import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
+import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.GeneStatus
 import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.GeneStatus._
@@ -11,7 +13,7 @@ trait GeneBuilder[T <: GeneStatus] {
   def setId(id: String): GeneBuilder[T with GeneWithId]
   def setName(name: String): GeneBuilder[T with GeneWithName]
   def addProperties(properties: Map[String, Class[_]]): GeneBuilder[T with GeneWithProperties]
-  def addAlleles(alleles: Iterable[AlleleData]): GeneBuilder[T with GeneWithAlleles]
+  def addAlleles(alleles: Iterable[CompleteAlleleData]): GeneBuilder[T with GeneWithAlleles]
   def addConversionMap(conversionMap: Map[String, Map[String, Double]]): GeneBuilder[T with GeneWithConversionMap]
   def buildDefault(): PartialDefaultGeneData
   def buildCompleteDefault(implicit ev: T =:= DefaultGene, st: TypeTag[T]): CompleteDefaultGeneData
@@ -29,7 +31,7 @@ object GeneBuilder {
   private class GeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                  name: Option[String],
                                                  properties: Map[String, Class[_]],
-                                                 alleles: Iterable[AlleleData],
+                                                 alleles: Iterable[_ <: PartialAlleleData],
                                                  conversionMap: Map[String, Map[String, Double]])
                                                 (implicit val status: TypeTag[T]) extends GeneBuilder[T] {
 
@@ -42,7 +44,7 @@ object GeneBuilder {
     def addProperties(properties: Map[String, Class[_]]): GeneBuilder[T with GeneWithProperties] =
       new GeneBuilderImpl(id, name, properties, alleles, conversionMap)
 
-    def addAlleles(alleles: Iterable[AlleleData]): GeneBuilder[T with GeneWithAlleles] = {
+    def addAlleles(alleles: Iterable[CompleteAlleleData]): GeneBuilder[T with GeneWithAlleles] = {
       require(alleles.nonEmpty)
       new GeneBuilderImpl(id, name, properties, alleles, conversionMap)
     }
@@ -62,24 +64,23 @@ object GeneBuilder {
       //TODO check no conversion map
       status.tpe match {
         case t if t <:< typeOf[DefaultGene] =>
-          val illegalState = completeGeneRequirements
-          if(illegalState.isEmpty) {
-            new DefaultGeneDataImpl(id, name, properties, alleles) with CompleteDefaultGeneData
+          val check = completeGeneRequirements
+          if(check._1.isEmpty) {
+            new DefaultGeneDataImpl(id, name, properties, check._2) with FullDefaultGeneData[CompleteAlleleData]
           } else {
-            new DefaultGeneDataImpl(id, name, properties, alleles) with PartialDefaultGeneData
+            new DefaultGeneDataImpl(id, name, properties, alleles)
           }
         case _ =>
-          new DefaultGeneDataImpl(id, name, properties, alleles) with PartialDefaultGeneData
+          new DefaultGeneDataImpl(id, name, properties, alleles)
       }
     }
 
     def buildCompleteDefault(implicit ev: T =:= DefaultGene, st: TypeTag[T]): CompleteDefaultGeneData = {
       //TODO in all builders
       require(status.tpe <:< st.tpe)
-      val illegalState = completeGeneRequirements
-      if(illegalState.isDefined)
-        throw illegalState.get
-      new DefaultGeneDataImpl(id, name, properties, alleles) with CompleteDefaultGeneData
+      val check = completeGeneRequirements
+      check._1.foreach(throw _)
+      new DefaultGeneDataImpl(id, name, properties, check._2) with FullDefaultGeneData[CompleteAlleleData]
     }
 
     def buildCustom(): PartialCustomGeneData = {
@@ -87,32 +88,44 @@ object GeneBuilder {
       //TODO resolve ambiguity with Default
       status.tpe match {
         case t if t <:< typeOf[CustomGene] =>
-          val illegalState = completeGeneRequirements
-          if(illegalState.isEmpty) {
-            new CustomGeneDataImpl(id, name, properties, alleles, conversionMap) with CompleteCustomGeneData
+          val check = completeGeneRequirements
+          if(check._1.isEmpty) {
+            new CustomGeneDataImpl(id, name, properties, check._2, conversionMap) with FullCustomGeneData[CompleteAlleleData]
           } else {
-            new CustomGeneDataImpl(id, name, properties, alleles, conversionMap) with PartialCustomGeneData
+            new CustomGeneDataImpl(id, name, properties, alleles, conversionMap)
           }
         case _ =>
-          new CustomGeneDataImpl(id, name, properties, alleles, conversionMap) with PartialCustomGeneData
+          new CustomGeneDataImpl(id, name, properties, alleles, conversionMap)
       }
     }
 
     def buildCompleteCustom(implicit ev: T =:= CustomGene, st: TypeTag[T]): CompleteCustomGeneData = {
       require(status.tpe <:< st.tpe)
-      val illegalState = completeGeneRequirements
-      if(illegalState.isDefined)
-        throw illegalState.get
-      new CustomGeneDataImpl(id, name, properties, alleles, conversionMap) with CompleteCustomGeneData
+      val check = completeGeneRequirements
+      check._1.foreach(throw _)
+      new CustomGeneDataImpl(id, name, properties, check._2, conversionMap) with FullCustomGeneData[CompleteAlleleData]
     }
 
-    private def completeGeneRequirements: Option[Exception] = {
-      if(alleles.map(_.probability).sum == 1.0 &&
-        alleles.forall(_.effect.keySet.subsetOf(properties.keySet)) &&
-        alleles.forall(a => id.contains(a.gene))) {
-        None
+    private def completeGeneRequirements: (Option[Exception], Iterable[CompleteAlleleData]) = {
+      var exception: Exception = null
+      val all: Iterable[CompleteAlleleData] = alleles.flatMap({
+        case c: CompleteAlleleData =>
+          Some(c)
+        case _ =>
+          None
+      })
+      if(all.size != all.size) {
+        exception = new IllegalStateException()
+      }
+      if(!(all.map(_.probability).sum == 1.0 &&
+        all.forall(_.effect.keySet.subsetOf(properties.keySet)) &&
+        all.forall(a => id.contains(a.gene)))) {
+        exception = new IllegalStateException()
+      }
+      if(exception == null) {
+        (None, all)
       } else {
-        Some(new IllegalStateException())
+        (Some(exception), Seq())
       }
     }
   }
@@ -132,21 +145,21 @@ object GeneBuilder {
     type CustomGene = CustomGeneTemplate with GeneWithId with GeneWithAlleles
   }
 
-  private class DefaultGeneDataImpl(override val getId: Option[String],
+  private class DefaultGeneDataImpl[A <: PartialAlleleData](override val getId: Option[String],
                                     override val getName: Option[String],
                                     _getProperties: Map[String, Class[_]],
-                                    _getAlleles: Iterable[AlleleData]) extends PartialGeneData {
+                                    _getAlleles: Iterable[A]) extends DefaultGeneData[A] {
     override val getProperties: Option[Map[String, Class[_]]] = if(_getProperties.isEmpty) None else Some(_getProperties)
     //TODO to set?????
-    override val getAlleles: Option[Set[AlleleData]] = if(_getAlleles.isEmpty) None else Some(_getAlleles.toSet)
+    override val getAlleles: Option[Set[A]] = if(_getAlleles.isEmpty) None else Some(_getAlleles.toSet)
   }
 
-  private class CustomGeneDataImpl(_id: Option[String],
+  private class CustomGeneDataImpl[A <: PartialAlleleData](_id: Option[String],
                                    _name: Option[String],
                                    _properties: Map[String, Class[_]],
-                                   _alleleData: Iterable[AlleleData],
+                                   _alleleData: Iterable[A],
                                    _conversionMap: Map[String, Map[String, Double]])
-    extends DefaultGeneDataImpl(_id, _name, _properties, _alleleData) with PartialCustomGeneData {
+    extends DefaultGeneDataImpl(_id, _name, _properties, _alleleData) with CustomGeneData[A] {
 
     override val getConversionMap: Option[Map[String, Map[String, Double]]] = if(_conversionMap.isEmpty) None else Some(_conversionMap)
     //TODO check conversion map with base qualities

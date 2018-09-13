@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
+import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
+import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.fixtures.{CustomGeneBuildFixture, DefaultGeneBuildFixture}
 import org.scalatest.WordSpec

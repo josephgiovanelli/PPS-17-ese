@@ -1,8 +1,13 @@
 package it.unibo.pps.ese.controller.loader.data
 
-trait PartialCustomGeneData extends PartialGeneData {
+trait CustomGeneData[T <: PartialAlleleData] extends GeneData[T] {
   def getConversionMap: Option[Map[String, Map[String, Double]]]
 }
-trait CompleteCustomGeneData extends PartialCustomGeneData with CompleteGeneData {
+trait FullCustomGeneData[T <: PartialAlleleData] extends CustomGeneData[T] with FullDefaultGeneData[T] {
   def conversionMap: Map[String, Map[String, Double]] = getConversionMap.getOrElse(throw new IllegalStateException())
+}
+
+object CustomGeneData {
+  type PartialCustomGeneData = CustomGeneData[_ <: PartialAlleleData]
+  type CompleteCustomGeneData = PartialCustomGeneData with FullCustomGeneData[_ <: CompleteAlleleData]
 }
