@@ -26,6 +26,9 @@ case class ComputeNextStateAck() extends BaseEvent with HighPriorityEvent
 
 case class Kill(entityId: String) extends BaseEvent
 case class Create(sons: Iterable[AnimalInfo]) extends BaseEvent
+/*
+case class CreateEntities(sons: Iterable[Entity]) extends BaseEvent
+*/
 
 case class GetInfo() extends BaseEvent with HighPriorityEvent
 case class GetInfoAck() extends BaseEvent with HighPriorityEvent
@@ -82,6 +85,8 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
         case Failure(exception) =>
           exception
       })
+    /*case CreateEntities(entities) =>
+      entities.foreach(entity => world addEntity entity)*/
     case ComputeNextStateAck() =>
       runningJobAccumulator.incrementAndGet
       checkRunningJobCompletion()
