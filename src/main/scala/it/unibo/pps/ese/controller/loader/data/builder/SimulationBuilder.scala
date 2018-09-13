@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
-import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus.{EmptySimulation, FullSimulation, SimulationWithAnimals, SimulationWithPlants}
 import it.unibo.pps.ese.controller.loader.data._
@@ -12,6 +12,7 @@ trait SimulationBuilder[T <: SimulationStatus] {
   def addAnimals(animals: Iterable[(_ <: PartialAnimalData, Int)]): SimulationBuilder[T with SimulationWithAnimals]
   def addPlants(plants: Iterable[(_ <: PartialPlantData, Int)]): SimulationBuilder[T with SimulationWithPlants]
   def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData
+  def build(): PartialSimulationData
 }
 
 object SimulationBuilder {
@@ -32,6 +33,20 @@ object SimulationBuilder {
       val check = checkComplete()
       check._1.foreach(throw _)
       new SimulationDataImpl(check._2, check._3) with FullSimulationData[CompleteAnimalData, CompletePlantData]
+    }
+
+    def build(): PartialSimulationData = {
+      //require(status.tpe <:< st.tpe)
+      status.tpe match {
+        case t if t <:< typeOf[FullSimulation] =>
+          val check = checkComplete()
+          if(check._1.isEmpty)
+            new SimulationDataImpl(check._2, check._3) with FullSimulationData[CompleteAnimalData, CompletePlantData]
+          else
+            new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals, plants)
+        case _ =>
+          new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals, plants)
+      }
     }
 
     private def checkComplete(): (Option[Exception], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) ={

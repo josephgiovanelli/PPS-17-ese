@@ -3,7 +3,9 @@ package it.unibo.pps.ese.genericworld
 import java.util.UUID
 import java.util.UUID.randomUUID
 
+import it.unibo.pps.ese.Launcher.{parameters, stage}
 import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.genericworld.controller.Controller
@@ -48,17 +50,25 @@ object TestLauncher extends JFXApp {
 //    val controller: Controller =
 //      SimulationBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
 
-  val controller: Controller =
-    new SimulationBuilder[EmptySimulation] dimension(500, 500) data "it/unibo/pps/ese/controller/loader/Simulation.yml" build
+  YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml") match {
+    case data: CompleteSimulationData =>
+      val controller: Controller =
+        new SimulationBuilder[EmptySimulation]
+          .dimension(500, 500)
+          .data(data)
+          .build
 
-  val view = View(GeneticsSimulator)
-  stage = view
-  controller attachView (view, frameRate = 30)
-  controller.manage.play()
+      val view = View(GeneticsSimulator)
+      stage = view
+      controller attachView (view, frameRate = 30)
+      controller.manage.play()
 
-    stage.setOnCloseRequest((e: WindowEvent) => {
+      stage.setOnCloseRequest((e: WindowEvent) => {
         controller.manage.exit()
-    })
+      })
+    case _ =>
+      throw new IllegalArgumentException
+  }
 
 //    println("Playing")
 //    Thread.sleep(1000)

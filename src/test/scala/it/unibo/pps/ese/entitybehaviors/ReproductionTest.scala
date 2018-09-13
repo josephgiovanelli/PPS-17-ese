@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.entitybehaviors
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.Deterministic
 import it.unibo.pps.ese.genericworld.model.{EntityUpdateState, _}
@@ -27,7 +28,7 @@ class ReproductionTest extends FunSuite {
   StaticRules.instance().setRules(worldRules)
 
 
-  private val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
+  private val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml").asInstanceOf[CompleteSimulationData]
   private val geneticsSimulator = GeneticsSimulator
   private val initializedSimulation = geneticsSimulator.beginSimulation(data)
 

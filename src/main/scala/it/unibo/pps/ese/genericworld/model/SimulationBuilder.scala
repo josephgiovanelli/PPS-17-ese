@@ -45,9 +45,6 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
   def data(data: CompleteSimulationData): SimulationBuilder[Simulation with Data] =
     new SimulationBuilder(width, height, data)
 
-  def data(simulationConfigPath: String): SimulationBuilder[Simulation with Data] =
-    new SimulationBuilder(width, height, YamlLoader.loadSimulation(simulationConfigPath))
-
   def build(implicit ev: Simulation =:= ReadySimulation): Controller = controller
 
   private lazy val controller: Controller = {

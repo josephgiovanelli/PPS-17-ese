@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.genetics.dna.{Chromosome, ChromosomeCouple, ChromosomeType, GeneInChromosome, GeneWithAllelicForms, MGene, StructuralGene}
 import it.unibo.pps.ese.genetics.dnaexpression.{AllelicGeneStats, BasicGeneStats, GeneStats}
@@ -12,7 +13,7 @@ class TestGeneStatsRetrieving extends fixture.FunSuite {
   type FixtureParam = GeneticsSimulator
 
   def withFixture(test: OneArgTest):Outcome={
-    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml")
+    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml").asInstanceOf[CompleteSimulationData]
     val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
     geneticsSimulator.beginSimulation(data)
     test(geneticsSimulator)

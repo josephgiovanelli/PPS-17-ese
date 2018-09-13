@@ -3,8 +3,8 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
-import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
-import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
+import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.{AnimalBuilder, GeneBuilder, PlantBuilder, SimulationBuilder}
 import it.unibo.pps.ese.controller.util.io.Folder
@@ -26,39 +26,73 @@ object YamlLoader extends Loader {
 
   import CustomYaml._
 
-  override def loadSimulation(configPath: String): CompleteSimulationData = {
+  override def loadSimulation(configPath: String): PartialSimulationData = {
     val simulation = loadFileContent(configPath).parseYaml.convertTo[Simulation]
-    val animals: Map[CompleteAnimalData, Int] = simulation.animals.map({
+    val animals: Map[PartialAnimalData, Int] = simulation.animals.map({
       case (k, v) =>
-        val animal: CompleteAnimalData = loadAnimal(k)
-        val ret: (CompleteAnimalData, Int) = (animal, v)
+        val animal: PartialAnimalData = loadAnimal(k)
+        val ret: (PartialAnimalData, Int) = (animal, v)
         ret
     })
-    //SimulationData.ttt(animals)
+    val plants: Map[PartialPlantData, Int] = simulation.plants.map({
+      case (k, v) =>
+        val ret: (PartialPlantData, Int) = (loadPlant(k), v)
+        ret
+    })
+
     SimulationBuilder()
         .addAnimals(animals)
-        .addPlants(simulation.plants.map({case (k, v) => (loadPlant(k), v)}))
-        .buildComplete
+        .addPlants(plants)
+        .build
   }
 
-  private def loadPlant(path: String): CompletePlantData =
-    PlantBuilder().setInfo(loadFileContent(path).parseYaml.convertTo[Plant]).buildComplete
+  private def loadPlant(path: String): PartialPlantData = {
+    val loadedPlant = loadFileContent(path).parseYaml.convertTo[Plant]
+    var builder: PlantBuilder[_] = PlantBuilder()
+    if(loadedPlant.name.isValid)
+      builder = builder.setName(loadedPlant.name)
+    if(loadedPlant.reign.isValid)
+      builder = builder.setReign(loadedPlant.reign)
+    if(loadedPlant.alleleLength.isValid)
+      builder = builder.setAlleleLength(loadedPlant.alleleLength)
+    if(loadedPlant.geneLength.isValid)
+      builder = builder.setGeneLength(loadedPlant.geneLength)
+    if(loadedPlant.attractiveness.isValid)
+      builder = builder.setAttractiveness(loadedPlant.attractiveness)
+    if(loadedPlant.hardness.isValid)
+      builder = builder.setHardness(loadedPlant.hardness)
+    if(loadedPlant.availability.isValid)
+      builder = builder.setAvailability(loadedPlant.availability)
+    if(loadedPlant.height.isValid)
+      builder = builder.setHeight(loadedPlant.height)
+    if(loadedPlant.nutritionalValue.isValid)
+      builder = builder.setNutritionalValue(loadedPlant.nutritionalValue)
+    builder.build()
+  }
 
-  private def loadAnimal(path: String): CompleteAnimalData = {
+  private def loadAnimal(path: String): PartialAnimalData = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
     val structuralChromosome = loadStructuralChromosome(loadedAnimal.structuralChromosome)
     val regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
     val sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome)
-    AnimalBuilder()
-      .setName(loadedAnimal.name)
-      .setTypology(loadedAnimal.typology)
-      .setReign(loadedAnimal.reign)
-      .setAlleleLength(loadedAnimal.alleleLength)
-      .setGeneLength(loadedAnimal.geneLength)
-      .addStructuralChromosome(structuralChromosome)
-      .addRegulationChromosome(regulationChromosome)
-      .addSexualChromosome(sexualChromosome)
-      .buildComplete
+    var builder: AnimalBuilder[_] = AnimalBuilder()
+    if(loadedAnimal.name.isValid)
+      builder = builder.setName(loadedAnimal.name)
+    if(loadedAnimal.typology.isValid)
+      builder = builder.setTypology(loadedAnimal.typology)
+    if(loadedAnimal.reign.isValid)
+      builder = builder.setReign(loadedAnimal.reign)
+    if(loadedAnimal.alleleLength.isValid)
+      builder = builder.setAlleleLength(loadedAnimal.alleleLength)
+    if(loadedAnimal.geneLength.isValid)
+      builder = builder.setGeneLength(loadedAnimal.geneLength)
+    if(structuralChromosome.isValid)
+      builder = builder.addStructuralChromosome(structuralChromosome)
+    if(regulationChromosome.isValid)
+      builder = builder.addRegulationChromosome(regulationChromosome)
+    if(sexualChromosome.isValid)
+      builder = builder.addSexualChromosome(sexualChromosome)
+    builder.build
   }
 
   private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData): Seq[GeneBuilder[_]] = {
@@ -100,5 +134,17 @@ object YamlLoader extends Loader {
     val ret = source.mkString
     source.close()
     ret
+  }
+
+  implicit class ValidableString(str: String) {
+    def isValid: Boolean = str != ""
+  }
+
+  implicit class ValidableIterable(it: Iterable[_]) {
+    def isValid: Boolean = it.nonEmpty
+  }
+
+  implicit class ValidableNumeric(num: Double) {
+    def isValid: Boolean = num != -1
   }
 }

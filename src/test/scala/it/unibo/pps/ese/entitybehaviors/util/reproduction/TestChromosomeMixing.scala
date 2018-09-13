@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.entitybehaviors.util.reproduction
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, Chromosome, ChromosomeCouple, ChromosomeType, MGene, ProteinoGenicAmminoacid, RegulatorGene, SexualChromosomeCouple, StructuralGene, X, Y}
@@ -48,7 +49,7 @@ class TestChromosomeMixing extends FunSuite {
   }
 
   test("Chromosomes couples can be correctly mixed with mutations") {
-    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml")
+    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml").asInstanceOf[CompleteSimulationData]
     val initializedSimulation = GeneticsSimulator.beginSimulation(data)
     val animalGenome = initializedSimulation.getAllAnimals.head._2.head.genome
 
