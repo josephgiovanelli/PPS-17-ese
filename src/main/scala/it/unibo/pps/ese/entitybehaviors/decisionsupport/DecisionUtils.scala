@@ -68,7 +68,7 @@ object EntityKinds extends Enumeration {
   entityKinds.foreach(Value)
   private var constants: Map[Symbol, EntityKinds.Value] = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
 
-  def updateSpecies() = {
+  def updateSpecies(): Unit = {
     entityKinds = StaticRules.instance().getSpecies()
     entityKinds.foreach(Value)
     constants = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
