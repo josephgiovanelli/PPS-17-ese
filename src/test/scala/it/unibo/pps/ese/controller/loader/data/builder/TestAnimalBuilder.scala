@@ -29,6 +29,12 @@ class TestAnimalBuilder extends WordSpec with AnimalBuilderFixture {
       "implicitly build a PartialGeneData" in {
         animalBFixture.staticIncomplete.build() match {
           case gb: PartialAnimalData =>
+//            val test = Map("getName" -> "name", "getAlleleLength" -> "alleleLength")
+//            println("\nFields:")
+//            gb.getClass.getFields.foreach(f => println(f.getName))
+//            println("\nMethods:")
+//            gb.getClass.getMethods.filter(m => test.contains(m.getName)).map(m => (test(m.getName), m.invoke(gb)))
+//              .foreach(println(_))
           case _ =>
             fail()
         }
