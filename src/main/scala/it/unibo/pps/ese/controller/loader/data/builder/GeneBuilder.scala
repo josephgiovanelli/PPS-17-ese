@@ -1,10 +1,10 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
-import it.unibo.pps.ese.controller.loader.beans.Gene
+import it.unibo.pps.ese.controller.loader.beans.{Gene, PropertyInfo}
 import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.GeneStatus
+import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.{GeneBuilderImpl, GeneStatus}
 import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.GeneStatus._
 
 import scala.reflect.runtime.universe._
@@ -14,6 +14,7 @@ trait GeneBuilder[T <: GeneStatus] {
   def setName(name: String): GeneBuilder[T with GeneWithName]
   def addProperties(properties: Map[String, Class[_]]): GeneBuilder[T with GeneWithProperties]
   def addAlleles(alleles: Iterable[CompleteAlleleData]): GeneBuilder[T with GeneWithAlleles]
+  def addAllelesB(alleles: Iterable[AlleleBuilder[_]]): GeneBuilder[T with GeneWithAlleles]
   def addConversionMap(conversionMap: Map[String, Map[String, Double]]): GeneBuilder[T with GeneWithConversionMap]
   def buildDefault(): PartialDefaultGeneData
   def buildCompleteDefault(implicit ev: T =:= DefaultGene, st: TypeTag[T]): CompleteDefaultGeneData
@@ -22,6 +23,7 @@ trait GeneBuilder[T <: GeneStatus] {
   def status: TypeTag[T]
   def setDefaultInfo(defaultGene: it.unibo.pps.ese.controller.loader.DefaultGene): GeneBuilder[T with DefaultGeneTemplate]
   def setCustomInfo(gene: Gene): GeneBuilder[T with CustomGeneTemplate with GeneWithId]
+  def setCustomProperties(properties: Map[String, PropertyInfo]): GeneBuilder[T with GeneWithProperties with GeneWithConversionMap]
 }
 
 object GeneBuilder {
@@ -49,6 +51,10 @@ object GeneBuilder {
       new GeneBuilderImpl(id, name, properties, alleles, conversionMap)
     }
 
+    override def addAllelesB(alleles: Iterable[AlleleBuilder[_]]): GeneBuilder[T with GeneWithAlleles] = {
+      new GeneBuilderImpl(id, name, properties, alleles.map(_.build()), conversionMap)
+    }
+
     def addConversionMap(conversionMap: Map[String, Map[String, Double]]): GeneBuilder[T with GeneWithConversionMap] =
       new GeneBuilderImpl(id, name, properties, alleles, conversionMap)
 
@@ -58,6 +64,11 @@ object GeneBuilder {
     def setCustomInfo(gene: Gene): GeneBuilder[T with CustomGeneTemplate with GeneWithId] =
       new GeneBuilderImpl(Some(gene.id), Some(gene.simpleName), gene.properties.keySet.map((_, classOf[Double])).toMap, alleles,
         gene.properties.map({case (k,v) => (k, v.conversionMap)}))
+
+    def setCustomProperties(properties: Map[String, PropertyInfo]): GeneBuilder[T with GeneWithProperties with GeneWithConversionMap] = {
+      new GeneBuilderImpl(id, name, properties.keySet.map((_, classOf[Double])).toMap, alleles,
+        properties.map({case (k,v) => (k, v.conversionMap)}))
+    }
 
     def buildDefault(): PartialDefaultGeneData = {
       //require(status.tpe <:< st.tpe)

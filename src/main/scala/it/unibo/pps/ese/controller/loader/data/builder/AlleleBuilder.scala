@@ -7,6 +7,7 @@ import it.unibo.pps.ese.controller.loader.data.builder.AlleleBuilder.AlleleStatu
 import scala.reflect.runtime.universe._
 
 trait AlleleBuilder[T <: AlleleStatus] {
+  def gene: Option[String]
   def setGene(gene: String): AlleleBuilder[T with AlleleWithGene]
   def setId(id: String): AlleleBuilder[T with AlleleWithId]
   def setDominance(dominance: Double): AlleleBuilder[T with AlleleWithDominance]
@@ -21,7 +22,7 @@ object AlleleBuilder {
 
   def apply(): AlleleBuilder[EmptyAllele] = new AlleleBuilderImpl[EmptyAllele](None, None, None, None, None, Map())
 
-  private class AlleleBuilderImpl[T <: AlleleStatus](gene: Option[String],
+  private class AlleleBuilderImpl[T <: AlleleStatus](val gene: Option[String],
                                   id: Option[String],
                                   dominance: Option[Double],
                                   consume: Option[Double],

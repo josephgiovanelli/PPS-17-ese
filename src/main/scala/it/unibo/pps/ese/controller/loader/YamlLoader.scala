@@ -26,6 +26,11 @@ object YamlLoader extends Loader {
 
   import CustomYaml._
 
+  implicit val int: DefaultValue[Int] = DefaultValue(Integer.MIN_VALUE)
+  implicit val double: DefaultValue[Double] = DefaultValue(Double.MinValue)
+  implicit val string: DefaultValue[String] = DefaultValue("")
+  implicit val iterable: DefaultValue[Iterable[_]] = DefaultValue(Iterable())
+
   override def loadSimulation(configPath: String): PartialSimulationData = {
     val simulation = loadFileContent(configPath).parseYaml.convertTo[Simulation]
     val animals: Map[PartialAnimalData, Int] = simulation.animals.map({
@@ -96,42 +101,60 @@ object YamlLoader extends Loader {
   }
 
   private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData): Seq[GeneBuilder[_]] = {
-    require(chromosomeData.names.keySet == genesSet.map(_.name))
-    val alleles = loadAlleles(chromosomeData.allelesPath)
+    //TODO in builder, only check subset here
+    //require(chromosomeData.names.keySet == genesSet.map(_.name))
+    var alleles: Seq[AlleleBuilder[_]] = Seq()
+    if(chromosomeData.allelesPath.isValid) {
+      alleles = loadAlleles(chromosomeData.allelesPath)
+    }
     //TODO check no wrong alleles
     chromosomeData.names.toSeq.map({
       case (k, v) =>
-        GeneBuilder()
+        var builder: GeneBuilder[_] = GeneBuilder()
           .setDefaultInfo(genesSet.find(e => e.name == k).get)
-          .setId(v)
-          .addAlleles(alleles.filter(a => a.gene == v))
-          //.buildCompleteDefault
+        if(v.isValid)
+          builder = builder.setId(v)
+        if(chromosomeData.allelesPath.isValid && v.isValid)
+          builder = builder.addAllelesB(alleles.filter(a => a.gene.getOrElse("") == v))
+        builder
     })
   }
 
   private def loadStructuralChromosome(genesPath: String): Seq[GeneBuilder[_]] =  {
     Folder(genesPath).getFilesAsStream(Folder.YAML)
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
-      .map(g =>
-      GeneBuilder()
-        .setCustomInfo(g)
-        .addAlleles(loadAlleles(g.allelesPath))
-        //.buildCompleteCustom
-      )
+      .map(g => {
+        var builder: GeneBuilder[_] = GeneBuilder()
+        if(g.id.isValid)
+          builder = builder.setId(g.id)
+        if(g.simpleName.isValid)
+          builder = builder.setName(g.simpleName)
+        if(g.properties.isValid)
+          builder = builder.setCustomProperties(g.properties)
+        if(g.allelesPath.isValid)
+          builder = builder.addAllelesB(loadAlleles(g.allelesPath))
+        builder
+      })
   }
 
-  private def loadAlleles(allelesPath: String): Seq[CompleteAlleleData] = {
+  private def loadAlleles(allelesPath: String): Seq[AlleleBuilder[_]] = {
     Folder(allelesPath).getFilesAsStream(Folder.YAML)
       .map(path => {
         val all = loadFileContent(path).parseYaml.convertTo[Allele]
-        AlleleBuilder()
-          .setId(all.id)
-          .setGene(all.gene)
-          .setConsume(all.consume)
-          .setDominance(all.dominance)
-          .setEffect(all.effect)
-          .setProbability(all.probability)
-          .buildComplete
+        var builder: AlleleBuilder[_] = AlleleBuilder()
+        if(all.id.isValid)
+          builder = builder.setId(all.id)
+        if(all.gene.isValid)
+          builder = builder.setGene(all.gene)
+        if(all.consume.isValid)
+          builder = builder.setConsume(all.consume)
+        if(all.dominance.isValid)
+          builder = builder.setDominance(all.dominance)
+        if(all.effect.isValid)
+          builder = builder.setEffect(all.effect)
+        if(all.probability.isValid)
+          builder = builder.setProbability(all.probability)
+        builder
       })
   }
 
@@ -146,15 +169,25 @@ object YamlLoader extends Loader {
     ret
   }
 
-  implicit class ValidableString(str: String) {
-    def isValid: Boolean = str != ""
+  case class DefaultValue[T](get: T)
+
+  trait Validable[T] {
+    def isValid(implicit defaultValue: DefaultValue[T]): Boolean
   }
 
-  implicit class ValidableIterable(it: Iterable[_]) {
-    def isValid: Boolean = it.nonEmpty
+  implicit class ValidableString(str: String) extends Validable[String] {
+    def isValid(implicit defaultValue: DefaultValue[String]): Boolean = str != defaultValue.get
   }
 
-  implicit class ValidableNumeric(num: Double) {
-    def isValid: Boolean = num != -1
+  implicit class ValidableIterable(it: Iterable[_]) extends Validable[Iterable[_]] {
+    def isValid(implicit defaultValue: DefaultValue[Iterable[_]]): Boolean = it != defaultValue.get
+  }
+
+  implicit class ValidableNumeric(num: Double) extends Validable[Double] {
+    def isValid(implicit defaultValue: DefaultValue[Double]): Boolean = num != defaultValue.get
+  }
+
+  trait DefaultGet[T] {
+    def getOrDefault(implicit defaultValue: DefaultValue[T]): T
   }
 }
