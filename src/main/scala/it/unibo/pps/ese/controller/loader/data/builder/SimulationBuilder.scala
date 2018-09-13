@@ -1,8 +1,7 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
-import it.unibo.pps.ese.controller.loader.data.AnimalData.{AnimalDataImpl, CompleteAnimalData, PartialAnimalData}
+import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
-import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus.FullAnimal
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus.{EmptySimulation, FullSimulation, SimulationWithAnimals, SimulationWithPlants}
 import it.unibo.pps.ese.controller.loader.data._
@@ -17,43 +16,43 @@ trait SimulationBuilder[T <: SimulationStatus] {
 
 object SimulationBuilder {
 
-  def apply(): SimulationBuilder[EmptySimulation] = new SimulationBuilderImpl[EmptySimulation](None, None)
+  def apply(): SimulationBuilder[EmptySimulation] = new SimulationBuilderImpl[EmptySimulation](Seq(), Seq())
 
-  private class SimulationBuilderImpl[T <: SimulationStatus](animals: Option[Iterable[(_ <: PartialAnimalData, Int)]],
-                                                             plants: Option[Iterable[(_ <: PartialPlantData, Int)]])
+  private class SimulationBuilderImpl[T <: SimulationStatus](animals: Iterable[(_ <: PartialAnimalData, Int)],
+                                                             plants: Iterable[(_ <: PartialPlantData, Int)])
                                                             (implicit val status: TypeTag[T]) extends SimulationBuilder[T] {
     def addAnimals(animals: Iterable[(_ <: PartialAnimalData, Int)]): SimulationBuilder[T with SimulationWithAnimals] = {
-      new SimulationBuilderImpl(Some(animals), plants)
+      new SimulationBuilderImpl(animals, plants)
     }
     def addPlants(plants: Iterable[(_ <: PartialPlantData, Int)]): SimulationBuilder[T with SimulationWithPlants] = {
-      new SimulationBuilderImpl(animals, Some(plants))
+      new SimulationBuilderImpl(animals, plants)
     }
 
     def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData = {
       val check = checkComplete()
       check._1.foreach(throw _)
-      new SimulationDataImpl(Some(check._2), Some(check._3)) with FullSimulationData[CompleteAnimalData, CompletePlantData]
+      new SimulationDataImpl(check._2, check._3) with FullSimulationData[CompleteAnimalData, CompletePlantData]
     }
 
     private def checkComplete(): (Option[Exception], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) ={
       //TODO concat like list Nil :: ecc...
       var exception: Exception = null
-      val a: Iterable[(CompleteAnimalData, Int)] = animals.getOrElse(throw new IllegalStateException()).flatMap({
+      val a: Iterable[(CompleteAnimalData, Int)] = animals.flatMap({
         case t: (CompleteAnimalData, Int) =>
           Some((t._1, t._2))
         case _ =>
           None
       })
-      if(animals.get.size != a.size) {
+      if(animals.size != a.size) {
         exception = new IllegalStateException()
       }
-      val p: Iterable[(CompletePlantData, Int)] = plants.getOrElse(throw new IllegalStateException()).flatMap({
+      val p: Iterable[(CompletePlantData, Int)] = plants.flatMap({
         case(plant: CompletePlantData, i: Int) =>
           Some((plant, i))
         case _ =>
           None
       })
-      if(p.size != plants.get.size)
+      if(p.size != plants.size)
         exception = new IllegalStateException()
       if(exception == null) {
         //(None, a, p)
@@ -64,11 +63,6 @@ object SimulationBuilder {
     }
   }
 
-  private case class SimulationDataImpl[A <: PartialAnimalData, P <: PartialPlantData](
-                                                                                        getAnimals: Option[Iterable[(A, Int)]],
-                                                                                        getPlants: Option[Iterable[(P, Int)]]
-                                                                                      ) extends SimulationData[A, P]
-
   sealed trait SimulationStatus
   object SimulationStatus {
     sealed trait EmptySimulation extends SimulationStatus
@@ -76,5 +70,12 @@ object SimulationBuilder {
     sealed trait SimulationWithAnimals extends SimulationStatus
 
     type FullSimulation = EmptySimulation with SimulationWithPlants with SimulationWithAnimals
+  }
+
+  private class SimulationDataImpl[A <: PartialAnimalData, P <: PartialPlantData](_animals: Iterable[(A, Int)],
+                                                                                  _plants: Iterable[(P, Int)]
+                                                                                 ) extends SimulationData[A, P] {
+    override val getAnimals: Option[Iterable[(A, Int)]] = if(_animals.isEmpty) None else Some(_animals)
+    override val getPlants: Option[Iterable[(P, Int)]] = if(_plants.isEmpty) None else Some(_plants)
   }
 }

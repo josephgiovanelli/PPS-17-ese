@@ -1,8 +1,6 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
 import it.unibo.pps.ese.controller.loader.beans.Plant
-import it.unibo.pps.ese.controller.loader.data.AnimalData.{AnimalDataImpl, CompleteAnimalData, PartialAnimalData}
-import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus.FullAnimal
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
 import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus._
@@ -100,16 +98,6 @@ object PlantBuilder {
     }
   }
 
-  private case class PlantDataImpl(getHeight: Option[Double],
-                                   getNutritionalValue: Option[Double],
-                                   getAttractiveness: Option[Double],
-                                   getHardness: Option[Double],
-                                   getAvailability: Option[Double],
-                                   getName: Option[String],
-                                   getGeneLength: Option[Int],
-                                   getAlleleLength: Option[Int],
-                                   getReign: Option[String]) extends PartialPlantData
-
   sealed trait PlantStatus
   object PlantStatus {
     sealed trait EmptyPlant extends PlantStatus
@@ -127,4 +115,14 @@ object PlantBuilder {
       PlantWithHardness with PlantWithAvailability with PlantWithName with PlantWithGeneLength
       with PlantWithAlleleLength with PlantWithReign
   }
+
+  private case class PlantDataImpl(getHeight: Option[Double],
+                                   getNutritionalValue: Option[Double],
+                                   getAttractiveness: Option[Double],
+                                   getHardness: Option[Double],
+                                   getAvailability: Option[Double],
+                                   getName: Option[String],
+                                   getGeneLength: Option[Int],
+                                   getAlleleLength: Option[Int],
+                                   getReign: Option[String]) extends PartialPlantData
 }
