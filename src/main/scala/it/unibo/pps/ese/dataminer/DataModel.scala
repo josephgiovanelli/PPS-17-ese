@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.dataminer
 
+import it.unibo.pps.ese.entitybehaviors.ActionKind
 import it.unibo.pps.ese.utils.Point
 
 trait EntityLog {
@@ -35,6 +36,11 @@ trait AnimalDynamicData extends DynamicData {
   val energy: Double
   val lifePhase: LifePhase
   val speed: Double
+  val coupling: Seq[String]
+  val eating: Seq[String]
+  val givingBirth: Seq[String]
+  val producedMutantGenes: Seq[String]
+  val will: ActionKind.Value
 }
 
 trait PlantDynamicData extends DynamicData

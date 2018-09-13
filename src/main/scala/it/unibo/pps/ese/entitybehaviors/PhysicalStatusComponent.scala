@@ -38,6 +38,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
                                   (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
   val MAX_ENERGY = 1000
+  val MAX_SATISFACTION = 100
   val MIN_DIGESTION_TIME = 10
   val MAX_DIGESTION_TIME = 40
 
@@ -45,10 +46,12 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   var currentEnergy: Double = MAX_ENERGY
   var currentPhase: LifePhases.Value = LifePhases.CHILD
   var currentSpeed: Double = speed
+  var currentFertility: Double = 0
   var elapsedClocksSinceLastYear: Int = 0
   var elapsedClocksSinceDigestion: Int = 0
   var digestionTime: Int = 0
   var extraEnergyRequirements: Double = 0
+  var satisfaction: Double = 0
 
   override def initialize(): Unit = {
     subscribeEvents()
@@ -63,6 +66,9 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     subscribe {
       case ComputeNextState() =>
         this synchronized {
+          if (satisfaction != 0) {
+            satisfaction -= 1
+          }
           if (digestionTime == 0) {
             currentEnergy -= (energyRequirements + extraEnergyRequirements)
           }
@@ -87,33 +93,37 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
       case _: PregnancyEnd =>
         extraEnergyRequirements = 0
       case r: DynamicParametersRequest =>
-        publish(DynamicParametersResponse(r.id, currentSpeed, currentEnergy, fertility))
+        publish(DynamicParametersResponse(r.id, currentSpeed, currentEnergy, currentFertility, satisfaction))
       case r: ReproductionPhysicalInformationRequest =>
-        publish(ReproductionPhysicalInformationResponse(r id, fertility))
-      case InteractionEntity(entityId, action) if action == ActionKind.EAT =>
-        requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == entityId))
-          .onComplete {
-            case Success(result) =>
-              import EntityInfoConversion._
-              val necessaryEnergy = MAX_ENERGY - currentEnergy
-              val eatenEnergy = if (result.state.head.state.nutritionalValue > necessaryEnergy)
-                necessaryEnergy else result.state.head.state.nutritionalValue
-              this synchronized {
-                currentEnergy += eatenEnergy
-              }
-              digestionTime = (((eatenEnergy / MAX_ENERGY) * MAX_DIGESTION_TIME) + MIN_DIGESTION_TIME).toInt
-              elapsedClocksSinceDigestion = 0
-              publish(dynamicInfo)
-              publish(MealInformation(entityId, eatenEnergy))
+        publish(ReproductionPhysicalInformationResponse(r id, currentFertility))
+      case InteractionEntity(entityId, action) =>
+        if (action == ActionKind.EAT) {
+          requireData[EntitiesStateRequest, EntitiesStateResponse](EntitiesStateRequest(x => x.entityId == entityId))
+            .onComplete {
+              case Success(result) =>
+                import EntityInfoConversion._
+                val necessaryEnergy = MAX_ENERGY - currentEnergy
+                val eatenEnergy = if (result.state.head.state.nutritionalValue > necessaryEnergy)
+                  necessaryEnergy else result.state.head.state.nutritionalValue
+                this synchronized {
+                  currentEnergy += eatenEnergy
+                }
+                digestionTime = (((eatenEnergy / MAX_ENERGY) * MAX_DIGESTION_TIME) + MIN_DIGESTION_TIME).toInt
+                elapsedClocksSinceDigestion = 0
+                publish(dynamicInfo)
+                publish(MealInformation(entityId, eatenEnergy))
               //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")
-            case Failure(error) => throw error
-          }
+              case Failure(error) => throw error
+            }
+        } else {
+          satisfaction = MAX_SATISFACTION
+        }
       case MealInformation(_, _) =>
         //println("OMG!!1!!1! I've been killed! (Id : " + entitySpecifications.id +")")
         //publish(Kill(entitySpecifications id))
       case GetInfo() =>
         publish(dynamicInfo)
-        publish(PhysicalStatusInfo(averageLife, energyRequirements, endChildPhase, endAdultPhase, percentageDecay, speed, fertility))
+        publish(PhysicalStatusInfo(averageLife, energyRequirements, endChildPhase, endAdultPhase, percentageDecay, speed, currentFertility))
         publish(new GetInfoAck)
       case _ => Unit
     }
@@ -140,9 +150,17 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   private def yearCallback(): Unit = this synchronized {
     elapsedClocksSinceLastYear = 0
     currentYear += 1
-    if (currentPhase == LifePhases.CHILD && currentYear > endChildPhase) currentPhase = LifePhases.ADULT
-    else if (currentPhase == LifePhases.ADULT && currentYear > endAdultPhase) currentPhase = LifePhases.ELDERLY
-    else if (currentPhase == LifePhases.ELDERLY) currentSpeed = speed * percentageDecay
+    if (currentPhase == LifePhases.CHILD && (currentYear * percentageDecay) > endChildPhase) {
+      currentPhase = LifePhases.ADULT
+      currentFertility = fertility
+    }
+    else if (currentPhase == LifePhases.ADULT && (currentYear * percentageDecay) > endAdultPhase) {
+      currentPhase = LifePhases.ELDERLY
+      currentFertility = 0
+    }
+    else if (currentPhase == LifePhases.ELDERLY) {
+      currentSpeed = speed - (currentSpeed * percentageDecay)
+    }
     if (currentYear == floor(averageLife * percentageDecay)) publish(Kill(entitySpecifications id))
     publish(dynamicInfo)
   }

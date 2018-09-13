@@ -61,6 +61,12 @@ class InteractionTrackerComponent(override val entitySpecifications: EntitySpeci
       EntityProperty("create", ev create)
     )))
 
+    addMapping[ClearInteraction]((classOf[ClearInteraction], _ => Seq(
+      EntityProperty("eat", eat),
+      EntityProperty("couple", couple),
+      EntityProperty("create", create)
+    )))
+
     addMapping[EatInteraction]((classOf[EatInteraction], _ => Seq(
       EntityProperty("eat", eat)
     )))

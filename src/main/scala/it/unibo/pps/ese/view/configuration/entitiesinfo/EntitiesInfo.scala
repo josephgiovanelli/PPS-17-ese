@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.view.configuration.entitiesinfo
 
 import it.unibo.pps.ese.controller.loader.beans.{Allele, Gene, Plant, PropertyInfo}
-import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
+import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.{AnimalBuilder, GeneBuilder, PlantBuilder, SimulationBuilder}
@@ -51,6 +51,8 @@ sealed trait EntitiesInfo {
   def getPlants: Set[String]
 
   def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): CompleteSimulationData
+
+  def loadSimulationData(animalData: Seq[CompleteAnimalData], plantData: Seq[CompletePlantData]): Unit
 }
 
 object ChromosomeTypes extends Enumeration {
@@ -66,7 +68,11 @@ object EntitiesInfo {
     private var animals: Map[String, AnimalInfo] = Map.empty
     private var plants: Map[String, PlantInfo] = Map.empty
 
-    private val typologyMap = Map("Carnivorous" -> "C", "Herbivore" -> "H")
+    private val typologyMap = Map(
+      "Carnivorous" -> "C",
+      "Herbivore" -> "H",
+      "C" -> "Carnivorous",
+      "H" -> "Herbivore")
 
     /*
     Animals
@@ -156,9 +162,14 @@ object EntitiesInfo {
       .addPlants(plantsMapping(plantsEntities))
       .buildComplete
 
+    def loadSimulationData(animalData: Seq[CompleteAnimalData], plantData: Seq[CompletePlantData]): Unit = {
+      animals ++= animalsMapping(animalData)
+      plants ++= plantsMapping(plantData)
+    }
+
 
     /*
-    Mapping methods
+    Mapping methods EntitiesInfo to SimulationData
      */
 
     private def plantsMapping(plantsEntities: Map[String, Int]): Map[CompletePlantData, Int] = {
@@ -230,6 +241,53 @@ object EntitiesInfo {
 
     private def alleleMapping(gene: String, alleles: Map[String, AlleleInfo]): Iterable[AlleleData] =
       alleles.map(allele => Allele(gene, allele._2.id, allele._2.dominance, allele._2.consume, allele._2.probability, allele._2.effect))
+
+
+    /*
+    Mapping methods SimulationData to EntitiesInfo
+     */
+
+    private def plantsMapping(plantData: Seq[CompletePlantData]): Map[String, PlantInfo] =
+      plantData.map(plant => plant.name -> PlantInfo(plant.height, plant.nutritionalValue, plant.hardness, plant.availability)).toMap
+
+    private def animalsMapping(animalData: Seq[CompleteAnimalData]): Map[String, AnimalInfo] =
+      animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
+
+    private def animalBaseInfoMapping(animal: CompleteAnimalData): AnimalBaseInfo =
+      AnimalBaseInfo(animal.geneLength, animal.alleleLength, animal.typology)
+
+    private def animalChromosomeInfoMapping(animal: CompleteAnimalData): AnimalChromosomeInfo =
+      AnimalChromosomeInfo(structuralChromosomeMapping(animal.structuralChromosome), regulationChromosomeMapping(animal.regulationChromosome), sexualChromosomeMapping(animal.sexualChromosome))
+
+    private def sexualChromosomeMapping(sexualChromosome: Set[_ <: CompleteDefaultGeneData]): Map[String, DefaultChromosomeInfo] =
+      sexualChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.SEXUAL)).toMap
+
+    private def regulationChromosomeMapping(regulationChromosome: Set[_ <: CompleteDefaultGeneData]): Map[String, DefaultChromosomeInfo] =
+      regulationChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.REGULATION)).toMap
+
+    private def structuralChromosomeMapping(structuralChromosome: Set[_ <: CompleteCustomGeneData]): Map[String, CustomChromosomeInfo] =
+      structuralChromosome.map(customGene => customGene.name -> customChromosomeMapping(customGene)).toMap
+
+    private def defaultChromosomeMapping(defaultGene: CompleteDefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultChromosomeInfo =
+      DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.alleles))
+
+    private def customChromosomeMapping(customGene: CompleteCustomGeneData): CustomChromosomeInfo =
+      CustomChromosomeInfo(customGeneInfoMapping(customGene), allelesMapping(customGene.alleles))
+
+    private def defaultGeneInfoMapping(defaultGene: CompleteDefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultGeneInfo = chromosomeTypes match {
+      case ChromosomeTypes.REGULATION => DefaultGeneInfo(RegulationDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.id)
+      case ChromosomeTypes.SEXUAL => DefaultGeneInfo(SexualDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.id)
+    }
+
+    private def customGeneInfoMapping(customGeneData: CompleteCustomGeneData): CustomGeneInfo =
+      CustomGeneInfo(customGeneData.id, customGeneData.name, customGeneData.properties, customGeneData.conversionMap)
+
+    private def allelesMapping(alleles: Set[AlleleData]): Map[String, AlleleInfo] =
+      alleles.map(allele => allele.id -> alleleMapping(allele)).toMap
+
+    private def alleleMapping(allele: AlleleData): AlleleInfo =
+      AlleleInfo(allele.gene, allele.id, allele.dominance, allele.consume, allele.probability, allele.effect)
+
   }
 }
 

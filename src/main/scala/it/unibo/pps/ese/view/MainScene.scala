@@ -2,11 +2,16 @@ package it.unibo.pps.ese.view
 
 import scalafx.Includes._
 import javafx.event.ActionEvent
+
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.view.bodyViewer.BodyPane
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationDialog, ConfirmDialog}
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
+import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
+
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
 
@@ -17,36 +22,55 @@ object ZoomPreferences {
 }
 
 
-private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
+private class MainScene(
+                         geneticsSimulator: GeneticsSimulator,
+                         mainComponent: MainComponent,
+                         width: Double = 1400, height: Double = 900)
+  extends Scene(width, height) with WorldView  with BodyViewer with HistoryViewer{
 
   val generationTextLabel: String = "Generation: "
+  val currentWindow: scalafx.stage.Window = this.window()
 
   val menuBar = new MenuBar()
   val fileMenu = new Menu("File")
+  val editMenu = new Menu("Edit")
+  val addEntitiesItem = new MenuItem("Add Entities")
+  val addSpeciesItem = new MenuItem("Add Species")
   val newItem = new MenuItem("New")
   val openItem = new MenuItem("Open")
   val saveItem = new MenuItem("Save")
   val exitItem = new MenuItem("Exit")
   fileMenu.items = List(newItem, openItem, saveItem, new SeparatorMenuItem, exitItem)
-
+  editMenu.items = List(addEntitiesItem, addSpeciesItem)
+  menuBar.menus = List(fileMenu,editMenu)
   exitItem.onAction = (e: ActionEvent) => {
     sys.exit(0)
+  }
+
+  addEntitiesItem.onAction = (e: ActionEvent) => {
+    ConfirmDialog(currentWindow, mainComponent, setUp = false).showAndWait()
+  }
+
+  addSpeciesItem.onAction = (e: ActionEvent) => {
+    ConfigurationDialog(currentWindow, mainComponent, setUp = false).showAndWait()
   }
 
   val worldTab = new Tab()
   worldTab.text = "World"
   worldTab.closable = false
 
+  val bodyPane = BodyPane()
   val genomePane = GenomeDetailsPane(None)
 
   val worldContainerPane = new SplitPane()
+  val historyPane = HistoryPane()
   val detailsPane = DetailsPane(mainComponent)
   val worldPane: WorldPane = WorldPane(geneticsSimulator,mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal
-  worldContainerPane.items ++= List(worldPane, detailsPane)
-  worldContainerPane.dividerPositions = 0.7
+  worldContainerPane.items ++= List(historyPane,worldPane, detailsPane)
+  worldContainerPane.setDividerPositions(0.3,0.8,0.15)
   worldTab.content = worldContainerPane
 
   val zoomSlider = new Slider(ZoomPreferences.minZoom, ZoomPreferences.maxZoom, ZoomPreferences.prefZoom)
@@ -71,14 +95,20 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   val statisticsTab = new Tab()
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
+  statisticsTab.content = StatisticsDetailsPane()
 
   val genomeTab = new Tab()
   genomeTab.text = "Genome"
   genomeTab.closable = false
   genomeTab.content = genomePane
 
+  val bodyTab = new Tab()
+  bodyTab.text = "Body Parts"
+  bodyTab.closable = false
+  bodyTab.content = bodyPane
+
   val simulationPane = new TabPane()
-  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab)
+  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab,bodyTab)
   val mainPane = new BorderPane()
   mainPane.top = topPane
   mainPane.center = simulationPane
@@ -92,5 +122,13 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   override def updateWorld(generation: Int, world: List[Entity]): Unit = {
     generationLabel.text = generationTextLabel + generation
     worldPane.updateWorld(generation, world)
+  }
+
+  override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
+    bodyPane.updateAnimalInternalStatus(animalInternalStatus)
+  }
+
+  override def updateHistoryLog(newLog: HistoryLog): Unit = {
+    historyPane.updateHistoryLog(newLog)
   }
 }

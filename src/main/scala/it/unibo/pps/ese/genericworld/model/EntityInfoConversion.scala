@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.genericworld.model
 
-import it.unibo.pps.ese.entitybehaviors.{EmbryoStatus, LifePhases}
+import it.unibo.pps.ese.entitybehaviors.ActionKind.ActionKind
+import it.unibo.pps.ese.entitybehaviors.{ActionKind, EmbryoStatus, LifePhases}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityKinds, SexTypes}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds.EntityKinds
 import it.unibo.pps.ese.utils.Point
@@ -22,6 +23,7 @@ object EntityInfoConversion {
     def actionField : Double = obj.selectDynamic("actionField").asInstanceOf[Double]
     def visualField : Double = obj.selectDynamic("visualField").asInstanceOf[Double]
     def attractiveness : Double = obj.selectDynamic("attractiveness").asInstanceOf[Double]
+    def will: ActionKind.Value = obj.selectDynamic("will").asInstanceOf[ActionKind.Value]
   }
 
   implicit class PhysicalStatusComponentConversions(obj: EntityInfo) {
@@ -58,8 +60,10 @@ object EntityInfoConversion {
     def hippocampus: Boolean = obj.selectDynamic("hippocampus").asInstanceOf[Boolean]
     def stomach: Boolean = obj.selectDynamic("stomach").asInstanceOf[Boolean]
     def pregnant: Boolean = obj.selectDynamic("pregnant").asInstanceOf[Boolean]
-    def embryo : EmbryoStatus.Value = obj.selectDynamic("embryo").asInstanceOf[EmbryoStatus.Value]
+    def embryo : Option[EmbryoStatus.Value] = obj.selectDynamic("embryo").asInstanceOf[Option[EmbryoStatus.Value]]
     def reproductionOrgan: Boolean = obj.selectDynamic("reproductionOrgan").asInstanceOf[Boolean]
+    //da levare
+    def genes: Seq[String] = obj.selectDynamic("genes").asInstanceOf[Seq[String]]
   }
 
   implicit class InteractionTrackerComponentConversion(obj: EntityInfo) {

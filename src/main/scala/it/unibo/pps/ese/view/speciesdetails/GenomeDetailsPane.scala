@@ -14,6 +14,7 @@ import scalafx.scene.text.TextAlignment
 import TextUtilities._
 sealed trait GenomeDetailsPane extends Pane{
   def setGenomeStats(genomeStats:List[GeneCouple]):Unit
+  def clearGenomeStats():Unit
 }
 object GenomeDetailsPane {
   def apply(genomeStats: Option[List[GeneCouple]]):GenomeDetailsPane= new SpeciesDetailsPane(genomeStats)
@@ -80,6 +81,12 @@ object GenomeDetailsPane {
       for(i<-genomeStats.indices) molecules(i).setGeneStats(genomeStats(i),lS,rS)
 
     }
+    override def clearGenomeStats(): Unit ={
+      molecules.foreach(_.clearGeneStats())
+      lS.emptyGeneStats()
+      rS.emptyGeneStats()
+    }
+
 
     def createSubScene(node:Node,
                        fillPaint:Paint,  camera:Camera, msaa:Boolean):SubScene={

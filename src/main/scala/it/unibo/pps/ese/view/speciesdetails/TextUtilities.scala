@@ -2,9 +2,10 @@ package it.unibo.pps.ese.view.speciesdetails
 
 import javafx.scene.text.{Font, Text}
 import scalafx.scene.Node
+import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color
 import scalafx.scene.text.TextFlow
-
+import scalafx.Includes._
 object TextUtilities {
   implicit class RichText(string:String){
     def toTextStyled(style:String,color: Color,font: Font):Text ={
@@ -27,6 +28,15 @@ object TextUtilities {
         color = Color.White,
         font = Font.font("Calibri", 24)
       )
+    }
+    def toHBox:HBox = {
+      val hBox = new HBox()
+      hBox.children += toTextStyled(
+        style = "",
+        color = Color.Black,
+        font = Font.font("Calibri", 24)
+      )
+      hBox
     }
   }
   implicit class RichTextFlow(textFlow:TextFlow){

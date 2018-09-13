@@ -19,29 +19,45 @@ import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.input.{KeyEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
+import it.unibo.pps.ese.view.bodyViewer.BodyPane
 
 import scala.util.Random
 
 trait WorldView {
   def updateWorld(generation: Int, world: List[Entity]): Unit
 }
-
-trait WorldPane extends ScrollPane with WorldView {
+trait WorldPane extends ScrollPane with WorldView{
   var entitySize: IntegerProperty = IntegerProperty(ZoomPreferences.prefZoom)
 }
 
 object WorldPane {
-  def apply(geneticsSimulator:GeneticsSimulator,mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int): WorldPane =
-    new WorldPaneImpl(geneticsSimulator,mainComponent, detailsPane,genomeDetailsPane, width, height)
+  def apply(
+             geneticsSimulator:GeneticsSimulator,
+             mainComponent: MainComponent,
+             detailsPane: DetailsPane,
+             genomeDetailsPane: GenomeDetailsPane,
+             width: Int,
+             height: Int
+           ): WorldPane =
+    new WorldPaneImpl(
+      geneticsSimulator,mainComponent,
+      detailsPane,genomeDetailsPane,
+      width, height)
 }
 
-private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: MainComponent, detailsPane: DetailsPane,genomeDetailsPane: GenomeDetailsPane, width: Int, height: Int) extends WorldPane {
+private class WorldPaneImpl(
+                             geneticsSimulator:GeneticsSimulator,
+                             mainComponent: MainComponent,
+                             detailsPane: DetailsPane,
+                             genomeDetailsPane: GenomeDetailsPane,
+                             width: Int,
+                             height: Int
+                           ) extends WorldPane {
 
   val selectionColor: Color = Color.Gold
 
   private var currentWorld: Map[Position, Entity] = Map()
   private var currentSelected: Option[String] = None
-
   private var worldViewWidth: DoubleProperty = DoubleProperty(worldWidth*entitySize())
   private var worldViewHeigth: DoubleProperty = DoubleProperty(worldHeigth*entitySize())
   worldViewWidth <== entitySize*worldWidth
@@ -102,8 +118,12 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
         detailsPane.showDetails(entity,entityDetails)
 
       case None =>
+        if(currentSelected.isDefined){
+          mainComponent.unwatchEntity(currentSelected.get)
+        }
         currentSelected = None
         detailsPane.clearDetails()
+        genomeDetailsPane.clearGenomeStats()
     }
 
 
@@ -117,8 +137,6 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
       drawWorld(currentWorld.values.toList)
     }
   }*/
-
-
   override def updateWorld(generation: Int, world: List[Entity]): Unit = {
     drawWorld(world)
   }
@@ -137,11 +155,29 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
         })
         currentSelected match {
           case Some(id) =>
-            val entity: Entity = getEntityById(id).get
-            val position: Position = getEntityViewPosition(entity)
-            currentSelected = Some(entity.id)
-            graphicsContext.fill = selectionColor
-            graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
+            if(getEntityById(id).isDefined){
+              val entity: Entity = getEntityById(id).get
+              val position: Position = getEntityViewPosition(entity)
+              val entityDetails:model.EntityInfo = mainComponent.getEntityDetails(entity.id).get
+              entityDetails.baseEntityInfo match {
+                case AnimalInfo(_,_,_,_,_,_) =>
+                  genomeDetailsPane.setGenomeStats(GenomeStatsUtilities.buildGenomeStats(
+                    geneticsSimulator,
+                    entityDetails.baseEntityInfo.asInstanceOf[AnimalInfo])
+                  )
+                case _=>
+              }
+              detailsPane.showDetails(entity,entityDetails)
+              currentSelected = Some(entity.id)
+              graphicsContext.fill = selectionColor
+              graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
+            }else{
+              currentSelected = None
+              detailsPane.clearDetails()
+              genomeDetailsPane.clearGenomeStats()
+
+            }
+
           case None =>
         }
       }
@@ -168,5 +204,4 @@ private class WorldPaneImpl(geneticsSimulator:GeneticsSimulator,mainComponent: M
     val pos: Position = getEntityViewStartPosition(x, y)
     Position(pos.x/entitySize(), pos.y/entitySize())
   }
-
 }

@@ -1,9 +1,11 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 
+import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.loader.data.{AnimalData, CompletePlantData, SimulationData}
 import it.unibo.pps.ese.view.MainComponent
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
-
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import scalafx.scene.control._
@@ -11,7 +13,13 @@ import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends AbstractDialog[Unit](window, None) {
+case class ConfirmDialog(window: Window,
+                         mainComponent: MainComponent,
+                         setUp: Boolean,
+                         newAnimalSpecies: Seq[String] = Seq.empty,
+                         newPlantSpecies: Seq[String] = Seq.empty,
+                         previousAnimalsCount: Map[String, Int] = Map.empty,
+                         previousPlantsCount: Map[String, Int] = Map.empty) extends AbstractDialog[Unit](window, None) {
 
   /*
   Header
@@ -84,14 +92,34 @@ case class ConfirmDialog(window: Window, mainComponent: MainComponent) extends A
   createChecks()
 
   /*
+  Restart information
+   */
+
+  previousAnimalsCount.foreach(animal => animalsEntities.filter(animalText => animalText._2._1.text.value.equals(animal._1))
+                                                        .foreach(animalText => animalText._1.text.value = animal._2.toString))
+
+  previousPlantsCount.foreach(plant => plantsEntities.filter(plantText => plantText._2._1.text.value.equals(plant._1))
+                                                     .foreach(plantText => plantText._1.text.value = plant._2.toString))
+
+  /*
   Result
    */
 
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
-      val animals = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
-      val plants = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
-      mainComponent.setUp(EntitiesInfo.instance().getSimulationData(animals, plants))
+      val animals: Map[String, Int] = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
+      val plants: Map[String, Int] = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
+      val simulationData: CompleteSimulationData = EntitiesInfo.instance().getSimulationData(animals, plants)
+      if (setUp) {
+        mainComponent.setUp(simulationData)
+      } else {
+        val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
+        val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
+        val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
+        val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
+        println((newPlants.map(x => x._1.name), oldPlants.keySet))
+        mainComponent.addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
+      }
     }
     else
       null

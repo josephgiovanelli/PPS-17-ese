@@ -1,7 +1,8 @@
 package it.unibo.pps.ese.genericworld.controller
 
+import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
+import it.unibo.pps.ese.controller.loader.data.CompletePlantData
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
-import it.unibo.pps.ese.controller.loader.data.SimulationData
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.Entity
@@ -10,8 +11,11 @@ import scalafx.scene.paint.Color
 case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
+  def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
+
   def getEntityDetails(id: String): Option[EntityInfo]
   def setWatched(id: String): Unit
+  def unsetWatched(id: String):Unit
 }
 
 //class View {
@@ -49,5 +53,10 @@ object ViewHelpers {
     override def getEntityDetails(id: String): Option[EntityInfo] = (manageableController entityData id) map(_.state.copy())
 
     override def setWatched(id: String): Unit = manageableController watch id
+
+    override def unsetWatched(id: String): Unit = manageableController unwatch()
+
+    override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit =
+      manageableController add (animals, plants, newAnimals, newPlants)
   }
 }

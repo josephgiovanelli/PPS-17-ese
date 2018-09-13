@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.dataminer
 
+import it.unibo.pps.ese.entitybehaviors.ActionKind
+import it.unibo.pps.ese.entitybehaviors.ActionKind.ActionKind
 import it.unibo.pps.ese.utils.Point
 
 case class EntityLogImpl(id: EntityId,
@@ -45,7 +47,12 @@ case class AnimalDynamicDataImpl(age: Integer,
                                  lifePhase: LifePhase,
                                  speed: Double,
                                  position: Point,
-                                 nutritionalValue: Double) extends AnimalDynamicData
+                                 nutritionalValue: Double,
+                                 coupling: Seq[String],
+                                 eating: Seq[String],
+                                 givingBirth: Seq[String],
+                                 producedMutantGenes: Seq[String],
+                                 will: ActionKind.Value) extends AnimalDynamicData
 
 case class PlantDynamicDataImpl(position: Point,
                                 nutritionalValue: Double) extends PlantDynamicData

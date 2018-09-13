@@ -48,7 +48,12 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
       state.lifePhase.toString,
       state actualSpeed,
       state position,
-      state nutritionalValue
+      state nutritionalValue,
+      state eat,
+      state couple,
+      state create,
+      state genes,
+      state will
     )
 
   private def mapToPlantDynamicData(state: EntityInfo): DynamicData =
@@ -84,8 +89,8 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
   }
 
   def ingestData(era: Era)(implicit executionContext: ExecutionContext): Unit = {
+    ingestData(era, realTimeState getFilteredState(_ => true))
     Future {
-      ingestData(era, realTimeState getFilteredState(_ => true))
       _entityDataRepository generateNewDataNotification era
     }
   }
