@@ -11,7 +11,7 @@ import scalafx.scene.shape._
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 import scalafx.scene.text.TextAlignment
-import TextUtilities._
+import it.unibo.pps.ese.view.utilities.TextUtilities._
 sealed trait GenomeDetailsPane extends Pane{
   def setGenomeStats(genomeStats:List[GeneCouple]):Unit
   def clearGenomeStats():Unit

@@ -4,6 +4,7 @@ import it.unibo.pps.ese.entitybehaviors.ActionKind
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.SexTypes
 import it.unibo.pps.ese.genericworld.model.{EntityInfoConversion, EntityState, ReadOnlyEntityState, ReignType}
 import it.unibo.pps.ese.view._
+import it.unibo.pps.ese.view.bodyViewer._
 
 case class Surgeon(realTimeState: ReadOnlyEntityState) {
 

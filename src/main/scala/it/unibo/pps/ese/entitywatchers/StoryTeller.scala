@@ -2,7 +2,8 @@ package it.unibo.pps.ese.entitywatchers
 
 import it.unibo.pps.ese.dataminer.{DataMiner, Era, ReadOnlyEntityRepository, Species}
 import it.unibo.pps.ese.entitybehaviors.StaticRules
-import it.unibo.pps.ese.view.{HistoryLog, View}
+import it.unibo.pps.ese.view.View
+import it.unibo.pps.ese.view.history.HistoryLog
 
 case class StoryTeller(consolidatedState: ReadOnlyEntityRepository) {
 

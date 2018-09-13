@@ -8,7 +8,7 @@ import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.view.speciesdetails.QualityBoxUtilities._
-import it.unibo.pps.ese.view.speciesdetails.TextUtilities._
+import it.unibo.pps.ese.view.utilities.TextUtilities._
 
 trait DetailsPane extends ScrollPane {
 

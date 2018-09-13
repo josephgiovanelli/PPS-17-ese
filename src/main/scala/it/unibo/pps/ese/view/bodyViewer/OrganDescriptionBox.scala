@@ -1,14 +1,14 @@
 package it.unibo.pps.ese.view.bodyViewer
 
 import scalafx.scene.layout.HBox
-import it.unibo.pps.ese.view.speciesdetails.TextUtilities._
+import it.unibo.pps.ese.view.utilities.TextUtilities._
 import scalafx.application.Platform
 import scalafx.geometry.Pos
-import scalafx.scene.control.Label
 import scalafx.scene.text.TextFlow
 
 sealed trait OrganViewer extends HBox{
   def setText(string: String)
+  def clearText():Unit
 }
 case class OrganDescriptionBox() extends OrganViewer {
   val cssLayout:String =
@@ -35,4 +35,6 @@ case class OrganDescriptionBox() extends OrganViewer {
     }
 
   }
+
+  override def clearText(): Unit = textLabel.children.clear()
 }

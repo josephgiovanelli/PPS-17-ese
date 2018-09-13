@@ -1,11 +1,12 @@
-package it.unibo.pps.ese.view
-import de.jensd.fx.glyphs.emojione.EmojiOneView
-import de.jensd.fx.glyphs.emojione.EmojiOne
+package it.unibo.pps.ese.view.history
+
+import de.jensd.fx.glyphs.emojione.{EmojiOne, EmojiOneView}
 import de.jensd.fx.glyphs.materialdesignicons.{MaterialDesignIcon, MaterialDesignIconView}
+import it.unibo.pps.ese.view._
 import javafx.scene.text.Font
-import scalafx.scene.control.{Label, ListCell, ListView}
-import scalafx.scene.layout.HBox
 import scalafx.Includes._
+import scalafx.scene.control.{Label, ListCell}
+import scalafx.scene.layout.HBox
 
 
 class LogListViewCell extends ListCell[Log]{

@@ -58,6 +58,7 @@ private class WorldPaneImpl(
 
   private var currentWorld: Map[Position, Entity] = Map()
   private var currentSelected: Option[String] = None
+  private var currentWatched: Option[String] = None
   private var worldViewWidth: DoubleProperty = DoubleProperty(worldWidth*entitySize())
   private var worldViewHeigth: DoubleProperty = DoubleProperty(worldHeigth*entitySize())
   worldViewWidth <== entitySize*worldWidth
@@ -110,7 +111,13 @@ private class WorldPaneImpl(
               geneticsSimulator,
               entityDetails.baseEntityInfo.asInstanceOf[AnimalInfo])
             )
+            currentWatched = Some(entity.id)
+            mainComponent.watchEntity(currentWatched.get)
           case _=>
+            if(currentWatched.isDefined){
+              mainComponent.unwatchEntity(currentWatched.get)
+              currentWatched = None
+            }
         }
         currentSelected = Some(entity.id)
         graphicsContext.fill = selectionColor
@@ -118,9 +125,10 @@ private class WorldPaneImpl(
         detailsPane.showDetails(entity,entityDetails)
 
       case None =>
-        if(currentSelected.isDefined){
+        if(currentWatched.isDefined){
           mainComponent.unwatchEntity(currentSelected.get)
         }
+        currentWatched = None
         currentSelected = None
         detailsPane.clearDetails()
         genomeDetailsPane.clearGenomeStats()

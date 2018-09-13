@@ -2,16 +2,15 @@ package it.unibo.pps.ese.view
 
 import scalafx.Includes._
 import javafx.event.ActionEvent
-
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.view.bodyViewer.BodyPane
+import it.unibo.pps.ese.view.bodyViewer.{AnimalInternalStatus, BodyPane}
 import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
+import it.unibo.pps.ese.view.history.{HistoryLog, HistoryPane}
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
-
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
 
@@ -125,4 +124,6 @@ private class MainScene(
   override def updateHistoryLog(newLog: HistoryLog): Unit = {
     historyPane.updateHistoryLog(newLog)
   }
+
+  override def clearStatus(): Unit = bodyPane.clearStatus()
 }

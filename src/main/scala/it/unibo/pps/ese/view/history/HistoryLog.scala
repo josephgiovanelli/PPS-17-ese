@@ -1,4 +1,5 @@
-package it.unibo.pps.ese.view
+package it.unibo.pps.ese.view.history
+
 sealed trait LogType
 case object BornLog extends LogType
 case object DeadLog extends LogType

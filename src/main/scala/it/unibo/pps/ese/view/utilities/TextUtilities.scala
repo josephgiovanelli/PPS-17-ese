@@ -1,12 +1,11 @@
-package it.unibo.pps.ese.view.speciesdetails
+package it.unibo.pps.ese.view.utilities
 
 import javafx.scene.text.{Font, Text}
-import scalafx.scene.Node
+import scalafx.Includes._
+import scalafx.geometry.Pos
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color
 import scalafx.scene.text.{TextAlignment, TextFlow}
-import scalafx.Includes._
-import scalafx.geometry.Pos
 object TextUtilities {
   implicit class RichText(string:String){
     def toTextStyled(style:String,color: Color,font: Font):Text ={

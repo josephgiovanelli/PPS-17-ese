@@ -15,7 +15,7 @@ trait GeneDetails{
 }
 
 class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubScene(width,height,true,SceneAntialiasing.Balanced) with GeneDetails {
-  import TextUtilities._
+  import it.unibo.pps.ese.view.utilities.TextUtilities._
   private val textLabel = new TextFlow()
   textLabel.children.add("No Gene Selected".toText)
   private[this]def buildDetailsBox(textLabel: TextFlow):Parent= {

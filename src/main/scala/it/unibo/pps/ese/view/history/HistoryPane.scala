@@ -1,12 +1,14 @@
-package it.unibo.pps.ese.view
-import LogConversions._
-import scalafx.scene.control.{ListView, ScrollPane}
-import scalafx.scene.layout.{BorderPane, HBox, Pane, VBox}
-import it.unibo.pps.ese.view.speciesdetails.TextUtilities._
+package it.unibo.pps.ese.view.history
+
+import it.unibo.pps.ese.view.utilities.TextUtilities._
+import it.unibo.pps.ese.view.history.LogConversions._
 import javafx.collections.{FXCollections, ObservableList}
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Orientation
+import scalafx.scene.control.ListView
+import scalafx.scene.layout.{BorderPane, HBox, Pane}
+import scala.collection.JavaConverters._
 
 trait HistoryPane extends Pane{
   def updateHistoryLog(newLog:HistoryLog):Unit
@@ -36,7 +38,6 @@ object HistoryPane{
       println(newLog)
       Platform.runLater{
         ()->{
-          import scala.collection.JavaConverters._
           logsList.addAll(newLog.allLogs.asJava)
           logs.scrollTo(logsList.size() -1)
         }

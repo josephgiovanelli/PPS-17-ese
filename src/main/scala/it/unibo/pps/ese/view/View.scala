@@ -1,13 +1,13 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
-import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genetics.GeneticsSimulator
+import it.unibo.pps.ese.view.bodyViewer.AnimalInternalStatus
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
-
+import it.unibo.pps.ese.view.history.HistoryLog
 import scalafx.application.JFXApp.PrimaryStage
 
 trait View extends PrimaryStage with WorldView with ConfigurationView {
@@ -19,12 +19,14 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
+  def watchEntity(id:String):Unit
   def unwatchEntity(id:String):Unit
   def setUp(simulationData: SimulationData)
   def addEntities(entities: Map[String, Int])
 }
 trait BodyViewer {
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
+  def clearStatus():Unit
 }
 trait HistoryViewer{
   def updateHistoryLog(newLog:HistoryLog):Unit
@@ -71,7 +73,6 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   }
 
   override def getEntityDetails(id: String): Option[EntityInfo] = {
-    observers.head.setWatched(id)
     observers.head.getEntityDetails(id)
   }
 
@@ -89,34 +90,21 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
 
 
   override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
-    import Conversions._
+    import it.unibo.pps.ese.view.utilities.Conversions._
     mainView.updateAnimalInternalStatus(animalInternalStatus)
   }
 
-
-//  override def extinctSpecies(species: String): Unit = println("Specie " + species + " Estinta")
-//  override def mutantAllele(gene: String): Unit = println("Alleli mutanti comparsi per il gene: " + gene)
-//  override def bornRegistry(species: String, babies: Long): Unit = println("Sono nati " + babies + " entità della specie " + species)
-//  override def deadRegistry(species: String, dead: Long): Unit = println("Sono morti " + dead + " entità della specie " + species)
-//  override def couplingRegistry(species: String, entities: Long): Unit = println("Si sono accoppiati " + entities + " entità della specie " + species)
   override def updateHistoryLog(newLog: HistoryLog): Unit = {
-//    newLog.extinctSpecies.foreach(s=>println("Specie " + s + " Estinta"))
-//    newLog.mutantAlleles.foreach(gene=>println("Alleli mutanti comparsi per il gene: " + gene))
-//    newLog.bornRegistry.foreach{case(species,babies)=>
-//      println("Sono nati " + babies + " entità della specie " + species)
-//    }
-//    newLog.deadRegistry.foreach{case(species,dead)=>
-//      println("Sono morti " + dead + " entità della specie " + species)
-//    }
-//    newLog.couplingRegistry.foreach{case(species,entities)=>
-//      println("Si sono accoppiati " + entities + " entità della specie " + species)
-//    }
-  import Conversions._
-  mainView.updateHistoryLog(newLog)
-}
+    import it.unibo.pps.ese.view.utilities.Conversions._
+    mainView.updateHistoryLog(newLog)
+  }
+
+  override def watchEntity(id: String): Unit = observers.foreach(_.setWatched(id))
 
   override def unwatchEntity(id: String): Unit = {
     observers.foreach(_.unsetWatched(id))
+    import it.unibo.pps.ese.view.utilities.Conversions._
+    mainView.clearStatus()
   }
 
   override def addEntities(entities: Map[String, Int]): Unit = {
