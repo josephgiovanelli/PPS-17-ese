@@ -66,7 +66,11 @@ object EntitiesInfo {
     private var animals: Map[String, AnimalInfo] = Map.empty
     private var plants: Map[String, PlantInfo] = Map.empty
 
-    private val typologyMap = Map("Carnivorous" -> "C", "Herbivore" -> "H")
+    private val typologyMap = Map(
+      "Carnivorous" -> "C",
+      "Herbivore" -> "H",
+      "C" -> "Carnivorous",
+      "H" -> "Herbivore")
 
     /*
     Animals
