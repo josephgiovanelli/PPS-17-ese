@@ -121,7 +121,7 @@ object YamlLoader extends Loader {
   }
 
   private def loadStructuralChromosome(genesPath: String): Seq[GeneBuilder[_]] =  {
-    Folder(genesPath).getFilesAsStream(Folder.YAML)
+    Folder(ResourceLoader.getResource(genesPath)).getFilesAsStream(Folder.YAML)
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
       .map(g => {
         var builder: GeneBuilder[_] = GeneBuilder()
@@ -138,7 +138,7 @@ object YamlLoader extends Loader {
   }
 
   private def loadAlleles(allelesPath: String): Seq[AlleleBuilder[_]] = {
-    Folder(allelesPath).getFilesAsStream(Folder.YAML)
+    Folder(ResourceLoader.getResource(allelesPath)).getFilesAsStream(Folder.YAML)
       .map(path => {
         val all = loadFileContent(path).parseYaml.convertTo[Allele]
         var builder: AlleleBuilder[_] = AlleleBuilder()

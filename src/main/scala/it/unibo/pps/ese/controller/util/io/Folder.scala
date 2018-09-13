@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.controller.util.io
 
+import java.io
 import java.io.{File, InputStream}
 import java.net.URL
 
@@ -12,31 +13,34 @@ trait Folder {
   def getFiles(fileFormat: FileFormat): Seq[File]
   def getFilesAsStream: Seq[InputStream]
   def getFilesAsStream(fileFormat: FileFormat): Seq[InputStream]
+  def getOrCreateFile(): Option[File]
+  def getOrCreateFolder(): Option[Folder]
 }
 
 object Folder {
 
-  def apply(folderPath: String): Folder = new FolderImpl(folderPath)
+  def apply(folderPath: URL): Folder = new FolderImpl(folderPath)
+  def apply(folderPath: String): Folder = new FolderImpl(new io.File(folderPath).toURI.toURL)
 
   sealed abstract class FileFormat(val extensions: Seq[String])
   case object YAML extends FileFormat(Seq(".yml", ".yaml"))
 
-  private class FolderImpl(folderPath: String) extends Folder {
-    val url: URL = ResourceLoader.getResource(folderPath)
-    require(url != null)
-    val folder: File = new File(url.toURI)
-    require(folder.isDirectory)
+  private class FolderImpl(folderPath: URL) extends IOResourceImpl(folderPath) with Folder {
+    require(javaFile.isDirectory)
 
-    def getFiles: Seq[File] = folder.listFiles().filter(_.isFile).toSeq
+    def getFiles: Seq[File] = javaFile.listFiles().filter(_.isFile).map(File(_)).toSeq
 
-    def getFiles(fileFormat: FileFormat): Seq[File] = getFiles.filter(f => fileFormat.extensions.map(ext => f.getName.endsWith(ext)).exists(b => b))
+    def getFiles(fileFormat: FileFormat): Seq[File] = getFiles.filter(f => fileFormat.extensions.map(ext => f.name.endsWith(ext)).exists(b => b))
 
     def getFilesAsStream: Seq[InputStream] = convertToInputStream(getFiles)
 
     def getFilesAsStream(fileFormat: FileFormat): Seq[InputStream] = convertToInputStream(getFiles(fileFormat))
 
-    private def convertToInputStream(urls: Seq[File]): Seq[InputStream] = urls.map(FileUtils.openInputStream)
+    private def convertToInputStream(urls: Seq[File]): Seq[InputStream] = urls.map(_.rawFile).map(FileUtils.openInputStream)
 
+    override def getOrCreateFile(): Option[File] = ???
+
+    override def getOrCreateFolder(): Option[Folder] = ???
   }
 }
 
