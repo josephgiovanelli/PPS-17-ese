@@ -58,7 +58,7 @@ private class MainScene(
   val worldContainerPane = new SplitPane()
   val historyPane:HistoryPane = HistoryPane()
   val detailsPane = DetailsPane(mainComponent)
-  val worldPane: WorldPane = WorldPane(geneticsSimulator,mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
+  val worldPane: WorldPane = WorldPane(geneticsSimulator, mainComponent, this, detailsPane,genomePane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal

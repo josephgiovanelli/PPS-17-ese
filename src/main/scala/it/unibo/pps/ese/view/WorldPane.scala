@@ -12,7 +12,9 @@ import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
 import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.genericworld.controller.EntityDetails
 import it.unibo.pps.ese.genericworld.model
+import it.unibo.pps.ese.genericworld.model.EntityInfo
 import javafx.application.Platform
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType
@@ -34,20 +36,20 @@ object WorldPane {
   def apply(
              geneticsSimulator:GeneticsSimulator,
              mainComponent: MainComponent,
+             mainScene: MainScene,
              detailsPane: DetailsPane,
              genomeDetailsPane: GenomeDetailsPane,
              width: Int,
              height: Int
            ): WorldPane =
-    new WorldPaneImpl(
-      geneticsSimulator,mainComponent,
-      detailsPane,genomeDetailsPane,
-      width, height)
+    new WorldPaneImpl(geneticsSimulator, mainComponent, mainScene,
+      detailsPane,genomeDetailsPane, width, height)
 }
 
 private class WorldPaneImpl(
                              geneticsSimulator:GeneticsSimulator,
                              mainComponent: MainComponent,
+                             mainScene: MainScene,
                              detailsPane: DetailsPane,
                              genomeDetailsPane: GenomeDetailsPane,
                              width: Int,
@@ -94,10 +96,8 @@ private class WorldPaneImpl(
     currentSelected match {
       case Some(id) =>
         val entity: Entity = getEntityById(id).get
-        graphicsContext.fill = entity.color
         val position: Position = getEntityViewPosition(entity)
-        graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
-
+        clearSelectedEntity(position, entity)
       case None =>
     }
 
@@ -120,8 +120,7 @@ private class WorldPaneImpl(
             }
         }
         currentSelected = Some(entity.id)
-        graphicsContext.fill = selectionColor
-        graphicsContext.fillRect(pos.x, pos.y, entitySize(), entitySize())
+        showSelectedEntity(pos, entity)
         detailsPane.showDetails(entity,entityDetails)
 
       case None =>
@@ -137,14 +136,20 @@ private class WorldPaneImpl(
 
   }
 
-/*  canvas.onScroll = (e: ScrollEvent) => {
-    if(e.controlDown) {
-      val value = if(e.deltaY>0) 1 else -1
-      entitySize = if (entitySize()+value>=minZoom && entitySize()+value<=maxZoom) IntegerProperty(entitySize()+value)
-        else entitySize
-      drawWorld(currentWorld.values.toList)
+
+  filterEvent(ScrollEvent.Any) {
+
+    (e: ScrollEvent) => {
+      if(e.controlDown) {
+        val value = if(e.deltaY>0) 1 else -1
+        mainScene.zoomSlider.value()+=value
+
+        e.consume()
+      }
     }
-  }*/
+  }
+
+
   override def updateWorld(generation: Int, world: List[Entity]): Unit = {
     drawWorld(world)
   }
@@ -158,8 +163,7 @@ private class WorldPaneImpl(
 
         graphicsContext.clearRect(0, 0, worldViewWidth(), worldViewHeigth())
         world foreach (e => {
-          graphicsContext.fill = e.color
-          graphicsContext.fillRect(e.position.x * entitySize(), e.position.y * entitySize(), entitySize(), entitySize())
+          drawEntity(Position(e.position.x * entitySize(), e.position.y * entitySize()), e.color)
         })
         currentSelected match {
           case Some(id) =>
@@ -177,8 +181,7 @@ private class WorldPaneImpl(
               }
               detailsPane.showDetails(entity,entityDetails)
               currentSelected = Some(entity.id)
-              graphicsContext.fill = selectionColor
-              graphicsContext.fillRect(position.x, position.y, entitySize(), entitySize())
+              showSelectedEntity(position, entity)
             }else{
               currentSelected = None
               detailsPane.clearDetails()
@@ -192,6 +195,43 @@ private class WorldPaneImpl(
     }
 
 
+  }
+
+  private def showSelectedEntity(position: Position, entity: Entity): Unit = {
+    drawEntity(position, selectionColor)
+    val ed: EntityInfo = mainComponent.getEntityDetails(entity.id).get
+    ed.baseEntityInfo match {
+      case a: AnimalInfo => showVisualField(position, ed.visualField)
+      case _ =>
+    }
+  }
+
+  private def clearSelectedEntity(position: Position, entity: Entity): Unit = {
+    drawEntity(position, entity.color)
+    val ed: EntityInfo = mainComponent.getEntityDetails(entity.id).get
+    ed.baseEntityInfo match {
+      case a: AnimalInfo => clearVisualField(position, ed.visualField)
+      case _ =>
+    }
+  }
+
+  private def drawEntity(position: Position, color: Color): Unit = {
+    graphicsContext.fill = color
+    graphicsContext.fillOval(position.x, position.y, entitySize(), entitySize())
+  }
+
+  private def showVisualField(position: Position, visualField: Double): Unit = {
+    drawVisualField(position, selectionColor, visualField)
+  }
+
+  private def clearVisualField(position: Position, visualField: Double): Unit = {
+    drawVisualField(position, Color.White, visualField)
+  }
+
+  private def drawVisualField(position: Position, color: Color, visualField: Double): Unit = {
+    graphicsContext.stroke = color
+    val centerPosition = Position(position.x-entitySize()*(visualField/2), position.y-entitySize()*(visualField/2))
+    graphicsContext.strokeOval(centerPosition.x, centerPosition.y, entitySize()*visualField, entitySize()*visualField)
   }
 
   private def getEntityById(id: String): Option[Entity] = {
