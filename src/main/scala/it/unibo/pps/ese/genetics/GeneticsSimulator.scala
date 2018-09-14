@@ -9,7 +9,8 @@ import it.unibo.pps.ese.genetics.entities.{Animal, AnimalInfo, Carnivorous, Herb
 import it.unibo.pps.ese.genetics.generators.{PlantGenerator, SpeciesUtilities}
 import it.unibo.pps.ese.genetics.generators.data.InputDataAdapter._
 
-trait GeneticsSimulator {
+@SerialVersionUID(100L)
+trait GeneticsSimulator extends Serializable {
   def beginSimulation(simulationData:SimulationData):InitializedSimulation
   def speciesList:Seq[String]
   def plantSpeciesList:Seq[String]

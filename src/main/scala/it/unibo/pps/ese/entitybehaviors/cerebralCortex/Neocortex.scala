@@ -6,8 +6,8 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 import scala.collection.mutable.Map
 import scala.collection.mutable.ListBuffer
 
-
-private[cerebralCortex] trait Neocortex {
+@SerialVersionUID(100L)
+private[cerebralCortex] trait Neocortex extends Serializable {
   def memories: Map[MemoryType, ListBuffer[LongTermMemory]]
   def addMemory(memoryType: MemoryType, memory: LongTermMemory)
   def getMemeories(memoryType: MemoryType): Option[ListBuffer[LongTermMemory]]

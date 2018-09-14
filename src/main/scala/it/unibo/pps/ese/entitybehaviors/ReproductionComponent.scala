@@ -51,7 +51,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
                                  clocksPerYear: Long,
                                  mutationProb: Double,
                                  energyRequirements: Double)
-                                (implicit val executionContext: ExecutionContext)
+                                (@transient implicit val executionContext: ExecutionContext)
                                   extends WriterComponent(entitySpecifications)  {
 
   private val energyRequirementsPerChild = energyRequirements * 0.2 / math.round(fecundity)

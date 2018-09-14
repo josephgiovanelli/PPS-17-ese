@@ -1,11 +1,13 @@
 package it.unibo.pps.ese.genericworld.model.support
 
+import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success}
 
-sealed trait EventBus {
+
+sealed trait EventBus extends Serializable {
   def send(event: IdentifiedEvent): Unit
   def attach(e: Consumer): Unit
   def detach(consumer: Consumer): Unit
@@ -17,6 +19,7 @@ sealed trait EventBus {
 object EventBus {
   def apply()(implicit executionContext: ExecutionContext): EventBus = new BaseEventBus()
 
+  @SerialVersionUID(100L)
   private class BaseEventBus()(implicit executionContext: ExecutionContext) extends EventBus {
 
     case class EventInfo(event: Event, f: Event => Unit) {
@@ -24,12 +27,45 @@ object EventBus {
     }
 
     private[this] var consumersRegistry = List[Consumer]()
-    private[this] val activeTasks = new AtomicLong(0)
+    private[this] var activeTasks = new AtomicLong(0)
     private[this] var completionPromise: Option[Promise[Done]] = None
 
     private[this] var delayedHighPriorityEvents = Seq[EventInfo]()
     private[this] var delayedLowPriorityEvents = Seq[EventInfo]()
-    private[this] val activeHighPriorityTasks = new AtomicLong(0)
+    private[this] var activeHighPriorityTasks = new AtomicLong(0)
+
+    case class EventBusMemento(consumersRegistry: List[Consumer],
+                               activeTasks: AtomicLong,
+                               completionPromise: Option[Promise[Done]],
+                               delayedHighPriorityEvents: Seq[EventInfo],
+                               delayedLowPriorityEvents: Seq[EventInfo],
+                               activeHighPriorityTasks: AtomicLong)
+
+
+    @throws(classOf[IOException])
+    private def writeObject(out: ObjectOutputStream): Unit ={
+      val em = EventBusMemento(
+        consumersRegistry,
+        activeTasks,
+        completionPromise,
+        delayedHighPriorityEvents,
+        delayedLowPriorityEvents,
+        activeHighPriorityTasks
+      )
+      out.writeObject(em)
+    }
+
+    @throws(classOf[IOException])
+    private def readObject(in: ObjectInputStream): Unit = {
+      val em = in.readObject.asInstanceOf[EventBusMemento]
+
+      consumersRegistry = em.consumersRegistry
+      activeTasks = em.activeTasks
+      completionPromise = em.completionPromise
+      delayedHighPriorityEvents = em.delayedHighPriorityEvents
+      delayedLowPriorityEvents = em.delayedHighPriorityEvents
+      activeHighPriorityTasks = em.activeHighPriorityTasks
+    }
 
     override def send(i: IdentifiedEvent): Unit = {
 

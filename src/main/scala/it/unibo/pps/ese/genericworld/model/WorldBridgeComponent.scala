@@ -41,7 +41,7 @@ sealed trait WorldBridge {
 
 class WorldBridgeComponent(override val entitySpecifications: EntitySpecifications,
                            world: InteractiveWorld)
-                          (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) with WorldBridge {
+                          (@transient implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) with WorldBridge {
 
   private var disposed = false
   private var jobCompleted = true

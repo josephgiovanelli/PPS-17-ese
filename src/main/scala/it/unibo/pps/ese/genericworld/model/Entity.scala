@@ -2,7 +2,8 @@ package it.unibo.pps.ese.genericworld.model
 
 import scala.concurrent.ExecutionContext
 
-sealed trait Entity {
+@SerialVersionUID(100L)
+sealed trait Entity extends Serializable {
   def id: String
   def getComponents : Seq[Component]
   def addComponent(component : Component) : Unit
@@ -10,12 +11,14 @@ sealed trait Entity {
   def dispose(): Unit
 }
 
-sealed trait EntitySpecifications {
+@SerialVersionUID(100L)
+sealed trait EntitySpecifications extends Serializable {
   def id: String
   def componentsCount : Long
 }
 
-sealed trait NervousSystemExtension {
+@SerialVersionUID(100L)
+sealed trait NervousSystemExtension extends Serializable {
   implicit def executionContext: ExecutionContext
   private[this] val _nervousSystem = NervousSystem()
   def nervousSystem : ManageableNervousSystem = _nervousSystem
@@ -44,7 +47,7 @@ object Entity {
     override def dispose(): Unit = Unit
   }
 
-  private class ImprovedEntity(id: String)(implicit val executionContext: ExecutionContext) extends BaseEntity(id) {
+  private class ImprovedEntity(id: String)(@transient implicit val executionContext: ExecutionContext) extends BaseEntity(id) {
 
     self : NervousSystemExtension =>
     override def addComponent(component: Component): Unit = {

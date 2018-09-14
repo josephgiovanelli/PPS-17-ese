@@ -11,7 +11,9 @@ package object support {
   trait InteractionEvent extends BaseEvent { val receiverId: String }
 
   case class InteractionEnvelope[A](sourceId : String, targetId: String, message: A)
-  class Done
+
+  @SerialVersionUID(100L)
+  class Done extends Serializable
 
   case class IdentifiedEvent(sourceId: String, event: Event)
   case class IdentifiedConsumer(sourceId: String, consumer: Event => Unit)

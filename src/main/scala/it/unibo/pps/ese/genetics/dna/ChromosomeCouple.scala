@@ -3,7 +3,8 @@ package it.unibo.pps.ese.genetics.dna
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.genetics.entities.{Female, Gender, Male}
 
-trait ChromosomeCouple{
+@SerialVersionUID(100L)
+trait ChromosomeCouple extends Serializable {
   type ChromosomeUnit <: Chromosome
   def addChromosomeCouple(c1:ChromosomeUnit, c2:ChromosomeUnit)
   def addFirstChromosome(c:ChromosomeUnit)

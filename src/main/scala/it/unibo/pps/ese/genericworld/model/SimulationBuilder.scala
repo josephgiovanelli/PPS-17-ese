@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.genericworld.model
 
+import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.nio.file.Paths
 import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
@@ -8,6 +10,7 @@ import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
+import it.unibo.pps.ese.genericworld.TestLauncher.getClass
 import it.unibo.pps.ese.genericworld.controller.Controller
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Quality, Reign}
@@ -16,6 +19,10 @@ import it.unibo.pps.ese.utils.Point
 
 import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
+
+object SavingHelper {
+
+}
 
 object ReignType extends Enumeration {
   val ANIMAL, PLANT = Value
@@ -61,33 +68,70 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
     import EntityBuilderHelpers._
 
+
     StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
     val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0,
       Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
       Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
     StaticRules.instance().setRules(worldRules)
 
-    val world = World[Stochastic](width, height)
 
-    val geneticsSimulator = GeneticsSimulator
-    val initializedSimulation = geneticsSimulator.beginSimulation(data)
 
-    geneticsSimulator.speciesList
-      .flatMap(x => initializedSimulation.getAllAnimals(x))
-      .zip(distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
-      .map(x => initializeEntity(x._1, x._2, height, width))
-      .foreach(world addEntity)
+    val fromSaves = false
 
-    geneticsSimulator.plantSpeciesList
-      .flatMap(x => initializedSimulation.getAllPlant(x))
-      .zip(distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
-      .map(x => initializeEntity(x._1, x._2))
-      .foreach(world addEntity)
+    val world: World = World[Stochastic](width, height)
+
+    val geneticsSimulator = if (fromSaves){
+      val fileName = "/GeneticsSimulator"
+      val p = Paths.get(Controller.getClass.getResource("/it/unibo/pps/ese/controller/saves").toURI).toString + fileName
+
+
+      val ois = new ObjectInputStream(new FileInputStream(p))
+      val g = ois.readObject().asInstanceOf[GeneticsSimulator]
+      ois.close()
+
+      g
+    } else {
+      GeneticsSimulator
+    }
+
+
+    if (fromSaves) {
+      val fileName = "/World"
+      val p = Paths.get(Controller.getClass.getResource("/it/unibo/pps/ese/controller/saves").toURI).toString + fileName
+
+
+      val ois = new ObjectInputStream(new FileInputStream(p))
+      val w = ois.readObject().asInstanceOf[List[Entity]]
+      ois.close()
+
+      w.foreach(e => world.addEntity(e))
+
+    } else {
+
+      val initializedSimulation = geneticsSimulator.beginSimulation(data)
+
+      geneticsSimulator.speciesList
+        .flatMap(x => initializedSimulation.getAllAnimals(x))
+        .zip(distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
+        .map(x => initializeEntity(x._1, x._2, height, width))
+        .foreach(world addEntity)
+
+      geneticsSimulator.plantSpeciesList
+        .flatMap(x => initializedSimulation.getAllPlant(x))
+        .zip(distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
+        .map(x => initializeEntity(x._1, x._2))
+        .foreach(world addEntity)
+
+    }
+
+
 
     //Await.result(world.requireInfoUpdate, Duration.Inf)
     //val a = world.entitiesState
     Controller(world, 250 millis)
   }
+
 }
 
 object EntityBuilderHelpers {
@@ -97,11 +141,19 @@ object EntityBuilderHelpers {
 
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)
                       (implicit executionContext: ExecutionContext): Entity = {
+
+
+
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
     entity addComponent initializeBrainComponent(entity, animalInfo, worldHeight, worldWidth)
     entity addComponent initializeAnimalPhysicalComponent(entity, animalInfo)
     entity addComponent initializeReproductionComponent(entity, animalInfo)
+
+
+
+
+
     entity
   }
 
@@ -110,6 +162,18 @@ object EntityBuilderHelpers {
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, plantInfo, position)
     entity addComponent initializePlantPhysicalComponent(entity, plantInfo)
+
+    val fileName = "/Plant"
+    val p = Paths.get(getClass.getResource("/it/unibo/pps/ese/controller/saves").toURI).toString + fileName
+
+    val oos = new ObjectOutputStream(new FileOutputStream(p))
+    oos.writeObject(entity)
+    oos.close()
+
+    val ois = new ObjectInputStream(new FileInputStream(p))
+    val h = ois.readObject.asInstanceOf[Entity]
+    ois.close()
+
     entity
   }
 
@@ -160,6 +224,7 @@ object EntityBuilderHelpers {
       animalInfo.qualities(Speed).qualityValue,
       animalInfo.qualities(Fertility).qualityValue,
       yearToClock)
+
   }
 
   private def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo)

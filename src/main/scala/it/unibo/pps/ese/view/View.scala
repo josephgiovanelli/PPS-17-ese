@@ -16,6 +16,7 @@ trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
   def setUp(simulationData: SimulationData)
+  def saveWorld()
 }
 
 object View {
@@ -74,6 +75,8 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     }
     case _ =>
   }
+
+  override def saveWorld(): Unit = observers.foreach(_.saveWorld())
 }
 
 object ViewType extends Enumeration {

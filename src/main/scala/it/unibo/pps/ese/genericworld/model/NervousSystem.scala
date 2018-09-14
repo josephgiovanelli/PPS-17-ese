@@ -38,7 +38,8 @@ class SupervisedFuture[T](future: Future[T])(implicit supervisor: Supervisor) {
   }
 }
 
-sealed trait NervousSystem {
+@SerialVersionUID(100L)
+sealed trait NervousSystem extends Serializable {
   def publish(event: IdentifiedEvent) : Unit
   def subscribe(handler: Consumer)
   def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](publisher: String, request: A): SupervisedFuture[B]

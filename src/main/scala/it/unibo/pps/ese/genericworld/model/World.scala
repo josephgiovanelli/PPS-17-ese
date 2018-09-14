@@ -15,7 +15,8 @@ object EntityUpdateState extends Enumeration {
   val WAITING, UPDATING, UPDATED = Value
 }
 
-sealed trait World {
+@SerialVersionUID(100L)
+sealed trait World extends Serializable {
   def width: Long
   def height: Long
   def entities : Seq[Entity]

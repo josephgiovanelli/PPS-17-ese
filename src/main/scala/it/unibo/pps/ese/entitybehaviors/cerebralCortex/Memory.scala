@@ -5,7 +5,7 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 object Memory {
   type Score = Double
 
-  sealed trait Memory {
+  sealed trait Memory extends Serializable {
     def memoryType: MemoryType
     def locationalField: LocationalField
     def score: Score

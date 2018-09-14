@@ -4,7 +4,8 @@ import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, MGene}
 import it.unibo.pps.ese.genetics.entities.AnimalInfo
 
-trait GeneticsEngine {
+@SerialVersionUID(100L)
+trait GeneticsEngine extends Serializable {
   def getAnimalInfoByGenome(species: String, childGenome: AnimalGenome): AnimalInfo
   def obtainMutantAlleles(species: String, gene: MGene): Iterable[MGene]
   def mutationProb: Double

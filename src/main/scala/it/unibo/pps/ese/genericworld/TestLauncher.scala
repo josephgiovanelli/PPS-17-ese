@@ -1,7 +1,10 @@
 package it.unibo.pps.ese.genericworld
 
+import java.io.{FileInputStream, ObjectInputStream}
+import java.nio.file.Paths
 import java.util.UUID
 import java.util.UUID.randomUUID
+import java.util.concurrent.Executors
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
@@ -23,9 +26,10 @@ import scalafx.application.JFXApp
 import scalafx.stage.WindowEvent
 
 import scala.concurrent.duration._
-import scala.concurrent.Await
+import scala.concurrent.{Await, ExecutionContext}
 import scalafx.Includes._
 
+import scala.concurrent.forkjoin.ForkJoinPool
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object TestLauncher extends JFXApp {
@@ -47,6 +51,7 @@ object TestLauncher extends JFXApp {
 
 //    val controller: Controller =
 //      SimulationBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
+
 
   val controller: Controller =
     new SimulationBuilder[EmptySimulation] dimension(500, 500) data "it/unibo/pps/ese/controller/loader/Simulation.yml" build

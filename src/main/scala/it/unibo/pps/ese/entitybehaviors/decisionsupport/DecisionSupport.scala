@@ -5,7 +5,8 @@ import it.unibo.pps.ese.entitybehaviors.StaticRules
 
 import scala.math._
 
-trait DecisionSupport extends WorldTypesImpl {
+@SerialVersionUID(100L)
+trait DecisionSupport extends WorldTypesImpl with Serializable {
   val worldRules: WorldRules = StaticRules.instance().getRules()
 
   implicit def tupleToEntityChoice(tuple: (Name, Int)): EntityChoice = new EntityChoice(tuple._1, tuple._2)

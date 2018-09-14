@@ -10,7 +10,8 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{Position, Memory => _, _
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
-trait Hippocampus {
+@SerialVersionUID(100L)
+trait Hippocampus extends Serializable {
 
   def searchingState: SearchingState
   def updateTime()

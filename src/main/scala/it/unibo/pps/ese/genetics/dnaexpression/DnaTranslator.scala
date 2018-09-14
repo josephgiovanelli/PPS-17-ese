@@ -6,7 +6,9 @@ import it.unibo.pps.ese.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmmino
 import it.unibo.pps.ese.genetics.dna._
 import it.unibo.pps.ese.genetics.entities.QualityType.Fertility
 import it.unibo.pps.ese.genetics.entities._
-sealed trait DnaTranslator {
+
+@SerialVersionUID(100L)
+sealed trait DnaTranslator extends Serializable {
   def getQualitiesByGenome(animalGenome: AnimalGenome):AnimalFeature
 }
 
@@ -15,7 +17,8 @@ object DnaTranslator{
 
   private[this]class DnaTranslatorImpl(val speciesGeneBehaviour:Seq[GeneFeatures] ) extends DnaTranslator{
 
-    private[this] object IdentifierGeneTranslator{
+    @SerialVersionUID(100L)
+    private[this] object IdentifierGeneTranslator extends Serializable {
 
       def translateIdentifierGene(gene: MGene, af: AnimalFeature):AnimalFeature = {
         val herbivoreSeq:Seq[ProteinoGenicAmminoacid] = Herbivore.geneId.completeCode
@@ -41,7 +44,8 @@ object DnaTranslator{
       animalFeature
     }
 
-    private[this] object TranslationUtilities{
+    @SerialVersionUID(100L)
+    private[this] object TranslationUtilities extends Serializable {
 
       def iterateIdentifierGene(gc1:Seq[MGene], animalFeature: AnimalFeature): AnimalFeature
       = gc1 match {

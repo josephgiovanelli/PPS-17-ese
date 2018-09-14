@@ -28,9 +28,14 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   val saveItem = new MenuItem("Save")
   val exitItem = new MenuItem("Exit")
   fileMenu.items = List(newItem, openItem, saveItem, new SeparatorMenuItem, exitItem)
+  menuBar.menus = List(fileMenu)
 
   exitItem.onAction = (e: ActionEvent) => {
     sys.exit(0)
+  }
+
+  saveItem.onAction = (e: ActionEvent) => {
+    mainComponent.saveWorld()
   }
 
   val worldTab = new Tab()

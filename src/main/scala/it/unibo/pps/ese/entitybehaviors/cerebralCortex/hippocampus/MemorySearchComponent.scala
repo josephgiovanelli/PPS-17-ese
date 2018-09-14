@@ -8,8 +8,8 @@ import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
 
 import scala.collection.mutable.ListBuffer
 
-
-private[hippocampus] trait MemorySearchComponent {
+@SerialVersionUID(100L)
+private[hippocampus] trait MemorySearchComponent extends Serializable {
   def memoryType: MemoryType
   def updateTime()
   def hasNewMemory: Boolean

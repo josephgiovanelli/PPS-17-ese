@@ -80,7 +80,7 @@ class ReproductionTest extends FunSuite {
                            gender: String,
                            position: Point,
                            var partner: Option[String])
-                          (implicit val executionContext: ExecutionContext)
+                          (@transient implicit val executionContext: ExecutionContext)
     extends WriterComponent(entitySpecifications) {
 
     override def initialize(): Unit = {

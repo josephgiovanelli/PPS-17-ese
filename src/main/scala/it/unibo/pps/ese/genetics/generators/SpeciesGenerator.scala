@@ -8,10 +8,11 @@ import it.unibo.pps.ese.genetics.entities.{Female, Male}
 
 import scala.annotation.tailrec
 
+@SerialVersionUID(100L)
 case class GeneWithPossibleAlleles(baseGeneSeq:Seq[ProteinoGenicAmminoacid],alleles:Seq[AlleleWithProbability])
 case class AlleleWithProbability(allelicSeq:Seq[ProteinoGenicAmminoacid],probability:Double)
 
-sealed trait AnimalGenomeSupplier{
+sealed trait AnimalGenomeSupplier extends Serializable {
   def generateAnimalGenome:AnimalGenome
 }
 class SpeciesGenerator(
@@ -39,7 +40,8 @@ class SpeciesGenerator(
     )
   }
 
-  private[this] object ChromosomeBuildingUtilities{
+  @SerialVersionUID(100L)
+  private[this] object ChromosomeBuildingUtilities extends Serializable {
     def buildCommonChromosomeCouple:ChromosomeCouple = {
       buildChromosomeCouple(commonChromosomeGenes,commonChromosomeGenes,ChromosomeType.COMMON)
     }

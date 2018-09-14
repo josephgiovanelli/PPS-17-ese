@@ -11,6 +11,7 @@ case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
   def getEntityDetails(id: String): Option[EntityInfo]
+  def saveWorld()
 }
 
 //class View {
@@ -46,5 +47,7 @@ object ViewHelpers {
 
   implicit class ManageableObserver(manageableController: ManageableController) extends Observer {
     override def getEntityDetails(id: String): Option[EntityInfo] = (manageableController entityData id) map(_.state.copy())
+
+    override def saveWorld(): Unit = manageableController.saveWorld()
   }
 }

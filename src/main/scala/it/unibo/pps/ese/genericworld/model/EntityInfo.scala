@@ -2,7 +2,8 @@ package it.unibo.pps.ese.genericworld.model
 
 import scala.language.dynamics
 
-class EntityInfo extends Dynamic {
+@SerialVersionUID(100L)
+class EntityInfo extends Dynamic with Serializable {
 
   private var values: Map[String, Any] = Map.empty[String, Any]
 

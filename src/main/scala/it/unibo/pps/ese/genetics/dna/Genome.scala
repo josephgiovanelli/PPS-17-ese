@@ -2,7 +2,8 @@ package it.unibo.pps.ese.genetics.dna
 
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.ChromosomeType
 
-sealed trait Genome{
+@SerialVersionUID(100L)
+sealed trait Genome extends Serializable {
   def requiredChromosomes:Seq[ChromosomeType]
   def autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple]
   def firstGenomeSequence:Map[ChromosomeType,Chromosome]

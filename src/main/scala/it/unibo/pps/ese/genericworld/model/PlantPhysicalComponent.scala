@@ -12,7 +12,7 @@ case class PlantPhysicalInfo(availability: Double) extends BaseEvent
 
 case class PlantPhysicalComponent(override val entitySpecifications: EntitySpecifications,
                                   availability: Double)
-                                 (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
+                                 (@transient implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()

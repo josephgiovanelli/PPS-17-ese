@@ -30,7 +30,8 @@ case object Y extends SexualChromosomeType
 
 import it.unibo.pps.ese.genetics.dna.ChromosomeType.{ChromosomeType, _}
 
-sealed trait Chromosome{ self =>
+@SerialVersionUID(100L)
+sealed trait Chromosome extends Serializable { self =>
   def chromosomeType:ChromosomeType
   def geneList:Seq[MGene]
   def mutate(newGenes: Seq[MGene]): self.type

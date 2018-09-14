@@ -4,7 +4,8 @@ import it.unibo.pps.ese.genericworld.model.support._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Component {
+@SerialVersionUID(100L)
+trait Component extends Serializable {
   def initialize(): Unit
   def entitySpecifications : EntitySpecifications
 }

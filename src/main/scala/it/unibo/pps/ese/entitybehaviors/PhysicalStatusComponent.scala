@@ -26,6 +26,7 @@ case class DynamicPhysicalStatusInfo(age: Int,
                                      lifePhase: LifePhases.Value,
                                      actualSpeed: Double) extends BaseEvent
 
+
 case class PhysicalStatusComponent(override val entitySpecifications: EntitySpecifications,
                                    averageLife: Double,
                                    energyRequirements: Double,
@@ -35,7 +36,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
                                    speed: Double,
                                    fertility: Double,
                                    yearToClock: Long)
-                                  (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
+                                  (@transient implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
   val MAX_ENERGY = 1000
   val MIN_DIGESTION_TIME = 10

@@ -5,7 +5,8 @@ import it.unibo.pps.ese.genetics.dnaexpression._
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, QualityType, Species}
 import it.unibo.pps.ese.genetics.generators.data.TranslatedAnimalData
 
-sealed trait SpeciesUtilities{
+@SerialVersionUID(100L)
+sealed trait SpeciesUtilities extends Serializable {
   def generateAnimal:AnimalInfo = translateGenome(generateAnimalGenome)
   def generateAnimalGenome:AnimalGenome
   def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal)
@@ -20,7 +21,34 @@ sealed trait SpeciesUtilities{
 object SpeciesUtilities{
   def apply(animalData:TranslatedAnimalData):SpeciesUtilities = new SpeciesSetup(animalData)
   private[this] class SpeciesSetup(animalData: TranslatedAnimalData) extends SpeciesUtilities {
-    import SpeciesValues._
+
+    val allGeneData: Seq[GeneData] = animalData.structuralChromosome ++
+      animalData.regulationChromosome ++
+      animalData.sexualChromosome
+
+    val speciesGenerator: SpeciesGenerator = new SpeciesGenerator(
+      commonChromosomeGenes = List(animalData.reign, speciesNameToGene(animalData.name)),
+      structuralChromosomeGenes = allGenes(animalData.structuralChromosome),
+      lifeCycleChromosomeGenes = allGenes(animalData.regulationChromosome),
+      feedingChromosomeGenes = List(stringToDiet(animalData.typology)),
+      sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
+    )
+
+    val mutantAllele: Seq[AlleleInfo] = allGeneData.flatMap(_.allelicForm).filter(_.probability == 0)
+
+    var notAppearedMutation: Seq[AlleleInfo] = mutantAllele
+
+    def allGenes(genes: Seq[GeneData]): Seq[GeneWithPossibleAlleles] = {
+      genes.map(geneData => {
+        val alleles: Seq[AlleleWithProbability] = geneData
+          .allelicForm
+          .filter(_.probability > 0)
+          .map(allele =>
+            AlleleWithProbability(allele.allelicSeq, allele.probability))
+        GeneWithPossibleAlleles(geneData.geneSeq, alleles)
+      })
+    }
+
     val geneFeatures: Seq[GeneFeatures] = allGeneData.map(geneData => {
       val allelicBehaviours: Seq[AllelicBehaviour] = geneData
         .allelicForm
@@ -74,34 +102,6 @@ object SpeciesUtilities{
     }
 
 
-    private[this] object SpeciesValues {
-      val allGeneData: Seq[GeneData] = animalData.structuralChromosome ++
-        animalData.regulationChromosome ++
-        animalData.sexualChromosome
-
-
-
-
-      val speciesGenerator: SpeciesGenerator = new SpeciesGenerator(
-        commonChromosomeGenes = List(animalData.reign, speciesNameToGene(animalData.name)),
-        structuralChromosomeGenes = allGenes(animalData.structuralChromosome),
-        lifeCycleChromosomeGenes = allGenes(animalData.regulationChromosome),
-        feedingChromosomeGenes = List(stringToDiet(animalData.typology)),
-        sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
-      )
-      val mutantAllele: Seq[AlleleInfo] = allGeneData.flatMap(_.allelicForm).filter(_.probability == 0)
-      var notAppearedMutation: Seq[AlleleInfo] = mutantAllele
-      def allGenes(genes: Seq[GeneData]): Seq[GeneWithPossibleAlleles] = {
-        genes.map(geneData => {
-          val alleles: Seq[AlleleWithProbability] = geneData
-            .allelicForm
-            .filter(_.probability > 0)
-            .map(allele =>
-              AlleleWithProbability(allele.allelicSeq, allele.probability))
-          GeneWithPossibleAlleles(geneData.geneSeq, alleles)
-        })
-      }
-    }
 
     override def checkNewApparitions(genes: Seq[MGene]): Seq[MGene] = {
       genes.filter{

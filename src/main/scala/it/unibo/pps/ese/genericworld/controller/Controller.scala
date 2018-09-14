@@ -1,6 +1,10 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import it.unibo.pps.ese.genericworld.model.{EntityState, World}
+import java.io.{FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
+import java.nio.file.Paths
+
+import it.unibo.pps.ese.genericworld.model.{Entity, EntityState, World}
+import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.View
 
 import scala.concurrent.ExecutionContext
@@ -16,6 +20,7 @@ trait ManageableController {
   def pause(): Unit
   def exit(): Unit
   def entityData(id: String): Option[EntityState]
+  def saveWorld()
 }
 
 object Controller {
@@ -73,6 +78,30 @@ object Controller {
         Thread.sleep((1000 / fps) - (stop - start))
         //this synchronized wait((1000 / fps) - (stop - start))
       }
+    }
+
+    override def saveWorld(): Unit = {
+      new Thread (() => {
+        println("Saving started")
+
+        val fileName = "/World"
+        val p = Paths.get(Controller.getClass.getResource("/it/unibo/pps/ese/controller/saves").toURI).toString + fileName
+
+        var oos = new ObjectOutputStream(new FileOutputStream(p))
+        oos.writeObject(world.entities)
+        oos.close()
+
+
+        val fileName2 = "/GeneticsSimulator"
+        val p2 = Paths.get(Controller.getClass.getResource("/it/unibo/pps/ese/controller/saves").toURI).toString + fileName2
+
+        oos = new ObjectOutputStream(new FileOutputStream(p2))
+        oos.writeObject(GeneticsSimulator)
+        oos.close()
+
+        println("Saving ended")
+
+      }).start()
     }
   }
 }

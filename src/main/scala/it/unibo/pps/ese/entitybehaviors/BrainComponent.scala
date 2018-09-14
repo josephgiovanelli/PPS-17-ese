@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.entitybehaviors
 
+import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
 import java.util.Random
 
 import it.unibo.pps.ese.entitybehaviors.ActionKind.ActionKind
@@ -39,6 +40,7 @@ object Direction extends Enumeration {
   val RIGHT, LEFT, UP, DOWN, NONE = Value
 }
 
+
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
                           widthWorld: Int,
@@ -46,7 +48,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
                           actionField: Double,
                           visualField: Double,
                           attractiveness: Double)
-                         (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
+                         (@transient implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
 
   implicit def toPoint(tuple2: (Int, Int)): Point = {
@@ -74,7 +76,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   var forceReproduction: Option[ForceReproduction] = None
 
-  val decisionSupport: DecisionSupport = DecisionSupport()
+  var decisionSupport: DecisionSupport = DecisionSupport()
 
   val hippocampus: Hippocampus = Hippocampus(widthWorld, heightWorld, visualField)
 
@@ -83,6 +85,11 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   override def initialize(): Unit = {
     subscribeEvents()
     configureMappings()
+  }
+
+  @throws(classOf[IOException])
+  private def readObject(in: ObjectInputStream): Unit = {
+    decisionSupport = DecisionSupport()
   }
 
   private def subscribeEvents(): Unit = {
@@ -227,5 +234,4 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   }
 
   private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
-
 }

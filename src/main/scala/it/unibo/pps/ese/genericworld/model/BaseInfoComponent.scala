@@ -26,7 +26,7 @@ case class BaseInfoComponent(override val entitySpecifications: EntitySpecificat
                              var nutritionalValue: Double,
                              defense: Double,
                              entityInfo: it.unibo.pps.ese.genetics.entities.EntityInfo)
-                            (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
+                            (@transient implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
   override def initialize(): Unit = {
     subscribeEvents()
