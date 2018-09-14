@@ -1,11 +1,16 @@
 package it.unibo.pps.ese.controller.loader
 import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
+import it.unibo.pps.ese.controller.loader.data.CustomGeneData.PartialCustomGeneData
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGeneData
+import it.unibo.pps.ese.controller.loader.data.{PartialAlleleData, PartialPlantData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, FileResource, Folder, IOResource, NotExistingFile, NotExistingFolder, UndefinedNotExistingResource}
 
 object YamlSaver {
+
+  def apply(simulationData: PartialSimulationData, simulationName: String): Saver =
+    new YamlSaverImpl(simulationData, simulationName)
 
   private class YamlSaverImpl(val simulationData: PartialSimulationData, val simulationName: String) extends Saver {
 
@@ -16,22 +21,74 @@ object YamlSaver {
       checkFileExistence(saveLocation.getChildren(simulationName + fileExtension), overrideAll, saveMainFile)
     }
 
-    private def saveMainFile(file: File, overrideAll: Boolean): Unit = {
+    def saveMainFile(file: File, overrideAll: Boolean): Unit = {
       val currentFolder = file.getParentFolder().get
       simulationData.getAnimals.get.map(_._1).foreach(animal => {
         checkFileExistence(currentFolder.getChildren(simulationName + "_" + animal.name + fileExtension), overrideAll,
           saveAnimal(animal))
       })
-      //TODO write file
+      simulationData.getPlants.get.map(_._1).foreach(plant => {
+        checkFileExistence(currentFolder.getChildren(simulationName + "_" + plant.name + fileExtension), overrideAll,
+          savePlant(plant))
+      })
+      //TODO write main file
     }
 
     def saveAnimal(animal: PartialAnimalData)(file: File, overrideAll: Boolean): Unit = {
       val currentFolder = file.getParentFolder().get
-      //if(animal.getRegulationChromosome.isDefined)
-        //checkFolderExistence(currentFolder.getChildren(simulationName + "_" + animal.name + "_reg"), overrideAll, saveDefaultChromosome(animal.getRegulationChromosome.get))
+      val regulationFolderName = simulationName + "_" + animal.name + "_reg"
+      val sexualFolderName = simulationName + "_" + animal.name + "_sex"
+      val structuralFolderName = simulationName + "_" + animal.name + "_struct"
+      if(animal.getRegulationChromosome.isDefined) {
+        checkFolderExistence(currentFolder.getChildren(regulationFolderName),
+          overrideAll, saveDefaultChromosome(animal.getRegulationChromosome.get))
+      }
+      if(animal.getSexualChromosome.isDefined) {
+        checkFolderExistence(currentFolder.getChildren(sexualFolderName),
+          overrideAll, saveDefaultChromosome(animal.getSexualChromosome.get))
+      }
+      if(animal.getStructuralChromosome.isDefined) {
+        checkFolderExistence(currentFolder.getChildren(structuralFolderName),
+          overrideAll, saveCustomChromosome(animal.getStructuralChromosome.get))
+      }
     }
 
-    def saveDefaultChromosome(genes: Seq[PartialDefaultGeneData])(file: Folder, overrideAll: Boolean): Unit = {
+    def saveDefaultChromosome(genes: Iterable[PartialDefaultGeneData])(folder: Folder, overrideAll: Boolean): Unit = {
+      genes.foreach(gene =>
+        if(gene.getAlleles.isDefined) {
+          gene.getAlleles.get.foreach(allele => {
+            checkFileExistence(folder.getChildren(gene.name + "_" + allele.id + fileExtension), overrideAll, saveAllele(allele))
+          })
+        }
+      )
+    }
+
+    def saveCustomChromosome(genes: Iterable[PartialCustomGeneData])(folder: Folder, overrideAll: Boolean): Unit = {
+      genes.foreach(gene =>
+        checkFileExistence(folder.getChildren(gene.name + fileExtension), overrideAll, saveGene(gene))
+      )
+    }
+
+    def saveGene(gene: PartialCustomGeneData)(file: File, overrideAll: Boolean): Unit = {
+      val currentFolder = file.getParentFolder().get
+      if(gene.getAlleles.isDefined) {
+        checkFolderExistence(currentFolder.getChildren(gene.name + "_" + "all"), overrideAll, saveCustomAlleles(gene.getAlleles.get))
+      }
+      //TODO write chromosome to file
+    }
+
+    def saveCustomAlleles(alleles: Iterable[PartialAlleleData])(folder: Folder, overrideAll: Boolean): Unit = {
+      alleles.foreach(allele => {
+        checkFileExistence(folder.getChildren(allele.id + fileExtension), overrideAll, saveAllele(allele))
+      })
+    }
+
+    def saveAllele(animal: PartialAlleleData)(file: File, overrideAll: Boolean): Unit = {
+      //TODO write allele to file
+      //println("something")
+    }
+
+    def savePlant(animal: PartialPlantData)(file: File, overrideAll: Boolean): Unit = {
 
     }
 
