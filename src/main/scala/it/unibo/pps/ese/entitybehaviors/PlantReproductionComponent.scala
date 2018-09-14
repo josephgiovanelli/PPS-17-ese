@@ -45,7 +45,6 @@ case class PlantReproductionComponent(override val entitySpecifications: EntityS
       val plantsGrown = floor(MAX_SEEDS_PRODUCTION * seedsGrowProbability).toInt
       val currentWindForce = Random.nextDouble()
       val currentInseminationRadius = floor(MAX_INSEMINATION_RADIUS * currentWindForce).toInt + plantsGrown
-      println("currentInseminationRadius " + currentInseminationRadius + "plantsGrown " + plantsGrown)
       if (plantsGrown > 1) {
         val result = requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest)
         result onComplete {
