@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.view.history
 
+import java.lang.Math
+
 import it.unibo.pps.ese.view.utilities.TextUtilities._
 import it.unibo.pps.ese.view.history.LogConversions._
 import javafx.collections.{FXCollections, ObservableList}
@@ -8,14 +10,15 @@ import scalafx.application.Platform
 import scalafx.geometry.Orientation
 import scalafx.scene.control.ListView
 import scalafx.scene.layout.{BorderPane, HBox, Pane}
-import scala.collection.JavaConverters._
 
+import scala.collection.JavaConverters._
 trait HistoryPane extends Pane{
   def updateHistoryLog(newLog:HistoryLog):Unit
 }
 object HistoryPane{
   def apply(): HistoryPane = new HistoryPaneImpl()
   private class HistoryPaneImpl() extends HistoryPane {
+    val historyAggregator = HistoryAggregator()
     val mainPane = new BorderPane()
     val title:HBox = "The World History".toHBox
     title.prefWidth <== width
@@ -38,7 +41,7 @@ object HistoryPane{
       println(newLog)
       Platform.runLater{
         ()->{
-          logsList.addAll(newLog.allLogs.asJava)
+          logsList.addAll(newLog.allLogsWithAggregation(historyAggregator).asJava)
           logs.scrollTo(logsList.size() -1)
         }
       }
