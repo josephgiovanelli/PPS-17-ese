@@ -22,6 +22,7 @@ import scalafx.scene.input.{KeyEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.view.bodyViewer.BodyPane
+import Color._
 
 import scala.util.Random
 
@@ -56,27 +57,56 @@ private class WorldPaneImpl(
                              height: Int
                            ) extends WorldPane {
 
-  val selectionColor: Color = Color.Gold
 
-  private var currentWorld: Map[Position, Entity] = Map()
-  private var currentSelected: Option[String] = None
-  private var currentWatched: Option[String] = None
-  private var worldViewWidth: DoubleProperty = DoubleProperty(worldWidth*entitySize())
-  private var worldViewHeigth: DoubleProperty = DoubleProperty(worldHeigth*entitySize())
+  val backGroundColor: Color = valueOf("#2c3e50")
+  val selectionColor: Color = Yellow
+
+  val plantColors: List[Color] = List(
+    Green,
+    LightGreen,
+    GreenYellow)
+
+
+  val animalColors: List[Color] = List(
+    Red,
+    MediumPurple,
+    White,
+    Cyan,
+    Orange,
+    Brown,
+    GreenYellow,
+    DeepPink
+  )
+
+
+  var animalColorPool: List[Color] = animalColors
+  val animalColorMap: Map[String, Color] = getAnimalColors
+
+  var plantColorPool: List[Color] = plantColors
+  val plantColorMap: Map[String, Color] = getPlantColors
+
+  var currentWorld: Map[Position, Entity] = Map()
+  var currentSelected: Option[String] = None
+  var currentWatched: Option[String] = None
+  var worldViewWidth: DoubleProperty = DoubleProperty(worldWidth*entitySize())
+  var worldViewHeigth: DoubleProperty = DoubleProperty(worldHeigth*entitySize())
   worldViewWidth <== entitySize*worldWidth
   worldViewHeigth <== entitySize*worldHeigth
 
-  private val canvas = new Canvas()
+  val canvas = new Canvas()
   canvas.width <== worldViewWidth
   canvas.height <== worldViewHeigth
 
-  private val graphicsContext: GraphicsContext = canvas.graphicsContext2D
+  val graphicsContext: GraphicsContext = canvas.graphicsContext2D
+  graphicsContext.fill = backGroundColor
+  graphicsContext.fillRect(0, 0, worldViewWidth(), worldViewHeigth())
 
   content = canvas
 
   entitySize.onChange(drawWorld(currentWorld.values.toList))
 
   tooltip = new Tooltip()
+
   canvas.onMouseMoved = (e: MouseEvent) => {
     val pos: Position = getEntityViewStartPosition(e.x, e.y)
     currentWorld.get(pos) match {
@@ -161,9 +191,15 @@ private class WorldPaneImpl(
     Platform.runLater {
       () => {
 
-        graphicsContext.clearRect(0, 0, worldViewWidth(), worldViewHeigth())
+        graphicsContext.fill = backGroundColor
+        graphicsContext.fillRect(0, 0, worldViewWidth(), worldViewHeigth())
         world foreach (e => {
-          drawEntity(Position(e.position.x * entitySize(), e.position.y * entitySize()), e.color)
+          /* refactor */
+          e.name match {
+            case "ErbaGatta" => drawEntity(Position(e.position.x * entitySize(), e.position.y * entitySize()), plantColorMap(e.name))
+            case _ => drawEntity(Position(e.position.x * entitySize(), e.position.y * entitySize()), animalColorMap(e.name))
+          }
+
         })
         currentSelected match {
           case Some(id) =>
@@ -207,7 +243,12 @@ private class WorldPaneImpl(
   }
 
   private def clearSelectedEntity(position: Position, entity: Entity): Unit = {
-    drawEntity(position, entity.color)
+    /*refactor*/
+    entity.name match {
+      case "ErbaGatta" => drawEntity(position, plantColorMap(entity.name))
+      case _ => drawEntity(position, animalColorMap(entity.name))
+    }
+
     val ed: EntityInfo = mainComponent.getEntityDetails(entity.id).get
     ed.baseEntityInfo match {
       case a: AnimalInfo => clearVisualField(position, ed.visualField)
@@ -251,5 +292,26 @@ private class WorldPaneImpl(
   private def getEntityRealPosition(x: Double, y: Double): Position = {
     val pos: Position = getEntityViewStartPosition(x, y)
     Position(pos.x/entitySize(), pos.y/entitySize())
+  }
+
+  private def getAnimalColors: Map[String, Color] = {
+
+    geneticsSimulator.speciesList.map(s => (s, {
+      if (animalColorPool.isEmpty) animalColorPool=animalColors
+      val r = Random.nextInt(animalColorPool.size)
+      val c = animalColorPool(r)
+      animalColorPool = animalColorPool diff List(c)
+      c
+    })).toMap
+  }
+
+  private def getPlantColors: Map[String, Color] = {
+    geneticsSimulator.plantSpeciesList.map(s => (s, {
+      if (plantColorPool.isEmpty) plantColorPool=plantColors
+      val r = Random.nextInt(plantColorPool.size)
+      val c = plantColorPool(r)
+      plantColorPool = plantColorPool diff List(c)
+      c
+    })).toMap
   }
 }
