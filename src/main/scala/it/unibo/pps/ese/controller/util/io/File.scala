@@ -11,6 +11,8 @@ trait File extends ExistingResource with FileResource {
   def rawFile: java.io.File
   def name: String
   def openInputStream: InputStream
+  def write(content: String)
+  def append(content: String)
 }
 
 object File {
@@ -28,5 +30,13 @@ object File {
     val name: String = javaFile.getName
 
     override def openInputStream: InputStream = FileUtils.openInputStream(javaFile)
+
+    override def write(content: String): Unit = {
+      FileUtils.writeStringToFile(this, content, java.nio.charset.StandardCharsets.UTF_8, false)
+    }
+
+    override def append(content: String): Unit = {
+      FileUtils.writeStringToFile(this, content, java.nio.charset.StandardCharsets.UTF_8, true)
+    }
   }
 }

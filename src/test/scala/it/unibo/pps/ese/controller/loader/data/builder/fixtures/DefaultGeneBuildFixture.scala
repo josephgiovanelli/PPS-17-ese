@@ -40,7 +40,7 @@ trait DefaultGeneBuildFixture {
       .addAlleles(Set[CompleteAlleleData](all1))
 
     val staticIncomplete = GeneBuilder()
-      .setId("iddsi")
+      .setName("namedsi")
       .addAlleles(Set[CompleteAlleleData](all2))
       .addProperties(Map("test" -> Double.getClass))
 

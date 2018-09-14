@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGen
 import it.unibo.pps.ese.controller.loader.data.{PartialAlleleData, PartialPlantData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
-import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, FileResource, Folder, IOResource, NotExistingFile, NotExistingFolder, UndefinedNotExistingResource}
+import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource, NotExistingFile, NotExistingFolder, UndefinedNotExistingResource}
 
 import net.jcazevedo.moultingyaml._
 
@@ -94,9 +94,9 @@ object YamlSaver {
     }
 
     def savePlant(plant: PartialPlantData)(file: File, overrideAll: Boolean): Unit = {
-      val str = Plant(plant.name, plant.getGeneLength, plant.getAlleleLength, plant.getReign, plant.getHeight,
-        plant.getAttractiveness, plant.getHardness, plant.getNutritionalValue, plant.getAvailability).toYaml.prettyPrint
-      println(str)
+      val beanYaml = Plant(plant.name, plant.getGeneLength, plant.getAlleleLength, plant.getReign, plant.getHeight,
+        plant.getAttractiveness, plant.getHardness, plant.getNutritionalValue, plant.getAvailability).toYaml
+      file.write(beanYaml.prettyPrint)
     }
 
     def checkFileExistence(resource: IOResource, overrideAll: Boolean, callback: (File, Boolean) => Unit): Unit = resource match {
