@@ -2,6 +2,8 @@ package it.unibo.pps.ese.controller.util.io
 
 import java.net.URL
 
+import it.unibo.pps.ese.controller.util.io.File.FileFormat
+
 trait IOResource {
   def getParent(): Option[FolderResource]
 }
@@ -22,7 +24,9 @@ sealed trait NotExistingFile extends NotExistingResource with FileResource {
   def createFile(): Option[File]
 }
 
-sealed trait UndefinedNotExistingResource extends NotExistingFolder with NotExistingFile
+sealed trait UndefinedNotExistingResource extends NotExistingFolder with NotExistingFile {
+  def hasFileExtension(format: FileFormat): Boolean
+}
 
 object IOResource {
 
@@ -54,6 +58,8 @@ object IOResource {
       javaFile.mkdir()
       Some(Folder(javaFile))
     }
+
+    override def hasFileExtension(format: FileFormat): Boolean = format.extensions.exists(ext => javaFile.getName.endsWith(ext))
   }
 }
 

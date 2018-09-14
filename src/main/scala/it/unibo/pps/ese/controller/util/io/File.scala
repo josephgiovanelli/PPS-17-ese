@@ -10,6 +10,11 @@ trait File extends ExistingResource with FileResource {
 
 object File {
 
+  sealed abstract class FileFormat(val extensions: Seq[String])
+  object FileFormats {
+    case object YAML extends FileFormat(Seq(".yml", ".yaml"))
+  }
+
   def apply(filePath: URL): File = new FileImpl(filePath)
   def apply(file: java.io.File): File = new FileImpl(file.toURI.toURL)
 

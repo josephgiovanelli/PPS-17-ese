@@ -4,7 +4,7 @@ import java.io
 import java.io.{File, InputStream}
 import java.net.URL
 
-import it.unibo.pps.ese.controller.util.io.Folder.FileFormat
+import it.unibo.pps.ese.controller.util.io.File.FileFormat
 import org.apache.commons.io.FileUtils
 
 trait Folder extends ExistingResource with FolderResource {
@@ -12,6 +12,7 @@ trait Folder extends ExistingResource with FolderResource {
   def getFiles(fileFormat: FileFormat): Seq[File]
   def getFilesAsStream: Seq[InputStream]
   def getFilesAsStream(fileFormat: FileFormat): Seq[InputStream]
+  //def getChildren(relativePath: String)
   //def getOrCreateFile(): Option[File]
   //def getOrCreateFolder(): Option[Folder]
 }
@@ -22,15 +23,12 @@ object Folder {
   def apply(folderPath: String): Folder = Folder(new io.File(folderPath))
   def apply(file: java.io.File): Folder = new FolderImpl(file.toURI.toURL)
 
-  sealed abstract class FileFormat(val extensions: Seq[String])
-  case object YAML extends FileFormat(Seq(".yml", ".yaml"))
-
   private class FolderImpl(folderPath: URL) extends ExistingResourceImpl(folderPath) with Folder {
     require(javaFile.isDirectory)
 
     def getFiles: Seq[File] = javaFile.listFiles().filter(_.isFile).map(File(_)).toSeq
 
-    def getFiles(fileFormat: FileFormat): Seq[File] = getFiles.filter(f => fileFormat.extensions.map(ext => f.name.endsWith(ext)).exists(b => b))
+    def getFiles(fileFormat: FileFormat): Seq[File] = getFiles.filter(f => fileFormat.extensions.exists(ext => f.name.endsWith(ext)))
 
     def getFilesAsStream: Seq[InputStream] = convertToInputStream(getFiles)
 

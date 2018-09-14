@@ -3,10 +3,11 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
-import it.unibo.pps.ese.controller.loader.data.AnimalData.{PartialAnimalData}
-import it.unibo.pps.ese.controller.loader.data.SimulationData.{PartialSimulationData}
+import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
+import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.Folder
 import net.jcazevedo.moultingyaml._
 import org.kaikikm.threadresloader.ResourceLoader
@@ -127,7 +128,7 @@ object YamlLoader extends Loader {
   }
 
   private def loadStructuralChromosome(genesPath: String): Seq[GeneBuilder[_]] =  {
-    Folder(ResourceLoader.getResource(genesPath)).getFilesAsStream(Folder.YAML)
+    Folder(ResourceLoader.getResource(genesPath)).getFilesAsStream(FileFormats.YAML)
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
       .map(g => {
         var builder: GeneBuilder[_] = GeneBuilder()
@@ -144,7 +145,7 @@ object YamlLoader extends Loader {
   }
 
   private def loadAlleles(allelesPath: String): Seq[AlleleBuilder[_]] = {
-    Folder(ResourceLoader.getResource(allelesPath)).getFilesAsStream(Folder.YAML)
+    Folder(ResourceLoader.getResource(allelesPath)).getFilesAsStream(FileFormats.YAML)
       .map(path => {
         val all = loadFileContent(path).parseYaml.convertTo[Allele]
         var builder: AlleleBuilder[_] = AlleleBuilder()
