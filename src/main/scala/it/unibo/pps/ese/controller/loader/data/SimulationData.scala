@@ -13,6 +13,6 @@ trait FullSimulationData[A <: PartialAnimalData, P <: PartialPlantData] extends 
 }
 
 object SimulationData {
-  type PartialSimulationData = SimulationData [_ <: PartialAnimalData, _ <: PartialPlantData]
-  type CompleteSimulationData = FullSimulationData [CompleteAnimalData, CompletePlantData]
+  type PartialSimulationData = SimulationData[PartialAnimalData, PartialPlantData]
+  type CompleteSimulationData = PartialSimulationData with FullSimulationData[CompleteAnimalData, CompletePlantData]
 }
