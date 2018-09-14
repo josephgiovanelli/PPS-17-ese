@@ -55,14 +55,20 @@ object PrologDecisionSupport {
     }
 
     override def discoverPreys(hunter: EntityAttributes): Stream[EntityChoice] = {
-      val discoverPreys = new Struct("discoverPreys", supportMap(hunter.name), new Var("Y"), new Var("Length"))
-      val result: Stream[EntityChoice] = engine(discoverPreys) map (x => (extractTerm(x, 1), extractTerm(x, 2)))
+      var result: Stream[EntityChoice] = Stream.empty
+      if(supportMap.get(hunter.name).isDefined) {
+        val discoverPreys = new Struct("discoverPreys", supportMap(hunter.name), new Var("Y"), new Var("Length"))
+        result= engine(discoverPreys) map (x => (extractTerm(x, 1), extractTerm(x, 2)))
+      }
       result.map(x => (supportMap(x.name), x.distance))
     }
 
     override def discoverPartners(entity: EntityAttributes): Stream[EntityChoice] = {
-      val discoverPartners = new Struct("discoverPartners", supportMap(entity.name), new Var("Y"), new Var("Length"))
-      val result: Stream[EntityChoice] = engine(discoverPartners) map (x => (extractTerm(x, 1), extractTerm(x, 2)))
+      var result: Stream[EntityChoice] = Stream.empty
+      if(supportMap.get(entity.name).isDefined) {
+        val discoverPartners = new Struct("discoverPartners", supportMap(entity.name), new Var("Y"), new Var("Length"))
+        result = engine(discoverPartners) map (x => (extractTerm(x, 1), extractTerm(x, 2)))
+      }
       result.map(x => (supportMap(x.name), x.distance))
     }
 
