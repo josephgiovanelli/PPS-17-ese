@@ -17,7 +17,6 @@ trait PlantBuilder [T <: PlantStatus]{
   def setGeneLength(geneLength: Int): PlantBuilder[T with PlantWithGeneLength]
   def setAlleleLength(alleleLength: Int): PlantBuilder[T with PlantWithAlleleLength]
   def setReign(reign: String): PlantBuilder[T with PlantWithReign]
-  def setInfo(plant: Plant): PlantBuilder[T with FullPlant]
   def buildComplete(implicit ev: T =:= FullPlant): CompletePlantData
   def build(): PartialPlantData
 }
@@ -73,12 +72,6 @@ object PlantBuilder {
     def setReign(reign: String): PlantBuilder[T with PlantWithReign] =
       new PlantBuilderImpl(height, nutritionalValue, attractiveness, hardness, availability, name, geneLength,
         alleleLength, Some(reign))
-
-    def setInfo(plant: Plant): PlantBuilder[T with FullPlant] = {
-      new PlantBuilderImpl(Some(plant.height), Some(plant.nutritionalValue), Some(plant.attractiveness),
-        Some(plant.hardness), Some(plant.availability), Some(plant.name), Some(plant.geneLength),
-        Some(plant.alleleLength), Some(plant.reign))
-    }
 
     def buildComplete(implicit ev: T =:= FullPlant): CompletePlantData = {
       new PlantDataImpl(height, nutritionalValue, attractiveness, hardness, availability, name, geneLength,

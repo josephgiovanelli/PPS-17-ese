@@ -3,8 +3,8 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
-import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
-import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
+import it.unibo.pps.ese.controller.loader.data.AnimalData.{PartialAnimalData}
+import it.unibo.pps.ese.controller.loader.data.SimulationData.{PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
 import it.unibo.pps.ese.controller.util.io.Folder
@@ -54,43 +54,49 @@ object YamlLoader extends Loader {
   private def loadPlant(path: String): PartialPlantData = {
     val loadedPlant = loadFileContent(path).parseYaml.convertTo[Plant]
     var builder: PlantBuilder[_] = PlantBuilder()
-    if(loadedPlant.name.isValid)
-      builder = builder.setName(loadedPlant.name)
-    if(loadedPlant.reign.isValid)
-      builder = builder.setReign(loadedPlant.reign)
-    if(loadedPlant.alleleLength.isValid)
-      builder = builder.setAlleleLength(loadedPlant.alleleLength)
-    if(loadedPlant.geneLength.isValid)
-      builder = builder.setGeneLength(loadedPlant.geneLength)
-    if(loadedPlant.attractiveness.isValid)
-      builder = builder.setAttractiveness(loadedPlant.attractiveness)
-    if(loadedPlant.hardness.isValid)
-      builder = builder.setHardness(loadedPlant.hardness)
-    if(loadedPlant.availability.isValid)
-      builder = builder.setAvailability(loadedPlant.availability)
-    if(loadedPlant.height.isValid)
-      builder = builder.setHeight(loadedPlant.height)
-    if(loadedPlant.nutritionalValue.isValid)
-      builder = builder.setNutritionalValue(loadedPlant.nutritionalValue)
+    if(loadedPlant.name.isDefined)
+      builder = builder.setName(loadedPlant.name.get)
+    if(loadedPlant.reign.isDefined)
+      builder = builder.setReign(loadedPlant.reign.get)
+    if(loadedPlant.alleleLength.isDefined)
+      builder = builder.setAlleleLength(loadedPlant.alleleLength.get)
+    if(loadedPlant.geneLength.isDefined)
+      builder = builder.setGeneLength(loadedPlant.geneLength.get)
+    if(loadedPlant.attractiveness.isDefined)
+      builder = builder.setAttractiveness(loadedPlant.attractiveness.get)
+    if(loadedPlant.hardness.isDefined)
+      builder = builder.setHardness(loadedPlant.hardness.get)
+    if(loadedPlant.availability.isDefined)
+      builder = builder.setAvailability(loadedPlant.availability.get)
+    if(loadedPlant.height.isDefined)
+      builder = builder.setHeight(loadedPlant.height.get)
+    if(loadedPlant.nutritionalValue.isDefined)
+      builder = builder.setNutritionalValue(loadedPlant.nutritionalValue.get)
     builder.build()
   }
 
   private def loadAnimal(path: String): PartialAnimalData = {
     val loadedAnimal = loadFileContent(path).parseYaml.convertTo[Animal]
-    val structuralChromosome = loadStructuralChromosome(loadedAnimal.structuralChromosome)
-    val regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome)
-    val sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome)
+    var structuralChromosome: Seq[GeneBuilder[_]] = Seq()
+    var regulationChromosome: Seq[GeneBuilder[_]] = Seq()
+    var sexualChromosome: Seq[GeneBuilder[_]] = Seq()
+    if(loadedAnimal.structuralChromosome.isDefined)
+      structuralChromosome = loadStructuralChromosome(loadedAnimal.structuralChromosome.get)
+    if(loadedAnimal.regulationChromosome.isDefined)
+      regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome.get)
+    if(loadedAnimal.sexualChromosome.isDefined)
+      sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome.get)
     var builder: AnimalBuilder[_] = AnimalBuilder()
-    if(loadedAnimal.name.isValid)
-      builder = builder.setName(loadedAnimal.name)
-    if(loadedAnimal.typology.isValid)
-      builder = builder.setTypology(loadedAnimal.typology)
-    if(loadedAnimal.reign.isValid)
-      builder = builder.setReign(loadedAnimal.reign)
-    if(loadedAnimal.alleleLength.isValid)
-      builder = builder.setAlleleLength(loadedAnimal.alleleLength)
-    if(loadedAnimal.geneLength.isValid)
-      builder = builder.setGeneLength(loadedAnimal.geneLength)
+    if(loadedAnimal.name.isDefined)
+      builder = builder.setName(loadedAnimal.name.get)
+    if(loadedAnimal.typology.isDefined)
+      builder = builder.setTypology(loadedAnimal.typology.get)
+    if(loadedAnimal.reign.isDefined)
+      builder = builder.setReign(loadedAnimal.reign.get)
+    if(loadedAnimal.alleleLength.isDefined)
+      builder = builder.setAlleleLength(loadedAnimal.alleleLength.get)
+    if(loadedAnimal.geneLength.isDefined)
+      builder = builder.setGeneLength(loadedAnimal.geneLength.get)
     if(structuralChromosome.isValid)
       builder = builder.addStructuralChromosome(structuralChromosome)
     if(regulationChromosome.isValid)
@@ -104,17 +110,17 @@ object YamlLoader extends Loader {
     //TODO in builder, only check subset here
     //require(chromosomeData.names.keySet == genesSet.map(_.name))
     var alleles: Seq[AlleleBuilder[_]] = Seq()
-    if(chromosomeData.allelesPath.isValid) {
-      alleles = loadAlleles(chromosomeData.allelesPath)
+    if(chromosomeData.allelesPath.isDefined) {
+      alleles = loadAlleles(chromosomeData.allelesPath.get)
     }
     //TODO check no wrong alleles
-    chromosomeData.names.toSeq.map({
+    chromosomeData.names.getOrElse(Seq()).toSeq.map({
       case (k, v) =>
         var builder: GeneBuilder[_] = GeneBuilder()
           .setDefaultInfo(genesSet.find(e => e.name == k).get)
         if(v.isValid)
           builder = builder.setId(v)
-        if(chromosomeData.allelesPath.isValid && v.isValid)
+        if(chromosomeData.allelesPath.isDefined && v.isValid)
           builder = builder.addAllelesB(alleles.filter(a => a.gene.getOrElse("") == v))
         builder
     })
@@ -125,14 +131,14 @@ object YamlLoader extends Loader {
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
       .map(g => {
         var builder: GeneBuilder[_] = GeneBuilder()
-        if(g.id.isValid)
-          builder = builder.setId(g.id)
-        if(g.simpleName.isValid)
-          builder = builder.setName(g.simpleName)
-        if(g.properties.isValid)
-          builder = builder.setCustomProperties(g.properties)
-        if(g.allelesPath.isValid)
-          builder = builder.addAllelesB(loadAlleles(g.allelesPath))
+        if(g.id.isDefined)
+          builder = builder.setId(g.id.get)
+        if(g.simpleName.isDefined)
+          builder = builder.setName(g.simpleName.get)
+        if(g.properties.isDefined)
+          builder = builder.setCustomProperties(g.properties.get)
+        if(g.allelesPath.isDefined)
+          builder = builder.addAllelesB(loadAlleles(g.allelesPath.get))
         builder
       })
   }
@@ -142,18 +148,18 @@ object YamlLoader extends Loader {
       .map(path => {
         val all = loadFileContent(path).parseYaml.convertTo[Allele]
         var builder: AlleleBuilder[_] = AlleleBuilder()
-        if(all.id.isValid)
-          builder = builder.setId(all.id)
-        if(all.gene.isValid)
-          builder = builder.setGene(all.gene)
-        if(all.consume.isValid)
-          builder = builder.setConsume(all.consume)
-        if(all.dominance.isValid)
-          builder = builder.setDominance(all.dominance)
-        if(all.effect.isValid)
-          builder = builder.setEffect(all.effect)
-        if(all.probability.isValid)
-          builder = builder.setProbability(all.probability)
+        if(all.id.isDefined)
+          builder = builder.setId(all.id.get)
+        if(all.gene.isDefined)
+          builder = builder.setGene(all.gene.get)
+        if(all.consume.isDefined)
+          builder = builder.setConsume(all.consume.get)
+        if(all.dominance.isDefined)
+          builder = builder.setDominance(all.dominance.get)
+        if(all.effect.isDefined)
+          builder = builder.setEffect(all.effect.get)
+        if(all.probability.isDefined)
+          builder = builder.setProbability(all.probability.get)
         builder
       })
   }

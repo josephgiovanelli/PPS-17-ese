@@ -2,12 +2,12 @@ package it.unibo.pps.ese.controller.loader.beans
 
 import it.unibo.pps.ese.controller.loader.data.CompleteAlleleData
 
-case class Allele(gene: String,
-                  id: String,
-                  dominance: Double,
-                  consume: Double,
-                  probability: Double,
-                  effect: Map[String, Double]) {
+case class Allele(gene: Option[String],
+                  id: Option[String],
+                  dominance: Option[Double],
+                  consume: Option[Double],
+                  probability: Option[Double],
+                  effect: Option[Map[String, Double]]) {
 //  def canEqual(other: Any): Boolean = other.isInstanceOf[Allele]
 //
 //  override def equals(other: Any): Boolean = other match {
