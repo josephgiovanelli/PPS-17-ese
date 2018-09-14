@@ -8,6 +8,7 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulation
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
 import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
+import it.unibo.pps.ese.utils.DefaultValue
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
 
@@ -269,24 +270,20 @@ object EntitiesInfo {
     Mapping methods SimulationData to EntitiesInfo
      */
 
-    implicit class DefaultStringOption(op: Option[String]) extends DefaultOption[String](op, "")
-    implicit class DefaultIntOption(op: Option[Int]) extends DefaultOption[Int](op, -1)
-    implicit class DefaultDoubleOption(op: Option[Double]) extends DefaultOption[Double](op, -1)
-    implicit class DefaultMapOption[X, Y](op: Option[Map[X, Y]]) extends DefaultOption[Map[X, Y]](op, Map())
-    implicit class DefaultSetOption[X](op: Option[Set[X]]) extends DefaultOption[Set[X]](op, Set())
-    implicit class DefaultIterableOption[X](op: Option[Iterable[X]]) extends DefaultOption[Iterable[X]](op, Seq())
 
-    abstract class DefaultOption[T](op: Option[T], defaultValue:T) {
-      def getOrDefault: T = {
-        op.getOrElse(defaultValue)
-      }
-    }
+    import it.unibo.pps.ese.utils.DefaultGetImplicits._
+
+    implicit val int: DefaultValue[Int] = DefaultValue(Integer.MIN_VALUE)
+    implicit val double: DefaultValue[Double] = DefaultValue(Double.MinValue)
+    implicit val string: DefaultValue[String] = DefaultValue("")
+    implicit def iterable[X]: DefaultValue[Iterable[X]] = DefaultValue(Iterable[X]())
+    implicit def map[X, Y]: DefaultValue[Map[X, Y]] = DefaultValue(Map[X, Y]())
+    implicit def set[X]: DefaultValue[Set[X]] = DefaultValue(Set[X]())
 
     private def plantsMapping(plantData: Seq[PartialPlantData]): Map[String, PlantInfo] =
       plantData.map(plant => plant.name -> PlantInfo(plant.getHeight.getOrDefault, plant.getNutritionalValue.getOrDefault, plant.getHardness.getOrDefault, plant.getAvailability.getOrDefault)).toMap
 
     private def animalsMapping(animalData: Seq[PartialAnimalData]): Map[String, AnimalInfo] =
-                                //TODO name must be univocal
       animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
 
     private def animalBaseInfoMapping(animal: PartialAnimalData): AnimalBaseInfo =

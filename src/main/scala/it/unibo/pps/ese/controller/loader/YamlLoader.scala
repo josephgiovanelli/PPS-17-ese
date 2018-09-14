@@ -10,6 +10,7 @@ import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource}
+import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
 import org.kaikikm.threadresloader.ResourceLoader
 
@@ -18,6 +19,7 @@ object YamlLoader extends Loader {
 
 
   import BeansYamlProtocol._
+  import it.unibo.pps.ese.utils.ValidableImplicits._
 
   implicit val int: DefaultValue[Int] = DefaultValue(Integer.MIN_VALUE)
   implicit val double: DefaultValue[Double] = DefaultValue(Double.MinValue)
@@ -201,25 +203,4 @@ object YamlLoader extends Loader {
     ret
   }
 
-  case class DefaultValue[T](get: T)
-
-  trait Validable[T] {
-    def isValid(implicit defaultValue: DefaultValue[T]): Boolean
-  }
-
-  implicit class ValidableString(str: String) extends Validable[String] {
-    def isValid(implicit defaultValue: DefaultValue[String]): Boolean = str != defaultValue.get
-  }
-
-  implicit class ValidableIterable(it: Iterable[_]) extends Validable[Iterable[_]] {
-    def isValid(implicit defaultValue: DefaultValue[Iterable[_]]): Boolean = it != defaultValue.get
-  }
-
-  implicit class ValidableNumeric(num: Double) extends Validable[Double] {
-    def isValid(implicit defaultValue: DefaultValue[Double]): Boolean = num != defaultValue.get
-  }
-
-  trait DefaultGet[T] {
-    def getOrDefault(implicit defaultValue: DefaultValue[T]): T
-  }
 }
