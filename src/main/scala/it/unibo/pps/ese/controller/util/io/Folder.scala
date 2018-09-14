@@ -15,6 +15,7 @@ trait Folder extends ExistingResource with FolderResource {
   def getFilesAsStream: Seq[InputStream]
   def getFilesAsStream(fileFormat: FileFormat): Seq[InputStream]
   def getExistingChildren(relativePath: String): Option[ExistingResource]
+  def getChildren(relativePath: String): IOResource
   //def getOrCreateFile(): Option[File]
   //def getOrCreateFolder(): Option[Folder]
 }
@@ -49,6 +50,9 @@ object Folder {
           None
       }
     }
+
+    override def getChildren(relativePath: String): IOResource =
+      IOResource(FilenameUtils.concat(javaFile.getAbsolutePath, relativePath))
   }
 }
 
