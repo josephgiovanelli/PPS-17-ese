@@ -90,6 +90,7 @@ class ReproductionTest extends FunSuite {
   }
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo): Component = {
+    println(info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue)
     ReproductionComponent(
       entity specifications,
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
