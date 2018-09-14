@@ -1,4 +1,5 @@
 package it.unibo.pps.ese.controller.loader
+import it.unibo.pps.ese.controller.loader.beans.Plant
 import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.loader.data.CustomGeneData.PartialCustomGeneData
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGeneData
@@ -7,12 +8,16 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationD
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, FileResource, Folder, IOResource, NotExistingFile, NotExistingFolder, UndefinedNotExistingResource}
 
+import net.jcazevedo.moultingyaml._
+
 object YamlSaver {
 
   def apply(simulationData: PartialSimulationData, simulationName: String): Saver =
     new YamlSaverImpl(simulationData, simulationName)
 
   private class YamlSaverImpl(val simulationData: PartialSimulationData, val simulationName: String) extends Saver {
+
+    import BeansYamlProtocol._
 
     private val fileExtension = FileFormats.YAML.extensions.head
     private var overrideResources: Set[ExistingResource] = Set()
@@ -88,8 +93,10 @@ object YamlSaver {
       //println("something")
     }
 
-    def savePlant(animal: PartialPlantData)(file: File, overrideAll: Boolean): Unit = {
-
+    def savePlant(plant: PartialPlantData)(file: File, overrideAll: Boolean): Unit = {
+      val str = Plant(plant.name, plant.getGeneLength, plant.getAlleleLength, plant.getReign, plant.getHeight,
+        plant.getAttractiveness, plant.getHardness, plant.getNutritionalValue, plant.getAvailability).toYaml.prettyPrint
+      println(str)
     }
 
     def checkFileExistence(resource: IOResource, overrideAll: Boolean, callback: (File, Boolean) => Unit): Unit = resource match {
