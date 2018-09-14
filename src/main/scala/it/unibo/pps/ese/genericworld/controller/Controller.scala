@@ -43,7 +43,7 @@ object Controller {
     private[this] val surgeon = Surgeon(realTimeState)
     private[this] val stalker = Stalker(consolidatedState)
     private[this] val storyTeller = StoryTeller(consolidatedState)
-
+    //var check = true
 
     //ASYNC CALLBACK
     consolidatedState attachNewDataListener(era => {
@@ -92,7 +92,7 @@ object Controller {
           normalizeFrameRate(() => {
             if (_paused) this synchronized wait()
             view updateWorld (0, realTimeState getFilteredState(_ => true))
-            //surgeon informAboutOrgansStatus view
+            surgeon informAboutOrgansStatus view
             //println(stalker.report)
           }, frameRate)
         }
@@ -102,7 +102,10 @@ object Controller {
     override def manage: ManageableController = this
 
     override def watch(entity: String): Unit = {
-      //stalker.stalk(entity)
+      /*if (check) {
+        stalker.stalk(entity)
+        check = false
+      }*/
       surgeon inspects entity
     }
 
