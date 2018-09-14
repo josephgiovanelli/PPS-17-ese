@@ -283,11 +283,11 @@ object EntitiesInfo {
     }
 
     private def plantsMapping(plantData: Seq[PartialPlantData]): Map[String, PlantInfo] =
-      plantData.map(plant => plant.getName.getOrDefault -> PlantInfo(plant.getHeight.getOrDefault, plant.getNutritionalValue.getOrDefault, plant.getHardness.getOrDefault, plant.getAvailability.getOrDefault)).toMap
+      plantData.map(plant => plant.name -> PlantInfo(plant.getHeight.getOrDefault, plant.getNutritionalValue.getOrDefault, plant.getHardness.getOrDefault, plant.getAvailability.getOrDefault)).toMap
 
     private def animalsMapping(animalData: Seq[PartialAnimalData]): Map[String, AnimalInfo] =
                                 //TODO name must be univocal
-      animalData.map(animal => animal.getName.getOrDefault -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
+      animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
 
     private def animalBaseInfoMapping(animal: PartialAnimalData): AnimalBaseInfo =
       AnimalBaseInfo(animal.getGeneLength.getOrDefault, animal.getAlleleLength.getOrDefault, animal.getTypology.getOrDefault)
@@ -296,13 +296,13 @@ object EntitiesInfo {
       AnimalChromosomeInfo(structuralChromosomeMapping(animal.getStructuralChromosome.getOrDefault), regulationChromosomeMapping(animal.getRegulationChromosome.getOrDefault), sexualChromosomeMapping(animal.getSexualChromosome.getOrDefault))
 
     private def sexualChromosomeMapping(sexualChromosome: Iterable[PartialDefaultGeneData]): Map[String, DefaultChromosomeInfo] =
-      sexualChromosome.map(defaultGene => defaultGene.getName.getOrDefault -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.SEXUAL)).toMap
+      sexualChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.SEXUAL)).toMap
 
     private def regulationChromosomeMapping(regulationChromosome: Iterable[PartialDefaultGeneData]): Map[String, DefaultChromosomeInfo] =
-      regulationChromosome.map(defaultGene => defaultGene.getName.getOrDefault -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.REGULATION)).toMap
+      regulationChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.REGULATION)).toMap
 
     private def structuralChromosomeMapping(structuralChromosome: Iterable[PartialCustomGeneData]): Map[String, CustomChromosomeInfo] =
-      structuralChromosome.map(customGene => customGene.getName.getOrDefault -> customChromosomeMapping(customGene)).toMap
+      structuralChromosome.map(customGene => customGene.name -> customChromosomeMapping(customGene)).toMap
 
     private def defaultChromosomeMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultChromosomeInfo =
       DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))//TODO check set covariance
@@ -311,19 +311,19 @@ object EntitiesInfo {
       CustomChromosomeInfo(customGeneInfoMapping(customGene), allelesMapping(customGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))
 
     private def defaultGeneInfoMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultGeneInfo = chromosomeTypes match {
-      case ChromosomeTypes.REGULATION => DefaultGeneInfo(RegulationDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.getName.getOrDefault)).head, defaultGene.getId.getOrDefault)
-      case ChromosomeTypes.SEXUAL => DefaultGeneInfo(SexualDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.getName.getOrDefault)).head, defaultGene.getId.getOrDefault)
+      case ChromosomeTypes.REGULATION => DefaultGeneInfo(RegulationDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.getId.getOrDefault)
+      case ChromosomeTypes.SEXUAL => DefaultGeneInfo(SexualDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.getId.getOrDefault)
     }
 
     private def customGeneInfoMapping(customGeneData: PartialCustomGeneData): CustomGeneInfo =
-      CustomGeneInfo(customGeneData.getId.getOrDefault, customGeneData.getName.getOrDefault,
+      CustomGeneInfo(customGeneData.getId.getOrDefault, customGeneData.name,
         customGeneData.getProperties.getOrDefault, customGeneData.getConversionMap.getOrDefault)
 
     private def allelesMapping(alleles: Set[PartialAlleleData]): Map[String, AlleleInfo] =
-      alleles.map(allele => allele.getId.getOrDefault -> alleleMapping(allele)).toMap
+      alleles.map(allele => allele.id -> alleleMapping(allele)).toMap
 
     private def alleleMapping(allele: PartialAlleleData): AlleleInfo =
-      AlleleInfo(allele.getGene.getOrDefault, allele.getId.getOrDefault, allele.getDominance.getOrDefault, allele.getConsume.getOrDefault, allele.getProbability.getOrDefault, allele.getEffect.getOrDefault)
+      AlleleInfo(allele.getGene.getOrDefault, allele.id, allele.getDominance.getOrDefault, allele.getConsume.getOrDefault, allele.getProbability.getOrDefault, allele.getEffect.getOrDefault)
 
   }
 }

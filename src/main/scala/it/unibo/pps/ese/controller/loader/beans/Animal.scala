@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.loader.beans
 
-case class Animal(name: Option[String],
+case class Animal(name: String,
                   geneLength: Option[Int],
                   alleleLength: Option[Int],
                   reign: Option[String],

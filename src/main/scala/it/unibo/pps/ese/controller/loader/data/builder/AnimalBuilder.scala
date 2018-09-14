@@ -74,7 +74,7 @@ object AnimalBuilder {
     def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData = {
       val check = checkComplete()
       check._1.foreach(throw _)
-      new AnimalDataImpl(name, geneLength, alleleLength, reign, typology, check._2, check._3, check._4) with FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
+      new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, check._2, check._3, check._4) with FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
     }
 
     private def checkComplete(): (Option[Exception], Iterable[CompleteCustomGeneData], Iterable[CompleteDefaultGeneData], Iterable[CompleteDefaultGeneData]) ={
@@ -121,14 +121,14 @@ object AnimalBuilder {
         case t if t <:< typeOf[FullAnimal] =>
           val check = checkComplete()
           if(check._1.isEmpty) {
-            new AnimalDataImpl[CompleteCustomGeneData, CompleteDefaultGeneData](name, geneLength, alleleLength, reign, typology, check._2, check._3, check._4)
+            new AnimalDataImpl[CompleteCustomGeneData, CompleteDefaultGeneData](name.get, geneLength, alleleLength, reign, typology, check._2, check._3, check._4)
               with FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
           } else {
-            new AnimalDataImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome,
+            new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, structuralChromosome,
               regulationChromosome, sexualChromosome)
           }
-        case _ =>
-          new AnimalDataImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome,
+        case t if t <:< typeOf[ValidAnimal] =>
+          new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, structuralChromosome,
             regulationChromosome, sexualChromosome)
       }
     }
@@ -146,13 +146,14 @@ object AnimalBuilder {
     sealed trait AnimalWithRegChromosome extends AnimalStatus
     sealed trait AnimalWithSexChromosome extends AnimalStatus
 
-    type AnimalWithBaseInfo = EmptyAnimal with AnimalWithName with AnimalWithGeneLength with AnimalWithAlleleLength
+    type ValidAnimal = EmptyAnimal with AnimalWithName
+    type AnimalWithBaseInfo = ValidAnimal with AnimalWithGeneLength with AnimalWithAlleleLength
       with  AnimalWithReign with AnimalWithTypology
     type AnimalTemplate = AnimalWithBaseInfo with AnimalWithStructChromosome
     type FullAnimal = AnimalTemplate with AnimalWithRegChromosome with AnimalWithSexChromosome
   }
 
-  private class AnimalDataImpl[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](val getName: Option[String],
+  private class AnimalDataImpl[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](val name: String,
                                                                                     val getGeneLength: Option[Int],
                                                                                     val getAlleleLength: Option[Int],
                                                                                     val getReign: Option[String],

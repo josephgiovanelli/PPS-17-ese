@@ -41,8 +41,6 @@ private[genetics] object InputDataAdapter {
         //TODO can't extend my interface
         override def getId: Option[String] = None
 
-        override def getName: Option[String] = None
-
         override def getProperties: Option[Map[String, Class[_]]] = None
 
         override def getAlleles: Option[Set[CompleteAlleleData]] = None

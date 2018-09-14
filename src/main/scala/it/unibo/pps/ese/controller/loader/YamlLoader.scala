@@ -65,9 +65,7 @@ object YamlLoader extends Loader {
 
   private def loadPlant(config: File): PartialPlantData = {
     val loadedPlant = loadFileContent(config).parseYaml.convertTo[Plant]
-    var builder: PlantBuilder[_] = PlantBuilder()
-    if(loadedPlant.name.isDefined)
-      builder = builder.setName(loadedPlant.name.get)
+    var builder: PlantBuilder[_] = PlantBuilder().setName(loadedPlant.name)
     if(loadedPlant.reign.isDefined)
       builder = builder.setReign(loadedPlant.reign.get)
     if(loadedPlant.alleleLength.isDefined)
@@ -101,9 +99,7 @@ object YamlLoader extends Loader {
       regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome.get, config.getParentFolder().get)
     if(loadedAnimal.sexualChromosome.isDefined)
       sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome.get, config.getParentFolder().get)
-    var builder: AnimalBuilder[_] = AnimalBuilder()
-    if(loadedAnimal.name.isDefined)
-      builder = builder.setName(loadedAnimal.name.get)
+    var builder: AnimalBuilder[_] = AnimalBuilder().setName(loadedAnimal.name)
     if(loadedAnimal.typology.isDefined)
       builder = builder.setTypology(loadedAnimal.typology.get)
     if(loadedAnimal.reign.isDefined)
@@ -149,11 +145,9 @@ object YamlLoader extends Loader {
     genesFolder.getFilesAsStream(FileFormats.YAML)
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
       .map(g => {
-        var builder: GeneBuilder[_] = GeneBuilder()
+        var builder: GeneBuilder[_] = GeneBuilder().setName(g.simpleName)
         if(g.id.isDefined)
           builder = builder.setId(g.id.get)
-        if(g.simpleName.isDefined)
-          builder = builder.setName(g.simpleName.get)
         if(g.properties.isDefined)
           builder = builder.setCustomProperties(g.properties.get)
         if(g.allelesPath.isDefined) {
@@ -171,9 +165,7 @@ object YamlLoader extends Loader {
     allelesFolder.getFilesAsStream(FileFormats.YAML)
       .map(path => {
         val all = loadFileContent(path).parseYaml.convertTo[Allele]
-        var builder: AlleleBuilder[_] = AlleleBuilder()
-        if(all.id.isDefined)
-          builder = builder.setId(all.id.get)
+        var builder: AlleleBuilder[_] = AlleleBuilder().setId(all.id)
         if(all.gene.isDefined)
           builder = builder.setGene(all.gene.get)
         if(all.consume.isDefined)

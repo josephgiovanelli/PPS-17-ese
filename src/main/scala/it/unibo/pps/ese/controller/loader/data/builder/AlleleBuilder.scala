@@ -49,16 +49,16 @@ object AlleleBuilder {
       new AlleleBuilderImpl(gene, id, dominance, consume, probability, effect)
 
     def buildComplete(implicit ev: T =:= FullAllele): CompleteAlleleData = {
-      new AlleleDataImpl(gene, id, dominance, consume, probability, effect) with CompleteAlleleData
+      new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData
     }
 
     def build(): PartialAlleleData = {
       //require(status.tpe <:< st.tpe)
       status.tpe match {
         case t if t <:< typeOf[FullAllele] =>
-          new AlleleDataImpl(gene, id, dominance, consume, probability, effect) with CompleteAlleleData
-        case _ =>
-          new AlleleDataImpl(gene, id, dominance, consume, probability, effect)
+          new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData
+        case t if t <:< typeOf[ValidAllele] =>
+          new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect)
       }
     }
   }
@@ -73,12 +73,13 @@ object AlleleBuilder {
     sealed trait AlleleWithProbability extends AlleleStatus
     sealed trait AlleleWithEffect extends AlleleStatus
 
-    type FullAllele = EmptyAllele with AlleleWithId with AlleleWithGene with AlleleWithDominance with AlleleWithConsume
+    type ValidAllele = EmptyAllele with AlleleWithId
+    type FullAllele = ValidAllele with AlleleWithGene with AlleleWithDominance with AlleleWithConsume
       with AlleleWithProbability with AlleleWithEffect
   }
 
   private class AlleleDataImpl(val getGene: Option[String],
-                               val getId: Option[String],
+                               val id: String,
                                val getDominance: Option[Double],
                                val getConsume: Option[Double],
                                val getProbability: Option[Double],

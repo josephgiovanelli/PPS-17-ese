@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.loader.beans
 import it.unibo.pps.ese.controller.loader.data.CompleteAlleleData
 
 case class Allele(gene: Option[String],
-                  id: Option[String],
+                  id: String,
                   dominance: Option[Double],
                   consume: Option[Double],
                   probability: Option[Double],

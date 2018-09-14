@@ -2,13 +2,12 @@ package it.unibo.pps.ese.controller.loader.data
 
 trait GeneData[A <: PartialAlleleData] {
   def getId: Option[String]
-  def getName: Option[String]
+  def name: String
   def getProperties: Option[Map[String, Class[_]]]
   def getAlleles: Option[Set[A]]
 }
 trait FullGeneData[A <: PartialAlleleData] extends GeneData[A] {
   def id: String = getId.getOrElse(throw new IllegalStateException())
-  def name: String = getName.getOrElse(throw new IllegalStateException())
   def properties: Map[String, Class[_]] = getProperties.getOrElse(throw new IllegalStateException())
   def alleles: Set[A] = getAlleles.getOrElse(throw new IllegalStateException())
 }

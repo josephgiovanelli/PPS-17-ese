@@ -74,7 +74,7 @@ object PlantBuilder {
         alleleLength, Some(reign))
 
     def buildComplete(implicit ev: T =:= FullPlant): CompletePlantData = {
-      new PlantDataImpl(height, nutritionalValue, attractiveness, hardness, availability, name, geneLength,
+      new PlantDataImpl(height, nutritionalValue, attractiveness, hardness, availability, name.get, geneLength,
         alleleLength, reign) with CompletePlantData
     }
 
@@ -82,10 +82,10 @@ object PlantBuilder {
       //require(status.tpe <:< st.tpe)
       status.tpe match {
         case t if t <:< typeOf[FullPlant] =>
-          new PlantDataImpl(height, nutritionalValue, attractiveness, hardness, availability, name, geneLength,
+          new PlantDataImpl(height, nutritionalValue, attractiveness, hardness, availability, name.get, geneLength,
             alleleLength, reign) with CompletePlantData
-        case _ =>
-          PlantDataImpl(height, nutritionalValue, attractiveness, hardness, availability, name, geneLength,
+        case t if t <:< typeOf[ValidPlant] =>
+          PlantDataImpl(height, nutritionalValue, attractiveness, hardness, availability, name.get, geneLength,
             alleleLength, reign)
       }
     }
@@ -104,8 +104,9 @@ object PlantBuilder {
     sealed trait PlantWithAlleleLength extends PlantStatus
     sealed trait PlantWithReign extends PlantStatus
 
-    type FullPlant = EmptyPlant with PlantWithHeight with PlantWithNutritionalValue with PlantWithAttractiveness with
-      PlantWithHardness with PlantWithAvailability with PlantWithName with PlantWithGeneLength
+    type ValidPlant = EmptyPlant with PlantWithName
+    type FullPlant = ValidPlant with PlantWithHeight with PlantWithNutritionalValue with PlantWithAttractiveness with
+      PlantWithHardness with PlantWithAvailability with PlantWithGeneLength
       with PlantWithAlleleLength with PlantWithReign
   }
 
@@ -114,7 +115,7 @@ object PlantBuilder {
                                    getAttractiveness: Option[Double],
                                    getHardness: Option[Double],
                                    getAvailability: Option[Double],
-                                   getName: Option[String],
+                                   name: String,
                                    getGeneLength: Option[Int],
                                    getAlleleLength: Option[Int],
                                    getReign: Option[String]) extends PartialPlantData
