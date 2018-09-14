@@ -1,11 +1,16 @@
 package it.unibo.pps.ese.controller.util.io
 
+import java.io.InputStream
 import java.net.URL
+
+import org.apache.commons.io.FileUtils
+
 
 
 trait File extends ExistingResource with FileResource {
   def rawFile: java.io.File
   def name: String
+  def openInputStream: InputStream
 }
 
 object File {
@@ -21,5 +26,7 @@ object File {
   private class FileImpl(filePath: URL) extends ExistingResourceImpl(filePath) with File {
     val rawFile: java.io.File = javaFile
     val name: String = javaFile.getName
+
+    override def openInputStream: InputStream = FileUtils.openInputStream(javaFile)
   }
 }

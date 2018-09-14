@@ -1,6 +1,6 @@
 animals:
-  it/unibo/pps/ese/entitybehaviors/util/reproduction/Animal.yml: 200
-  it/unibo/pps/ese/entitybehaviors/util/reproduction/Animal2.yml: 200
+  ./Animal.yml: 200
+  ./Animal2.yml: 200
 
 plants:
-  it/unibo/pps/ese/entitybehaviors/util/reproduction/Plant.yml: 500
+  ./Plant.yml: 500

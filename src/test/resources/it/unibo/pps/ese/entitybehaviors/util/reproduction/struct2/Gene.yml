@@ -1,6 +1,6 @@
 id: abb
 simpleName: gambe
-allelesPath: it/unibo/pps/ese/entitybehaviors/util/reproduction/struct2/all
+allelesPath: ./all
 properties:
   lunghezza:
     conversionMap:

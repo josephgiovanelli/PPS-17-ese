@@ -4,6 +4,8 @@ import java.io
 import java.io.{File, InputStream}
 import java.net.URL
 
+import org.apache.commons.io.FilenameUtils
+
 import it.unibo.pps.ese.controller.util.io.File.FileFormat
 import org.apache.commons.io.FileUtils
 
@@ -12,7 +14,7 @@ trait Folder extends ExistingResource with FolderResource {
   def getFiles(fileFormat: FileFormat): Seq[File]
   def getFilesAsStream: Seq[InputStream]
   def getFilesAsStream(fileFormat: FileFormat): Seq[InputStream]
-  //def getChildren(relativePath: String)
+  def getExistingChildren(relativePath: String): Option[ExistingResource]
   //def getOrCreateFile(): Option[File]
   //def getOrCreateFolder(): Option[Folder]
 }
@@ -39,6 +41,14 @@ object Folder {
     //override def getOrCreateFile(): Option[File] = ???
 
     //override def getOrCreateFolder(): Option[Folder] = ???
+    override def getExistingChildren(relativePath: String): Option[ExistingResource] = {
+      IOResource(FilenameUtils.concat(javaFile.getAbsolutePath, relativePath)) match {
+        case r: ExistingResource =>
+          Some(r)
+        case _ =>
+          None
+      }
+    }
   }
 }
 

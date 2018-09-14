@@ -3,9 +3,9 @@ geneLength: 3
 alleleLength: 3
 reign: A
 typology: H
-structuralChromosome: it/unibo/pps/ese/entitybehaviors/util/reproduction/struct2
+structuralChromosome: ./struct2
 regulationChromosome:
-  allelesPath: it/unibo/pps/ese/entitybehaviors/util/reproduction/reg2
+  allelesPath: ./reg2
   names:
     life: aaa
     childhood: aab
@@ -13,7 +13,7 @@ regulationChromosome:
     oldness: aad
     decline: aae
 sexualChromosome:
-  allelesPath: it/unibo/pps/ese/entitybehaviors/util/reproduction/sex2
+  allelesPath: ./sex2
   names:
     fertility: aaf
     fecundity: aag

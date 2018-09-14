@@ -85,7 +85,7 @@ abstract class ExistingResourceImpl(path: URL) extends IOResourceImpl(path) with
 
   override def getParentFolder(): Option[Folder] = {
     getParent() match {
-      case r: Folder =>
+      case Some(r: Folder) =>
         Some(r)
       case _ =>
         throw new IllegalStateException()
