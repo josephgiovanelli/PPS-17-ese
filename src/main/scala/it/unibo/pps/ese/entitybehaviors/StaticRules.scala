@@ -34,10 +34,7 @@ object StaticRules {
       val carnivorous: Set[String] = geneticsSimulator.simulationData.get.animals.keySet.filter(entity => entity.typology == "C").map(entity => entity.name)
       val herbivore: Set[String] = geneticsSimulator.simulationData.get.animals.keySet.filter(entity => entity.typology == "H").map(entity => entity.name)
       val plants: Seq[String] = geneticsSimulator.plantSpeciesList
-      var huntingRules: Seq[(String, String)] = Seq.empty
-      carnivorous.foreach(c => herbivore.foreach(h => huntingRules = huntingRules :+ (c, h)))
-      herbivore.foreach(h => plants.foreach(p => huntingRules = huntingRules :+ (h, p)))
-      worldRules.get.setCompatibleHuntingKinds(huntingRules.toSet)
+      worldRules.get.setCompatibleHuntingKinds(carnivorous.zip(herbivore) ++ herbivore.zip(plants))
       worldRules.get.setCompatibleCouplingKinds((carnivorous ++ herbivore).map(species => (species, species)))
     }
 

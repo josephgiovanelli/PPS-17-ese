@@ -111,7 +111,7 @@ object WorldRulesImpl {
   implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
   case class WorldRulesImpl(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
-    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set
+    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = compatibleHuntingKinds = set
     def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set
   }
 }
