@@ -18,7 +18,7 @@ trait AnimalBuilderFixture extends CustomGeneBuildFixture with DefaultGeneBuildF
       .addRegulationChromosome(completeDefChr)
       .addSexualChromosome(completeDefChr)
     val staticIncomplete = AnimalBuilder()
-      .setReign("M")
+      .setName("Gatto")
       .setTypology("")
       .setGeneLength(5)
       .addStructuralChromosome(completeCusChr)

@@ -42,7 +42,7 @@ trait CustomGeneBuildFixture {
       .addConversionMap(Map())
 
     val staticIncomplete = GeneBuilder()
-      .setId("idcsi")
+      .setName("namecsi")
       .addAlleles(Set[CompleteAlleleData](all2))
       .addProperties(Map("test" -> Double.getClass))
       .addConversionMap(Map())
