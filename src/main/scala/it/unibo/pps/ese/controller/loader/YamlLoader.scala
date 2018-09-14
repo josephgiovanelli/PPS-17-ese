@@ -38,29 +38,33 @@ object YamlLoader extends Loader {
     val simConfig = File(ResourceLoader.getResource(configPath))
     val currentFolder = simConfig.getParentFolder().get
     val simulation = loadFileContent(simConfig).parseYaml.convertTo[Simulation]
-    val animals: Map[PartialAnimalData, Int] = simulation.animals.map({
-      case (animalConfigPath, v) =>
-        val animal: PartialAnimalData = normalizeConfigPath(animalConfigPath, currentFolder) match {
-          case f: File =>
-            loadAnimal(f)
-        }
-        val ret: (PartialAnimalData, Int) = (animal, v)
-        ret
-    })
-    val plants: Map[PartialPlantData, Int] = simulation.plants.map({
-      case (plantConfigPath, v) =>
-        val plant: PartialPlantData = normalizeConfigPath(plantConfigPath, currentFolder) match {
-          case f: File =>
-            loadPlant(f)
-        }
-        val ret: (PartialPlantData, Int) = (plant, v)
-        ret
-    })
 
-    SimulationBuilder()
-        .addAnimals(animals)
-        .addPlants(plants)
-        .build
+    var builder : SimulationBuilder[_] = SimulationBuilder()
+    if(simulation.animals.isDefined) {
+      val animals: Map[PartialAnimalData, Int] = simulation.animals.get.map({
+        case (animalConfigPath, v) =>
+          val animal: PartialAnimalData = normalizeConfigPath(animalConfigPath, currentFolder) match {
+            case f: File =>
+              loadAnimal(f)
+          }
+          val ret: (PartialAnimalData, Int) = (animal, v)
+          ret
+      })
+      builder = builder.addAnimals(animals)
+    }
+    if(simulation.plants.isDefined) {
+      val plants: Map[PartialPlantData, Int] = simulation.plants.get.map({
+        case (plantConfigPath, v) =>
+          val plant: PartialPlantData = normalizeConfigPath(plantConfigPath, currentFolder) match {
+            case f: File =>
+              loadPlant(f)
+          }
+          val ret: (PartialPlantData, Int) = (plant, v)
+          ret
+      })
+      builder = builder.addPlants(plants)
+    }
+    builder.build
   }
 
   private def loadPlant(config: File): PartialPlantData = {
