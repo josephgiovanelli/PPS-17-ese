@@ -3,7 +3,58 @@ package it.unibo.pps.ese.controller.util.io
 import java.net.URL
 
 trait IOResource {
-  def getParent(): Option[Folder]
+  def getParent(): Option[FolderResource]
+}
+
+trait ExistingResource extends IOResource {
+  def getParentFolder(): Option[Folder]
+}
+
+sealed trait NotExistingResource extends IOResource
+
+trait FolderResource extends IOResource
+trait FileResource extends IOResource
+
+sealed trait NotExistingFolder extends NotExistingResource with FolderResource {
+  def createFolder(): Option[Folder]
+}
+sealed trait NotExistingFile extends NotExistingResource with FileResource {
+  def createFile(): Option[File]
+}
+
+sealed trait UndefinedNotExistingResource extends NotExistingFolder with NotExistingFile
+
+object IOResource {
+
+  def apply(path: String): IOResource = {
+    apply(new java.io.File(path).toURI.toURL)
+  }
+
+  def apply(path: URL): IOResource = {
+    val file: java.io.File = new java.io.File(path.toURI)
+    if(file.exists()) {
+      if(file.isFile) {
+        File(path)
+      } else {
+        Folder(path)
+      }
+    } else {
+      new UndefinedNotExistingResourceImpl(path)
+    }
+  }
+
+  private class UndefinedNotExistingResourceImpl(path: URL) extends IOResourceImpl(path) with UndefinedNotExistingResource {
+    require(!javaFile.exists())
+    override def createFile(): Option[File] = {
+      javaFile.createNewFile()
+      Some(File(javaFile))
+    }
+
+    override def createFolder(): Option[Folder] = {
+      javaFile.mkdir()
+      Some(Folder(javaFile))
+    }
+  }
 }
 
 abstract class IOResourceImpl(path: URL) extends IOResource {
@@ -11,10 +62,27 @@ abstract class IOResourceImpl(path: URL) extends IOResource {
   require(url != null)
   protected val javaFile: java.io.File = new java.io.File(url.toURI)
 
-  def getParent(): Option[Folder] = {
+  def getParent(): Option[FolderResource] = {
     if(javaFile.getParent == null)
       None
     else
-      Some(Folder(javaFile.getParent))
+      IOResource(javaFile.getParent) match {
+        case r: FolderResource =>
+          Some(r)
+        case _ =>
+          throw new IllegalStateException()
+      }
+  }
+}
+
+abstract class ExistingResourceImpl(path: URL) extends IOResourceImpl(path) with ExistingResource {
+
+  override def getParentFolder(): Option[Folder] = {
+    getParent() match {
+      case r: Folder =>
+        Some(r)
+      case _ =>
+        throw new IllegalStateException()
+    }
   }
 }
