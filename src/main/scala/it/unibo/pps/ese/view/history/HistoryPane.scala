@@ -28,8 +28,8 @@ object HistoryPane{
     val logsList:ObservableList[Log] = FXCollections.observableArrayList()
     val logs:ListView[Log] = new ListView[Log](logsList)
     logs.orientation = Orientation.Vertical
-    logs.prefWidth = width.value
-    logs.minHeight = 760
+    logs.prefWidth <== width
+    logs.prefHeight <== (height-title.height-10)
     logs.orientation = Orientation.Vertical
     mainPane.center = logs
     logs.cellFactory = {
