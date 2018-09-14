@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.entitywatchers
 
 import it.unibo.pps.ese.dataminer._
+import it.unibo.pps.ese.genericworld.model.ReignType
 import it.unibo.pps.ese.utils.Point
 
 /**
@@ -22,13 +23,16 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
   def stalk(entityId: String): Unit = {
     if (stalked.isEmpty) {
-      stalked = Some(entityId)
-      birthEra = getBirthEra
-      //birthEra = consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._1).min.toInt
-      currentEra = birthEra
-      deadEra = None
+      val entity: Option[EntityLog] = consolidatedState.entityDynamicLog(entityId)
+      if (entity.isDefined && entity.get.structuralData.reign == ReignType.ANIMAL.toString) {
+        stalked = Some(entityId)
+        birthEra = getBirthEra
+        currentEra = birthEra
+        deadEra = None
+      }
     }
   }
+
 
   def informAboutTrueEra(era: Long): Unit = {
     trueEra = Some(era)
