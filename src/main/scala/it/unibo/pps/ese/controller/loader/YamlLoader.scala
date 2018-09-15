@@ -57,7 +57,7 @@ object YamlLoader extends Loader {
       })
       builder = builder.addPlants(plants)
     }
-    builder.build
+    builder.build()
   }
 
   private def loadPlant(config: File): PartialPlantData = {

@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 import it.unibo.pps.ese.controller.loader.data.builder.fixtures.AnimalBuilderFixture
 import org.scalatest.WordSpec
 
@@ -50,7 +51,7 @@ class TestAnimalBuilder extends WordSpec with AnimalBuilderFixture {
         }
       }
       "throw an exception if explicitly build as complete" in {
-        assertThrows[IllegalStateException](animalBFixture.dynamicIncomplete.buildComplete)
+        assertThrows[CompleteBuildException](animalBFixture.dynamicIncomplete.buildComplete)
       }
     }
   }

@@ -12,7 +12,7 @@ trait SimulationBuilder[T <: SimulationStatus] {
   def addAnimals(animals: Iterable[(_ <: PartialAnimalData, Int)]): SimulationBuilder[T with SimulationWithAnimals]
   def addPlants(plants: Iterable[(_ <: PartialPlantData, Int)]): SimulationBuilder[T with SimulationWithPlants]
   def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData
-  def build(): PartialSimulationData
+  def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData]
 }
 
 object SimulationBuilder {
@@ -32,16 +32,16 @@ object SimulationBuilder {
     def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData = {
       val check = checkComplete()
       check._1.foreach(throw _)
-      new SimulationDataImpl(check._2, check._3) with FullSimulationData[CompleteAnimalData, CompletePlantData]
+      new SimulationDataImpl(check._2, check._3) with CompleteSimulationData
     }
 
-    def build(): PartialSimulationData = {
+    def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData] = {
       //require(status.tpe <:< st.tpe)
       status.tpe match {
         case t if t <:< typeOf[FullSimulation] =>
           val check = checkComplete()
           if(check._1.isEmpty)
-            new SimulationDataImpl(check._2, check._3) with FullSimulationData[CompleteAnimalData, CompletePlantData]
+            new SimulationDataImpl(check._2, check._3) with CompleteSimulationData
           else
             new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals, plants)
         case _ =>

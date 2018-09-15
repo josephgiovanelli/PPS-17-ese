@@ -6,6 +6,7 @@ import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultG
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus._
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
 import scala.reflect.runtime.universe._
 
@@ -74,45 +75,38 @@ object AnimalBuilder {
     def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData = {
       val check = checkComplete()
       check._1.foreach(throw _)
-      new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, check._2, check._3, check._4) with FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
+      new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, check._2, check._3, check._4) with CompleteAnimalData
     }
 
-    private def checkComplete(): (Option[Exception], Iterable[CompleteCustomGeneData], Iterable[CompleteDefaultGeneData], Iterable[CompleteDefaultGeneData]) ={
-      //TODO concat like list Nil :: ecc...
-      var exception: Exception = null
+    private def checkComplete(): (Option[CompleteBuildException], Iterable[CompleteCustomGeneData], Iterable[CompleteDefaultGeneData], Iterable[CompleteDefaultGeneData]) ={
+      var exception: Option[CompleteBuildException] = None
       val struct: Iterable[CompleteCustomGeneData] = structuralChromosome.flatMap({
         case c: CompleteCustomGeneData =>
           Some(c)
         case _ =>
-          println("Wrong struct")
           None
       })
       if(struct.size != structuralChromosome.size) {
-        exception = new IllegalStateException()
+        exception = exception ++: new CompleteBuildException("All structural chromosomes must be complete")
+        new CompleteBuildException() +: new CompleteBuildException()
       }
       val reg: Iterable[CompleteDefaultGeneData] = regulationChromosome.flatMap({
         case c: CompleteDefaultGeneData =>
           Some(c)
         case _ =>
-          println("Wrong reg")
           None
       })
       if(reg.size != regulationChromosome.size)
-        exception = new IllegalStateException()
+        exception = exception ++: new CompleteBuildException("All regulation chromosomes must be complete")
       val sex: Iterable[CompleteDefaultGeneData] = sexualChromosome.flatMap({
         case c: CompleteDefaultGeneData =>
           Some(c)
         case _ =>
-          println("Wrong sex")
           None
       })
       if(sex.size != sexualChromosome.size)
-        exception = new IllegalStateException()
-      if(exception == null) {
-        (None, struct, reg, sex)
-      } else {
-        (Some(exception), Seq(), Seq(), Seq())
-      }
+        exception = exception ++: new CompleteBuildException("All sexual chromosomes must be complete")
+      (exception, struct, reg, sex)
     }
 
     def build(): PartialAnimalData = {
@@ -122,7 +116,7 @@ object AnimalBuilder {
           val check = checkComplete()
           if(check._1.isEmpty) {
             new AnimalDataImpl[CompleteCustomGeneData, CompleteDefaultGeneData](name.get, geneLength, alleleLength, reign, typology, check._2, check._3, check._4)
-              with FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
+              with CompleteAnimalData
           } else {
             new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, structuralChromosome,
               regulationChromosome, sexualChromosome)

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.controller.util.io
 
 import java.io
-import java.io.{File, InputStream}
+import java.io.InputStream
 import java.net.URL
 
 import org.apache.commons.io.FilenameUtils
@@ -16,8 +16,6 @@ trait Folder extends ExistingResource with FolderResource {
   def getFilesAsStream(fileFormat: FileFormat): Seq[InputStream]
   def getExistingChildren(relativePath: String): Option[ExistingResource]
   def getChildren(relativePath: String): IOResource
-  //def getOrCreateFile(): Option[File]
-  //def getOrCreateFolder(): Option[Folder]
 }
 
 object Folder {
@@ -39,9 +37,6 @@ object Folder {
 
     private def convertToInputStream(urls: Seq[File]): Seq[InputStream] = urls.map(_.rawFile).map(FileUtils.openInputStream)
 
-    //override def getOrCreateFile(): Option[File] = ???
-
-    //override def getOrCreateFolder(): Option[Folder] = ???
     override def getExistingChildren(relativePath: String): Option[ExistingResource] = {
       IOResource(FilenameUtils.concat(javaFile.getAbsolutePath, relativePath)) match {
         case r: ExistingResource =>

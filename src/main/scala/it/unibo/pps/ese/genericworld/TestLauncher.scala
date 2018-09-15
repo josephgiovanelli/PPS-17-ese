@@ -5,7 +5,7 @@ import java.util.UUID.randomUUID
 
 import it.unibo.pps.ese.Launcher.{parameters, stage}
 import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.genericworld.controller.Controller
@@ -29,6 +29,7 @@ import scala.concurrent.Await
 import scalafx.Includes._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 object TestLauncher extends JFXApp {
 
@@ -49,7 +50,6 @@ object TestLauncher extends JFXApp {
 
 //    val controller: Controller =
 //      SimulationBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
-
   YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml") match {
     case data: CompleteSimulationData =>
       val controller: Controller =
@@ -67,7 +67,7 @@ object TestLauncher extends JFXApp {
         controller.manage.exit()
       })
     case _ =>
-      throw new IllegalArgumentException
+      throw new IllegalStateException()
   }
 
 //    println("Playing")
