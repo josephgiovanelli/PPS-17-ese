@@ -266,7 +266,7 @@ private class WorldPaneImpl(
   }
 
   private def clearVisualField(position: Position, visualField: Double): Unit = {
-    drawVisualField(position, Color.White, visualField)
+    drawVisualField(position, backGroundColor, visualField)
   }
 
   private def drawVisualField(position: Position, color: Color, visualField: Double): Unit = {
