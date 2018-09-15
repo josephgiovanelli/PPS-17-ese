@@ -6,13 +6,14 @@ import javafx.scene.text.Font
 import scalafx.Includes._
 import scalafx.scene.control.{Label, ListCell}
 import scalafx.scene.layout.HBox
-
+import scalaz._
+import Scalaz._
 
 class LogListViewCell extends ListCell[Log]{
 
   prefHeight = 30
   item.onChange{ (_,_,log)=>
-    graphic = if(log != null){
+    graphic = (log != null)?{
       val hBox = new HBox(5)
       val label = new Label(log.logText)
       val icon = log.logType match {
@@ -31,8 +32,6 @@ class LogListViewCell extends ListCell[Log]{
       hBox.children+= icon
       hBox.children += label
       hBox
-    }else{
-      null
-    }
+    }| null
   }
 }

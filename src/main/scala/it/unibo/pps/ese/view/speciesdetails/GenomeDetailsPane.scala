@@ -178,7 +178,6 @@ object GenomeDetailsPane {
                 c1
               )
             },
-            // Hydrogen 2
             new Xform {
               rotateY = r2
               children ++= Seq(
