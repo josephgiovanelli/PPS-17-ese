@@ -19,7 +19,5 @@ trait FullAnimalData[C<:PartialCustomGeneData, D<:PartialDefaultGeneData] extend
 
 object AnimalData {
   type PartialAnimalData = AnimalData[_ <: PartialCustomGeneData, _ <: PartialDefaultGeneData]
-  //TODO
-  //trait CompleteAnimalData extends FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
   trait CompleteAnimalData extends FullAnimalData[CompleteCustomGeneData, CompleteDefaultGeneData]
 }

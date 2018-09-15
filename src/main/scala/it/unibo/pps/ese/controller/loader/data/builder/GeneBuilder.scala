@@ -6,6 +6,7 @@ import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultG
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.GeneStatus
 import it.unibo.pps.ese.controller.loader.data.builder.GeneBuilder.GeneStatus._
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
 import scala.reflect.runtime.universe._
 
@@ -113,7 +114,7 @@ object GeneBuilder {
     }
 
     private def completeGeneRequirements: (Option[Exception], Iterable[CompleteAlleleData]) = {
-      var exception: Exception = null
+      var exception: Option[CompleteBuildException] = None
       val all: Iterable[CompleteAlleleData] = alleles.flatMap({
         case c: CompleteAlleleData =>
           Some(c)
@@ -121,18 +122,15 @@ object GeneBuilder {
           None
       })
       if(all.size != all.size) {
-        exception = new IllegalStateException()
+        exception = exception ++: new CompleteBuildException("All alleles must be complete")
       }
-      if(!(all.map(_.probability).sum == 1.0 &&
-        all.forall(_.effect.keySet.subsetOf(properties.keySet)) &&
-        all.forall(a => id.contains(a.gene)))) {
-        exception = new IllegalStateException()
-      }
-      if(exception == null) {
-        (None, all)
-      } else {
-        (Some(exception), Seq())
-      }
+      if(!(all.map(_.probability).sum == 1.0))
+        exception = exception ++: new CompleteBuildException("All alleles must be complete")
+      if(!all.forall(_.effect.keySet.subsetOf(properties.keySet)))
+        exception = exception ++: new CompleteBuildException("All alleles must effect only gene properties")
+      if(!all.forall(a => id.contains(a.gene)))
+        exception = exception ++: new CompleteBuildException("All alleles must be referred to correct gene")
+      (exception, all)
     }
   }
 

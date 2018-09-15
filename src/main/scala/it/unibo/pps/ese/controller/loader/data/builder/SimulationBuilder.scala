@@ -5,6 +5,7 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulatio
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus.{EmptySimulation, FullSimulation, SimulationWithAnimals, SimulationWithPlants}
 import it.unibo.pps.ese.controller.loader.data._
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
 import scala.reflect.runtime.universe._
 
@@ -49,17 +50,18 @@ object SimulationBuilder {
       }
     }
 
+    private def matchTuple[A <: PartialAnimalData](tuple2: (A, Int))(implicit aType: TypeTag[A]): Option[(CompleteAnimalData, Int)] = tuple2 match {
+      case (animal: CompleteAnimalData, quantity) =>
+        Some((animal, quantity))
+      case _ =>
+        None
+    }
+
     private def checkComplete(): (Option[Exception], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) ={
-      //TODO concat like list Nil :: ecc...
-      var exception: Exception = null
-      val a: Iterable[(CompleteAnimalData, Int)] = animals.flatMap({
-        case t: (CompleteAnimalData, Int) =>
-          Some((t._1, t._2))
-        case _ =>
-          None
-      })
+      var exception: Option[CompleteBuildException] = None
+      val a: Iterable[(CompleteAnimalData, Int)] = animals.flatMap(matchTuple(_))
       if(animals.size != a.size) {
-        exception = new IllegalStateException()
+        exception = exception ++: new CompleteBuildException("All animals must be complete")
       }
       val p: Iterable[(CompletePlantData, Int)] = plants.flatMap({
         case(plant: CompletePlantData, i: Int) =>
@@ -68,13 +70,8 @@ object SimulationBuilder {
           None
       })
       if(p.size != plants.size)
-        exception = new IllegalStateException()
-      if(exception == null) {
-        //(None, a, p)
-        (None, a, p)
-      } else {
-        (Some(exception), Seq(), Seq())
-      }
+        exception = exception ++: new CompleteBuildException("All plants must be complete")
+      (exception, a, p)
     }
   }
 

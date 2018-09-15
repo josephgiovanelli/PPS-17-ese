@@ -32,6 +32,8 @@ class TestGeneBuilder extends WordSpec with DefaultGeneBuildFixture with CustomG
       "has missing parameters" should {
         "implicitly build a PartialGeneData" in {
           defaultGBFixture.staticIncomplete.buildDefault match {
+            case gb: CompleteDefaultGeneData =>
+              fail()
             case gb: PartialDefaultGeneData =>
             case _ =>
               fail()
@@ -42,6 +44,8 @@ class TestGeneBuilder extends WordSpec with DefaultGeneBuildFixture with CustomG
       "isn't filled correctly" should {
         "implicitly build a PartialGeneData" in {
           defaultGBFixture.dynamicIncomplete.buildDefault match {
+            case gb: CompleteDefaultGeneData =>
+              fail()
             case gb: PartialDefaultGeneData =>
             case _ =>
               fail()
@@ -73,6 +77,8 @@ class TestGeneBuilder extends WordSpec with DefaultGeneBuildFixture with CustomG
       "has missing parameters" should {
         "implicitly build a PartialGeneData" in {
           customGBFixture.staticIncomplete.buildCustom match {
+            case gb: CompleteCustomGeneData =>
+              fail()
             case gb: PartialCustomGeneData =>
             case _ =>
               fail()
@@ -83,6 +89,8 @@ class TestGeneBuilder extends WordSpec with DefaultGeneBuildFixture with CustomG
       "isn't filled correctly" should {
         "implicitly build a PartialGeneData" in {
           customGBFixture.dynamicIncomplete.buildCustom match {
+            case gb: CompleteCustomGeneData =>
+              fail()
             case gb: PartialCustomGeneData =>
             case _ =>
               fail()
