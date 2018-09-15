@@ -2,7 +2,6 @@ package it.unibo.pps.ese.view.history
 
 import de.jensd.fx.glyphs.emojione.{EmojiOne, EmojiOneView}
 import de.jensd.fx.glyphs.materialdesignicons.{MaterialDesignIcon, MaterialDesignIconView}
-import it.unibo.pps.ese.view._
 import javafx.scene.text.Font
 import scalafx.Includes._
 import scalafx.scene.control.{Label, ListCell}
@@ -10,11 +9,11 @@ import scalafx.scene.layout.HBox
 
 
 class LogListViewCell extends ListCell[Log]{
-  val hBox = new HBox(5)
-  graphic = hBox
+
   prefHeight = 30
   item.onChange{ (_,_,log)=>
-    if(log != null){
+    graphic = if(log != null){
+      val hBox = new HBox(5)
       val label = new Label(log.logText)
       val icon = log.logType match {
         case BornLog => new MaterialDesignIconView(MaterialDesignIcon.BABY_BUGGY)
@@ -30,6 +29,9 @@ class LogListViewCell extends ListCell[Log]{
       hBox.children.clear()
       hBox.children+= icon
       hBox.children += label
+      hBox
+    }else{
+      null
     }
   }
 }
