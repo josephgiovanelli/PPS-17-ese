@@ -3,6 +3,7 @@ package it.unibo.pps.ese.controller.loader.data.builder
 import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data._
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 import it.unibo.pps.ese.controller.loader.data.builder.fixtures.{CustomGeneBuildFixture, DefaultGeneBuildFixture}
 import org.scalatest.WordSpec
 
@@ -52,7 +53,7 @@ class TestGeneBuilder extends WordSpec with DefaultGeneBuildFixture with CustomG
           }
         }
         "throw an exception if explicitly build as complete" in {
-          assertThrows[IllegalStateException](defaultGBFixture.dynamicIncomplete.buildCompleteDefault)
+          assertThrows[CompleteBuildException](defaultGBFixture.dynamicIncomplete.buildCompleteDefault)
         }
       }
     }
@@ -97,7 +98,7 @@ class TestGeneBuilder extends WordSpec with DefaultGeneBuildFixture with CustomG
           }
         }
         "throw an exception if explicitly build as complete" in {
-          assertThrows[IllegalStateException](customGBFixture.dynamicIncomplete.buildCompleteCustom)
+          assertThrows[CompleteBuildException](customGBFixture.dynamicIncomplete.buildCompleteCustom)
         }
       }
     }

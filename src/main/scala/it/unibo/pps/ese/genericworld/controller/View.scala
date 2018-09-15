@@ -2,15 +2,20 @@ package it.unibo.pps.ese.genericworld.controller
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.CompletePlantData
+import it.unibo.pps.ese.controller.util.io.File
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.Entity
 import scalafx.scene.paint.Color
 
+import scala.util.Try
+
 case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
+  def startSimulation(f: File): Try[Unit]
+
   def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
 
   def getEntityDetails(id: String): Option[EntityInfo]
@@ -58,5 +63,7 @@ object ViewHelpers {
 
     override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit =
       manageableController add (animals, plants, newAnimals, newPlants)
+
+    override def startSimulation(f: File): Try[Unit] = manageableController.simulationStart(f)
   }
 }

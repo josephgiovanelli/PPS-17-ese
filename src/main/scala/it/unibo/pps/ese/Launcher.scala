@@ -2,6 +2,7 @@ package it.unibo.pps.ese
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.util.io.File
 import it.unibo.pps.ese.genericworld.controller.Controller
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder
@@ -17,7 +18,7 @@ import scala.util.{Failure, Success}
 object Launcher extends JFXApp {
   require(parameters.raw.size == 1, "Application requires an input path corresponding to a simulation's config file")
 
-  YamlLoader.loadSimulation(parameters.raw.head) match {
+  YamlLoader.loadSimulation(File(parameters.raw.head)) match {
     case data: CompleteSimulationData =>
       val controller: Controller =
         new SimulationBuilder[EmptySimulation]

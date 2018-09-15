@@ -2,15 +2,17 @@ package it.unibo.pps.ese.genetics
 
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.util.io.File
 import it.unibo.pps.ese.genetics.dna.{AnimalGenome, BasicGene, ChromosomeType, GeneWithAllelicForms, MGene}
 import it.unibo.pps.ese.genetics.entities.QualityType.{Fecundity, Fertility, Life, Speed}
 import org.scalatest.FunSuite
 import it.unibo.pps.ese.genetics.entities._
 import it.unibo.pps.ese.genetics.generators.SpeciesUtilities
 import it.unibo.pps.ese.genetics.generators.data.{InputDataAdapter, TranslatedAnimalData}
+import org.kaikikm.threadresloader.ResourceLoader
 class TestLoadingSimulation extends FunSuite{
   test("Test loading"){
-    val data = YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml").asInstanceOf[CompleteSimulationData]
+    val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
     val animalData:TranslatedAnimalData = InputDataAdapter.translateAnimalData(
       data.animals.keySet.toSeq.head
     )

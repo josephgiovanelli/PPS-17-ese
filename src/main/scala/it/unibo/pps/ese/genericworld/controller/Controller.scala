@@ -2,14 +2,19 @@ package it.unibo.pps.ese.genericworld.controller
 
 import java.util.concurrent.atomic.AtomicLong
 
+import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.{AnimalData, CompletePlantData}
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.util.io.File
 import it.unibo.pps.ese.dataminer.{DataMiner, ReadOnlyEntityRepository}
 import it.unibo.pps.ese.entitywatchers.{Stalker, StoryTeller, Surgeon}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.view.View
 
 import scala.concurrent.ExecutionContext
+import scala.util
+import scala.util.{Failure, Success, Try}
 
 sealed trait Controller {
   def attachView(view: View, frameRate: Int): Unit
@@ -17,6 +22,7 @@ sealed trait Controller {
 }
 
 trait ManageableController {
+  def simulationStart(f: File): Try[Unit]
   def play(): Unit
   def pause(): Unit
   def exit(): Unit
@@ -142,6 +148,16 @@ object Controller {
       if (stop - start < 1000 / fps) {
         Thread.sleep((1000 / fps) - (stop - start))
         //this synchronized wait((1000 / fps) - (stop - start))
+      }
+    }
+
+    override def simulationStart(f: File): Try[Unit] = {
+      YamlLoader.loadSimulation(f) match {
+        case data: CompleteSimulationData =>
+          //TODO start simulation
+          Success()
+        case _ =>
+          Failure(new IllegalStateException())
       }
     }
   }

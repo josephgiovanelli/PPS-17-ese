@@ -6,6 +6,7 @@ import java.util.UUID.randomUUID
 import it.unibo.pps.ese.Launcher.{parameters, stage}
 import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
+import it.unibo.pps.ese.controller.util.io.File
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.genericworld.controller.Controller
@@ -21,6 +22,7 @@ import it.unibo.pps.ese.genetics.generators.data.{InputDataAdapter, TranslatedAn
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.View
 import it.unibo.pps.ese.view.ViewLauncher.{stage, view}
+import org.kaikikm.threadresloader.ResourceLoader
 import scalafx.application.JFXApp
 import scalafx.stage.WindowEvent
 
@@ -50,7 +52,7 @@ object TestLauncher extends JFXApp {
 
 //    val controller: Controller =
 //      SimulationBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
-  YamlLoader.loadSimulation("it/unibo/pps/ese/controller/loader/Simulation.yml") match {
+  YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml"))) match {
     case data: CompleteSimulationData =>
       val controller: Controller =
         new SimulationBuilder[EmptySimulation]

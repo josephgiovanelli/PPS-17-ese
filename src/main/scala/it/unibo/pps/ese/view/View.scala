@@ -3,6 +3,7 @@ package it.unibo.pps.ese.view
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.util.io.File
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
@@ -11,6 +12,8 @@ import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
 import scalafx.application.JFXApp.PrimaryStage
 
+import scala.util.Try
+
 trait View extends PrimaryStage with WorldView with ConfigurationView {
   def addObserver(observer: Observer): Unit
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
@@ -18,6 +21,7 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
 }
 
 trait MainComponent {
+  def startSimulation(f: File): Try[Unit]
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
   def unwatchEntity(id:String):Unit
@@ -124,6 +128,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     observers.foreach(_.addEntities(animals, plants, newAnimals, newPlants))
   }
 
+  override def startSimulation(f: File): Try[Unit] = observers.head.startSimulation(f)
 }
 
 object ViewType extends Enumeration {

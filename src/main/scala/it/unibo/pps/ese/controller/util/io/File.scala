@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.controller.util.io
 
+import java.io
 import java.io.InputStream
 import java.net.URL
 
@@ -23,6 +24,7 @@ object File {
   }
 
   def apply(filePath: URL): File = new FileImpl(filePath)
+  def apply(filePath: String): File = new FileImpl(new io.File(filePath).toURI.toURL)
   def apply(file: java.io.File): File = new FileImpl(file.toURI.toURL)
 
   private class FileImpl(filePath: URL) extends ExistingResourceImpl(filePath) with File {

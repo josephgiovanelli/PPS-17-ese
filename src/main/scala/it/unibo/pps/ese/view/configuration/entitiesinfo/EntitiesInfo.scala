@@ -55,7 +55,7 @@ sealed trait EntitiesInfo {
 
   def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): CompleteSimulationData
 
-  def loadSimulationData(animalData: Seq[PartialAnimalData], plantData: Seq[PartialPlantData]): Unit
+  def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit
 }
 
 object ChromosomeTypes extends Enumeration {
@@ -165,7 +165,7 @@ object EntitiesInfo {
       .addPlants(plantsMapping(plantsEntities))
       .buildComplete
 
-    def loadSimulationData(animalData: Seq[PartialAnimalData], plantData: Seq[PartialPlantData]): Unit = {
+    def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit = {
       animals ++= animalsMapping(animalData)
       plants ++= plantsMapping(plantData)
     }
@@ -280,10 +280,10 @@ object EntitiesInfo {
     implicit def map[X, Y]: DefaultValue[Map[X, Y]] = DefaultValue(Map[X, Y]())
     implicit def set[X]: DefaultValue[Set[X]] = DefaultValue(Set[X]())
 
-    private def plantsMapping(plantData: Seq[PartialPlantData]): Map[String, PlantInfo] =
+    private def plantsMapping(plantData: Iterable[PartialPlantData]): Map[String, PlantInfo] =
       plantData.map(plant => plant.name -> PlantInfo(plant.getHeight.getOrDefault, plant.getNutritionalValue.getOrDefault, plant.getHardness.getOrDefault, plant.getAvailability.getOrDefault)).toMap
 
-    private def animalsMapping(animalData: Seq[PartialAnimalData]): Map[String, AnimalInfo] =
+    private def animalsMapping(animalData: Iterable[PartialAnimalData]): Map[String, AnimalInfo] =
       animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
 
     private def animalBaseInfoMapping(animal: PartialAnimalData): AnimalBaseInfo =

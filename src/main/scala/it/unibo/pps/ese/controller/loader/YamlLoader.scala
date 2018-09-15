@@ -26,11 +26,9 @@ object YamlLoader extends Loader {
   implicit val string: DefaultValue[String] = DefaultValue("")
   implicit val iterable: DefaultValue[Iterable[_]] = DefaultValue(Iterable())
 
-  override def loadSimulation(configPath: String): PartialSimulationData = {
-    //TODO not only classpath
-    val simConfig = File(ResourceLoader.getResource(configPath))
-    val currentFolder = simConfig.getParentFolder().get
-    val simulation = loadFileContent(simConfig).parseYaml.convertTo[Simulation]
+  override def loadSimulation(configFile: File): PartialSimulationData = {
+    val currentFolder = configFile.getParentFolder().get
+    val simulation = loadFileContent(configFile).parseYaml.convertTo[Simulation]
 
     var builder : SimulationBuilder[_] = SimulationBuilder()
     if(simulation.animals.isDefined) {
