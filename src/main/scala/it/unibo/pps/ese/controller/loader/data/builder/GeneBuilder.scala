@@ -73,7 +73,7 @@ object GeneBuilder {
         case t if t <:< typeOf[DefaultGene] =>
           val check = completeGeneRequirements
           if(check._1.isEmpty) {
-            new DefaultGeneDataImpl(id, name.get, properties, check._2) with FullDefaultGeneData[CompleteAlleleData]
+            new DefaultGeneDataImpl(id, name.get, properties, check._2) with CompleteDefaultGeneData
           } else {
             new DefaultGeneDataImpl(id, name.get, properties, alleles)
           }
@@ -87,7 +87,7 @@ object GeneBuilder {
       require(status.tpe <:< st.tpe)
       val check = completeGeneRequirements
       check._1.foreach(throw _)
-      new DefaultGeneDataImpl(id, name.get, properties, check._2) with FullDefaultGeneData[CompleteAlleleData]
+      new DefaultGeneDataImpl(id, name.get, properties, check._2) with CompleteDefaultGeneData
     }
 
     def buildCustom(): PartialCustomGeneData = {
@@ -97,7 +97,7 @@ object GeneBuilder {
         case t if t <:< typeOf[CustomGene] =>
           val check = completeGeneRequirements
           if(check._1.isEmpty) {
-            new CustomGeneDataImpl(id, name.get, properties, check._2, conversionMap) with FullCustomGeneData[CompleteAlleleData]
+            new CustomGeneDataImpl(id, name.get, properties, check._2, conversionMap) with CompleteCustomGeneData
           } else {
             new CustomGeneDataImpl(id, name.get, properties, alleles, conversionMap)
           }
@@ -110,7 +110,7 @@ object GeneBuilder {
       require(status.tpe <:< st.tpe)
       val check = completeGeneRequirements
       check._1.foreach(throw _)
-      new CustomGeneDataImpl(id, name.get, properties, check._2, conversionMap) with FullCustomGeneData[CompleteAlleleData]
+      new CustomGeneDataImpl(id, name.get, properties, check._2, conversionMap) with CompleteCustomGeneData
     }
 
     private def completeGeneRequirements: (Option[Exception], Iterable[CompleteAlleleData]) = {

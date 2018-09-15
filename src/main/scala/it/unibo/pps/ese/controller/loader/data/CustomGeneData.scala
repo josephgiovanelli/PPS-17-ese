@@ -9,5 +9,5 @@ trait FullCustomGeneData[T <: PartialAlleleData] extends CustomGeneData[T] with 
 
 object CustomGeneData {
   type PartialCustomGeneData = CustomGeneData[_ <: PartialAlleleData]
-  type CompleteCustomGeneData = PartialCustomGeneData with FullCustomGeneData[_ <: CompleteAlleleData]
+  trait CompleteCustomGeneData extends FullCustomGeneData[CompleteAlleleData]
 }

@@ -6,5 +6,5 @@ trait FullDefaultGeneData[T <: PartialAlleleData] extends DefaultGeneData[T] wit
 
 object DefaultGeneData {
   type PartialDefaultGeneData = DefaultGeneData[_ <: PartialAlleleData]
-  type CompleteDefaultGeneData = PartialDefaultGeneData with FullDefaultGeneData[_ <: CompleteAlleleData]
+  trait CompleteDefaultGeneData extends FullDefaultGeneData[CompleteAlleleData]
 }

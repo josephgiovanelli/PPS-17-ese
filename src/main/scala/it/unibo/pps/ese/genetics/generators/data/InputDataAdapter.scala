@@ -25,7 +25,7 @@ private[genetics] object InputDataAdapter {
   }
   private[this] object ConversionUtilities{
     def defaultGeneDataToCustomGeneData(dgd: CompleteDefaultGeneData):CompleteCustomGeneData ={
-      object MyCustomGeneData extends FullCustomGeneData[CompleteAlleleData] {
+      object MyCustomGeneData extends CompleteCustomGeneData {
 
         override def conversionMap: Map[String, Map[String, Double]] = Map(dgd.name->Map(dgd.name->1.0))
         override def id: String = dgd.id
@@ -34,7 +34,7 @@ private[genetics] object InputDataAdapter {
 
         override def properties: Map[String, Class[_]] = dgd.properties
 
-        override def alleles: Set[CompleteAlleleData] = dgd.alleles.asInstanceOf[Set[CompleteAlleleData]]
+        override def alleles: Set[CompleteAlleleData] = dgd.alleles
 
         override def getConversionMap: Option[Map[String, Map[String, Double]]] = None
 
