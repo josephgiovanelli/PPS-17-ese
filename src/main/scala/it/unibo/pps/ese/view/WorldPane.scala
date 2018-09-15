@@ -76,8 +76,8 @@ private class WorldPaneImpl(
     Orange,
     SandyBrown,
     DeepPink,
-    MediumPurple,
-    DarkMagenta,
+    BlueViolet,
+    Magenta,
     DeepSkyBlue
   )
 

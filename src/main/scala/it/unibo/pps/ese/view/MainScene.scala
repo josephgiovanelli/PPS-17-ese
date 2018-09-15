@@ -9,6 +9,7 @@ import it.unibo.pps.ese.genericworld.model.EntityState
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.bodyViewer.{AnimalInternalStatus, BodyPane}
 import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
+import it.unibo.pps.ese.view.filters.FiltersPane
 import it.unibo.pps.ese.view.history.{HistoryLog, HistoryPane}
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
@@ -86,6 +87,12 @@ private class MainScene(
   topPane.bottom = generationPane
   topPane.center = zoomPane
 
+  val filtersTab = new Tab()
+  filtersTab.text = "Filters"
+  filtersTab.closable = false
+  filtersTab.content = FiltersPane(worldPane, geneticsSimulator)
+
+
   val statisticsTab = new Tab()
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
@@ -102,7 +109,7 @@ private class MainScene(
   bodyTab.content = bodyPane
 
   val simulationPane = new TabPane()
-  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab,bodyTab)
+  simulationPane.tabs = List(worldTab, filtersTab, statisticsTab,genomeTab,bodyTab)
   val mainPane = new BorderPane()
   mainPane.top = topPane
   mainPane.center = simulationPane
