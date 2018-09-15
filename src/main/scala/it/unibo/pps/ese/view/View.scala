@@ -2,7 +2,7 @@ package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
-import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, SimulationBuilder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.bodyViewer.AnimalInternalStatus
@@ -65,7 +65,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
     }
   }
 
-  override def updateWorld(generation: Int, world: List[Entity]): Unit = {
+  override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
     currentView match {
       case ViewType.MainView => mainView.updateWorld(generation, world)
       case _ =>
