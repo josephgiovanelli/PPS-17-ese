@@ -5,6 +5,7 @@ import javafx.event.ActionEvent
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
+import it.unibo.pps.ese.genericworld.model.EntityState
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.bodyViewer.{AnimalInternalStatus, BodyPane}
 import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
@@ -24,7 +25,7 @@ object ZoomPreferences {
 private class MainScene(
                          geneticsSimulator: GeneticsSimulator,
                          mainComponent: MainComponent,
-                         width: Double = 1400, height: Double = 900)
+                         width: Double = 1600, height: Double = 900)
   extends Scene(width, height) with WorldView  with BodyViewer with HistoryViewer{
 
   val generationTextLabel: String = "Generation: "
@@ -63,7 +64,7 @@ private class MainScene(
 
   worldContainerPane.orientation = Orientation.Horizontal
   worldContainerPane.items ++= List(historyPane,worldPane, detailsPane)
-  worldContainerPane.setDividerPositions(0.3,0.75,0.15)
+  worldContainerPane.setDividerPositions(0.22,0.78)
   worldTab.content = worldContainerPane
 
   val zoomSlider = new Slider(ZoomPreferences.minZoom, ZoomPreferences.maxZoom, ZoomPreferences.prefZoom)
@@ -112,7 +113,7 @@ private class MainScene(
 
   root = contentPane
 
-  override def updateWorld(generation: Int, world: List[Entity]): Unit = {
+  override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
     generationLabel.text = generationTextLabel + generation
     worldPane.updateWorld(generation, world)
   }

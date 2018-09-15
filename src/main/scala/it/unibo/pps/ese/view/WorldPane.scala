@@ -14,20 +14,22 @@ import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtili
 import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
 import it.unibo.pps.ese.genericworld.controller.EntityDetails
 import it.unibo.pps.ese.genericworld.model
-import it.unibo.pps.ese.genericworld.model.EntityInfo
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, ReignType}
 import javafx.application.Platform
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.input.{KeyEvent, MouseEvent, ScrollEvent}
+import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent, ScrollEvent}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.view.bodyViewer.BodyPane
 import Color._
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds
+import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 
 import scala.util.Random
 
 trait WorldView {
-  def updateWorld(generation: Int, world: List[Entity]): Unit
+  def updateWorld(generation: Int, world: Seq[EntityState]): Unit
 }
 trait WorldPane extends ScrollPane with WorldView{
   var entitySize: IntegerProperty = IntegerProperty(ZoomPreferences.prefZoom)
@@ -63,19 +65,20 @@ private class WorldPaneImpl(
 
   val plantColors: List[Color] = List(
     Green,
-    LightGreen,
-    GreenYellow)
+    LawnGreen,
+    ForestGreen
+  )
 
 
   val animalColors: List[Color] = List(
     Red,
-    MediumPurple,
-    White,
-    Cyan,
+    LightGrey,
     Orange,
-    Brown,
-    GreenYellow,
-    DeepPink
+    SandyBrown,
+    DeepPink,
+    MediumPurple,
+    DarkMagenta,
+    DeepSkyBlue
   )
 
 
@@ -85,7 +88,7 @@ private class WorldPaneImpl(
   var plantColorPool: List[Color] = plantColors
   val plantColorMap: Map[String, Color] = getPlantColors
 
-  var currentWorld: Map[Position, Entity] = Map()
+  var currentWorld: Map[Position, EntityState] = Map()
   var currentSelected: Option[String] = None
   var currentWatched: Option[String] = None
   var worldViewWidth: DoubleProperty = DoubleProperty(worldWidth*entitySize())
@@ -111,7 +114,7 @@ private class WorldPaneImpl(
     val pos: Position = getEntityViewStartPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
-        tooltip().text = entity.name
+        tooltip().text = entity.state.species.toString
         tooltip().show(this, MouseInfo.getPointerInfo.getLocation.x+10, MouseInfo.getPointerInfo.getLocation.y+10)
       case _ =>
         tooltip().hide()
@@ -125,7 +128,7 @@ private class WorldPaneImpl(
   canvas.onMouseClicked = (e: MouseEvent) => {
     currentSelected match {
       case Some(id) =>
-        val entity: Entity = getEntityById(id).get
+        val entity: EntityState = getEntityById(id).get
         val position: Position = getEntityViewPosition(entity)
         clearSelectedEntity(position, entity)
       case None =>
@@ -134,14 +137,13 @@ private class WorldPaneImpl(
     val pos: Position = getEntityViewStartPosition(e.x, e.y)
     currentWorld.get(pos) match {
       case Some(entity) =>
-        val entityDetails:model.EntityInfo = mainComponent.getEntityDetails(entity.id).get
-        entityDetails.baseEntityInfo match {
+        entity.state.baseEntityInfo match {
           case AnimalInfo(_,_,_,_,_,_) =>
             genomeDetailsPane.setGenomeStats(GenomeStatsUtilities.buildGenomeStats(
               geneticsSimulator,
-              entityDetails.baseEntityInfo.asInstanceOf[AnimalInfo])
+              entity.state.baseEntityInfo.asInstanceOf[AnimalInfo])
             )
-            currentWatched = Some(entity.id)
+            currentWatched = Some(entity.entityId)
             mainComponent.watchEntity(currentWatched.get)
           case _=>
             if(currentWatched.isDefined){
@@ -149,13 +151,13 @@ private class WorldPaneImpl(
               currentWatched = None
             }
         }
-        currentSelected = Some(entity.id)
+        currentSelected = Some(entity.entityId)
         showSelectedEntity(pos, entity)
-        detailsPane.showDetails(entity,entityDetails)
+        detailsPane.showDetails(entity)
 
       case None =>
         if(currentWatched.isDefined){
-          mainComponent.unwatchEntity(currentSelected.get)
+          mainComponent.unwatchEntity(currentWatched.get)
         }
         currentWatched = None
         currentSelected = None
@@ -180,13 +182,13 @@ private class WorldPaneImpl(
   }
 
 
-  override def updateWorld(generation: Int, world: List[Entity]): Unit = {
+  override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
     drawWorld(world)
   }
 
-  private def drawWorld(world: List[Entity]): Unit = {
+  private def drawWorld(world: Seq[EntityState]): Unit = {
 
-    currentWorld = Map() ++ world.map(e => (Position(e.position.x * entitySize(), e.position.y * entitySize()), e))
+    currentWorld = Map() ++ world.map(e => (Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), e))
 
     Platform.runLater {
       () => {
@@ -194,29 +196,30 @@ private class WorldPaneImpl(
         graphicsContext.fill = backGroundColor
         graphicsContext.fillRect(0, 0, worldViewWidth(), worldViewHeigth())
         world foreach (e => {
-          /* refactor */
-          e.name match {
-            case "ErbaGatta" => drawEntity(Position(e.position.x * entitySize(), e.position.y * entitySize()), plantColorMap(e.name))
-            case _ => drawEntity(Position(e.position.x * entitySize(), e.position.y * entitySize()), animalColorMap(e.name))
+
+          e.state.reign match {
+            case ReignType.PLANT =>
+              drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), plantColorMap(e.state.species.toString))
+            case ReignType.ANIMAL =>
+              drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), animalColorMap(e.state.species.toString))
           }
 
         })
         currentSelected match {
           case Some(id) =>
             if(getEntityById(id).isDefined){
-              val entity: Entity = getEntityById(id).get
+              val entity: EntityState = getEntityById(id).get
               val position: Position = getEntityViewPosition(entity)
-              val entityDetails:model.EntityInfo = mainComponent.getEntityDetails(entity.id).get
-              entityDetails.baseEntityInfo match {
+              entity.state.baseEntityInfo match {
                 case AnimalInfo(_,_,_,_,_,_) =>
                   genomeDetailsPane.setGenomeStats(GenomeStatsUtilities.buildGenomeStats(
                     geneticsSimulator,
-                    entityDetails.baseEntityInfo.asInstanceOf[AnimalInfo])
+                    entity.state.baseEntityInfo.asInstanceOf[AnimalInfo])
                   )
                 case _=>
               }
-              detailsPane.showDetails(entity,entityDetails)
-              currentSelected = Some(entity.id)
+              detailsPane.showDetails(entity)
+              currentSelected = Some(entity.entityId)
               showSelectedEntity(position, entity)
             }else{
               currentSelected = None
@@ -233,25 +236,22 @@ private class WorldPaneImpl(
 
   }
 
-  private def showSelectedEntity(position: Position, entity: Entity): Unit = {
+  private def showSelectedEntity(position: Position, entity: EntityState): Unit = {
     drawEntity(position, selectionColor)
-    val ed: EntityInfo = mainComponent.getEntityDetails(entity.id).get
-    ed.baseEntityInfo match {
-      case a: AnimalInfo => showVisualField(position, ed.visualField)
+    entity.state.reign match {
+      case ReignType.ANIMAL => showVisualField(position, entity.state.visualField)
       case _ =>
     }
   }
 
-  private def clearSelectedEntity(position: Position, entity: Entity): Unit = {
-    /*refactor*/
-    entity.name match {
-      case "ErbaGatta" => drawEntity(position, plantColorMap(entity.name))
-      case _ => drawEntity(position, animalColorMap(entity.name))
+  private def clearSelectedEntity(position: Position, entity: EntityState): Unit = {
+    entity.state.reign match {
+      case ReignType.PLANT => drawEntity(position, plantColorMap(entity.state.species.toString))
+      case ReignType.ANIMAL => drawEntity(position, animalColorMap(entity.state.species.toString))
     }
 
-    val ed: EntityInfo = mainComponent.getEntityDetails(entity.id).get
-    ed.baseEntityInfo match {
-      case a: AnimalInfo => clearVisualField(position, ed.visualField)
+    entity.state.reign match {
+      case ReignType.ANIMAL => clearVisualField(position, entity.state.visualField)
       case _ =>
     }
   }
@@ -266,7 +266,7 @@ private class WorldPaneImpl(
   }
 
   private def clearVisualField(position: Position, visualField: Double): Unit = {
-    drawVisualField(position, Color.White, visualField)
+    drawVisualField(position, backGroundColor, visualField)
   }
 
   private def drawVisualField(position: Position, color: Color, visualField: Double): Unit = {
@@ -275,12 +275,12 @@ private class WorldPaneImpl(
     graphicsContext.strokeOval(centerPosition.x, centerPosition.y, entitySize()*visualField, entitySize()*visualField)
   }
 
-  private def getEntityById(id: String): Option[Entity] = {
-    currentWorld.values.find(e => e.id==id)
+  private def getEntityById(id: String): Option[EntityState] = {
+    currentWorld.values.find(e => e.entityId==id)
   }
 
-  private def getEntityViewPosition(entity: Entity): Position = {
-    Position(entity.position.x*entitySize(), entity.position.y*entitySize())
+  private def getEntityViewPosition(entity: EntityState): Position = {
+    Position(entity.state.position.x*entitySize(), entity.state.position.y*entitySize())
   }
 
   private def getEntityViewStartPosition(x: Double, y: Double): Position = {

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.entitybehaviors.LifePhases
-import it.unibo.pps.ese.genericworld.model.EntityInfo
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male, PlantInfo}
 import it.unibo.pps.ese.view.speciesdetails.{NonNumericQualityViewerBox, QualityViewerBox}
 import scalafx.scene.control.{Button, Label, ScrollPane}
@@ -12,7 +12,7 @@ import it.unibo.pps.ese.view.utilities.TextUtilities._
 
 trait DetailsPane extends ScrollPane {
 
-  def showDetails(e: Entity,entityDetails: EntityInfo): Unit
+  def showDetails(e: EntityState): Unit
   def clearDetails() : Unit
 }
 
@@ -37,9 +37,9 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 
   content = mainPane
 
-  override def showDetails(e: Entity,entityDetails: EntityInfo): Unit = entityDetails.baseEntityInfo match {
+  override def showDetails(e: EntityState): Unit = e.state.baseEntityInfo match {
     case AnimalInfo(species,gender,dietType,_,qualities,_) =>
-      nameLabel.text = e.name
+      nameLabel.text = e.state.species.toString
       val genderColor = gender match {
         case Male => "-fx-accent: cyan;"
         case Female => "-fx-accent: pink;"
@@ -49,7 +49,7 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
         case Carnivorous => "-fx-accent: red"
       }
 
-      val lifePhaseBox = entityDetails.lifePhase match {
+      val lifePhaseBox = e.state.lifePhase match {
         case LifePhases.CHILD =>
           new NonNumericQualityViewerBox("Child","-fx-accent: lightGreen;")
         case LifePhases.ADULT =>
@@ -65,14 +65,14 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
         genderBox ::
         dietBox ::
         lifePhaseBox::
-        getAllAnimalQualities(entityDetails)
+        getAllAnimalQualities(e.state)
           .map(q=>q._1--->q._2).toList
     case PlantInfo(s,g,q) =>
       val reignBox = new NonNumericQualityViewerBox("Plant","-fx-accent: green;")
-      nameLabel.text = e.name
+      nameLabel.text = e.state.species.toString
       vBox.children = nameLabel ::
         reignBox::
-        getAllPlantQualities(entityDetails)
+        getAllPlantQualities(e.state)
           .map(q=>q._1--->q._2).toList
 
   }
