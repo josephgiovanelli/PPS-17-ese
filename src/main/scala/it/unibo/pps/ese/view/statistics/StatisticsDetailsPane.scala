@@ -1,36 +1,85 @@
 package it.unibo.pps.ese.view.statistics
 
+import it.unibo.pps.ese.view.MainComponent
+import javafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Orientation, Side}
-import scalafx.scene.Group
+import scalafx.scene.{Group, Scene}
 import scalafx.scene.chart._
-import scalafx.scene.control.ScrollPane
+import scalafx.scene.control.{Button, ComboBox, ScrollPane}
 import scalafx.scene.layout._
+import scalafx.stage.Stage
 
-case class ChartsData(populationTrend: Seq[(String, Seq[(String, Long)])],
+import scala.concurrent.ExecutionContext
+
+case class ChartsData(populationTrend: Seq[(String, Seq[(Long, Long)])],
                       populationDistribution: Seq[(String, Long)],
-                      births: Seq[(String, Seq[(String, Long)])],
-                      mutations: Seq[(String, Seq[(String, Long)])])
+                      births: Seq[(String, Seq[(Long, Long)])],
+                      mutations: Seq[(String, Seq[(Long, Long)])])
 
 sealed trait StatisticsDetailsPane extends ScrollPane {
   def initializeCharts(chartsData: ChartsData)
+  def populateEraDropdown(era: Seq[Long])
 }
 object StatisticsDetailsPane {
 
-  def apply():StatisticsDetailsPane = new WebBasedStatisticsDetailsPane()
+  def apply(mainComponent: MainComponent)
+           (implicit executionContext: ExecutionContext):StatisticsDetailsPane = new WebBasedStatisticsDetailsPane(mainComponent)
 
-  private[this] class WebBasedStatisticsDetailsPane() extends StatisticsDetailsPane {
+  private[this] class WebBasedStatisticsDetailsPane(mainComponent: MainComponent)
+            (implicit executionContext: ExecutionContext) extends StatisticsDetailsPane {
 
     prefWidth = 800
     prefHeight = 600
 
-    val barChart: BarChart[String, Number] = new BarChart(CategoryAxis("Era"), NumberAxis("Births")) {
-      title = "Births Chart"
+    val eraCombo: ComboBox[String] = new ComboBox[String] {
+      maxWidth = 200
+      promptText = "Choose a era..."
+      onAction = _ => populateEntityDropdown(eraCombo.value.value)
     }
 
-    val areaChart: AreaChart[String, Number] = new AreaChart(CategoryAxis("Era"), NumberAxis("Mutations")) {
+    val entityCombo: ComboBox[String] = new ComboBox[String] {
+      maxWidth = 200
+      promptText = "Choose an entity..."
+      onAction = _ => replayButton setDisable (entityCombo.value.value == null)
+    }
+
+    val replayButton: Button = new Button("Replay") {
+      prefWidth = 125
+      disable = true
+      onMouseClicked = _ => {
+        val id = entityCombo.value
+        val dialogStage = new Stage {
+          outer =>
+          title = "Replay Dialog"
+          scene = new Scene {
+            root = ReplayPane(mainComponent, 800, 500)
+          }
+        }
+        dialogStage.showAndWait()
+      }
+    }
+
+    val borderPane: BorderPane = new BorderPane {
+      center = new HBox {
+        //padding = Insets(10, 400, 10, 400)
+        children = List(eraCombo, entityCombo, replayButton)
+      }
+      fitToWidth = true
+    }
+
+    val SCALE_DELTA = 1.1
+
+    val barChart: LineChart[Number, Number] = new LineChart(NumberAxis("Era"), NumberAxis("Births")) {
+      title = "Births Chart"
+      legendSide = Side.Right
+      createSymbols = false
+    }
+
+    val areaChart: AreaChart[Number, Number] = new AreaChart(NumberAxis("Era"), NumberAxis("Mutations")) {
       title = "Mutations"
       legendSide = Side.Right
+      createSymbols = false
     }
 
     val pieChart: PieChart = new PieChart {
@@ -38,9 +87,10 @@ object StatisticsDetailsPane {
       clockwise = false
     }
 
-    val categoryLine: LineChart[String, Number] = new LineChart(CategoryAxis("Era"), NumberAxis("Population")) {
+    val categoryLine: LineChart[Number, Number] = new LineChart(NumberAxis("Era"), NumberAxis("Population")) {
       title = "Population Trend"
       legendSide = Side.Right
+      createSymbols = false
     }
 
     val root = new Group()
@@ -56,16 +106,21 @@ object StatisticsDetailsPane {
 
     (flowPane children) addAll (categoryLine, barChart, pieChart, areaChart)
 
-    (root children) add flowPane
+    val vBox: VBox = new VBox() {
+      children = List(borderPane, flowPane)
+      prefWidth = 800
+    }
+
+    (root children) add vBox
 
     override def initializeCharts(chartsData: ChartsData): Unit = {
 
-      def populationChart(series: Seq[(String, Seq[(String, Long)])]): Unit = {
+      def populationChart(series: Seq[(String, Seq[(Long, Long)])]): Unit = {
 
-        def xySeriesCategory(name: String, data: Seq[(String, Long)]) = {
-          XYChart.Series[String, Number](
+        def xySeriesCategory(name: String, data: Seq[(Long, Long)]) = {
+          XYChart.Series[Number, Number](
             name,
-            ObservableBuffer(data.map {case (x, y) => XYChart.Data[String, Number](x, y)})
+            ObservableBuffer(data.map {case (x, y) => XYChart.Data[Number, Number](x, y)})
           )
         }
 
@@ -78,25 +133,25 @@ object StatisticsDetailsPane {
         ObservableBuffer(series.map {case (x, y) => PieChart.Data(x, y)}).foreach(x => pieChart.getData.add(x))
       }
 
-      def birthChart(series: Seq[(String, Seq[(String, Long)])]): Unit = {
+      def birthChart(series: Seq[(String, Seq[(Long, Long)])]): Unit = {
 
-        def xySeriesBar(name: String, data: Seq[(String, Long)]) = {
-          XYChart.Series[String, Number](
+        def xySeriesCategory(name: String, data: Seq[(Long, Long)]) = {
+          XYChart.Series[Number, Number](
             name,
-            ObservableBuffer(data.map {case (x, y) => XYChart.Data[String, Number](x, y)})
+            ObservableBuffer(data.map {case (x, y) => XYChart.Data[Number, Number](x, y)})
           )
         }
 
         barChart.getData.clear()
-        series.map(x => xySeriesBar(x._1, x._2)).foreach(y => barChart.getData.add(y))
+        series.map(x => xySeriesCategory(x._1, x._2)).foreach(y => barChart.getData.add(y))
       }
 
-      def mutationsChart(series: Seq[(String, Seq[(String, Long)])]): Unit = {
+      def mutationsChart(series: Seq[(String, Seq[(Long, Long)])]): Unit = {
 
-        def xySeriesArea(name: String, data: Seq[(String, Long)]) =
-          XYChart.Series[String, Number](
+        def xySeriesArea(name: String, data: Seq[(Long, Long)]) =
+          XYChart.Series[Number, Number](
             name,
-            ObservableBuffer(data.map {case (x, y) => XYChart.Data[String, Number](x, y)})
+            ObservableBuffer(data.map {case (x, y) => XYChart.Data[Number, Number](x, y)})
           )
 
         areaChart.getData.clear()
@@ -107,6 +162,20 @@ object StatisticsDetailsPane {
       populationDistributionChart(chartsData populationDistribution)
       birthChart(chartsData births)
       mutationsChart(chartsData mutations)
+    }
+
+    def populateEraDropdown(era: Seq[Long]): Unit = {
+      eraCombo.getItems.clear()
+      era.foreach(y => eraCombo.getItems.add(y.toString))
+    }
+
+    def populateEntityDropdown(era: String): Unit = {
+      if (era != null) {
+        entityCombo.getItems.clear()
+        mainComponent.entitiesInEra(era.toLong) foreach (y => Platform.runLater {() => {
+          y foreach(x => entityCombo.getItems.add(x))
+        }})
+      }
     }
   }
 }

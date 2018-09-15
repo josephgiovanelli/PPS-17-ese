@@ -10,6 +10,8 @@ import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationView
 import it.unibo.pps.ese.view.statistics.ChartsData
 import scalafx.application.JFXApp.PrimaryStage
 
+import scala.concurrent.{ExecutionContext, Future}
+
 trait View extends PrimaryStage with WorldView with ConfigurationView {
   def addObserver(observer: Observer): Unit
 
@@ -25,15 +27,19 @@ trait View extends PrimaryStage with WorldView with ConfigurationView {
 trait MainComponent {
   def setScene(sceneType: ViewType.Value): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
-  def historicalData(): ChartsData
+  def historicalData(): Future[ChartsData]
+  def simulationEras(): Future[Seq[Long]]
+  def entitiesInEra(era: Long): Future[Seq[String]]
   def setUp(simulationData: SimulationData)
 }
 
 object View {
-  def apply(geneticsSimulator: GeneticsSimulator): View = new ViewImpl(geneticsSimulator)
+  def apply(geneticsSimulator: GeneticsSimulator)
+           (implicit executionContext: ExecutionContext): View = new ViewImpl(geneticsSimulator)
 }
 
-private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with MainComponent {
+private class ViewImpl(geneticsSimulator: GeneticsSimulator)
+                      (implicit executionContext: ExecutionContext) extends View with MainComponent {
 
   var observers: List[Observer] = Nil
   var configurationView: ConfigurationView = null
@@ -78,7 +84,6 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   override def setUp(simulationData: SimulationData): Unit =
     currentView match {
     case ViewType.ConfigurationView => {
-      import scala.concurrent.ExecutionContext.Implicits.global
       val controller: Controller = new SimulationBuilder[EmptySimulation].dimension(500, 500).data(simulationData).build
       controller.attachView(this, 30)
       controller.manage.play()
@@ -97,7 +102,11 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator) extends View with M
   override def embryo(state: EmbryoStatus.Value): Unit = println("embryo:" + state)
   override def pregnant(active: Boolean): Unit = println("pregnat:" + active)
 
-  override def historicalData(): ChartsData = observers.head.historicalData()
+  override def historicalData(): Future[ChartsData] = observers.head.historicalData()
+
+  override def entitiesInEra(era: Long): Future[Seq[String]] = observers.head.entitiesInEra(era)
+
+  override def simulationEras(): Future[Seq[Long]] = observers.head.simulationEras()
 }
 
 object ViewType extends Enumeration {

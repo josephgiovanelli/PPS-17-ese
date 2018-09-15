@@ -8,8 +8,11 @@ import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
+import javafx.application.Platform
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
+
+import scala.concurrent.ExecutionContext
 
 object ZoomPreferences {
   val minZoom: Int = 1
@@ -18,7 +21,8 @@ object ZoomPreferences {
 }
 
 
-private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1200, height: Double = 800) extends Scene(width, height) with WorldView {
+private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: MainComponent, width: Double = 1200, height: Double = 800)
+                       (implicit executionContext: ExecutionContext) extends Scene(width, height) with WorldView {
 
   val generationTextLabel: String = "Generation: "
 
@@ -69,13 +73,16 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   topPane.bottom = generationPane
   topPane.center = zoomPane
 
-  val statisticsPane = StatisticsDetailsPane()
+  val statisticsPane = StatisticsDetailsPane(mainComponent)
   val statisticsTab = new Tab()
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
   statisticsTab.content = statisticsPane
   statisticsTab.onSelectionChanged = _ =>
-    if (statisticsTab.isSelected) statisticsPane initializeCharts (mainComponent historicalData())
+    if (statisticsTab.isSelected) {
+      mainComponent historicalData() foreach (y => Platform.runLater {() => statisticsPane initializeCharts y })
+      mainComponent simulationEras() foreach(y => Platform.runLater {() => statisticsPane populateEraDropdown y })
+    }
 
   val genomeTab = new Tab()
   genomeTab.text = "Genome"

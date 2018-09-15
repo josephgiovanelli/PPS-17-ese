@@ -8,12 +8,16 @@ import it.unibo.pps.ese.view.Entity
 import it.unibo.pps.ese.view.statistics.ChartsData
 import scalafx.scene.paint.Color
 
+import scala.concurrent.Future
+
 case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
   def getEntityDetails(id: String): Option[EntityInfo]
   def setWatched(id: String): Unit
-  def historicalData(): ChartsData
+  def historicalData(): Future[ChartsData]
+  def simulationEras(): Future[Seq[Long]]
+  def entitiesInEra(era: Long): Future[Seq[String]]
 }
 
 //class View {
@@ -47,11 +51,15 @@ object ViewHelpers {
   implicit def toViewData(data: Seq[EntityState]): List[Entity] =
     (data map toEntityViewData).toList
 
-  implicit class ManageableObserver(manageableController: ManageableController) extends Observer {
-    override def getEntityDetails(id: String): Option[EntityInfo] = (manageableController entityData id) map(_.state.copy())
+  implicit class ManageableObserver(queryableController: QueryableController) extends Observer {
+    override def getEntityDetails(id: String): Option[EntityInfo] = (queryableController entityData id) map(_.state.copy())
 
-    override def setWatched(id: String): Unit = manageableController watch id
+    override def setWatched(id: String): Unit = queryableController watch id
 
-    override def historicalData(): ChartsData = manageableController historicalData()
+    override def historicalData(): Future[ChartsData] = queryableController historicalData()
+
+    override def entitiesInEra(era: Long): Future[Seq[String]] = queryableController entitiesInEra era
+
+    override def simulationEras(): Future[Seq[Long]] = queryableController simulationEras()
   }
 }

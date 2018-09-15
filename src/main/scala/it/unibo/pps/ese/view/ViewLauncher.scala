@@ -5,6 +5,8 @@ import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object WorldPrefernces {
   val worldWidth: Int = 500
   val worldHeigth: Int = 500
