@@ -11,16 +11,10 @@ trait DefaultGet[T] {
 }
 
 object ValidableImplicits {
-  implicit class ValidableString(str: String) extends Validable[String] {
-    def isValid(implicit defaultValue: DefaultValue[String]): Boolean = str != defaultValue.get
-  }
-
-  implicit class ValidableIterable(it: Iterable[_]) extends Validable[Iterable[_]] {
-    def isValid(implicit defaultValue: DefaultValue[Iterable[_]]): Boolean = it != defaultValue.get
-  }
-
-  implicit class ValidableNumeric(num: Double) extends Validable[Double] {
-    def isValid(implicit defaultValue: DefaultValue[Double]): Boolean = num != defaultValue.get
+  object ValidableByDisequality {
+    implicit class ValidableByDisequality[X](elem: X) {
+      def isValid(implicit defaultValue: DefaultValue[X]): Boolean = elem != defaultValue.get
+    }
   }
 }
 
