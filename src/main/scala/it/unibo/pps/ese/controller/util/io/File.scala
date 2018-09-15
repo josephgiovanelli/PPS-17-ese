@@ -6,8 +6,6 @@ import java.net.URL
 
 import org.apache.commons.io.FileUtils
 
-
-
 trait File extends ExistingResource with FileResource {
   def rawFile: java.io.File
   def name: String
@@ -30,6 +28,7 @@ object File {
   private class FileImpl(filePath: URL) extends ExistingResourceImpl(filePath) with File {
     val rawFile: java.io.File = javaFile
     val name: String = javaFile.getName
+    require(javaFile.isFile)
 
     override def openInputStream: InputStream = FileUtils.openInputStream(javaFile)
 

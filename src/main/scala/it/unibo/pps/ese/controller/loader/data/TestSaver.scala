@@ -9,6 +9,7 @@ object TestSaver extends App {
   val loadedData: PartialSimulationData = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml")))
   val saver = YamlSaver(loadedData, "testttt")
   println(ResourceLoader.getResource("it/unibo/pps/ese/controller/testt/pincopallo.txt"))
-  val targetFolder = Folder(ResourceLoader.getResource("it/unibo/pps/ese/controller/testt"))
+  val targetFolder = Folder("C:\\test\\")
   saver.saveData(targetFolder, false)
+  YamlLoader.loadSimulation(File("C:\\test\\testttt.yml"))
 }

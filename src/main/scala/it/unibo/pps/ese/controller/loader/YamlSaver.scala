@@ -1,5 +1,5 @@
 package it.unibo.pps.ese.controller.loader
-import it.unibo.pps.ese.controller.loader.beans.Plant
+import it.unibo.pps.ese.controller.loader.beans._
 import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.loader.data.CustomGeneData.PartialCustomGeneData
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGeneData
@@ -7,7 +7,7 @@ import it.unibo.pps.ese.controller.loader.data.{PartialAlleleData, PartialPlantD
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource, NotExistingFile, NotExistingFolder, UndefinedNotExistingResource}
-
+import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
 
 object YamlSaver {
@@ -22,40 +22,65 @@ object YamlSaver {
     private val fileExtension = FileFormats.YAML.extensions.head
     private var overrideResources: Set[ExistingResource] = Set()
 
+    implicit val string: DefaultValue[String] = DefaultValue("")
+    import it.unibo.pps.ese.utils.DefaultGetImplicits._
+
     override def saveData(saveLocation: Folder, overrideAll: Boolean): Unit = {
       checkFileExistence(saveLocation.getChildren(simulationName + fileExtension), overrideAll, saveMainFile)
     }
 
     def saveMainFile(file: File, overrideAll: Boolean): Unit = {
       val currentFolder = file.getParentFolder().get
-      simulationData.getAnimals.get.map(_._1).foreach(animal => {
-        checkFileExistence(currentFolder.getChildren(simulationName + "_" + animal.name + fileExtension), overrideAll,
-          saveAnimal(animal))
+      val animals = simulationData.getAnimals.map(iter => {
+        iter.map(animalTuple => {
+          val fileName = simulationName + "_" + animalTuple._1.name + fileExtension
+          checkFileExistence(currentFolder.getChildren(fileName), overrideAll,
+            saveAnimal(animalTuple._1))
+          (fileName.toRelativePath, animalTuple._2)
+        }).toMap
       })
-      simulationData.getPlants.get.map(_._1).foreach(plant => {
-        checkFileExistence(currentFolder.getChildren(simulationName + "_" + plant.name + fileExtension), overrideAll,
-          savePlant(plant))
+      val plants = simulationData.getPlants.map(iter => {
+        iter.map(plantTuple => {
+          val fileName = simulationName + "_" + plantTuple._1.name + fileExtension
+          checkFileExistence(currentFolder.getChildren(fileName), overrideAll,
+            savePlant(plantTuple._1))
+          (fileName.toRelativePath, plantTuple._2)
+        }).toMap
       })
-      //TODO write main file
+      val yamlObj = Simulation(animals, plants).toYaml
+      file.write(yamlObj.prettyPrint)
     }
 
     def saveAnimal(animal: PartialAnimalData)(file: File, overrideAll: Boolean): Unit = {
       val currentFolder = file.getParentFolder().get
-      val regulationFolderName = simulationName + "_" + animal.name + "_reg"
+      val regulationFolderName: String = simulationName + "_" + animal.name + "_reg"
       val sexualFolderName = simulationName + "_" + animal.name + "_sex"
-      val structuralFolderName = simulationName + "_" + animal.name + "_struct"
+      var structuralFolderName: Option[String] = None
+      var regulationChromosome: Option[DefaultChromosomeData] = None
+      var sexualChromosome: Option[DefaultChromosomeData] = None
       if(animal.getRegulationChromosome.isDefined) {
         checkFolderExistence(currentFolder.getChildren(regulationFolderName),
           overrideAll, saveDefaultChromosome(animal.getRegulationChromosome.get))
+        regulationChromosome = Some(mapToChromosomeData(animal.getRegulationChromosome.get, regulationFolderName))
       }
       if(animal.getSexualChromosome.isDefined) {
         checkFolderExistence(currentFolder.getChildren(sexualFolderName),
           overrideAll, saveDefaultChromosome(animal.getSexualChromosome.get))
+        sexualChromosome = Some(mapToChromosomeData(animal.getSexualChromosome.get, sexualFolderName))
       }
       if(animal.getStructuralChromosome.isDefined) {
-        checkFolderExistence(currentFolder.getChildren(structuralFolderName),
+        structuralFolderName = Some(simulationName + "_" + animal.name + "_struct")
+        checkFolderExistence(currentFolder.getChildren(structuralFolderName.get),
           overrideAll, saveCustomChromosome(animal.getStructuralChromosome.get))
       }
+      val yamlObj = Animal(animal.name, animal.getGeneLength, animal.getAlleleLength, animal.getReign,
+        animal.getTypology, structuralFolderName.toRelativePath, regulationChromosome, sexualChromosome).toYaml
+      file.write(yamlObj.prettyPrint)
+    }
+
+    def mapToChromosomeData(genes: Iterable[PartialDefaultGeneData], allelesPath: String): DefaultChromosomeData = {
+      val names = genes.map(gene => (gene.name, gene.getId.getOrDefault)).toMap
+      DefaultChromosomeData(Some(allelesPath).toRelativePath, Some(names))
     }
 
     def saveDefaultChromosome(genes: Iterable[PartialDefaultGeneData])(folder: Folder, overrideAll: Boolean): Unit = {
@@ -76,10 +101,14 @@ object YamlSaver {
 
     def saveGene(gene: PartialCustomGeneData)(file: File, overrideAll: Boolean): Unit = {
       val currentFolder = file.getParentFolder().get
+      var allelesPath: Option[String] = None
       if(gene.getAlleles.isDefined) {
-        checkFolderExistence(currentFolder.getChildren(gene.name + "_" + "all"), overrideAll, saveCustomAlleles(gene.getAlleles.get))
+        allelesPath = Some(gene.name + "_" + "all")
+        checkFolderExistence(currentFolder.getChildren(allelesPath.get), overrideAll, saveCustomAlleles(gene.getAlleles.get))
       }
-      //TODO write chromosome to file
+      val properties = gene.getConversionMap.map(content => content.map(t => (t._1, PropertyInfo(t._2))))
+      val yamlObj = Gene(gene.getId, gene.name, allelesPath.toRelativePath, properties).toYaml
+      file.write(yamlObj.prettyPrint)
     }
 
     def saveCustomAlleles(alleles: Iterable[PartialAlleleData])(folder: Folder, overrideAll: Boolean): Unit = {
@@ -88,9 +117,10 @@ object YamlSaver {
       })
     }
 
-    def saveAllele(animal: PartialAlleleData)(file: File, overrideAll: Boolean): Unit = {
-      //TODO write allele to file
-      //println("something")
+    def saveAllele(allele: PartialAlleleData)(file: File, overrideAll: Boolean): Unit = {
+      val yamlObj = Allele(allele.getGene, allele.id, allele.getDominance, allele.getConsume, allele.getProbability,
+        allele.getEffect).toYaml
+      file.write(yamlObj.prettyPrint)
     }
 
     def savePlant(plant: PartialPlantData)(file: File, overrideAll: Boolean): Unit = {
@@ -119,6 +149,19 @@ object YamlSaver {
         } else {
           //TODO throw custom exception
         }
+    }
+
+    implicit class FileString(path: String) {
+      def toRelativePath: String = "./" + path
+    }
+
+    implicit class FileOptional(opt: Option[String]) {
+      def toRelativePath: Option[String] = opt match {
+        case Some(path) =>
+          Some(path.toRelativePath)
+        case None =>
+          None
+      }
     }
 
   }
