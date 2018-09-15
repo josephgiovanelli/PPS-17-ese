@@ -23,6 +23,7 @@ class LogListViewCell extends ListCell[Log]{
         case ExtinctionLog => new EmojiOneView(EmojiOne.SKULL_CROSSBONES)
         case PopulationLog => new MaterialDesignIconView(MaterialDesignIcon.CHART_AREASPLINE)
         case GenerationLog => new MaterialDesignIconView(MaterialDesignIcon.CALENDAR_CLOCK)
+        case MostPopulousLog => new MaterialDesignIconView(MaterialDesignIcon.CROWN);
       }
       label.font = Font.font("Calibri", 16)
       icon.setGlyphSize(18)

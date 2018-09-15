@@ -42,6 +42,7 @@ libraryDependencies += "de.jensd" % "fontawesomefx-controls" % "8.15"
 libraryDependencies += "de.jensd" % "fontawesomefx-icons525" % "3.0.0-4"
 libraryDependencies += "org.controlsfx" % "controlsfx" % "8.40.11"
 libraryDependencies += "de.jensd" % "fontawesomefx-weathericons" % "2.0.10-5"
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.26"
 
 resolvers ++= Seq("Spring Milestone Repository" at "http://repo.spring.io/milestone",
   "Spring Snapshot Repository" at "http://repo.spring.io/snapshot",
