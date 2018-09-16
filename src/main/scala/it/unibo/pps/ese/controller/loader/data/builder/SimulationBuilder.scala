@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.controller.loader.data.builder
 
+import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus
@@ -7,12 +8,14 @@ import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.Simulat
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
+import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
 
 trait SimulationBuilder[T <: SimulationStatus] {
-  def addAnimals(animals: Iterable[(_ <: PartialAnimalData, Int)]): SimulationBuilder[T with SimulationWithAnimals]
-  def addPlants(plants: Iterable[(_ <: PartialPlantData, Int)]): SimulationBuilder[T with SimulationWithPlants]
+  def addAnimals(animals: Iterable[(AnimalBuilder[_], Int)]): SimulationBuilder[T with SimulationWithAnimals]
+  def addPlants(plants: Iterable[(PlantBuilder[_], Int)]): SimulationBuilder[T with SimulationWithPlants]
   def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData
+  def tryCompleteBuild: Try[CompleteSimulationData]
   def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData]
 }
 
@@ -20,57 +23,68 @@ object SimulationBuilder {
 
   def apply(): SimulationBuilder[EmptySimulation] = new SimulationBuilderImpl[EmptySimulation](Seq(), Seq())
 
-  private class SimulationBuilderImpl[T <: SimulationStatus](animals: Iterable[(_ <: PartialAnimalData, Int)],
-                                                             plants: Iterable[(_ <: PartialPlantData, Int)])
+  private class SimulationBuilderImpl[T <: SimulationStatus](animals: Iterable[(AnimalBuilder[_], Int)],
+                                                             plants: Iterable[(PlantBuilder[_], Int)])
                                                             (implicit val status: TypeTag[T]) extends SimulationBuilder[T] {
-    def addAnimals(animals: Iterable[(_ <: PartialAnimalData, Int)]): SimulationBuilder[T with SimulationWithAnimals] = {
+    def addAnimals(animals: Iterable[(AnimalBuilder[_], Int)]): SimulationBuilder[T with SimulationWithAnimals] = {
       new SimulationBuilderImpl(animals, plants)
     }
-    def addPlants(plants: Iterable[(_ <: PartialPlantData, Int)]): SimulationBuilder[T with SimulationWithPlants] = {
+    def addPlants(plants: Iterable[(PlantBuilder[_], Int)]): SimulationBuilder[T with SimulationWithPlants] = {
       new SimulationBuilderImpl(animals, plants)
     }
 
-    def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData = {
-      val check = checkComplete()
-      check._1.foreach(throw _)
-      new SimulationDataImpl(check._2, check._3) with CompleteSimulationData
-    }
-
-    def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData] = {
-      //require(status.tpe <:< st.tpe)
+    override def tryCompleteBuild: Try[CompleteSimulationData] = {
       status.tpe match {
         case t if t <:< typeOf[FullSimulation] =>
           val check = checkComplete()
           if(check._1.isEmpty)
-            new SimulationDataImpl(check._2, check._3) with CompleteSimulationData
+            Success(new SimulationDataImpl(check._2, check._3) with CompleteSimulationData)
           else
-            new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals, plants)
+            Failure(check._1.get)
         case _ =>
-          new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals, plants)
+          Failure(new CompleteBuildException("Simulation: animals and plants must be set"))
       }
     }
 
-    private def matchTuple[A <: PartialAnimalData](tuple2: (A, Int))(implicit aType: TypeTag[A]): Option[(CompleteAnimalData, Int)] = tuple2 match {
-      case (animal: CompleteAnimalData, quantity) =>
-        Some((animal, quantity))
-      case _ =>
-        None
+    def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData = {
+      tryCompleteBuild match {
+        case Success(value) =>
+          value
+        case Failure(exception) =>
+          throw exception
+      }
+    }
+
+    def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData] = {
+      //require(status.tpe <:< st.tpe)
+      tryCompleteBuild match {
+        case Success(value) =>
+          value
+        case Failure(_) =>
+          new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2)))
+      }
     }
 
     private def checkComplete(): (Option[Exception], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) ={
       var exception: Option[CompleteBuildException] = None
-      val a: Iterable[(CompleteAnimalData, Int)] = animals.flatMap(matchTuple(_))
-      if(animals.size != a.size) {
-        exception = exception ++: new CompleteBuildException("All animals must be complete")
-      }
-      val p: Iterable[(CompletePlantData, Int)] = plants.flatMap({
-        case(plant: CompletePlantData, i: Int) =>
-          Some((plant, i))
-        case _ =>
-          None
+      val aTries: Iterable[(Try[CompleteAnimalData], Int)] = animals.map(t => (t._1.tryBuildComplete(), t._2))
+      val a: Iterable[(CompleteAnimalData, Int)] = aTries.collect({
+        case (Success(value), i) =>
+          (value, i)
       })
-      if(p.size != plants.size)
-        exception = exception ++: new CompleteBuildException("All plants must be complete")
+      if(animals.size != a.size) {
+        exception = exception ++: new CompleteBuildException("Simulation: All animals must be complete",
+          aTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
+      }
+      val pTries: Iterable[(Try[CompletePlantData], Int)] = plants.map(t => (t._1.tryBuildComplete, t._2))
+      val p: Iterable[(CompletePlantData, Int)] = pTries.collect({
+        case (Success(value), i) =>
+          (value, i)
+      })
+      if(plants.size != p.size) {
+        exception = exception ++: new CompleteBuildException("Simulation: All plants must be complete",
+          pTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
+      }
       (exception, a, p)
     }
   }

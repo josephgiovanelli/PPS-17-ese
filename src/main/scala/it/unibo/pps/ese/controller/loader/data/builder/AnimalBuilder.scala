@@ -9,6 +9,7 @@ import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatu
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
 import scala.reflect.runtime.universe._
+import scala.util.{Failure, Success, Try}
 
 trait AnimalBuilder[T <: AnimalStatus] {
   def setName(name: String): AnimalBuilder[T with AnimalWithName]
@@ -19,6 +20,7 @@ trait AnimalBuilder[T <: AnimalStatus] {
   def addStructuralChromosome(structuralChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome]
   def addRegulationChromosome(regulationChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithRegChromosome]
   def addSexualChromosome(sexualChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithSexChromosome]
+  def tryBuildComplete(): Try[CompleteAnimalData]
   def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData
   def build(): PartialAnimalData
 }
@@ -32,9 +34,9 @@ object AnimalBuilder {
                                              alleleLength: Option[Int],
                                              reign: Option[String],
                                              typology: Option[String],
-                                             structuralChromosome: Iterable[_ <: PartialCustomGeneData],
-                                             regulationChromosome: Iterable[_ <: PartialDefaultGeneData],
-                                             sexualChromosome: Iterable[_ <: PartialDefaultGeneData])
+                                             structuralChromosome: Iterable[GeneBuilder[_]],
+                                             regulationChromosome: Iterable[GeneBuilder[_]],
+                                             sexualChromosome: Iterable[GeneBuilder[_]])
                                             (implicit val status: TypeTag[T]) extends AnimalBuilder[T]{
     //TODO use copy method?
     def setName(name: String): AnimalBuilder[T with AnimalWithName] =
@@ -58,73 +60,77 @@ object AnimalBuilder {
         sexualChromosome)
 
     def addStructuralChromosome(structuralChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome] = {
-      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome.map(_.buildCustom), regulationChromosome,
+      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
         sexualChromosome)
     }
 
     def addRegulationChromosome(regulationChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithRegChromosome] = {
-      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome.map(_.buildDefault),
+      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
         sexualChromosome)
     }
 
     def addSexualChromosome(sexualChromosome: Iterable[GeneBuilder[_]]): AnimalBuilder[T with AnimalWithSexChromosome] = {
       new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
-        sexualChromosome.map(_.buildDefault))
+        sexualChromosome)
     }
 
-    def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData = {
-      val check = checkComplete()
-      check._1.foreach(throw _)
-      new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, check._2, check._3, check._4) with CompleteAnimalData
-    }
-
-    private def checkComplete(): (Option[CompleteBuildException], Iterable[CompleteCustomGeneData], Iterable[CompleteDefaultGeneData], Iterable[CompleteDefaultGeneData]) ={
-      var exception: Option[CompleteBuildException] = None
-      val struct: Iterable[CompleteCustomGeneData] = structuralChromosome.flatMap({
-        case c: CompleteCustomGeneData =>
-          Some(c)
-        case _ =>
-          None
-      })
-      if(struct.size != structuralChromosome.size) {
-        exception = exception ++: new CompleteBuildException("All structural chromosomes must be complete")
-        new CompleteBuildException() +: new CompleteBuildException()
-      }
-      val reg: Iterable[CompleteDefaultGeneData] = regulationChromosome.flatMap({
-        case c: CompleteDefaultGeneData =>
-          Some(c)
-        case _ =>
-          None
-      })
-      if(reg.size != regulationChromosome.size)
-        exception = exception ++: new CompleteBuildException("All regulation chromosomes must be complete")
-      val sex: Iterable[CompleteDefaultGeneData] = sexualChromosome.flatMap({
-        case c: CompleteDefaultGeneData =>
-          Some(c)
-        case _ =>
-          None
-      })
-      if(sex.size != sexualChromosome.size)
-        exception = exception ++: new CompleteBuildException("All sexual chromosomes must be complete")
-      (exception, struct, reg, sex)
-    }
-
-    def build(): PartialAnimalData = {
-      //require(status.tpe <:< st.tpe)
+    def tryBuildComplete(): Try[CompleteAnimalData] = {
       status.tpe match {
         case t if t <:< typeOf[FullAnimal] =>
           val check = checkComplete()
           if(check._1.isEmpty) {
-            new AnimalDataImpl[CompleteCustomGeneData, CompleteDefaultGeneData](name.get, geneLength, alleleLength, reign, typology, check._2, check._3, check._4)
-              with CompleteAnimalData
+            val ret: CompleteAnimalData = new AnimalDataImpl[CompleteCustomGeneData, CompleteDefaultGeneData](name.get, geneLength, alleleLength,
+              reign, typology, check._2, check._3, check._4) with CompleteAnimalData
+            Success(ret)
           } else {
-            new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, structuralChromosome,
-              regulationChromosome, sexualChromosome)
+            Failure(check._1.get)
           }
         case t if t <:< typeOf[ValidAnimal] =>
-          new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, structuralChromosome,
-            regulationChromosome, sexualChromosome)
+          Failure(new CompleteBuildException("Animal: " + name + "must have all fields set"))
       }
+    }
+
+    def build(): PartialAnimalData = {
+      //require(status.tpe <:< st.tpe)
+      tryBuildComplete() match {
+        case Success(value) =>
+          value
+        case Failure(_) =>
+          new AnimalDataImpl(name.get, geneLength, alleleLength, reign, typology, structuralChromosome.map(_.buildCustom()),
+            regulationChromosome.map(_.buildDefault()), sexualChromosome.map(_.buildDefault()))
+      }
+    }
+
+    def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData = {
+      tryBuildComplete() match {
+        case Success(value) =>
+          value
+        case Failure(exception) =>
+          throw exception
+      }
+    }
+
+    private def checkComplete(): (Option[CompleteBuildException], Iterable[CompleteCustomGeneData], Iterable[CompleteDefaultGeneData], Iterable[CompleteDefaultGeneData]) ={
+      var exception: Option[CompleteBuildException] = None
+      val structTries: Iterable[Try[CompleteCustomGeneData]] = structuralChromosome.map(_.tryCompleteCustomBuild())
+      val struct: Iterable[CompleteCustomGeneData] = structTries.collect({case Success(value) => value})
+      if(struct.size != structuralChromosome.size) {
+        exception = exception ++: new CompleteBuildException("Gene: "+ name +" | All structural chromosome's genes must be complete",
+          structTries.collect({case Failure(value: CompleteBuildException) => value}))
+      }
+      val regTries: Iterable[Try[CompleteDefaultGeneData]] = regulationChromosome.map(_.tryCompleteDefaultBuild())
+      val reg: Iterable[CompleteDefaultGeneData] = regTries.collect({case Success(value) => value})
+      if(reg.size != regulationChromosome.size) {
+        exception = exception ++: new CompleteBuildException("Gene: "+ name +" | All regulation chromosome's genes must be complete",
+          regTries.collect({case Failure(value: CompleteBuildException) => value}))
+      }
+      val sexTries: Iterable[Try[CompleteDefaultGeneData]] = sexualChromosome.map(_.tryCompleteDefaultBuild())
+      val sex: Iterable[CompleteDefaultGeneData] = sexTries.collect({case Success(value) => value})
+      if(sex.size != sexualChromosome.size) {
+        exception = exception ++: new CompleteBuildException("Gene: "+ name +" | All sexual chromosome's genes must be complete",
+          sexTries.collect({case Failure(value: CompleteBuildException) => value}))
+      }
+      (exception, struct, reg, sex)
     }
   }
 

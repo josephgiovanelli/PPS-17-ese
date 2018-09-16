@@ -4,14 +4,14 @@ package object exception {
   implicit class OptionExceptionMixing(exception: CompleteBuildException) {
     def ++:(opt: Option[CompleteBuildException]): Option[CompleteBuildException] = opt match {
       case Some(exc: CompleteBuildException) =>
-        Some(new CompleteBuildException(exc.problems ++ exception.problems:_*))
+        Some(exc +: exception)
       case None =>
         Some(exception)
     }
 
     def :++(opt: Option[CompleteBuildException]): Option[CompleteBuildException] = opt match {
       case Some(exc: CompleteBuildException) =>
-        Some(new CompleteBuildException(exception.problems ++ exc.problems:_*))
+        Some(exception :+ exc)
       case None =>
         Some(exception)
     }

@@ -6,6 +6,8 @@ import it.unibo.pps.ese.controller.loader.beans._
 import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.loader.data._
+import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
+import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
 import it.unibo.pps.ese.controller.loader.data.builder._
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource}
@@ -31,33 +33,23 @@ object YamlLoader extends Loader {
 
     var builder : SimulationBuilder[_] = SimulationBuilder()
     if(simulation.animals.isDefined) {
-      val animals: Map[PartialAnimalData, Int] = simulation.animals.get.map({
+      val animals = simulation.animals.get.map({
         case (animalConfigPath, v) =>
-          val animal: PartialAnimalData = normalizeConfigPath(animalConfigPath, currentFolder) match {
-            case f: File =>
-              loadAnimal(f)
-          }
-          val ret: (PartialAnimalData, Int) = (animal, v)
-          ret
+          (normalizeConfigPath(animalConfigPath, currentFolder) match {case f: File => loadAnimal(f).asInstanceOf[AnimalBuilder[_ <: AnimalStatus]]}, v)
       })
       builder = builder.addAnimals(animals)
     }
     if(simulation.plants.isDefined) {
-      val plants: Map[PartialPlantData, Int] = simulation.plants.get.map({
+      val plants = simulation.plants.get.map({
         case (plantConfigPath, v) =>
-          val plant: PartialPlantData = normalizeConfigPath(plantConfigPath, currentFolder) match {
-            case f: File =>
-              loadPlant(f)
-          }
-          val ret: (PartialPlantData, Int) = (plant, v)
-          ret
+          (normalizeConfigPath(plantConfigPath, currentFolder) match {case f: File => loadPlant(f).asInstanceOf[PlantBuilder[_ <: PlantStatus]]}, v)
       })
       builder = builder.addPlants(plants)
     }
     builder.build()
   }
 
-  private def loadPlant(config: File): PartialPlantData = {
+  private def loadPlant(config: File): PlantBuilder[_] = {
     val loadedPlant = loadFileContent(config).parseYaml.convertTo[Plant]
     var builder: PlantBuilder[_] = PlantBuilder().setName(loadedPlant.name)
     if(loadedPlant.reign.isDefined)
@@ -76,10 +68,10 @@ object YamlLoader extends Loader {
       builder = builder.setHeight(loadedPlant.height.get)
     if(loadedPlant.nutritionalValue.isDefined)
       builder = builder.setNutritionalValue(loadedPlant.nutritionalValue.get)
-    builder.build()
+    builder
   }
 
-  private def loadAnimal(config: File): PartialAnimalData = {
+  private def loadAnimal(config: File): AnimalBuilder[_] = {
     val loadedAnimal = loadFileContent(config).parseYaml.convertTo[Animal]
     var structuralChromosome: Seq[GeneBuilder[_]] = Seq()
     var regulationChromosome: Seq[GeneBuilder[_]] = Seq()
@@ -108,7 +100,7 @@ object YamlLoader extends Loader {
       builder = builder.addRegulationChromosome(regulationChromosome)
     if(sexualChromosome.isValid)
       builder = builder.addSexualChromosome(sexualChromosome)
-    builder.build
+    builder
   }
 
   private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData,
@@ -130,7 +122,7 @@ object YamlLoader extends Loader {
         if(v.isValid)
           builder = builder.setId(v)
         if(chromosomeData.allelesPath.isDefined && v.isValid)
-          builder = builder.addAllelesB(alleles.filter(a => a.gene.getOrElse("") == v))
+          builder = builder.addAlleles(alleles.filter(a => a.gene.getOrElse("") == v))
         builder
     })
   }
@@ -149,7 +141,7 @@ object YamlLoader extends Loader {
             case f: Folder =>
               loadAlleles(f)
           }
-          builder = builder.addAllelesB(alleles)
+          builder = builder.addAlleles(alleles)
         }
         builder
       })

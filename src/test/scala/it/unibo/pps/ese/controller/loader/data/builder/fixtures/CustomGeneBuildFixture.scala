@@ -14,7 +14,6 @@ trait CustomGeneBuildFixture {
       .setDominance(0)
       .setEffect(Map("test" -> 1))
       .setProbability(1.0)
-      .buildComplete
 
     private val all2 = AlleleBuilder()
       .setId("")
@@ -23,7 +22,6 @@ trait CustomGeneBuildFixture {
       .setDominance(0)
       .setEffect(Map("test" -> 1))
       .setProbability(1.0)
-      .buildComplete
 
     private val all3 = AlleleBuilder()
       .setId("")
@@ -32,25 +30,24 @@ trait CustomGeneBuildFixture {
       .setDominance(0)
       .setEffect(Map("test" -> 1))
       .setProbability(0.5)
-      .buildComplete
 
     val complete = GeneBuilder()
       .setId("idcc")
       .setName("namecc")
-      .addAlleles(Set[CompleteAlleleData](all1))
+      .addAlleles(Set(all1))
       .addProperties(Map("test" -> Double.getClass))
       .addConversionMap(Map())
 
     val staticIncomplete = GeneBuilder()
       .setName("namecsi")
-      .addAlleles(Set[CompleteAlleleData](all2))
+      .addAlleles(Set(all2))
       .addProperties(Map("test" -> Double.getClass))
       .addConversionMap(Map())
 
     val dynamicIncomplete = GeneBuilder()
       .setId("iddi")
       .setName("namecdi")
-      .addAlleles(Set[CompleteAlleleData](all3))
+      .addAlleles(Set(all3))
       .addProperties(Map("test" -> Double.getClass))
       .addConversionMap(Map())
   }

@@ -3,8 +3,10 @@ package it.unibo.pps.ese.controller.loader.data.builder
 import it.unibo.pps.ese.controller.loader.data.{CompleteAlleleData, PartialAlleleData}
 import it.unibo.pps.ese.controller.loader.data.builder.AlleleBuilder.AlleleStatus
 import it.unibo.pps.ese.controller.loader.data.builder.AlleleBuilder.AlleleStatus._
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
 import scala.reflect.runtime.universe._
+import scala.util.{Failure, Success, Try}
 
 trait AlleleBuilder[T <: AlleleStatus] {
   def gene: Option[String]
@@ -16,6 +18,7 @@ trait AlleleBuilder[T <: AlleleStatus] {
   def setEffect(effect: Map[String, Double]): AlleleBuilder[T with AlleleWithEffect]
   def buildComplete(implicit ev: T =:= FullAllele): CompleteAlleleData
   def build(): PartialAlleleData
+  def tryCompleteBuild(): Try[CompleteAlleleData]
 }
 
 object AlleleBuilder {
@@ -52,12 +55,21 @@ object AlleleBuilder {
       new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData
     }
 
-    def build(): PartialAlleleData = {
-      //require(status.tpe <:< st.tpe)
+    def tryCompleteBuild(): Try[CompleteAlleleData] = {
       status.tpe match {
         case t if t <:< typeOf[FullAllele] =>
-          new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData
-        case t if t <:< typeOf[ValidAllele] =>
+          Success(new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData)
+        case _ =>
+          Failure(new CompleteBuildException("Allele " + id + " must have all fields"))
+      }
+    }
+
+    def build(): PartialAlleleData = {
+      require(status.tpe <:< typeOf[ValidAllele])
+      tryCompleteBuild() match {
+        case Success(value) =>
+          value
+        case Failure(_) =>
           new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect)
       }
     }

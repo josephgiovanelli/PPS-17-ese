@@ -175,8 +175,8 @@ object EntitiesInfo {
     Mapping methods EntitiesInfo to SimulationData
      */
 
-    private def plantsMapping(plantsEntities: Map[String, Int]): Map[PartialPlantData, Int] = {
-      val mappedPlants: Map[String, PartialPlantData] = plants.map(
+    private def plantsMapping(plantsEntities: Map[String, Int]): Map[PlantBuilder[_], Int] = {
+      val mappedPlants = plants.map(
         plant =>
           plant._1 ->
             PlantBuilder()
@@ -191,13 +191,12 @@ object EntitiesInfo {
               .setHardness(plant._2.hardness)
               .setNutritionalValue(plant._2.nutritionalValue)
               .setAvailability(plant._2.availability)
-              .build
       )
       mappedPlants.map(mappedPlant => mappedPlant._2 -> plantsEntities(mappedPlant._1))
     }
 
-    private def animalsMapping(animalsEntities: Map[String, Int]): Map[PartialAnimalData, Int] = {
-      val mappedAnimals: Map[String, PartialAnimalData] = animals.map(animal => {
+    private def animalsMapping(animalsEntities: Map[String, Int]): Map[AnimalBuilder[_], Int] = {
+      val mappedAnimals = animals.map(animal => {
         animal._1 -> {
           AnimalBuilder()
             .setName(animal._1)
@@ -208,13 +207,11 @@ object EntitiesInfo {
             .addStructuralChromosome(structuralChromosomeMapping(animal._1))
             .addRegulationChromosome(regulationChromosomeMapping(animal._1))
             .addSexualChromosome(sexualChromosomeMapping(animal._1))
-            .build
         }
-      }).asInstanceOf[Map[String, PartialAnimalData]]
+      })
       //TODO required if CompleteAnimalData is a type
       //.asInstanceOf[Map[String, CompleteAnimalData]]
       mappedAnimals.map(mappedAnimal => mappedAnimal._2 -> animalsEntities(mappedAnimal._1))
-        .asInstanceOf[Map[PartialAnimalData, Int]]
     }
 
     private def sexualChromosomeMapping(animal: String): Iterable[GeneBuilder[_]] =
@@ -253,7 +250,7 @@ object EntitiesInfo {
       )
     }
 
-    private def alleleMapping(gene: String, alleles: Map[String, AlleleInfo]): Iterable[PartialAlleleData] =
+    private def alleleMapping(gene: String, alleles: Map[String, AlleleInfo]): Iterable[AlleleBuilder[_]] =
       alleles.map(allele =>
         AlleleBuilder()
           .setId(allele._2.id)
@@ -262,7 +259,6 @@ object EntitiesInfo {
           .setDominance(allele._2.dominance)
           .setEffect(allele._2.effect)
           .setProbability(allele._2.probability)
-          .build
       )
 
 
