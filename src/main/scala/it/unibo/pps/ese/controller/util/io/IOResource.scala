@@ -13,8 +13,6 @@ trait ExistingResource extends IOResource {
   def getParentFolder(): Option[Folder]
 }
 
-sealed trait NotExistingResource extends IOResource
-
 trait FolderResource extends IOResource {
   def getOrCreateFolder(): Option[Folder] = this match {
     case f: NotExistingFolder =>
@@ -33,6 +31,8 @@ trait FileResource extends IOResource {
       Some(f)
   }
 }
+
+sealed trait NotExistingResource extends IOResource
 
 sealed trait NotExistingFolder extends NotExistingResource with FolderResource {
   def createFolder(): Option[Folder]
@@ -99,9 +99,24 @@ abstract class IOResourceImpl(path: URL) extends IOResource {
           throw new IllegalStateException()
       }
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[IOResourceImpl]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: IOResourceImpl =>
+      (that canEqual this) &&
+        url.equals(that.url)
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(url)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 abstract class ExistingResourceImpl(path: URL) extends IOResourceImpl(path) with ExistingResource {
+  require(javaFile.exists())
 
   override def getParentFolder(): Option[Folder] = {
     getParent() match {

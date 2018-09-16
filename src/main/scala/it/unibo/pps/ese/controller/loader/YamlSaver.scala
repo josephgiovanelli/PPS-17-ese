@@ -11,6 +11,8 @@ import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
 import java.io.IOException
 
+import it.unibo.pps.ese.controller.loader.exception.ResourceAlreadyExistsException
+
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
@@ -165,7 +167,7 @@ object YamlSaver {
         if(overrideAll || overrideResources.contains(f)) {
           callback(f, overrideAll)
         } else {
-          //TODO throw custom exception
+          throw ResourceAlreadyExistsException(f)
         }
     }
 
@@ -176,7 +178,7 @@ object YamlSaver {
         if(overrideAll || overrideResources.contains(f)) {
           callback(f, overrideAll)
         } else {
-          //TODO throw custom exception
+          throw ResourceAlreadyExistsException(f)
         }
     }
 
@@ -193,5 +195,7 @@ object YamlSaver {
       }
     }
 
+    override def addResourceToOverride(resource: ExistingResource): Unit =
+      overrideResources = overrideResources + resource
   }
 }
