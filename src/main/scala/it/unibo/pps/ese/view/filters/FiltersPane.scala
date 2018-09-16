@@ -33,12 +33,12 @@ object FiltersPane {
     mainBox.prefHeight <== height
 
     val reignLabel: FiltersLabel = bigLabel("Reign")
-
     val reignToggleGroup = new ToggleGroup()
     val animalRadio: FiltersRadioButton = defaultRadioButton("Animal")
     animalRadio.toggleGroup = reignToggleGroup
     val plantRadio: FiltersRadioButton = defaultRadioButton("Plant")
     plantRadio.toggleGroup = reignToggleGroup
+    plantRadio.selected = true
 
     val reignRadioBox: FiltersVBox = componentsVBox
     reignRadioBox.children = plantRadio :: animalRadio :: List()

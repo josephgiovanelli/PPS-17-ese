@@ -28,23 +28,12 @@ object PlantFiltersPane {
 
   private class PlantFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends PlantFiltersPane {
 
-    val speciesHBox: FiltersHBox = componentsHBox
-    val speciesLabel: FiltersLabel = normalLabel("Species")
-    val speciesChoiceBox: FiltersChoiceBox[String] = defaultChoiceBox
-    speciesChoiceBox.items = ObservableBuffer(geneticsSimulator.plantSpeciesList)
-    speciesHBox.children = speciesLabel :: speciesChoiceBox :: List()
+    val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
+    val heightVBox: SliderVBox = sliderVBox("Height")
+    val nutritionalValueVBox: SliderVBox = sliderVBox("Nutritional Value")
+    val availabilityBox: SliderVBox = sliderVBox("Availability")
 
-    val heightHBox: FiltersHBox = componentsHBox
-    val heightLabel: FiltersLabel = normalLabel("Height")
-    val heightLabeledSlider: FiltersLabeledSlider = labeledSlider
-    heightHBox.children = heightLabel :: heightLabeledSlider :: List()
-
-    val nutritionalValueHBox: FiltersHBox = componentsHBox
-    val nutritionalValueLabel: FiltersLabel = normalLabel("Nutritional Value")
-    val nutritionalValueLabeledSlider: FiltersLabeledSlider = labeledSlider
-    nutritionalValueHBox.children = nutritionalValueLabel :: nutritionalValueLabeledSlider :: List()
-
-    children = speciesHBox :: heightHBox :: nutritionalValueHBox :: List()
+    children = speciesHBox :: heightVBox :: nutritionalValueVBox :: availabilityBox :: List()
 
   }
 }

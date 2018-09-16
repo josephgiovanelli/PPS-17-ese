@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.view.filters
 
+import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersChoiceBoxes.{FiltersChoiceBox, defaultChoiceBox}
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersHBoxes.FiltersHBox
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersLabels.FiltersLabel
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersSliders._
@@ -10,6 +11,7 @@ import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersSerparators
 import org.controlsfx.control.RangeSlider
 import scalafx.Includes._
 import scalafx.beans.property.{DoubleProperty, IntegerProperty}
+import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control._
 import scalafx.scene.input.MouseEvent
@@ -54,8 +56,16 @@ object FiltersComponentsFactory {
 
     trait FiltersVBox extends VBox
 
+    trait SliderVBox extends FiltersVBox {
+      def lowValue: Int
+      def highValue: Int
+    }
+
     private class DefaultVBox extends FiltersVBox
 
+    private class BodyVBox extends FiltersVBox {
+      margin = Insets(30, 0, 0, 0)
+    }
 
     private class ComponentsVBox extends FiltersVBox {
       margin = Insets(10, 25, 0, 25)
@@ -66,11 +76,25 @@ object FiltersComponentsFactory {
         BorderStrokeStyle.Solid, CornerRadii.Empty, BorderWidths.Default))
     }
 
+    private class SliderVBoxImpl(name: String) extends BodyVBox with SliderVBox {
+      val label: FiltersLabel = normalLabel(name)
+      val slider: FiltersLabeledSlider = labeledSlider
+      children = label :: slider :: List()
+
+      override def lowValue: Int = slider.lowValue()
+
+      override def highValue: Int = slider.highValue()
+    }
+
     def defaultVBox: FiltersVBox = new DefaultVBox
 
     def componentsVBox: FiltersVBox = new ComponentsVBox
 
     def borderVBox: FiltersVBox = new BorderVBox
+
+    def bodyVBox: FiltersVBox = new BodyVBox
+
+    def sliderVBox(name: String): SliderVBox = new SliderVBoxImpl(name)
 
   }
 
@@ -78,10 +102,24 @@ object FiltersComponentsFactory {
 
     trait FiltersHBox extends HBox
 
+    trait ChoiceHBox extends FiltersHBox {
+      def emptyItem: String
+    }
+
     private class DefaultHBox extends FiltersHBox
 
     private class ComponentsHBox extends FiltersHBox {
-      margin = Insets(20, 0, 30, 0)
+      margin = Insets(20, 0, 10, 0)
+    }
+
+    private class ChoiceHBoxImpl(name: String, items: Seq[String]) extends ComponentsHBox with ChoiceHBox {
+      val emptyItem: String = "No Selection"
+
+      val label: FiltersLabel = normalLabel(name)
+      val choiceBox: FiltersChoiceBox[String] = defaultChoiceBox
+      choiceBox.items = ObservableBuffer(emptyItem +: items)
+      choiceBox.value = emptyItem
+      children = label :: choiceBox :: List()
     }
 
 
@@ -89,7 +127,7 @@ object FiltersComponentsFactory {
 
     def componentsHBox: FiltersHBox = new ComponentsHBox
 
-
+    def choiceHBox(name: String, items: Seq[String]): ChoiceHBox = new ChoiceHBoxImpl(name, items)
 
   }
 
@@ -113,7 +151,7 @@ object FiltersComponentsFactory {
     trait FiltersSeparator extends Separator
 
     private class DefaultSeparator extends FiltersSeparator {
-      margin = Insets(40, 0, 40, 0)
+      margin = Insets(40, 0, 30, 0)
       style = s"-fx-background-color: White"
     }
 
