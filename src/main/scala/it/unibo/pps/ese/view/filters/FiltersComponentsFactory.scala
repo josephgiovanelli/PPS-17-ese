@@ -24,8 +24,8 @@ object FiltersComponentsFactory {
 
   private val backgroundColor: Color = Color.White
 
-  private val LabelBigFontSize: Int = 40
-  private val LabelNormalFontSize: Int = 25
+  private val LabelBigFontSize: Int = 30
+  private val LabelNormalFontSize: Int = 22
   private val LabelSmallFontSize: Int = 15
 
   private val MinSliderValue = 0
@@ -64,7 +64,7 @@ object FiltersComponentsFactory {
     private class DefaultVBox extends FiltersVBox
 
     private class BodyVBox extends FiltersVBox {
-      margin = Insets(30, 0, 0, 0)
+      margin = Insets(15, 0, 0, 0)
     }
 
     private class ComponentsVBox extends FiltersVBox {
@@ -109,7 +109,7 @@ object FiltersComponentsFactory {
     private class DefaultHBox extends FiltersHBox
 
     private class ComponentsHBox extends FiltersHBox {
-      margin = Insets(20, 0, 10, 0)
+      margin = Insets(20, 0, 20, 0)
     }
 
     private class ChoiceHBoxImpl(name: String, items: Seq[String]) extends ComponentsHBox with ChoiceHBox {

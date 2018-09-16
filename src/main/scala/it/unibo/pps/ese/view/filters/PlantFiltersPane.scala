@@ -33,7 +33,12 @@ object PlantFiltersPane {
     val nutritionalValueVBox: SliderVBox = sliderVBox("Nutritional Value")
     val availabilityBox: SliderVBox = sliderVBox("Availability")
 
-    children = speciesHBox :: heightVBox :: nutritionalValueVBox :: availabilityBox :: List()
+    children =
+      speciesHBox ::
+      heightVBox ::
+      nutritionalValueVBox ::
+      availabilityBox ::
+      List()
 
   }
 }

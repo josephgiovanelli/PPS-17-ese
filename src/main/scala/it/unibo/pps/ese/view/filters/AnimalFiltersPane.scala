@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.view.filters
 
+import it.unibo.pps.ese.genericworld.model.{EntityInfoConversion, EntityState}
+import it.unibo.pps.ese.genetics.entities._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersHBoxes._
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersVBoxes._
@@ -13,6 +15,9 @@ object AnimalFiltersPane {
 
   class AnimalFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends AnimalFiltersPane {
     val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.speciesList)
+    val genderHBox: ChoiceHBox = choiceHBox("Gender", "Male" :: "Female" :: List())
+    val lifePhaseHBox: ChoiceHBox = choiceHBox("Life Phase", "Child" :: "Adult" :: "Elderly" :: List())
+    val dietTypeHBox: ChoiceHBox = choiceHBox("Diet Type", "Herbivorus" :: "Carnivorus" :: List())
     val strengthVBox: SliderVBox = sliderVBox("Strength")
     val actionFieldVBox: SliderVBox = sliderVBox("Action Field")
     val visualVBox: SliderVBox = sliderVBox("Visual Field")
@@ -30,6 +35,9 @@ object AnimalFiltersPane {
 
     children =
       speciesHBox ::
+      genderHBox ::
+      lifePhaseHBox ::
+      dietTypeHBox ::
       strengthVBox ::
       actionFieldVBox ::
       visualVBox ::
