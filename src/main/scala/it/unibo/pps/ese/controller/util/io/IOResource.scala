@@ -45,45 +45,7 @@ sealed trait UndefinedNotExistingResource extends NotExistingFolder with NotExis
   def hasFileExtension(format: FileFormat): Boolean
 }
 
-object IOResource {
-
-  def apply(path: String): IOResource = {
-    apply(new java.io.File(path).toURI.toURL)
-  }
-
-  def apply(path: URL): IOResource = {
-    val file: java.io.File = new java.io.File(path.toURI)
-    if(file.exists()) {
-      if(file.isFile) {
-        File(path)
-      } else {
-        Folder(path)
-      }
-    } else {
-      new UndefinedNotExistingResourceImpl(path)
-    }
-  }
-
-  private class UndefinedNotExistingResourceImpl(path: URL) extends IOResourceImpl(path) with UndefinedNotExistingResource {
-    require(!javaFile.exists())
-    override def createFile(): Option[File] = {
-      javaFile.createNewFile()
-      Some(File(javaFile))
-    }
-
-    override def createFolder(): Option[Folder] = {
-      javaFile.mkdir()
-      Some(Folder(javaFile))
-    }
-
-    override def hasFileExtension(format: FileFormat): Boolean = format.extensions.exists(ext => javaFile.getName.endsWith(ext))
-
-    override def getChildren(relativePath: String): IOResource =
-      IOResource(FilenameUtils.concat(javaFile.getAbsolutePath, relativePath))
-  }
-}
-
-abstract class IOResourceImpl(path: URL) extends IOResource {
+sealed abstract class IOResourceImpl(path: URL) extends IOResource {
   protected val url: URL = path
   require(url != null)
   protected val javaFile: java.io.File = new java.io.File(url.toURI)
@@ -112,6 +74,46 @@ abstract class IOResourceImpl(path: URL) extends IOResource {
   override def hashCode(): Int = {
     val state = Seq(url)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+
+  override def toString: String = url.toString
+}
+
+object IOResource {
+
+  def apply(path: String): IOResource = {
+    apply(new java.io.File(path).toURI.toURL)
+  }
+
+  def apply(path: URL): IOResource = {
+    val file: java.io.File = new java.io.File(path.toURI)
+    if(file.exists()) {
+      if(file.isFile) {
+        File(path)
+      } else {
+        Folder(path)
+      }
+    } else {
+      new UndefinedNotExistingResourceImpl(path)
+    }
+  }
+
+  private[this] class UndefinedNotExistingResourceImpl(path: URL) extends IOResourceImpl(path) with UndefinedNotExistingResource {
+    require(!javaFile.exists())
+    override def createFile(): Option[File] = {
+      javaFile.createNewFile()
+      Some(File(javaFile))
+    }
+
+    override def createFolder(): Option[Folder] = {
+      javaFile.mkdir()
+      Some(Folder(javaFile))
+    }
+
+    override def hasFileExtension(format: FileFormat): Boolean = format.extensions.exists(ext => javaFile.getName.endsWith(ext))
+
+    override def getChildren(relativePath: String): IOResource =
+      IOResource(FilenameUtils.concat(javaFile.getAbsolutePath, relativePath))
   }
 }
 
