@@ -15,7 +15,6 @@ trait Folder extends ExistingResource with FolderResource {
   def getFilesAsStream: Seq[InputStream]
   def getFilesAsStream(fileFormat: FileFormat): Seq[InputStream]
   def getExistingChildren(relativePath: String): Option[ExistingResource]
-  def getChildren(relativePath: String): IOResource
 }
 
 object Folder {

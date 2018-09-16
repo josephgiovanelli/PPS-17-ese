@@ -3,6 +3,7 @@ package it.unibo.pps.ese.controller.util.io
 import java.net.URL
 
 import it.unibo.pps.ese.controller.util.io.File.FileFormat
+import org.apache.commons.io.FilenameUtils
 
 trait IOResource {
   def getParent(): Option[FolderResource]
@@ -14,8 +15,24 @@ trait ExistingResource extends IOResource {
 
 sealed trait NotExistingResource extends IOResource
 
-trait FolderResource extends IOResource
-trait FileResource extends IOResource
+trait FolderResource extends IOResource {
+  def getOrCreateFolder(): Option[Folder] = this match {
+    case f: NotExistingFolder =>
+      f.createFolder()
+    case f: Folder =>
+      Some(f)
+  }
+
+  def getChildren(relativePath: String): IOResource
+}
+trait FileResource extends IOResource {
+  def getOrCreateFile(): Option[File] = this match {
+    case f: NotExistingFile =>
+      f.createFile()
+    case f: File =>
+      Some(f)
+  }
+}
 
 sealed trait NotExistingFolder extends NotExistingResource with FolderResource {
   def createFolder(): Option[Folder]
@@ -60,6 +77,9 @@ object IOResource {
     }
 
     override def hasFileExtension(format: FileFormat): Boolean = format.extensions.exists(ext => javaFile.getName.endsWith(ext))
+
+    override def getChildren(relativePath: String): IOResource =
+      IOResource(FilenameUtils.concat(javaFile.getAbsolutePath, relativePath))
   }
 }
 

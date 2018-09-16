@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.controller.loader
 
-import java.io
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
@@ -12,7 +11,6 @@ import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource}
 import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
-import org.kaikikm.threadresloader.ResourceLoader
 
 
 object YamlLoader extends Loader {
