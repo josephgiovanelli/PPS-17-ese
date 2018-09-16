@@ -2,7 +2,7 @@ package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
-import it.unibo.pps.ese.genericworld.controller.{Controller, Observer}
+import it.unibo.pps.ese.genericworld.controller.{Controller, Observer, ReplayController}
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 import it.unibo.pps.ese.genetics.GeneticsSimulator
@@ -30,6 +30,7 @@ trait MainComponent {
   def historicalData(): Future[ChartsData]
   def simulationEras(): Future[Seq[Long]]
   def entitiesInEra(era: Long): Future[Seq[String]]
+  def replay: ReplayController
   def setUp(simulationData: SimulationData)
 }
 
@@ -107,6 +108,8 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
   override def entitiesInEra(era: Long): Future[Seq[String]] = observers.head.entitiesInEra(era)
 
   override def simulationEras(): Future[Seq[Long]] = observers.head.simulationEras()
+
+  override def replay: ReplayController = observers.head.replay
 }
 
 object ViewType extends Enumeration {

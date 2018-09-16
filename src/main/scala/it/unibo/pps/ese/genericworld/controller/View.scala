@@ -18,6 +18,7 @@ trait Observer {
   def historicalData(): Future[ChartsData]
   def simulationEras(): Future[Seq[Long]]
   def entitiesInEra(era: Long): Future[Seq[String]]
+  def replay: ReplayController
 }
 
 //class View {
@@ -61,5 +62,7 @@ object ViewHelpers {
     override def entitiesInEra(era: Long): Future[Seq[String]] = queryableController entitiesInEra era
 
     override def simulationEras(): Future[Seq[Long]] = queryableController simulationEras()
+
+    override def replay: ReplayController = queryableController replay
   }
 }
