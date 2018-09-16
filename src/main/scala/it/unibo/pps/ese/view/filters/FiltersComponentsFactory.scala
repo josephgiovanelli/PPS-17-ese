@@ -1,14 +1,21 @@
 package it.unibo.pps.ese.view.filters
 
+import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersHBoxes.FiltersHBox
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersLabels.FiltersLabel
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersSliders._
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersLabels._
+import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersVBoxes._
+import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersHBoxes._
+import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersSerparators._
 import org.controlsfx.control.RangeSlider
 import scalafx.Includes._
+import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control._
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
+import scalafx.scene.text.TextAlignment
 
 
 object FiltersComponentsFactory {
@@ -77,19 +84,12 @@ object FiltersComponentsFactory {
       margin = Insets(20, 0, 30, 0)
     }
 
-    private class HBoxWithLabeledSlider extends FiltersHBox {
-      val rangeSlider: FiltersRangeSlider = defaultRangeSlider
-      val lowValue: FiltersLabel = smallLabel(MinSliderValue.toString)
-      val highValue: FiltersLabel = smallLabel(MaxSliderValue.toString)
-
-
-    }
 
     def defaultHBox: FiltersHBox = new DefaultHBox
 
     def componentsHBox: FiltersHBox = new ComponentsHBox
 
-    def hBoxWithLabeledSlider: FiltersHBox = new HBoxWithLabeledSlider
+
 
   }
 
@@ -117,7 +117,13 @@ object FiltersComponentsFactory {
       style = s"-fx-background-color: White"
     }
 
+    private class SmallSeparator extends FiltersSeparator {
+      margin = Insets(0, 0, 5, 0)
+    }
+
     def defaultSeparator: FiltersSeparator = new DefaultSeparator
+
+    def smallSeparator: FiltersSeparator = new SmallSeparator
 
   }
 
@@ -138,6 +144,11 @@ object FiltersComponentsFactory {
 
     trait FiltersRangeSlider extends RangeSlider
 
+    trait FiltersLabeledSlider extends FiltersHBox {
+      def lowValue: IntegerProperty
+      def highValue: IntegerProperty
+    }
+
     private class DefaultRangeSlider extends FiltersRangeSlider {
       setPadding(Insets(10, 0, 0, 50))
       setMin(MinSliderValue)
@@ -148,11 +159,44 @@ object FiltersComponentsFactory {
       setShowTickLabels(true)
       setMajorTickUnit(25)
       setMinorTickCount(4)
+      setBlockIncrement(1)
 
       prefWidthProperty().setValue(400)
     }
 
+    private class LabeledSliderImpl extends FiltersLabeledSlider {
+      val rangeSlider: FiltersRangeSlider = defaultRangeSlider
+      val labelsVBox: FiltersVBox = defaultVBox
+      val fromHBox: FiltersHBox = defaultHBox
+      val toHBox: FiltersHBox = defaultHBox
+      val fromLabel: FiltersLabel = smallLabel("From:")
+      val toLabel: FiltersLabel = smallLabel("To:")
+      val lowValueLabel: FiltersLabel = smallLabel(MinSliderValue.toString)
+      val highValueLabel: FiltersLabel = smallLabel(MaxSliderValue.toString)
+
+      fromHBox.children = fromLabel :: lowValueLabel :: List()
+      toHBox.children = toLabel :: highValueLabel :: List()
+      labelsVBox.children = fromHBox :: smallSeparator :: toHBox :: smallSeparator :: List()
+      labelsVBox.margin = Insets(0, 0, 0, 40)
+      fromLabel.prefWidth = 50
+      toLabel.prefWidth = 50
+
+
+      val lowValue: IntegerProperty = IntegerProperty(MinSliderValue)
+      lowValue <== rangeSlider.lowValueProperty()
+      val highValue: IntegerProperty = IntegerProperty(MaxSliderValue)
+      highValue <== rangeSlider.highValueProperty()
+
+      lowValueLabel.text <== lowValue.asString()
+      highValueLabel.text <== highValue.asString()
+
+      children += rangeSlider
+      children += labelsVBox
+    }
+
     def defaultRangeSlider: FiltersRangeSlider = new DefaultRangeSlider
+
+    def labeledSlider: FiltersLabeledSlider = new LabeledSliderImpl
 
   }
 

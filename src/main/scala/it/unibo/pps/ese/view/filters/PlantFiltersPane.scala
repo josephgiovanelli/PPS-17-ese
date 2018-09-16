@@ -28,29 +28,23 @@ object PlantFiltersPane {
 
   private class PlantFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends PlantFiltersPane {
 
+    val speciesHBox: FiltersHBox = componentsHBox
     val speciesLabel: FiltersLabel = normalLabel("Species")
     val speciesChoiceBox: FiltersChoiceBox[String] = defaultChoiceBox
     speciesChoiceBox.items = ObservableBuffer(geneticsSimulator.plantSpeciesList)
-    val speciesHBox: FiltersHBox = componentsHBox
-    speciesHBox.children += speciesLabel
-    speciesHBox.children += speciesChoiceBox
+    speciesHBox.children = speciesLabel :: speciesChoiceBox :: List()
 
-    val heightLabel: FiltersLabel = normalLabel("Height")
     val heightHBox: FiltersHBox = componentsHBox
-    val heightRangeSlider: FiltersRangeSlider = defaultRangeSlider
-    val tooltip = Tooltip(heightRangeSlider.getLowValue.toString)
+    val heightLabel: FiltersLabel = normalLabel("Height")
+    val heightLabeledSlider: FiltersLabeledSlider = labeledSlider
+    heightHBox.children = heightLabel :: heightLabeledSlider :: List()
 
-//    heightRangeSlider.setTooltip(tooltip)
-//    heightRangeSlider.setOnMouseDragged(e => {
-//      tooltip.text = heightRangeSlider.getLowValue.toInt.toString
-//      tooltip.show(this, e.getScreenX, e.getSceneY)
-//    })
+    val nutritionalValueHBox: FiltersHBox = componentsHBox
+    val nutritionalValueLabel: FiltersLabel = normalLabel("Nutritional Value")
+    val nutritionalValueLabeledSlider: FiltersLabeledSlider = labeledSlider
+    nutritionalValueHBox.children = nutritionalValueLabel :: nutritionalValueLabeledSlider :: List()
 
-    heightHBox.children += heightLabel
-    heightHBox.children += heightRangeSlider
-
-    children += speciesHBox
-    children += heightHBox
+    children = speciesHBox :: heightHBox :: nutritionalValueHBox :: List()
 
   }
 }

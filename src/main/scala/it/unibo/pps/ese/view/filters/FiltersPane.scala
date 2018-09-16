@@ -41,15 +41,11 @@ object FiltersPane {
     plantRadio.toggleGroup = reignToggleGroup
 
     val reignRadioBox: FiltersVBox = componentsVBox
-    reignRadioBox.children += plantRadio
-    reignRadioBox.children += animalRadio
+    reignRadioBox.children = plantRadio :: animalRadio :: List()
 
     val plantVBox: FiltersVBox = PlantFiltersPane(geneticsSimulator)
 
-    mainBox.children += reignLabel
-    mainBox.children += reignRadioBox
-    mainBox.children += defaultSeparator
-
+    mainBox.children = reignLabel :: reignRadioBox :: defaultSeparator :: List()
     mainBox.children += plantVBox
 
 
