@@ -73,14 +73,14 @@ object GeneBuilder {
           } else {
             Failure(check._1.get)
           }
-        case t if t <:< typeOf[ValidGene] =>
+        case _ =>
           Failure(new CompleteBuildException(""))
       }
     }
 
     def buildDefault(): PartialDefaultGeneData = {
       //require(status.tpe <:< st.tpe)
-      require(status.tpe <:< typeOf[DefaultGene])
+      require(status.tpe <:< typeOf[ValidGene])
       //TODO check no conversion map
       tryCompleteDefaultBuild() match {
         case Success(value) =>
