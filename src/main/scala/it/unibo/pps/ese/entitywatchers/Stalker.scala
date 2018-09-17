@@ -11,7 +11,7 @@ import it.unibo.pps.ese.utils.Point
   *                to do the key action
   * @param others all the entities with whom the stalked interacted, who are alive in this era
   */
-case class ResultEra(me: Point, actions: Map[String, Seq[String]], others: Seq[ResultOther])
+case class ResultEra(me: EntityTimedRecord, actions: Map[String, Seq[String]], others: Seq[ResultOther])
 
 case class ResultOther(label: String, var entities: Map[String, Point])
 
@@ -58,7 +58,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
   def report: ResultEra = {
 
-    var me: Point = null
+    var me: EntityTimedRecord = null
     var actions: Map[String, Seq[String]] = Map.empty
     var others:  Seq[ResultOther] = Seq(
       ResultOther("prey", Map.empty),
@@ -97,14 +97,16 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
         tuple._2.foreach(entity => if (consolidatedState.entitiesInEra(currentEra).exists(x => x.id == entity))
           others.filter(x => x.label == tuple._1).head.entities += (entity -> getPositionInThisEra(entity))))
 
+      val target = consolidatedState.entitiesInEra(currentEra).filter(x => x.id == stalked.get) head
 
-      consolidatedState.entitiesInEra(currentEra).filter(x => x.id == stalked.get).head.dynamicData match {
+      target.dynamicData match {
         case impl: AnimalDynamicDataImpl =>
-          me = impl.position
           actions += ("eat" -> impl.eating)
           actions += ("couple" -> impl.coupling)
           actions += ("give birth" -> impl.givingBirth)
       }
+
+      me = target
 
       /*if (trueEra.isDefined)
         println((currentEra, trueEra.get))*/
