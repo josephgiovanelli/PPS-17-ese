@@ -66,7 +66,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
       //Completed before next entity computation?
       if (!disposed) world removeEntity entityId
     case Create(sons)  =>
-      println(sons.size + " entities Creation")
+//      println(sons.size + " entities Creation")
       //Completed before next entity computation?
       if (!disposed) //Necessary?
       requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest).onComplete({
