@@ -77,6 +77,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   var digestionState: Boolean = false
 
+  var pregnantState: Boolean = false
+
   var forceReproduction: Option[ForceReproduction] = None
 
   val decisionSupport: DecisionSupport = DecisionSupport()
@@ -143,6 +145,10 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         forceReproduction = Some(r)
       case DigestionEnd() =>
         digestionState = false
+      case p: Pregnant =>
+        pregnantState = true
+      case p: PregnancyEnd =>
+        pregnantState = false
       case GetInfo() =>
         publish(BrainInfo(strong, actionField, visualField, attractiveness))
         publish(new GetInfoAck)
@@ -179,7 +185,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       if (energy > ENERGY_THRESHOLD
         && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0
         && fertility > FERTILITY_THRESHOLD
-        && satisfaction < SATISFACTION_THRESHOLD) {
+        && satisfaction < SATISFACTION_THRESHOLD
+        && !pregnantState) {
         targets = partners; action = ActionKind.COUPLE
       }
       if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
