@@ -53,12 +53,16 @@ object EntityConversions {
     }
     def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean = {
       val commonFilter:EntityFiltersValues=>Boolean =
-        filter=>
-            (if (filter.reign.isDefined) filter.reign.get== entityInfo.reign else true )&&
+        filter=>{
+//          println(if (filter.reign.isDefined) filter.reign.get== entityInfo.reign else true )
+//          println(if (filter.reign.isDefined) filter.reign.get== entityInfo.reign else true )
+          (if (filter.reign.isDefined) filter.reign.get== entityInfo.reign else true )&&
             (if (filter.species.isDefined) filter.species.get == entityInfo.baseEntityInfo.species.name else true) &&
             filter.numericQualities.forall {
-            case (k, v) => entityInfo.numericQualities(k) < v.highValue &&
-              entityInfo.numericQualities(k) > v.lowValue
+              case (k, v) => entityInfo.numericQualities(k) < v.highValue &&
+                entityInfo.numericQualities(k) > v.lowValue
+            }
+
           }
 
       entityFiltersValues match {

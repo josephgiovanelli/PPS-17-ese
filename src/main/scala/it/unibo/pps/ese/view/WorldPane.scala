@@ -214,24 +214,30 @@ private class WorldPaneImpl(
               val draw: Boolean = entityFiltersValues match {
                 case None => true
                 case Some(f) => f.reign match {
-                  case ReignType.PLANT => e.state.applyFilter(f)
+                  case Some(ReignType.PLANT) => e.state.applyFilter(f)
                   case _ => false
                 }
               }
               if (draw) {
+                println("Drawing")
                 drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), plantColorMap(e.state.species.toString))
+              } else {
+//                println("Not drawing")
               }
             case ReignType.ANIMAL =>
               val draw: Boolean = entityFiltersValues match {
                 case None => true
                 case Some(f) => f.reign match {
-                  case ReignType.ANIMAL => e.state.applyFilter(f)
+                  case Some(ReignType.ANIMAL) => e.state.applyFilter(f)
                   case _ => false
                 }
               }
               if (draw) {
                 if (entityFiltersValues.isDefined) println(entityFiltersValues.get.species)
+                println("Drawing")
                 drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), animalColorMap(e.state.species.toString))
+              } else {
+//                println("Not drawing")
               }
           }
 
@@ -351,6 +357,7 @@ private class WorldPaneImpl(
 
   override def applyFilters(e: EntityFiltersValues): Unit = {
     entityFiltersValues = Some(e)
+//    println(e)
     drawWorld(currentWorld.values.toList, entityFiltersValues)
   }
 

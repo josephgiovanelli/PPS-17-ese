@@ -163,8 +163,11 @@ object AnimalFiltersPane {
     }
 
     override def entityFiltersValues: EntityFiltersValues = AnimalFiltersValues(
-      ReignType.ANIMAL,
-      speciesHBox.selectedItem,
+      Some(ReignType.ANIMAL),
+      speciesHBox.selectedItem match {
+        case `emptyItem` => None
+        case x => Some(x)
+      },
       genderHBox.selectedItem,
       lifePhaseHBox.selectedItem,
       dietTypeHBox.selectedItem,

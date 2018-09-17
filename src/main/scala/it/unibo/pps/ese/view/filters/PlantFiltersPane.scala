@@ -61,8 +61,11 @@ object PlantFiltersPane {
     }
 
     override def entityFiltersValues: EntityFiltersValues = PlantFiltersValues(
-      ReignType.PLANT,
-      speciesHBox.selectedItem,
+      Some(ReignType.PLANT),
+      speciesHBox.selectedItem match {
+        case `emptyItem` => None
+        case x => Some(x)
+      },
       Map[String, Range](
         EntityConversions.height->Range(heightVBox.lowValue, heightVBox.highValue),
         nutritionalValue->Range(nutritionalValueVBox.lowValue, nutritionalValueVBox.highValue),
