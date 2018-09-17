@@ -9,7 +9,7 @@ case object ExtinctionLog extends LogType
 case object PopulationLog extends LogType
 case object GenerationLog extends LogType
 case object MostPopulousLog extends LogType
-
+case object NewEraLog extends LogType
 case class Log(logText:String,logType:LogType)
 
 case class HistoryLog(

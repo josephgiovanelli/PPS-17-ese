@@ -152,10 +152,9 @@ sealed trait FemaleRepresentation extends AnimalRepresentation{
   val bigFetus:Image = BodyImages.bigFetus
   val bigFetusDigesting:Image =  BodyImages.bigFetusDigesting
 
-  override def drawRepresentation: Canvas = {
-    actualDigestiveSystem = this.digestiveSystem
-    super.drawRepresentation
-  }
+//  override def drawRepresentation: Canvas = {
+//    super.drawRepresentation
+//  }
   override def digestiveSystem:Image = embryoStatus match {
     case Some(EmbryoStatus.primal) =>littleFetus
     case Some(EmbryoStatus.mid) =>mediumFetus

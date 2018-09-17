@@ -77,15 +77,19 @@ object BodyPane {
               if (fetus.isDefined) female.setEmbryoStatus(fetus.get)
               female.setBrainStatus(brain)
               female.setEyesStatus(eyes)
-              female.setDigestiveSystemStatus(digestive)
-              female.setReproductiveSystemStatus(reproductive)
+              reproductive match {
+                case Reproducing => female.setReproductiveSystemStatus(reproductive)
+                case NotReproducing => female.setDigestiveSystemStatus(digestive)
+              }
             }
             case MaleInternalStatus(brain, eyes, reproductive, digestive) => {
               val male: MaleAnimalRepresentation = MaleAnimalRepresentation()
               male.setBrainStatus(brain)
               male.setEyesStatus(eyes)
-              male.setDigestiveSystemStatus(digestive)
-              male.setReproductiveSystemStatus(reproductive)
+              reproductive match {
+                case Reproducing => male.setReproductiveSystemStatus(reproductive)
+                case NotReproducing => male.setDigestiveSystemStatus(digestive)
+              }
             }
           }
           Platform.runLater {

@@ -215,7 +215,7 @@ private class WorldPaneImpl(
                 case None => true
                 case Some(f) => f.reign match {
                   case Some(ReignType.PLANT) => e.state.applyFilter(f)
-                  case _ => true
+                  case _ => false
                 }
               }
               if (draw) {
@@ -226,7 +226,7 @@ private class WorldPaneImpl(
                 case None => true
                 case Some(f) => f.reign match {
                   case Some(ReignType.ANIMAL) => e.state.applyFilter(f)
-                  case _ => true
+                  case _ => false
                 }
               }
               if (draw) {

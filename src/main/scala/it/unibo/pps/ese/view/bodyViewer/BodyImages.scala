@@ -11,7 +11,7 @@ private[bodyViewer] object BodyImages {
   val manDigestiveSystemActivated: Image =new Image("it.unibo.pps.ese.view/Man/digManDig.png")
   val manReproductiveSystemActivated: Image = new Image("it.unibo.pps.ese.view/Man/digMSex.png")
   val womenNormalDigestiveSystem:Image = new Image("it.unibo.pps.ese.view/Women/dig.png")
-  val womenActivatedDigestiveSystem:Image = new Image("it.unibo.pps.ese.view/Women/digDig.png")
+  val womenActivatedDigestiveSystem:Image = new Image("it.unibo.pps.ese.view/Women/digDIG.png")
   val womenReproductiveSystemActivated: Image = new Image("it.unibo.pps.ese.view/women/digSex.png")
   val littleFetus:Image =  new Image("it.unibo.pps.ese.view/Women/pregnant/preg1.png")
   val littleFetusDigesting:Image =  new Image("it.unibo.pps.ese.view/Women/pregnant/preg1Dig.png")
