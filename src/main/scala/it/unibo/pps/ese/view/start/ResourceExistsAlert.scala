@@ -5,11 +5,12 @@ import scalafx.scene.control.{Alert, ButtonType}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Window
 
-trait ResourceExistsAlert extends Alert {
-
-}
+trait ResourceExistsAlert extends Alert
 
 object ResourceExistsAlert {
+
+  def apply(owner: Window, existingResource: ExistingResource): ResourceExistsAlert = new ResourceExistsAlertImpl(owner, existingResource)
+
   private class ResourceExistsAlertImpl(owner: Window, existingResource: ExistingResource) extends Alert(AlertType.Confirmation) with ResourceExistsAlert {
     initOwner(owner)
     title = "Problem with saving files"
