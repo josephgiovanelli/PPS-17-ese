@@ -36,6 +36,7 @@ object StartMenuView {
 
 
     val currentWindow: scalafx.stage.Window = this.window()
+
     val fileChooser = new FileChooser() {
       title = "Open Simulation Config File"
       extensionFilters ++= Seq(new ExtensionFilter("Simulation Files", File.FileFormats.YAML.extensions.map("*" + _)) )
