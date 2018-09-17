@@ -85,6 +85,7 @@ object BodyPane {
 
     override def clearStatus(): Unit = {
       canvasGroup.children.clear()
+      AnimalStatusUtilities.oldAnimalStatus = None
       List(headBox,digestiveBox,reproductionBox).foreach(_.clearText())
     }
   }

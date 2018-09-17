@@ -225,7 +225,10 @@ private class WorldPaneImpl(
               currentSelected = None
               detailsPane.clearDetails()
               genomeDetailsPane.clearGenomeStats()
-
+              if(currentWatched.isDefined){
+                mainComponent.unwatchEntity(currentWatched.get)
+                currentWatched = None
+              }
             }
 
           case None =>

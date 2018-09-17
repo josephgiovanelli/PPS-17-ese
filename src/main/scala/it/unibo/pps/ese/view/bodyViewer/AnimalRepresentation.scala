@@ -27,7 +27,7 @@ abstract class AnimalRepresentation{
     val pad:Double = 50.0
     gc.drawImage(actualDigestiveSystem,2+pad,200)
     gc.drawImage(actualBrain,22+pad,10)
-    gc.drawImage(actualEyes,55+pad,68.5)
+    gc.drawImage(actualEyes,55+pad,88.5)
     canvas
   }
 
