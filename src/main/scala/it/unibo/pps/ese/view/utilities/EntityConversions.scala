@@ -33,32 +33,32 @@ object EntityConversions {
           "Availability"->entityInfo.availability
         )
     }
-    def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean
-    = entityFiltersValues match {
-      case PlantFiltersValues(reign,species,numericQualities)=>
-        reign == entityInfo.reign &&
-        species == entityInfo.baseEntityInfo.species.name &&
-        entityFiltersValues.numericQualities.forall{
-          case (k,v) => entityInfo.numericQualities(k) < v.highValue &&
-                        entityInfo.numericQualities(k) > v.lowValue
-        }
-      case AnimalFiltersValues(
-        reign,
-        species,
-        gender,
-        diet,
-        lifePhase,
-        numericQualities
-      ) =>
-          reign == entityInfo.reign &&
-          species == entityInfo.baseEntityInfo.species.name &&
-          gender == entityInfo.baseEntityInfo.gender &&
-          diet == entityInfo.baseEntityInfo.asInstanceOf[AnimalInfo].dietType &&
-          lifePhase == entityInfo.lifePhase &&
-          entityFiltersValues.numericQualities.forall{
-            case (k,v) => entityInfo.numericQualities(k) < v.highValue &&
+    def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean = {
+      val commonFilter:EntityFiltersValues=>Boolean =
+        filter=>
+          filter.reign == entityInfo.reign &&
+          filter.species == entityInfo.baseEntityInfo.species.name &&
+          filter.numericQualities.forall {
+            case (k, v) => entityInfo.numericQualities(k) < v.highValue &&
               entityInfo.numericQualities(k) > v.lowValue
           }
+
+      entityFiltersValues match {
+        case PlantFiltersValues(reign, species, numericQualities) =>
+          commonFilter(entityFiltersValues)
+        case AnimalFiltersValues(
+          reign,
+          species,
+          gender,
+          diet,
+          lifePhase,
+          numericQualities
+        ) =>
+            commonFilter(entityFiltersValues) &&
+            gender == entityInfo.baseEntityInfo.gender &&
+            diet == entityInfo.baseEntityInfo.asInstanceOf[AnimalInfo].dietType &&
+            lifePhase == entityInfo.lifePhase
+      }
     }
   }
 }
