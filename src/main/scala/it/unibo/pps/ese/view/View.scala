@@ -19,6 +19,7 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer, ReplayController}
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
+import it.unibo.pps.ese.view.start.StartMenuView
 import it.unibo.pps.ese.view.statistics.ChartsData
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,11 +50,11 @@ trait HistoryViewer{
   def updateHistoryLog(newLog:HistoryLog):Unit
 }
 object View {
-  def apply(geneticsSimulator: GeneticsSimulator)
-           (implicit executionContext: ExecutionContext): View = new ViewImpl(geneticsSimulator)
+  def apply(geneticsSimulator: GeneticsSimulator, controller: Controller)
+           (implicit executionContext: ExecutionContext): View = new ViewImpl(geneticsSimulator, controller)
 }
 
-private class ViewImpl(geneticsSimulator: GeneticsSimulator)
+private class ViewImpl(geneticsSimulator: GeneticsSimulator, controller: Controller)
                       (implicit executionContext: ExecutionContext) extends View with MainComponent {
 
   var observers: List[Observer] = Nil
@@ -63,7 +64,7 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
 
   //da riaggiungere
   //setScene(ViewType.ConfigurationView)
-  setScene(ViewType.MainView)
+  StartMenuView(this, controller)
 
   override def addObserver(observer: Observer): Unit = {
     observers = observer :: observers
@@ -76,11 +77,10 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
         val v = new MainScene(geneticsSimulator,this)
         mainView = v
         this.scene = v
-      case ViewType.ConfigurationView => {
+      case ViewType.ConfigurationView =>
         val v = new ConfigurationViewImpl(this)
         configurationView = v
         this.scene = v
-      }
     }
   }
 
@@ -144,5 +144,5 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
 
 object ViewType extends Enumeration {
   type ViewType = Value
-  val MainView, ConfigurationView = Value
+  val MainView, ConfigurationView, StartView = Value
 }

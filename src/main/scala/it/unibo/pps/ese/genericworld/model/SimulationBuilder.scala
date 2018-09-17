@@ -11,7 +11,7 @@ import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
-import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationLoop}
+import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationController, SimulationLoop}
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Quality, Reign}
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
@@ -48,9 +48,9 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
   def data(data: CompleteSimulationData): SimulationBuilder[Simulation with Data] =
     new SimulationBuilder(width, height, data)
 
-  def build(implicit ev: Simulation =:= ReadySimulation): Controller = controller
+  def build(implicit ev: Simulation =:= ReadySimulation): SimulationController = controller
 
-  private lazy val controller: Controller = {
+  private lazy val controller: SimulationController = {
 
     import EntityBuilderHelpers._
 
@@ -82,7 +82,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
     simulation attachEraListener (era => {
       aggregator ingestData era
     })
-    Controller(simulation, world entitiesState, aggregator ingestedData)
+    SimulationController(simulation, world entitiesState, aggregator ingestedData)
   }
 }
 

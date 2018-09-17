@@ -58,7 +58,7 @@ object ViewHelpers {
   implicit def toViewData(data: Seq[EntityState]): List[Entity] =
     (data map toEntityViewData).toList
 
-  implicit class ManageableObserver(queryableController: Controller) extends Observer {
+  implicit class ManageableObserver(queryableController: SimulationController) extends Observer {
     override def getEntityDetails(id: String): Option[EntityInfo] = queryableController.query.entityData(id) map(_.state.copy())
 
     override def setWatched(id: String): Unit = queryableController.query watch id

@@ -4,6 +4,7 @@ import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.loader.exception.PartialSimulationDataException
 import it.unibo.pps.ese.controller.util.io.{File, IOResource}
+import it.unibo.pps.ese.genericworld.controller.Controller
 import it.unibo.pps.ese.view.MainComponent
 import it.unibo.pps.ese.view.configuration.dialogs.ConfigurationDialog
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
@@ -22,7 +23,7 @@ trait StartMenuView extends Scene {
 
 object StartMenuView {
 
-  def apply(mainComponent: MainComponent): StartMenuView = new StartMenuViewImpl(mainComponent)
+  def apply(mainComponent: MainComponent, controller: Controller): StartMenuView = new StartMenuViewImpl(mainComponent, controller)
 
   //TODO in IO package object? seems insecure
   private implicit def javaFileToMyFile(file: java.io.File): File = IOResource(file.toURI.toURL) match {
@@ -32,7 +33,7 @@ object StartMenuView {
       throw new IllegalArgumentException
   }
 
-  private class StartMenuViewImpl(mainComponent: MainComponent) extends Scene(250, 350) with StartMenuView {
+  private class StartMenuViewImpl(mainComponent: MainComponent, controller: Controller) extends Scene(250, 350) with StartMenuView {
 
 
     val currentWindow: scalafx.stage.Window = this.window()
