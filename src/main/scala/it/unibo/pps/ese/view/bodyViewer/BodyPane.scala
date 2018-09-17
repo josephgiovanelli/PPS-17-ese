@@ -1,6 +1,4 @@
 package it.unibo.pps.ese.view.bodyViewer
-import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
-import it.unibo.pps.ese.view._
 import javafx.scene.paint.ImagePattern
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -16,37 +14,37 @@ sealed trait BodyPane extends ScrollPane{
 object BodyPane {
   def apply():BodyPane= new BodyPaneImpl()
   private[this] class BodyPaneImpl() extends BodyPane {
-    val back:Image = new Image("it.unibo.pps.ese.view/backgrounds/backO3.jpg")
+    val back:Image = new Image("it.unibo.pps.ese.view/backgrounds/backBig.jpg")
     val canvasGroup = new Group()
     val root = new Pane()
     root.prefHeight = 850
-    root.prefWidth = 1400
+    root.prefWidth = 1600
     content = root
     root.background = new Background(Array(new BackgroundFill(new ImagePattern(back),CornerRadii.Empty, Insets.Empty)))
     val vBox = new VBox(10)
-    val hBox1:OrganDescriptionBox = OrganDescriptionBox()
-    val hBox2:OrganDescriptionBox = OrganDescriptionBox()
-    val hBox3:OrganDescriptionBox = OrganDescriptionBox()
-    vBox.children += hBox1
-    vBox.children += hBox2
-    vBox.children += hBox3
+    val headBox:OrganDescriptionBox = OrganDescriptionBox()
+    val digestiveBox:OrganDescriptionBox = OrganDescriptionBox()
+    val reproductionBox:OrganDescriptionBox = OrganDescriptionBox()
+    vBox.children += headBox
+    vBox.children += digestiveBox
+    vBox.children += reproductionBox
     vBox.translateX = 10
     root.children +=vBox
     root.children += canvasGroup
     private def updateBoxes(animalInternalStatus: AnimalInternalStatus): Unit ={
-      hBox1.setText(
+      headBox.setText(
         OrganInfoPrinter.getHeadText(
           animalInternalStatus.brainStatus,
           animalInternalStatus.eyesStatus)
       )
-      hBox2.setText(
+      digestiveBox.setText(
         OrganInfoPrinter.getDigestiveSystemStatus(animalInternalStatus.digestiveSystemStatus)
       )
       animalInternalStatus match {
         case FemaleInternalStatus(brain, eyes, reproductive, digestive, fetus)=>
-          hBox3.setText(OrganInfoPrinter.getReproductiveSystemStatus(reproductive,fetus))
+          reproductionBox.setText(OrganInfoPrinter.getReproductiveSystemStatus(reproductive,fetus))
         case MaleInternalStatus(brain, eyes, reproductive, digestive) =>
-          hBox3.setText(OrganInfoPrinter.getReproductiveSystemStatus(reproductive,None))
+          reproductionBox.setText(OrganInfoPrinter.getReproductiveSystemStatus(reproductive,None))
       }
     }
     override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
@@ -87,7 +85,7 @@ object BodyPane {
 
     override def clearStatus(): Unit = {
       canvasGroup.children.clear()
-      List(hBox1,hBox2,hBox3).foreach(_.clearText())
+      List(headBox,digestiveBox,reproductionBox).foreach(_.clearText())
     }
   }
 

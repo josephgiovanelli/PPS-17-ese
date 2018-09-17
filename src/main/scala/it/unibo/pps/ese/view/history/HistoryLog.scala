@@ -8,6 +8,7 @@ case object CouplingLog extends LogType
 case object ExtinctionLog extends LogType
 case object PopulationLog extends LogType
 case object GenerationLog extends LogType
+case object MostPopulousLog extends LogType
 
 case class Log(logText:String,logType:LogType)
 
