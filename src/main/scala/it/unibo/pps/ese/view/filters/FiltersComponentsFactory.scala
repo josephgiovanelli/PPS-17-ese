@@ -31,6 +31,7 @@ object FiltersComponentsFactory {
   private val MinSliderValue = 0
   private val MaxSliderValue = 100
 
+
   object FiltersLabels {
 
     trait FiltersLabel extends Label {
@@ -56,7 +57,7 @@ object FiltersComponentsFactory {
 
     trait FiltersVBox extends VBox
 
-    trait SliderVBox extends FiltersVBox {
+    trait SliderVBox extends FiltersVBox with DisablePane {
       def lowValue: Int
       def highValue: Int
     }
@@ -84,6 +85,10 @@ object FiltersComponentsFactory {
       override def lowValue: Int = slider.lowValue()
 
       override def highValue: Int = slider.highValue()
+
+      override def disableComponents(): Unit = slider.setDisable(true)
+
+      override def enableComponents(): Unit = slider.setDisable(false)
     }
 
     def defaultVBox: FiltersVBox = new DefaultVBox
@@ -102,7 +107,7 @@ object FiltersComponentsFactory {
 
     trait FiltersHBox extends HBox
 
-    trait ChoiceHBox extends FiltersHBox {
+    trait ChoiceHBox extends FiltersHBox with DisablePane {
       def emptyItem: String
     }
 
@@ -120,6 +125,10 @@ object FiltersComponentsFactory {
       choiceBox.items = ObservableBuffer(emptyItem +: items)
       choiceBox.value = emptyItem
       children = label :: choiceBox :: List()
+
+      override def disableComponents(): Unit = choiceBox.disable = true
+
+      override def enableComponents(): Unit = choiceBox.disable = false
     }
 
 
@@ -182,7 +191,7 @@ object FiltersComponentsFactory {
 
     trait FiltersRangeSlider extends RangeSlider
 
-    trait FiltersLabeledSlider extends FiltersHBox {
+    trait FiltersLabeledSlider extends FiltersHBox with DisablePane {
       def lowValue: IntegerProperty
       def highValue: IntegerProperty
     }
@@ -230,11 +239,25 @@ object FiltersComponentsFactory {
 
       children += rangeSlider
       children += labelsVBox
+
+      override def disableComponents(): Unit = ???
+
+      override def enableComponents(): Unit = ???
     }
 
     def defaultRangeSlider: FiltersRangeSlider = new DefaultRangeSlider
 
     def labeledSlider: FiltersLabeledSlider = new LabeledSliderImpl
+
+  }
+
+  object FiltersBorderPanes {
+
+    trait FiltersBorderPane extends BorderPane
+
+    private class DefaultBorderPane extends FiltersBorderPane
+
+    def defaultBorderPane: FiltersBorderPane = new DefaultBorderPane
 
   }
 

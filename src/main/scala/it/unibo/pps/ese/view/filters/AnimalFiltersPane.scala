@@ -6,7 +6,7 @@ import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersHBoxes._
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersVBoxes._
 
-trait AnimalFiltersPane extends FiltersVBox
+trait AnimalFiltersPane extends FiltersVBox with DisablePane
 
 object AnimalFiltersPane {
 
@@ -53,6 +53,48 @@ object AnimalFiltersPane {
       nutritionalValueVBox ::
       defenseVBox ::
       List()
+
+    override def disableComponents(): Unit = {
+      speciesHBox.disableComponents()
+      genderHBox.disableComponents()
+      lifePhaseHBox.disableComponents()
+      dietTypeHBox.disableComponents()
+      strengthVBox.disableComponents()
+      actionFieldVBox.disableComponents()
+      visualVBox.disableComponents()
+      attractivenessVBox.disableComponents()
+      speedVBox.disableComponents()
+      fertilityVBox.disableComponents()
+      ageVBox.disableComponents()
+      averageLifeVBox.disableComponents()
+      percentageDecayVBox.disableComponents()
+      energyVBox.disableComponents()
+      energyRequirementVBox.disableComponents()
+      heightVBox.disableComponents()
+      nutritionalValueVBox.disableComponents()
+      defenseVBox.disableComponents()
+    }
+
+    override def enableComponents(): Unit = {
+      speciesHBox.enableComponents()
+      genderHBox.enableComponents()
+      lifePhaseHBox.enableComponents()
+      dietTypeHBox.enableComponents()
+      strengthVBox.enableComponents()
+      actionFieldVBox.enableComponents()
+      visualVBox.enableComponents()
+      attractivenessVBox.enableComponents()
+      speedVBox.enableComponents()
+      fertilityVBox.enableComponents()
+      ageVBox.enableComponents()
+      averageLifeVBox.enableComponents()
+      percentageDecayVBox.enableComponents()
+      energyVBox.enableComponents()
+      energyRequirementVBox.enableComponents()
+      heightVBox.enableComponents()
+      nutritionalValueVBox.enableComponents()
+      defenseVBox.enableComponents()
+    }
   }
 }
 

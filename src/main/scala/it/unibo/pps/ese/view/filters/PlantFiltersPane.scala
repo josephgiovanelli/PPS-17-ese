@@ -19,7 +19,7 @@ import scalafx.scene.control.{ChoiceBox, Tooltip}
 import scalafx.util.StringConverter
 import scalafx.util.converter.NumberStringConverter
 
-trait PlantFiltersPane extends FiltersVBox
+trait PlantFiltersPane extends FiltersVBox with DisablePane
 
 object PlantFiltersPane {
 
@@ -40,5 +40,18 @@ object PlantFiltersPane {
       availabilityBox ::
       List()
 
+    override def disableComponents(): Unit = {
+      speciesHBox.disableComponents()
+      heightVBox.disableComponents()
+      nutritionalValueVBox.disableComponents()
+      availabilityBox.disableComponents()
+    }
+
+    override def enableComponents(): Unit = {
+      speciesHBox.enableComponents()
+      heightVBox.enableComponents()
+      nutritionalValueVBox.enableComponents()
+      availabilityBox.enableComponents()
+    }
   }
 }

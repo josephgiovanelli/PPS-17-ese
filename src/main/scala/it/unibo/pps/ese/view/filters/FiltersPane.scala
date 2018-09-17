@@ -8,8 +8,11 @@ import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersRadioButton
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersSerparators._
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory._
 import it.unibo.pps.ese.view.WorldPane
+import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersBorderPanes._
 import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersHBoxes.FiltersHBox
+import it.unibo.pps.ese.view.filters.FiltersComponentsFactory.FiltersBorderPanes._
 import scalafx.Includes._
+import scalafx.beans.property.BooleanProperty
 import scalafx.event.ActionEvent
 import scalafx.geometry.Insets
 import scalafx.scene.control.ScrollPane.ScrollBarPolicy
@@ -17,13 +20,17 @@ import scalafx.scene.control._
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 
-trait FiltersPane extends ScrollPane
+trait FiltersPane extends ScrollPane {
+  def filtersOn: BooleanProperty
+}
 
 object FiltersPane {
 
   def apply(worldPane: WorldPane, geneticsSimulator: GeneticsSimulator): FiltersPane = new FiltersPaneImpl(worldPane, geneticsSimulator)
 
   private class FiltersPaneImpl(worldPane: WorldPane, geneticsSimulator: GeneticsSimulator) extends FiltersPane {
+
+    var filtersOn: BooleanProperty = BooleanProperty(false)
 
     val mainPane: BorderPane = new BorderPane()
     mainPane.background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
@@ -45,7 +52,7 @@ object FiltersPane {
     val reignRadioBox: FiltersVBox = componentsVBox
     reignRadioBox.children = plantRadio :: animalRadio :: List()
 
-    val valuesContainerPane: BorderPane = new BorderPane()
+    val valuesContainerPane: FiltersBorderPane = defaultBorderPane
     val plantVBox: PlantFiltersPane = PlantFiltersPane(geneticsSimulator)
     val animalVBox: AnimalFiltersPane = AnimalFiltersPane(geneticsSimulator)
     valuesContainerPane.center = plantVBox
@@ -81,7 +88,39 @@ object FiltersPane {
 
     hbarPolicy = ScrollBarPolicy.Never
 
+    filtersOn <== applyButton.disabled
+
+    applyButton.onAction = (e: ActionEvent) => {
+      applyButton.disable = true
+      clearButton.disable = false
+      plantRadio.disable = true
+      animalRadio.disable = true
+      if (plantRadio.isSelected) {
+        plantVBox.disableComponents()
+      } else {
+        animalVBox.disableComponents()
+      }
+    }
+
+    clearButton.onAction = (e: ActionEvent) => {
+      applyButton.disable = false
+      clearButton.disable = true
+      plantRadio.disable = false
+      animalRadio.disable = false
+      if (plantRadio.isSelected) {
+        plantVBox.enableComponents()
+      } else {
+        animalVBox.enableComponents()
+      }
+    }
+
+
   }
 
+}
+
+trait DisablePane {
+  def disableComponents()
+  def enableComponents()
 }
 
