@@ -130,6 +130,7 @@ trait SingleViewController extends Controller with BaseManageableController with
   }
 
   def attachView(view: View, frameRate: Int): Unit = {
+    storyTeller attachView view
     import ViewHelpers.{ManageableObserver, toViewData}
     view addObserver this
     new Thread (() => {
