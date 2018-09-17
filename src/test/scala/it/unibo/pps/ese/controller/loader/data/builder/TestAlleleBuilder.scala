@@ -37,7 +37,7 @@ class TestAlleleBuilder extends WordSpec with AlleleBuildFixture {
 
     "has not all mandatory fields set" should {
       "throw an exception if build" in {
-        assertThrows[Exception](alleleBFixture.wrong.buildComplete)
+        assertThrows[Exception](alleleBFixture.wrong.build)
       }
     }
   }
