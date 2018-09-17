@@ -208,12 +208,13 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
           position = Point(me.position.x, me.position.y)
         }
         else {
-          publish(UseHippocampus())
           position = hippocampus.searchingState match {
             case SearchingState.INACTIVE =>
               hippocampus.startNewSearch(action)
+              publish(UseHippocampus())
               checkNewMemory
             case SearchingState.ACTIVE =>
+              publish(UseHippocampus())
               val d = hippocampus.computeDirection(position)
               val p = getPosition(d)
               p
