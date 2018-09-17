@@ -7,10 +7,24 @@ import scalafx.geometry.Insets
 import scalafx.scene.control.ScrollPane
 import scalafx.scene.image.Image
 import scalafx.scene.layout._
+
+/**
+  * A [[ScrollPane]] with the visual representation of the internal dynamics of an animal
+  */
 sealed trait BodyPane extends ScrollPane{
+  /**
+    * To update the internal status of an animal
+    * @param animalInternalStatus
+    *                             The new [[AnimalInternalStatus]]
+    */
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
+
+  /**
+    * To cancel the representation
+    */
   def clearStatus():Unit
 }
+
 object BodyPane {
   def apply():BodyPane= new BodyPaneImpl()
   private[this] class BodyPaneImpl() extends BodyPane {
@@ -31,6 +45,11 @@ object BodyPane {
     vBox.translateX = 10
     root.children +=vBox
     root.children += canvasGroup
+
+    /**
+      * To update all the boxes with the description of the internal dynamic of the selected animal
+      * @param animalInternalStatus
+      */
     private def updateBoxes(animalInternalStatus: AnimalInternalStatus): Unit ={
       headBox.setText(
         OrganInfoPrinter.getHeadText(
@@ -47,13 +66,13 @@ object BodyPane {
           reproductionBox.setText(OrganInfoPrinter.getReproductiveSystemStatus(reproductive,None))
       }
     }
+
     override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
       AnimalStatusUtilities.isAOldState(animalInternalStatus) match {
         case false =>{
           updateBoxes(animalInternalStatus)
           val newCanvas = animalInternalStatus match {
             case FemaleInternalStatus(brain, eyes, reproductive, digestive, fetus) => {
-              println("Femmina", brain, eyes, reproductive, digestive, fetus)
               val female: FemaleAnimalRepresentation = FemaleAnimalRepresentation()
               if (fetus.isDefined) female.setEmbryoStatus(fetus.get)
               female.setBrainStatus(brain)
@@ -62,7 +81,6 @@ object BodyPane {
               female.setReproductiveSystemStatus(reproductive)
             }
             case MaleInternalStatus(brain, eyes, reproductive, digestive) => {
-              println("MAschio", brain, eyes, reproductive, digestive)
               val male: MaleAnimalRepresentation = MaleAnimalRepresentation()
               male.setBrainStatus(brain)
               male.setEyesStatus(eyes)
@@ -90,6 +108,9 @@ object BodyPane {
     }
   }
 
+  /**
+    * Utility object that maintain the previous status of the animal, in order to avoid the drawing of the same status
+    */
   private object AnimalStatusUtilities{
     var oldAnimalStatus:Option[AnimalInternalStatus] = None
     def isAOldState(animalInternalStatus: AnimalInternalStatus):Boolean

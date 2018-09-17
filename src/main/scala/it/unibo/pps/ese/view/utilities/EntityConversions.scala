@@ -3,7 +3,8 @@ import it.unibo.pps.ese.genericworld.model.{EntityInfo, ReignType}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import it.unibo.pps.ese.view.filters.{AnimalFiltersValues, EntityFiltersValues, PlantFiltersValues, Range}
-
+import scalaz._
+import Scalaz._
 object EntityConversions {
   implicit class RichEntityInfo(entityInfo:EntityInfo){
     def numericQualities:Map[String,Double] = entityInfo.reign match {
@@ -36,9 +37,9 @@ object EntityConversions {
     def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean = {
       val commonFilter:EntityFiltersValues=>Boolean =
         filter=>
-          filter.reign == entityInfo.reign &&
-          filter.species == entityInfo.baseEntityInfo.species.name &&
-          filter.numericQualities.forall {
+            (filter.reign.isDefined? filter.reign.get == entityInfo.reign | true )&&
+            (filter.species.isDefined?filter.species.get == entityInfo.baseEntityInfo.species.name|true )&&
+            filter.numericQualities.forall {
             case (k, v) => entityInfo.numericQualities(k) < v.highValue &&
               entityInfo.numericQualities(k) > v.lowValue
           }
@@ -55,9 +56,9 @@ object EntityConversions {
           numericQualities
         ) =>
             commonFilter(entityFiltersValues) &&
-            gender == entityInfo.baseEntityInfo.gender &&
-            diet == entityInfo.baseEntityInfo.asInstanceOf[AnimalInfo].dietType &&
-            lifePhase == entityInfo.lifePhase
+            gender.isDefined?gender.get == entityInfo.baseEntityInfo.gender|true &&
+            diet.isDefined?diet.get == entityInfo.baseEntityInfo.asInstanceOf[AnimalInfo].dietType|true &&
+            lifePhase.isDefined?lifePhase == entityInfo.lifePhase | true
       }
     }
   }

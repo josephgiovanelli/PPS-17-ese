@@ -6,22 +6,22 @@ import it.unibo.pps.ese.genetics.entities.{DietType, Gender, Reign}
 case class Range(lowValue:Double,highValue:Double)
 
 sealed trait EntityFiltersValues{
-  def reign: ReignType.Value
-  def species: String
+  def reign: Option[ReignType.Value]
+  def species: Option[String]
   def numericQualities:Map[String,Range]
 }
 
 
 case class PlantFiltersValues(
-                               reign: ReignType.Value,
-                               species:String,
+                               reign: Option[ReignType.Value],
+                               species:Option[String],
                                numericQualities:Map[String,Range]
                              ) extends EntityFiltersValues
 case class AnimalFiltersValues(
-                                reign: ReignType.Value,
-                                species:String,
-                                gender:Gender,
-                                diet: DietType,
-                                lifePhase: LifePhases.Value,
+                                reign: Option[ReignType.Value],
+                                species:Option[String],
+                                gender:Option[Gender],
+                                diet: Option[DietType],
+                                lifePhase: Option[LifePhases.Value],
                                 numericQualities:Map[String,Range]
                               ) extends EntityFiltersValues
