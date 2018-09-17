@@ -59,6 +59,8 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
         publish(ActivateHippocampus())
 
       case InteractionEntity(_, action) =>
+        eyes = false
+        hippocampus = false
         if (action == ActionKind.EAT) {
           stomach = true
           publish(ActivateStomach())
@@ -120,10 +122,14 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
     )))
 
     addMapping[DeactivateStomach]((classOf[DeactivateStomach], _ => Seq(
-      EntityProperty("stomach", stomach)
+      EntityProperty("stomach", stomach),
+      EntityProperty("hippocampus", hippocampus),
+      EntityProperty("reproductionOrgan", reproductionOrgan)
     )))
 
     addMapping[ActivateReproductionOrgan]((classOf[ActivateReproductionOrgan], _ => Seq(
+      EntityProperty("eyes", eyes),
+      EntityProperty("hippocampus", hippocampus),
       EntityProperty("reproductionOrgan", reproductionOrgan)
     )))
 
