@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.dataminer
 
+import scala.util.control.Exception
+
 sealed trait DataSaver {
   def saveData(path: String, data: Seq[EntityLog]): String
   def loadData(path: String): Seq[EntityLog]
@@ -16,6 +18,10 @@ object DataSaver {
 
     override def saveData(path: String, data: Seq[EntityLog]): String = write(data)
 
-    override def loadData(serializedData: String): Seq[EntityLog] = read[Seq[EntityLog]](serializedData)
+    override def loadData(serializedData: String): Seq[EntityLog] = try {
+      read[Seq[EntityLogImpl]](serializedData)
+    } catch  {
+      case e: Exception => throw e
+    }
   }
 }

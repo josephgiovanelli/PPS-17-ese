@@ -108,8 +108,8 @@ class Stalker(consolidatedState: ReadOnlyEntityRepository) {
           actions += ("give birth" -> impl.givingBirth)
       }
 
-      /*if (trueEra.isDefined)
-        println((currentEra, trueEra.get))*/
+      //if (trueEra.isDefined)
+      //  println((currentEra, trueEra.get))
 
       if (trueEra.isDefined && ((currentEra + 1) <= trueEra.get)) currentEra += 1
 
