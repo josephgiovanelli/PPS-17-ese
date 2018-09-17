@@ -20,6 +20,7 @@ import scalafx.scene.control._
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 
+
 trait FiltersPane extends ScrollPane {
   def filtersOn: BooleanProperty
 }
@@ -97,8 +98,10 @@ object FiltersPane {
       animalRadio.disable = true
       if (plantRadio.isSelected) {
         plantVBox.disableComponents()
+        worldPane.applyFilters(plantVBox.entityFiltersValues)
       } else {
         animalVBox.disableComponents()
+        worldPane.applyFilters(animalVBox.entityFiltersValues)
       }
     }
 
@@ -112,6 +115,7 @@ object FiltersPane {
       } else {
         animalVBox.enableComponents()
       }
+      worldPane.clearFilters()
     }
 
 

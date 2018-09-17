@@ -105,10 +105,12 @@ object FiltersComponentsFactory {
 
   object FiltersHBoxes {
 
+    val emptyItem: String = "No Selection"
+
     trait FiltersHBox extends HBox
 
     trait ChoiceHBox extends FiltersHBox with DisablePane {
-      def emptyItem: String
+      def selectedItem: String
     }
 
     private class DefaultHBox extends FiltersHBox
@@ -118,7 +120,6 @@ object FiltersComponentsFactory {
     }
 
     private class ChoiceHBoxImpl(name: String, items: Seq[String]) extends ComponentsHBox with ChoiceHBox {
-      val emptyItem: String = "No Selection"
 
       val label: FiltersLabel = normalLabel(name)
       val choiceBox: FiltersChoiceBox[String] = defaultChoiceBox
@@ -129,6 +130,8 @@ object FiltersComponentsFactory {
       override def disableComponents(): Unit = choiceBox.disable = true
 
       override def enableComponents(): Unit = choiceBox.disable = false
+
+      override def selectedItem: String = choiceBox.value()
     }
 
 

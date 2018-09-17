@@ -25,6 +25,8 @@ import it.unibo.pps.ese.view.bodyViewer.BodyPane
 import Color._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
+import it.unibo.pps.ese.view.filters.{AnimalFiltersValues, EntityFiltersValues}
+
 
 import scala.util.Random
 
@@ -33,6 +35,8 @@ trait WorldView {
 }
 trait WorldPane extends ScrollPane with WorldView{
   var entitySize: IntegerProperty = IntegerProperty(ZoomPreferences.prefZoom)
+  def applyFilters(entityFiltersValues: EntityFiltersValues): Unit
+  def clearFilters(): Unit
 }
 
 object WorldPane {
@@ -59,6 +63,7 @@ private class WorldPaneImpl(
                              height: Int
                            ) extends WorldPane {
 
+  var entityFiltersValues: Option[EntityFiltersValues] = None
 
   val backGroundColor: Color = valueOf("#2c3e50")
   val selectionColor: Color = Yellow
@@ -106,7 +111,7 @@ private class WorldPaneImpl(
 
   content = canvas
 
-  entitySize.onChange(drawWorld(currentWorld.values.toList))
+  entitySize.onChange(drawWorld(currentWorld.values.toList, entityFiltersValues))
 
   tooltip = new Tooltip()
 
@@ -183,10 +188,17 @@ private class WorldPaneImpl(
 
 
   override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
-    drawWorld(world)
+    drawWorld(world, entityFiltersValues)
   }
 
-  private def drawWorld(world: Seq[EntityState]): Unit = {
+  private def drawWorld(world: Seq[EntityState], entityFiltersValues: Option[EntityFiltersValues]): Unit = {
+
+    import it.unibo.pps.ese.view.utilities.EntityConversions._
+
+    val filtersOn: Boolean = entityFiltersValues match {
+      case Some(_) => true
+      case None => false
+    }
 
     currentWorld = Map() ++ world.map(e => (Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), e))
 
@@ -199,9 +211,28 @@ private class WorldPaneImpl(
 
           e.state.reign match {
             case ReignType.PLANT =>
-              drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), plantColorMap(e.state.species.toString))
+              val draw: Boolean = entityFiltersValues match {
+                case None => true
+                case Some(f) => f.reign match {
+                  case ReignType.PLANT => e.state.applyFilter(f)
+                  case _ => false
+                }
+              }
+              if (draw) {
+                drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), plantColorMap(e.state.species.toString))
+              }
             case ReignType.ANIMAL =>
-              drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), animalColorMap(e.state.species.toString))
+              val draw: Boolean = entityFiltersValues match {
+                case None => true
+                case Some(f) => f.reign match {
+                  case ReignType.ANIMAL => e.state.applyFilter(f)
+                  case _ => false
+                }
+              }
+              if (draw) {
+                if (entityFiltersValues.isDefined) println(entityFiltersValues.get.species)
+                drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), animalColorMap(e.state.species.toString))
+              }
           }
 
         })
@@ -313,5 +344,15 @@ private class WorldPaneImpl(
       plantColorPool = plantColorPool diff List(c)
       c
     })).toMap
+  }
+
+  override def applyFilters(e: EntityFiltersValues): Unit = {
+    entityFiltersValues = Some(e)
+    drawWorld(currentWorld.values.toList, entityFiltersValues)
+  }
+
+  override def clearFilters(): Unit = {
+    entityFiltersValues = None
+    drawWorld(currentWorld.values.toList, None)
   }
 }

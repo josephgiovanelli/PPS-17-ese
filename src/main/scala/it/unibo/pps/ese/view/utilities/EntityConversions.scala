@@ -5,32 +5,49 @@ import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import it.unibo.pps.ese.view.filters.{AnimalFiltersValues, EntityFiltersValues, PlantFiltersValues, Range}
 
 object EntityConversions {
+  
+  val strength: String = "Strength"
+  val actionField: String = "Action Field"
+  val visualField: String = "Visual Field"
+  val attractiveness: String = "Attractiveness"
+  val speed: String = "Speed"
+  val fertility: String = "Fertility"
+  val age: String = "Age"
+  val averageLife: String = "Average Life"
+  val percentageDecay: String = "Percentage Decay"
+  val energy: String = "Energy"
+  val energyRequirement: String = "Energy Requirement"
+  val height: String = "Height"
+  val nutritionalValue: String = "Nutritional Value"
+  val defense: String = "Defense"
+  val availability: String = "Availability"
+
   implicit class RichEntityInfo(entityInfo:EntityInfo){
     def numericQualities:Map[String,Double] = entityInfo.reign match {
       case ReignType.ANIMAL =>
         Map(
-          "Strong"->entityInfo.strong,
-          "Action Field"->entityInfo.actionField,
-          "Visual Field"->entityInfo.visualField,
-          "Attractiveness"->entityInfo.attractiveness,
-          "Speed"->entityInfo.actualSpeed,
-          "Fertility"->entityInfo.fertility,
-          "Age"->entityInfo.age.toDouble,
-          "Average Life"->entityInfo.averageLife,
-          "Percentage Decay"->entityInfo.percentageDecay,
-          "Energy"->entityInfo.energy,
-          "Energy Requirement"->entityInfo.energyRequirements,
-          "Height"->entityInfo.height,
-          "Nutritional Value"->entityInfo.nutritionalValue,
-          "Defense"->entityInfo.defense
+          strength->entityInfo.strong,
+          actionField->entityInfo.actionField,
+          visualField->entityInfo.visualField,
+          attractiveness->entityInfo.attractiveness,
+          speed->entityInfo.actualSpeed,
+          fertility->entityInfo.fertility,
+          age->entityInfo.age.toDouble,
+          averageLife->entityInfo.averageLife,
+          percentageDecay->entityInfo.percentageDecay,
+          energy->entityInfo.energy,
+          energyRequirement->entityInfo.energyRequirements,
+          height->entityInfo.height,
+          nutritionalValue->entityInfo.nutritionalValue,
+          defense->entityInfo.defense
         )
       case ReignType.PLANT =>
         Map(
-          "Height"->entityInfo.height,
-          "Nutritional Value"->entityInfo.nutritionalValue,
+          height->entityInfo.height,
+          nutritionalValue->entityInfo.nutritionalValue,
           //    "Attractiveness"->entityDetails.attractiveness,
           //    "Hardness"->entityDetails.strong,
-          "Availability"->entityInfo.availability
+          availability->entityInfo.availability
         )
     }
     def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean = {

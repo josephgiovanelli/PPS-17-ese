@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.filters
 
 import com.sun.javafx.binding.BidirectionalBinding.StringConversionBidirectionalBinding
+import it.unibo.pps.ese.genericworld.model.ReignType
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.WorldPane
 import scalafx.Includes._
@@ -18,8 +19,13 @@ import scalafx.collections.{ObservableArray, ObservableBuffer}
 import scalafx.scene.control.{ChoiceBox, Tooltip}
 import scalafx.util.StringConverter
 import scalafx.util.converter.NumberStringConverter
+import it.unibo.pps.ese.view.utilities.EntityConversions
+import it.unibo.pps.ese.view.utilities.EntityConversions._
+import it.unibo.pps.ese.view.filters.PlantFiltersValues
 
-trait PlantFiltersPane extends FiltersVBox with DisablePane
+trait PlantFiltersPane extends FiltersVBox with DisablePane {
+  def entityFiltersValues: EntityFiltersValues
+}
 
 object PlantFiltersPane {
 
@@ -29,29 +35,39 @@ object PlantFiltersPane {
   private class PlantFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends PlantFiltersPane {
 
     val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
-    val heightVBox: SliderVBox = sliderVBox("Height")
-    val nutritionalValueVBox: SliderVBox = sliderVBox("Nutritional Value")
-    val availabilityBox: SliderVBox = sliderVBox("Availability")
+    val heightVBox: SliderVBox = sliderVBox(EntityConversions.height)
+    val nutritionalValueVBox: SliderVBox = sliderVBox(nutritionalValue)
+    val availabilityVBox: SliderVBox = sliderVBox(availability)
 
     children =
       speciesHBox ::
       heightVBox ::
       nutritionalValueVBox ::
-      availabilityBox ::
+      availabilityVBox ::
       List()
 
     override def disableComponents(): Unit = {
       speciesHBox.disableComponents()
       heightVBox.disableComponents()
       nutritionalValueVBox.disableComponents()
-      availabilityBox.disableComponents()
+      availabilityVBox.disableComponents()
     }
 
     override def enableComponents(): Unit = {
       speciesHBox.enableComponents()
       heightVBox.enableComponents()
       nutritionalValueVBox.enableComponents()
-      availabilityBox.enableComponents()
+      availabilityVBox.enableComponents()
     }
+
+    override def entityFiltersValues: EntityFiltersValues = PlantFiltersValues(
+      ReignType.PLANT,
+      speciesHBox.selectedItem,
+      Map[String, Range](
+        EntityConversions.height->Range(heightVBox.lowValue, heightVBox.highValue),
+        nutritionalValue->Range(nutritionalValueVBox.lowValue, nutritionalValueVBox.highValue),
+        availability->Range(availabilityVBox.lowValue, availabilityVBox.highValue)
+      )
+    )
   }
 }
