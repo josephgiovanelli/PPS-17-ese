@@ -9,7 +9,7 @@ import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.view.speciesdetails.QualityBoxUtilities._
 import it.unibo.pps.ese.view.utilities.TextUtilities._
-
+import it.unibo.pps.ese.view.utilities.EntityConversions._
 trait DetailsPane extends ScrollPane {
 
   def showDetails(e: EntityState): Unit
@@ -60,46 +60,24 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
       val reignBox = new NonNumericQualityViewerBox("Animal","-fx-accent: orange;")
       val genderBox = new NonNumericQualityViewerBox(gender.toString,genderColor)
       val dietBox = new NonNumericQualityViewerBox(dietType.toString,dietColor)
-      vBox.children = nameLabel ::
+      vBox.children =
+        nameLabel ::
         reignBox::
         genderBox ::
         dietBox ::
         lifePhaseBox::
-        getAllAnimalQualities(e.state)
+        e.state.numericQualities
           .map(q=>q._1--->q._2).toList
+
     case PlantInfo(s,g,q) =>
       val reignBox = new NonNumericQualityViewerBox("Plant","-fx-accent: green;")
       nameLabel.text = e.state.species.toString
-      vBox.children = nameLabel ::
+      vBox.children =
+        nameLabel ::
         reignBox::
-        getAllPlantQualities(e.state)
+        e.state.numericQualities
           .map(q=>q._1--->q._2).toList
 
-  }
-  def getAllAnimalQualities(entityDetails:EntityInfo):Seq[(String,Double)] = {
-    "Strong"->entityDetails.strong::
-    "Action Field"->entityDetails.actionField::
-    "Visual Field"->entityDetails.visualField::
-    "Attractiveness"->entityDetails.attractiveness::
-    "Speed"->entityDetails.actualSpeed::
-    "Fertility"->entityDetails.fertility::
-    "Age"->entityDetails.age.toDouble::
-    "Average Life"->entityDetails.averageLife::
-    "Percentage Decay"->entityDetails.percentageDecay::
-    "Energy"->entityDetails.energy::
-    "Energy Requirement"->entityDetails.energyRequirements::
-    "Height"->entityDetails.height::
-    "Nutritional Value"->entityDetails.nutritionalValue::
-    "Defense"->entityDetails.defense::
-    List()
-  }
-  def getAllPlantQualities(entityDetails:EntityInfo):Seq[(String,Double)] = {
-    "Height"->entityDetails.height::
-    "Nutritional Value"->entityDetails.nutritionalValue::
-//    "Attractiveness"->entityDetails.attractiveness::
-//    "Hardness"->entityDetails.strong::
-    "Availability"->entityDetails.availability::
-    List()
   }
   override def clearDetails(): Unit = {
     vBox.children clear()
