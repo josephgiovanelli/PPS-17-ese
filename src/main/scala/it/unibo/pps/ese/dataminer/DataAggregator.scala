@@ -49,8 +49,8 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
       state actualSpeed,
       state position,
       state nutritionalValue,
-      state eat,
       state couple,
+      state eat,
       state create,
       state genes,
       state will

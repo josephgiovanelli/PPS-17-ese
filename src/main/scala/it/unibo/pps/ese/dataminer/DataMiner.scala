@@ -1,11 +1,13 @@
 package it.unibo.pps.ese.dataminer
 
+import scala.collection.mutable
+
 sealed trait DataMiner {
 
   def startEra: Era
   def lastEra: Era
 
-  def populationTrend(): Seq[Long]
+  def populationTrend(): Seq[(Long, Long)]
   def simulationSpecies(): Seq[Species]
   def aliveSpecies(era: Era): Seq[Species]
 
@@ -44,6 +46,11 @@ object DataMiner {
 
     private[this] val _dataRepository = repository
 
+    //DA VALUTARNE L'USO
+    private def memoize[I, O](f: I => O): I => O = new mutable.HashMap[I, O]() {self =>
+      override def apply(key: I): O = self.synchronized(getOrElseUpdate(key, f(key)))
+    }
+
     private implicit class PimpedSeq[A](seq: Seq[A]) {
       def filterIf(condition: () => Boolean)(filter: A => Boolean): Seq[A] =
         if (condition()) seq.filter(filter) else seq
@@ -73,9 +80,9 @@ object DataMiner {
         .map(x => x.dynamicData.map(y => y._1).max)
         .max
 
-    override def populationTrend(): Seq[Long] =
+    override def populationTrend(): Seq[(Long, Long)] =
       (startEra to lastEra)
-        .map(i => _dataRepository.entitiesInEra(i).size.toLong)
+        .map(i => (i, _dataRepository.entitiesInEra(i).size.toLong))
 
     override def simulationSpecies(): Seq[Species] =
       _dataRepository.getAllDynamicLogs().map(x => x.structuralData.species).distinct

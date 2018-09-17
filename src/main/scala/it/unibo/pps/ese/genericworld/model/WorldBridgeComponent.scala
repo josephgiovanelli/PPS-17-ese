@@ -83,7 +83,7 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
               })
           publish(GiveBirth(ids))
         case Failure(exception) =>
-          exception
+          throw exception
       })
     /*case CreateEntities(entities) =>
       entities.foreach(entity => world addEntity entity)*/

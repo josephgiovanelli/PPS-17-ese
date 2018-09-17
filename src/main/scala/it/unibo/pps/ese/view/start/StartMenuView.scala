@@ -49,14 +49,14 @@ object StartMenuView {
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
-          mainComponent.startSimulation(file) match {
-            case Success(_) =>
-              //TODO launch simulation view
-            case Failure(exception: PartialSimulationDataException) =>
-              EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
-                exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
-              ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
-          }
+//          mainComponent.startSimulation(file) match {
+//            case Success(_) =>
+//              //TODO launch simulation view
+//            case Failure(exception: PartialSimulationDataException) =>
+//              EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
+//                exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
+//              ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
+//          }
         }
       }
     }

@@ -1,35 +1,160 @@
 package it.unibo.pps.ese.genericworld.controller
 
+import java.io.File
 import java.util.concurrent.atomic.AtomicLong
 
-import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.controller.loader.data.{AnimalData, CompletePlantData}
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
-import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
-import it.unibo.pps.ese.controller.util.io.File
-import it.unibo.pps.ese.dataminer.{DataMiner, ReadOnlyEntityRepository}
-import it.unibo.pps.ese.entitywatchers.{Stalker, StoryTeller, Surgeon}
+import it.unibo.pps.ese.controller.loader.data.CompletePlantData
+import it.unibo.pps.ese.dataminer.{DataMiner, DataSaver, ReadOnlyEntityRepository}
+import it.unibo.pps.ese.entitywatchers.{StoryTeller, Surgeon}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.view.View
+import it.unibo.pps.ese.view.statistics.ChartsData
 
-import scala.concurrent.ExecutionContext
-import scala.util
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
-sealed trait Controller {
+trait Controller {
+  //Partenza simulazione
+  //def startSimulation(file: File): Try[Unit]
+  //Editing simulazione
+  //def loadSimulation(file: File): Try[PartialSimulationData]
+  //Cachare saver e target
+  //def saveSimulationData(simulation: PartialSimulationData, target: File): Try[Unit]
+  //def retrySave(overrideResource: Option[ExistingResource])
+
   def attachView(view: View, frameRate: Int): Unit
   def manage: ManageableController
+  def query: QueryableController
 }
-
 trait ManageableController {
-  def simulationStart(f: File): Try[Unit]
   def play(): Unit
   def pause(): Unit
   def exit(): Unit
+  def isPlaying: Boolean
+  def isStopped: Boolean
+}
+trait QueryableController {
   def entityData(id: String): Option[EntityState]
   def watch(entity: String): Unit
   def unwatch(): Unit
   def add(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
+  def historicalData(): Future[ChartsData]
+  def simulationEras(): Future[Seq[Long]]
+  def entitiesInEra(era: Long): Future[Seq[String]]
+  def replay: ReplayController
+}
+
+trait BaseManageableController extends ManageableController {
+
+  private[this] var _stop = false
+  private[this] var _paused = true
+
+  def simulation: SimulationLoop
+
+  def play(): Unit = this synchronized {
+    simulation play()
+    _paused = false
+    notify()
+  }
+
+  def pause(): Unit = this synchronized {
+    simulation pause()
+    _paused = true
+  }
+
+  def exit(): Unit = this synchronized {
+    simulation dispose()
+    _stop = true
+    _paused = true
+    notify()
+  }
+
+  def isPlaying: Boolean = !_paused
+  def isStopped: Boolean = _stop
+}
+
+trait BaseQueryableController extends QueryableController {
+
+  implicit val executionContext: ExecutionContext
+
+  def realTimeState: ReadOnlyEntityState
+  def consolidatedState: ReadOnlyEntityRepository
+
+
+  def entityData(id: String): Option[EntityState] =
+    realTimeState getFilteredState(x => x.entityId == id) match {
+      case Seq(single) => Some(single)
+      case _ => None
+    }
+
+  def historicalData(): Future[ChartsData] = {
+    Future {
+      val miner = DataMiner(consolidatedState)
+      val populationTrend = miner populationTrend()
+      val startEra = miner startEra
+      val lastEra = miner lastEra
+      val populationDistribution = (miner aliveSpecies lastEra) map (x => (x, miner aliveCount(x, lastEra)))
+      val births = (miner aliveSpecies lastEra) map (x =>
+        (x, (startEra to lastEra) map (y => (y, miner bornCount(x, y)))))
+      val mutations = (miner aliveSpecies lastEra) map (x =>
+        (x toString, (startEra to lastEra) map (y => (y, (miner mutantAlleles(x, y) size) toLong))))
+      ChartsData(
+        Seq[(String, Seq[(Long, Long)])](("global", populationTrend.map(x => (x._1, x._2)))),
+        populationDistribution,
+        births,
+        mutations)
+    }
+  }
+
+  def simulationEras(): Future[Seq[Long]] =
+    Future {(DataMiner(consolidatedState) startEra) to (DataMiner(consolidatedState) lastEra)}
+
+  def entitiesInEra(era: Long): Future[Seq[String]] =
+    Future {consolidatedState entitiesInEra era filter (x => x.structuralData.reign == ReignType.ANIMAL.toString) map(x => x.id)}
+
+  def replay: ReplayController = ReplayController(consolidatedState)
+}
+
+trait SingleViewController extends Controller with BaseManageableController with BaseQueryableController {
+
+  protected val surgeon = Surgeon(realTimeState)
+  protected val storyTeller = StoryTeller(consolidatedState)
+
+  def watch(entity: String): Unit = surgeon inspects entity
+
+  override def unwatch(): Unit = surgeon leaves()
+
+  override def add(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
+    simulation.addEntities(animals, plants, newAnimals, newPlants)
+  }
+
+  def attachView(view: View, frameRate: Int): Unit = {
+    import ViewHelpers.{ManageableObserver, toViewData}
+    view addObserver this
+    new Thread (() => {
+      while(!isStopped) {
+        normalizeFrameRate(() => {
+          if (!isPlaying) this synchronized wait()
+          view updateWorld (0, realTimeState getFilteredState(_ => true))
+          surgeon informAboutOrgansStatus view
+        }, frameRate)
+      }
+    }) start()
+  }
+
+  override def manage: ManageableController = this
+
+  override def query: QueryableController = this
+
+  private def normalizeFrameRate(job: () => Unit, fps: Int): Unit = {
+    val start = System.currentTimeMillis()
+    job()
+    val stop = System.currentTimeMillis()
+    if (stop - start < 1000 / fps) {
+      Thread.sleep((1000 / fps) - (stop - start))
+    }
+  }
 }
 
 object Controller {
@@ -41,127 +166,17 @@ object Controller {
   private case class BaseController(simulation: SimulationLoop,
                                     realTimeState: ReadOnlyEntityState,
                                     consolidatedState: ReadOnlyEntityRepository)
-                                   (implicit executionContext: ExecutionContext) extends Controller with ManageableController {
+                                   (implicit val executionContext: ExecutionContext) extends SingleViewController {
 
-    private[this] var _stop = false
-    private[this] var _paused = true
     private[this] val _era: AtomicLong = new AtomicLong(1)
-    private[this] val surgeon = Surgeon(realTimeState)
-    private[this] val stalker = Stalker(consolidatedState)
-    private[this] val storyTeller = StoryTeller(consolidatedState)
-    //var check = true
-
-    //ASYNC CALLBACK
-    consolidatedState attachNewDataListener(era => {
-      println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
-
-      storyTeller updateHistoryLog era
-      //stalker.informAboutTrueEra(era)
-
-      //val a = DataMiner(consolidatedState).bornCount(_era get())
-      //val b = DataMiner(consolidatedState).bornCount("Giraffa")
-      //val c = DataMiner(consolidatedState).bornCount("Giraffa", _era get())
-      //val d = DataMiner(consolidatedState).bornCount
-
-      //val a1 = DataMiner(consolidatedState).deadCount(_era get())
-      //val b1 = DataMiner(consolidatedState).deadCount("Giraffa")
-      //val c1 = DataMiner(consolidatedState).deadCount("Giraffa", _era get())
-      //val d1 = DataMiner(consolidatedState).deadCount
-
-      //val a2 = DataMiner(consolidatedState).aliveSpecies(_era get())
-      //val a3 = DataMiner(consolidatedState).extinctSpecies(_era get())
-      //val a4 = DataMiner(consolidatedState).extinctSpecies()
-      //val a5 = DataMiner(consolidatedState).simulationSpecies()
-      //      if (_era == 10) {
-      //        val tmp = (DataAggregator ingestedData) entitiesInEra  1
-      //        tmp filter (x => x.structuralData.reign == "ANIMAL") take 1 foreach (x => {
-      //          val y = (DataAggregator ingestedData) entityDynamicLog  x.id
-      //          //println(y)
-      //
-      //          val originalData = (DataAggregator ingestedData) getAllDynamicLogs()
-      //          val saver = DataSaver()
-      //          val serialized = saver saveData("", originalData)
-      //          val deserialized = saver loadData serialized
-      //          println(deserialized)
-      //        })
-      //      }
-    })
 
     simulation attachEraListener(era => _era set era)
 
-    override def attachView(view: View, frameRate: Int): Unit = {
-      storyTeller attachView view
-      import ViewHelpers.{ManageableObserver, toViewData}
-      view addObserver this
-      new Thread (() => {
-        while(!_stop) {
-          normalizeFrameRate(() => {
-            if (_paused) this synchronized wait()
-            view updateWorld (0, realTimeState getFilteredState(_ => true))
-            surgeon informAboutOrgansStatus view
-            //println(stalker.report)
-          }, frameRate)
-        }
-      }) start()
-    }
-
-    override def manage: ManageableController = this
-
-    override def watch(entity: String): Unit = {
-      /*if (check) {
-        stalker.stalk(entity)
-        check = false
-      }*/
-      surgeon inspects entity
-    }
-
-    override def unwatch(): Unit = surgeon leaves()
-
-    override def add(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
-      simulation.addEntities(animals, plants, newAnimals, newPlants)
-    }
-
-    override def entityData(id: String): Option[EntityState] = realTimeState getFilteredState(x => x.entityId == id) match {
-      case Seq(single) => Some(single)
-      case _ => None
-    }
-
-    override def play(): Unit = this synchronized {
-      simulation play()
-      _paused = false
-      notify()
-    }
-
-    override def pause(): Unit = this synchronized {
-      simulation pause()
-      _paused = true
-    }
-
-    override def exit(): Unit = this synchronized {
-      simulation dispose()
-      _stop = true
-      _paused = true
-      notify()
-    }
-
-    private def normalizeFrameRate(job: () => Unit, fps: Int): Unit = {
-      val start = System.currentTimeMillis()
-      job()
-      val stop = System.currentTimeMillis()
-      if (stop - start < 1000 / fps) {
-        Thread.sleep((1000 / fps) - (stop - start))
-        //this synchronized wait((1000 / fps) - (stop - start))
-      }
-    }
-
-    override def simulationStart(f: File): Try[Unit] = {
-      YamlLoader.loadSimulation(f) match {
-        case data: CompleteSimulationData =>
-          //TODO start simulation
-          Success()
-        case _ =>
-          Failure(new IllegalStateException())
-      }
-    }
+    consolidatedState attachNewDataListener(era => {
+      println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
+      storyTeller updateHistoryLog era
+      //val saver = DataSaver()
+      //val p = saver.saveData("prova", consolidatedState getAllDynamicLogs())
+    })
   }
 }
