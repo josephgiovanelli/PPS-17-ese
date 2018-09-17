@@ -214,7 +214,7 @@ private class WorldPaneImpl(
               val draw: Boolean = entityFiltersValues match {
                 case None => true
                 case Some(f) => f.reign match {
-                  case Some(ReignType.PLANT) => println(e.state.applyFilter(f));e.state.applyFilter(f)
+                  case Some(ReignType.PLANT) => e.state.applyFilter(f)
                   case _ => true
                 }
               }
