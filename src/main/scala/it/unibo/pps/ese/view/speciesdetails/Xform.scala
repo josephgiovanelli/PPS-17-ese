@@ -48,6 +48,7 @@ class Xform extends javafx.scene.Group {
       case YZX => transforms ++= Seq(t, p, _rx, _rz, _ry, s, ip)
       case ZXY => transforms ++= Seq(t, p, _ry, _rx, _rz, s, ip)
       case ZYX => transforms ++= Seq(t, p, _rx, _ry, _rz, s, ip)
+      case _=>
     }
   }
 

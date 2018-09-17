@@ -6,6 +6,9 @@ import scalafx.application.Platform
 import scalafx.geometry.Pos
 import scalafx.scene.text.TextFlow
 
+/**
+  * Custom [[HBox]] that show the behaviour's description of an internal organ
+  */
 sealed trait OrganViewer extends HBox{
   def setText(string: String)
   def clearText():Unit

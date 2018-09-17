@@ -5,18 +5,47 @@ import scalafx.scene.canvas.Canvas
 import scalafx.scene.image.Image
 import scalafx.scene.paint.Color
 
-abstract class AnimalRepresentation{
-  val brain: Image = BodyImages.brain
-  val activatedBrain: Image = BodyImages.activatedBrain
-  val eyes: Image = BodyImages.eyes
-  val activatedEyes: Image = BodyImages.activatedEyes
-  def digestiveSystem:Image
-  def digestiveSystemActivated:Image
-  val reproductiveSystemActivated:Image
-  var actualBrain:Image = brain
-  var actualEyes:Image = eyes
-  var actualDigestiveSystem:Image=digestiveSystem
+/**
+  * Abstract implementation of the Visual Representation of the animal's internal state
+  */
+sealed abstract class AnimalRepresentation{
+  /**
+    * Brain representation
+    */
+  protected val brain: Image = BodyImages.brain
+  /**
+    * Activated Brain representation
+    */
+  protected val activatedBrain: Image = BodyImages.activatedBrain
+  /**
+    * Eyes representation
+    */
+  protected val eyes: Image = BodyImages.eyes
+  /**
+    * Activated eyes  representation
+    */
+  protected val activatedEyes: Image = BodyImages.activatedEyes
+  /**
+    * Digestive system representation
+    */
+  protected def digestiveSystem:Image
+  /**
+    * Activated Digestive system representation
+    */
+  protected def digestiveSystemActivated:Image
+  /**
+    * Activated Reproductive system representation
+    */
+  protected val reproductiveSystemActivated:Image
+  protected var actualBrain:Image = brain
+  protected var actualEyes:Image = eyes
+  protected var actualDigestiveSystem:Image=digestiveSystem
 
+  /**
+    * Method to obtain the current animal representation drawn in a Canvas
+    * @return
+    *         A [[Canvas]] with the current animal representation
+    */
   def drawRepresentation:Canvas = {
     val width = 300
     val height = 900
@@ -27,10 +56,17 @@ abstract class AnimalRepresentation{
     val pad:Double = 50.0
     gc.drawImage(actualDigestiveSystem,2+pad,200)
     gc.drawImage(actualBrain,22+pad,10)
-    gc.drawImage(actualEyes,55+pad,68.5)
+    gc.drawImage(actualEyes,55+pad,88.5)
     canvas
   }
 
+  /**
+    * Return a [[Canvas]] with the animal representation after setting the brain status
+    * @param brainStatus
+    *                    The [[BrainStatus]] to set
+    * @return
+    *         The [[Canvas]] after setting the brain status
+    */
   def setBrainStatus(brainStatus: BrainStatus):Canvas = {
     actualBrain = brainStatus match {
       case HippoCampusActive(r)=> activatedBrain
@@ -38,6 +74,14 @@ abstract class AnimalRepresentation{
     }
     drawRepresentation
   }
+
+  /**
+    * Return a [[Canvas]] with the animal representation after setting the eyes status
+    * @param eyesStatus
+    *                   The [[EyesStatus]] to set
+    * @return
+    *         The [[Canvas]] after setting the eyes status
+    */
   def setEyesStatus(eyesStatus: EyesStatus):Canvas = {
     actualEyes = eyesStatus match {
       case EyesActive(r)=> activatedEyes
@@ -45,6 +89,14 @@ abstract class AnimalRepresentation{
     }
     drawRepresentation
   }
+
+  /**
+    * Return a [[Canvas]] with the animal representation after setting the digestive system status
+    * @param digestiveSystemStatus
+    *                              The [[DigestiveSystemStatus]] to set
+    * @return
+    *         The [[Canvas]] after setting the digestive system status
+    */
   def setDigestiveSystemStatus(digestiveSystemStatus: DigestiveSystemStatus):Canvas = {
     actualDigestiveSystem = digestiveSystemStatus match {
       case Digesting=> digestiveSystemActivated
@@ -53,6 +105,14 @@ abstract class AnimalRepresentation{
     drawRepresentation
   }
 
+  /**
+    * Return a [[Canvas]] with the animal representation after setting the reproductive system status
+    *
+    * @param reproductiveApparatusStatus
+    *                                    The [[ReproductiveApparatusStatus]] to set
+    * @return
+    * *         The [[Canvas]] after setting the reproductive system status
+    */
   def setReproductiveSystemStatus(reproductiveApparatusStatus: ReproductiveApparatusStatus):Canvas = {
     actualDigestiveSystem = reproductiveApparatusStatus match {
       case Reproducing=> reproductiveSystemActivated
@@ -62,14 +122,20 @@ abstract class AnimalRepresentation{
   }
 
 }
+
+/**
+  * The [[AnimalRepresentation]] of a Male
+  */
 case class MaleAnimalRepresentation() extends AnimalRepresentation{
   override val digestiveSystem: Image = BodyImages.manDigestiveSystem
   override val digestiveSystemActivated: Image = BodyImages.manDigestiveSystemActivated
   override val reproductiveSystemActivated: Image = BodyImages.manReproductiveSystemActivated
   actualDigestiveSystem = digestiveSystem
-
 }
-
+/**
+  *The trait that extends [[AnimalRepresentation]] with the additional method to modify the visualization of a female
+  * internal status
+  */
 sealed trait FemaleRepresentation extends AnimalRepresentation{
   private var embryoStatus:Option[EmbryoStatus.Value] = None
   def setEmbryoStatus(embryoS: EmbryoStatus.Value):Unit = embryoStatus = Some(embryoS)
@@ -110,7 +176,7 @@ sealed trait FemaleRepresentation extends AnimalRepresentation{
   }
 }
 
-case class FemaleAnimalRepresentation() extends AnimalRepresentation with FemaleRepresentation{
+case class FemaleAnimalRepresentation() extends FemaleRepresentation{
   actualDigestiveSystem = normalDigestiveSystem
 }
 
