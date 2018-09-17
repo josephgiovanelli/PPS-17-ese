@@ -1,8 +1,7 @@
 package it.unibo.pps.ese.controller.loader.data.builder.fixtures
 
-import it.unibo.pps.ese.controller.loader.beans.Allele
-import it.unibo.pps.ese.controller.loader.data.CompleteAlleleData
-import it.unibo.pps.ese.controller.loader.data.builder.{AlleleBuilder, GeneBuilder}
+import it.unibo.pps.ese.controller.loader.data.builder.AlleleBuilder
+import it.unibo.pps.ese.controller.loader.data.builder.gene.CustomGeneBuilder
 
 trait CustomGeneBuildFixture {
   def customGBFixture = new {
@@ -31,20 +30,20 @@ trait CustomGeneBuildFixture {
       .setEffect(Map("test" -> 1))
       .setProbability(0.5)
 
-    val complete = GeneBuilder()
+    val complete = CustomGeneBuilder()
       .setId("idcc")
       .setName("namecc")
       .addAlleles(Set(all1))
       .addProperties(Map("test" -> Double.getClass))
       .addConversionMap(Map())
 
-    val staticIncomplete = GeneBuilder()
+    val staticIncomplete = CustomGeneBuilder()
       .setName("namecsi")
       .addAlleles(Set(all2))
       .addProperties(Map("test" -> Double.getClass))
       .addConversionMap(Map())
 
-    val dynamicIncomplete = GeneBuilder()
+    val dynamicIncomplete = CustomGeneBuilder()
       .setId("iddi")
       .setName("namecdi")
       .addAlleles(Set(all3))

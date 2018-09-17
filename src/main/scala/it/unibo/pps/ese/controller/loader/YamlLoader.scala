@@ -3,12 +3,11 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
-import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
-import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
 import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
 import it.unibo.pps.ese.controller.loader.data.builder._
+import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource}
 import it.unibo.pps.ese.utils.DefaultValue
@@ -73,9 +72,9 @@ object YamlLoader extends Loader {
 
   private def loadAnimal(config: File): AnimalBuilder[_] = {
     val loadedAnimal = loadFileContent(config).parseYaml.convertTo[Animal]
-    var structuralChromosome: Seq[GeneBuilder[_]] = Seq()
-    var regulationChromosome: Seq[GeneBuilder[_]] = Seq()
-    var sexualChromosome: Seq[GeneBuilder[_]] = Seq()
+    var structuralChromosome: Seq[CustomGeneBuilder[_]] = Seq()
+    var regulationChromosome: Seq[DefaultGeneBuilder[_]] = Seq()
+    var sexualChromosome: Seq[DefaultGeneBuilder[_]] = Seq()
     if(loadedAnimal.structuralChromosome.isDefined)
       structuralChromosome = normalizeConfigPath(loadedAnimal.structuralChromosome.get, config.getParentFolder().get) match {
         case f: Folder =>
@@ -104,7 +103,7 @@ object YamlLoader extends Loader {
   }
 
   private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData,
-                                                      currentFolder: Folder): Seq[GeneBuilder[_]] = {
+                                                      currentFolder: Folder): Seq[DefaultGeneBuilder[_]] = {
     //TODO in builder, only check subset here
     //require(chromosomeData.names.keySet == genesSet.map(_.name))
     var alleles: Seq[AlleleBuilder[_]] = Seq()
@@ -117,7 +116,7 @@ object YamlLoader extends Loader {
     //TODO check no wrong alleles
     chromosomeData.names.getOrElse(Seq()).toSeq.map({
       case (k, v) =>
-        var builder: GeneBuilder[_] = GeneBuilder()
+        var builder: DefaultGeneBuilder[_] = DefaultGeneBuilder()
           .setDefaultInfo(genesSet.find(e => e.name == k).get)
         if(v.isValid)
           builder = builder.setId(v)
@@ -127,11 +126,11 @@ object YamlLoader extends Loader {
     })
   }
 
-  private def loadStructuralChromosome(genesFolder: Folder): Seq[GeneBuilder[_]] =  {
+  private def loadStructuralChromosome(genesFolder: Folder): Seq[CustomGeneBuilder[_]] =  {
     genesFolder.getFilesAsStream(FileFormats.YAML)
       .map(loadFileContent(_).parseYaml.convertTo[Gene])
       .map(g => {
-        var builder: GeneBuilder[_] = GeneBuilder().setName(g.simpleName)
+        var builder: CustomGeneBuilder[_] = CustomGeneBuilder().setName(g.simpleName)
         if(g.id.isDefined)
           builder = builder.setId(g.id.get)
         if(g.properties.isDefined)

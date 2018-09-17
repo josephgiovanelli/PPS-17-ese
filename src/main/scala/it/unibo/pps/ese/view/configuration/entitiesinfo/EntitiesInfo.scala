@@ -7,6 +7,7 @@ import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGen
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
+import it.unibo.pps.ese.controller.loader.data.builder.gene.{DefaultGeneBuilder, CustomGeneBuilder}
 import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.utils.DefaultValue
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
@@ -214,16 +215,16 @@ object EntitiesInfo {
       mappedAnimals.map(mappedAnimal => mappedAnimal._2 -> animalsEntities(mappedAnimal._1))
     }
 
-    private def sexualChromosomeMapping(animal: String): Iterable[GeneBuilder[_]] =
+    private def sexualChromosomeMapping(animal: String): Iterable[DefaultGeneBuilder[_]] =
       defaultChromosomeMapping(ChromosomeTypes.SEXUAL, animal)
 
-    private def regulationChromosomeMapping(animal: String): Iterable[GeneBuilder[_]] =
+    private def regulationChromosomeMapping(animal: String): Iterable[DefaultGeneBuilder[_]] =
       defaultChromosomeMapping(ChromosomeTypes.REGULATION, animal)
 
-    private def structuralChromosomeMapping(animal: String): Iterable[GeneBuilder[_]] =
+    private def structuralChromosomeMapping(animal: String): Iterable[CustomGeneBuilder[_]] =
       getAnimalInfo(animal).get.animalChromosomeInfo.structuralChromosome.map(
         gene =>
-        GeneBuilder()
+          CustomGeneBuilder()
           .setId(gene._2.geneInfo.id)
           .setName(gene._2.geneInfo.name)
           .setCustomProperties(propertiesMapping(gene._2.geneInfo.conversionMap))
@@ -233,7 +234,7 @@ object EntitiesInfo {
     private def propertiesMapping(properties: Map[String, Map[String, Double]]): Map[String, PropertyInfo] =
       properties.map(property => property._1 -> PropertyInfo(property._2))
 
-    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[GeneBuilder[_]] = {
+    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[DefaultGeneBuilder[_]] = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(animal)
 
       var enumerationElements: Set[_ <: DefaultGene] = Set.empty
@@ -243,7 +244,7 @@ object EntitiesInfo {
       }
       defaultChromosomeInfo.map(
         gene =>
-        GeneBuilder()
+          DefaultGeneBuilder()
         .setDefaultInfo(enumerationElements.filter(x => x.name.equals(gene._2.geneInfo.name)).head)
         .setId(gene._2.geneInfo.id)
         .addAlleles(alleleMapping(gene._2.geneInfo.id, gene._2.alleles))
