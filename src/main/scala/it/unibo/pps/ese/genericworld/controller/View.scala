@@ -17,7 +17,6 @@ case class EntityDetails(id: String, species: String, position: Position)
 
 trait Observer {
   def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
-
   def getEntityDetails(id: String): Option[EntityInfo]
   def setWatched(id: String): Unit
   def unsetWatched(id: String):Unit
@@ -25,6 +24,8 @@ trait Observer {
   def simulationEras(): Future[Seq[Long]]
   def entitiesInEra(era: Long): Future[Seq[String]]
   def replay: ReplayController
+  def pause()
+  def play()
 }
 
 //class View {
@@ -75,5 +76,9 @@ object ViewHelpers {
       queryableController.query.add (animals, plants, newAnimals, newPlants)
 
     override def replay: ReplayController = queryableController.query replay
+
+    override def pause(): Unit = queryableController.manage.pause()
+
+    override def play(): Unit = queryableController.manage.play()
   }
 }

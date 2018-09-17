@@ -40,6 +40,8 @@ trait MainComponent {
   def simulationEras(): Future[Seq[Long]]
   def entitiesInEra(era: Long): Future[Seq[String]]
   def replay: ReplayController
+  def pause()
+  def play()
 }
 trait BodyViewer {
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
@@ -140,6 +142,10 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
   override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
     observers.foreach(_.addEntities(animals, plants, newAnimals, newPlants))
   }
+
+  override def pause(): Unit = observers.foreach(o => o.pause())
+
+  override def play(): Unit = observers.foreach(o => o.play())
 }
 
 object ViewType extends Enumeration {
