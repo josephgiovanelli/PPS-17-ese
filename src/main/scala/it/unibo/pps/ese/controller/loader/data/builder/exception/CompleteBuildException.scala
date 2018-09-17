@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.loader.data.builder.exception
 
-class CompleteBuildException(val motivations: Iterable[Motivation]) extends Exception() {
+class CompleteBuildException(val motivations: Iterable[Motivation]) extends Exception(toString) {
 
   def this(motivation: String, subMotivations: Iterable[Motivation] = Seq()) {
     this(Seq(new Motivation(motivation, subMotivations)))
