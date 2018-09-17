@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.loader.data.builder.fixtures
 import it.unibo.pps.ese.controller.loader.data.builder.AlleleBuilder
 import it.unibo.pps.ese.controller.loader.data.builder.gene.DefaultGeneBuilder
 
-trait DefaultGeneBuildFixture {
+trait DefaultGeneBuildFixture extends AlleleBuildFixture {
   def defaultGBFixture = new {
     private val all1 = AlleleBuilder()
       .setId("")
@@ -33,17 +33,32 @@ trait DefaultGeneBuildFixture {
       .setId("iddc")
       .setName("namedc")
       .addProperties(Map("test" -> Double.getClass))
-      .addAlleles(Set(all1))
+      .addAlleles(Set(
+        alleleBFixture.templateFullProb
+        .setId("")
+        .setGene("iddc")
+          .setEffect(Map("test" -> 1))
+      ))
 
     val staticIncomplete = DefaultGeneBuilder()
       .setName("namedsi")
-      .addAlleles(Set(all2))
+      .addAlleles(Set(
+        alleleBFixture.templateFullProb
+          .setId("")
+          .setGene("iddc")
+          .setEffect(Map("iddsi" -> 1))
+      ))
       .addProperties(Map("test" -> Double.getClass))
 
     val dynamicIncomplete = DefaultGeneBuilder()
       .setId("idddi")
       .setName("nameddi")
-      .addAlleles(Set(all3))
+      .addAlleles(Set(
+        alleleBFixture.templateHalfProb
+          .setId("")
+          .setGene("idddi")
+          .setEffect(Map("test" -> 1))
+      ))
       .addProperties(Map("test" -> Double.getClass))
   }
 }
