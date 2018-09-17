@@ -15,9 +15,9 @@ class PrologDecisionSupportTest extends FunSuite {
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
   StaticRules.instance().setRules(worldRules)
 
-  val prey1 = EntityAttributesImpl("1", EntityKinds('herbivore), 6, 6, 6, (6, 6), 5, SexTypes.male)
-  val prey2 = EntityAttributesImpl("2", EntityKinds('herbivore), 6, 6, 6, (2, 1), 5, SexTypes.female)
-  val hunter = EntityAttributesImpl("3", EntityKinds('carnivorous), 10, 10, 10, (3, 3), 5, SexTypes.male)
+  val prey1 = EntityAttributesImpl("a", EntityKinds('herbivore), 6, 6, 6, (6, 6), 5, SexTypes.male)
+  val prey2 = EntityAttributesImpl("b", EntityKinds('herbivore), 6, 6, 6, (2, 1), 5, SexTypes.female)
+  val hunter = EntityAttributesImpl("c", EntityKinds('carnivorous), 10, 10, 10, (3, 3), 5, SexTypes.male)
   val decisionSupport: DecisionSupport = PrologDecisionSupport()
   decisionSupport.createVisualField(Seq(prey2, hunter))
   val firstTest: Stream[EntityChoiceImpl] = decisionSupport.discoverPreys(hunter)

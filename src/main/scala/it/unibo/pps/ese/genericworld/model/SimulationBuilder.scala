@@ -144,6 +144,7 @@ object EntityBuilderHelpers {
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, plantInfo, position)
     entity addComponent initializePlantPhysicalComponent(entity, plantInfo)
+    entity addComponent initializePlantReproductionComponent(entity)
     entity
   }
 
@@ -224,6 +225,15 @@ object EntityBuilderHelpers {
                                               (implicit executionContext: ExecutionContext): Component = {
     PlantPhysicalComponent(
       entity specifications,
-      plantInfo.qualities(Availability).qualityValue)
+      plantInfo.qualities(Availability).qualityValue,
+      yearToClock)
+  }
+
+  private def initializePlantReproductionComponent(entity: Entity)
+                                              (implicit executionContext: ExecutionContext): Component = {
+    PlantReproductionComponent(
+      entity specifications,
+      GeneticsSimulator,
+      yearToClock)
   }
 }

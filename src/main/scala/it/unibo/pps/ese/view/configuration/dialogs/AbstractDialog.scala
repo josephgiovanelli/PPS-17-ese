@@ -53,7 +53,6 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   val okButtonType: ButtonType = new ButtonType("Confirm", ButtonData.OKDone)
   dialogPane().buttonTypes = Seq(okButtonType)
   val okButton: Node = dialogPane().lookupButton(okButtonType)
-  okButton.disable = true
 
 
   /*
@@ -85,6 +84,8 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     listFields.foreach(subject =>
       subject.onChange ((_, _) =>
         okButton.disable = checkFields))
+
+    okButton.disable = checkFields
   }
 
 
@@ -131,7 +132,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
     else if (length) fields(field)._2.text.value = "Must be " + lengthFields(field) + " long"
     else if (probability) fields(field)._2.text.value = "Must be a probability"
     else fields(field)._2.text.value = ""
-
+    
     checkFields
   }
 

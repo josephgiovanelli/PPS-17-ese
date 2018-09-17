@@ -68,7 +68,7 @@ object EntityKinds extends Enumeration {
   entityKinds.foreach(Value)
   private var constants: Map[Symbol, EntityKinds.Value] = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
 
-  def updateSpecies() = {
+  def updateSpecies(): Unit = {
     entityKinds = StaticRules.instance().getSpecies()
     entityKinds.foreach(Value)
     constants = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
@@ -111,7 +111,7 @@ object WorldRulesImpl {
   implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
   case class WorldRulesImpl(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
-    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set
+    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = compatibleHuntingKinds = set
     def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set
   }
 }

@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.entitywatchers
 
 import it.unibo.pps.ese.dataminer._
+import it.unibo.pps.ese.genericworld.model.{EntityState, ReignType}
 import it.unibo.pps.ese.utils.Point
 
 /**
@@ -10,7 +11,9 @@ import it.unibo.pps.ese.utils.Point
   *                to do the key action
   * @param others all the entities with whom the stalked interacted, who are alive in this era
   */
-case class ResultEra(me: Point, actions: Map[String, Seq[String]], others: Map[String, Point])
+case class ResultEra(me: Point, actions: Map[String, Seq[String]], others: Seq[ResultOther])
+
+case class ResultOther(label: String, var entities: Map[String, Point])
 
 case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
@@ -19,19 +22,34 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
   var birthEra: Long = 0
   var deadEra: Option[Long] = None
   var trueEra: Option[Long] = None
+  var killer: Option[String] = None
 
   def stalk(entityId: String): Unit = {
-    if (stalked.isEmpty) {
-      stalked = Some(entityId)
-      birthEra = getBirthEra
-      //birthEra = consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._1).min.toInt
-      currentEra = birthEra
-      deadEra = None
-    }
+    //if (stalked.isEmpty) {
+      val entity: Option[EntityLog] = consolidatedState.entityDynamicLog(entityId)
+      if (entity.isDefined && entity.get.structuralData.reign == ReignType.ANIMAL.toString) {
+        stalked = Some(entityId)
+        birthEra = getBirthEra
+        currentEra = birthEra
+        deadEra = None
+      }
+    //}
   }
 
   def informAboutTrueEra(era: Long): Unit = {
     trueEra = Some(era)
+    if (stalked.nonEmpty && killer.isEmpty) {
+      consolidatedState.getAllDynamicLogs()
+        .filter(x => x.structuralData.reign == ReignType.ANIMAL.toString).foreach(x => {
+        x.dynamicData.foreach(y => y._2 match {
+          case impl: AnimalDynamicDataImpl =>
+            if (impl.eating.contains(stalked.get)) {
+              deadEra = Some(y._1)
+              killer = Some(x.id)
+            }
+        })
+      })
+    }
   }
 
   def unstalk: Unit = {
@@ -42,29 +60,43 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
     var me: Point = null
     var actions: Map[String, Seq[String]] = Map.empty
-    var others: Map[String, Point] = Map.empty
+    var others:  Seq[ResultOther] = Seq(
+      ResultOther("prey", Map.empty),
+      ResultOther("partner", Map.empty),
+      ResultOther("child", Map.empty),
+      ResultOther("killer", Map.empty))
 
     if (stalked.isDefined) {
 
       if (deadEra.isEmpty && isStalkedDeadInThisEra) {
-      //if (deadEra.isEmpty && !consolidatedState.entitiesInEra(currentEra).map(entity => entity.id).contains(stalked.get)) {
         deadEra = Some(currentEra)
-        println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        //println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
       }
       if ((deadEra.isDefined && currentEra >= deadEra.get) || (trueEra.isDefined && currentEra >= trueEra.get)) {
         currentEra = birthEra
       }
 
-      var allInteractionEntitiesId: Seq[String] = Seq.empty
+
+      var preys: Seq[String] = Seq.empty
+      var partners: Seq[String] = Seq.empty
+      var children: Seq[String] = Seq.empty
       getAllStalkedActions.foreach {
-      //consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._2).foreach {
-        case impl: AnimalDynamicDataImpl => allInteractionEntitiesId ++= (impl.eating ++ impl.coupling ++ impl.givingBirth)
+        case impl: AnimalDynamicDataImpl =>
+          preys ++= impl.eating
+          partners ++= impl.coupling
+          children ++= impl.givingBirth
       }
 
-      allInteractionEntitiesId.foreach(entity =>
-        if (consolidatedState.entitiesInEra(currentEra).exists(x => x.id == entity))
-          others += (entity -> getPositionInThisEra(entity)))
-          //others += (entity -> consolidatedState.entitiesInEra(currentEra).filter(x => x.id == entity).head.dynamicData.position))
+      var allInteractionEntitiesId: Map[String, Seq[String]] = Map("prey" -> preys, "partner" -> partners, "child" -> children)
+
+      if (killer.nonEmpty) {
+        allInteractionEntitiesId += ("killer" -> Seq(killer.get))
+      }
+
+      allInteractionEntitiesId.foreach(tuple =>
+        tuple._2.foreach(entity => if (consolidatedState.entitiesInEra(currentEra).exists(x => x.id == entity))
+          others.filter(x => x.label == tuple._1).head.entities += (entity -> getPositionInThisEra(entity))))
+
 
       consolidatedState.entitiesInEra(currentEra).filter(x => x.id == stalked.get).head.dynamicData match {
         case impl: AnimalDynamicDataImpl =>
@@ -74,8 +106,8 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
           actions += ("give birth" -> impl.givingBirth)
       }
 
-      if (trueEra.isDefined)
-        println("!!!!!!!!!!!!!!!!!!!!!!!!" + (currentEra, trueEra.get))
+      /*if (trueEra.isDefined)
+        println((currentEra, trueEra.get))*/
 
       if (trueEra.isDefined && ((currentEra + 1) <= trueEra.get)) currentEra += 1
 
