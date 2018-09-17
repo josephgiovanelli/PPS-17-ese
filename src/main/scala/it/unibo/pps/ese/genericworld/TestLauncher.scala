@@ -52,8 +52,8 @@ object TestLauncher extends JFXApp {
 
 //    val controller: Controller =
 //      SimulationBuilder buildWorldFromSimulationData ("it/unibo/pps/ese/controller/loader/Simulation.yml", 500, 500)
-  YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml"))) match {
-    case data: CompleteSimulationData =>
+  YamlLoader.loadCompleteSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml"))) match {
+    case Success(data) =>
       val controller: Controller =
         new SimulationBuilder[EmptySimulation]
           .dimension(500, 500)
@@ -68,7 +68,8 @@ object TestLauncher extends JFXApp {
       stage.setOnCloseRequest((e: WindowEvent) => {
         controller.manage.exit()
       })
-    case _ =>
+    case Failure(exception) =>
+      println(exception.toString)
       throw new IllegalStateException()
   }
 

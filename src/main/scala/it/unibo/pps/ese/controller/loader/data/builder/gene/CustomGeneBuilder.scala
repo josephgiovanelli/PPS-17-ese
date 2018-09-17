@@ -56,7 +56,7 @@ object CustomGeneBuilder {
             Failure(check._1.get)
           }
         case _ =>
-          Failure(new CompleteBuildException(""))
+          Failure(new CompleteBuildException("Gene: " + name.get + " | all properties must be set"))
       }
     }
 

@@ -116,19 +116,19 @@ object AnimalBuilder {
       val structTries: Iterable[Try[CompleteCustomGeneData]] = structuralChromosome.map(_.tryCompleteBuild())
       val struct: Iterable[CompleteCustomGeneData] = structTries.collect({case Success(value) => value})
       if(struct.size != structuralChromosome.size) {
-        exception = exception ++: new CompleteBuildException("Gene: "+ name +" | All structural chromosome's genes must be complete",
+        exception = exception ++: new CompleteBuildException("Animal: "+ name.get +" | All structural chromosome's genes must be complete",
           structTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       val regTries: Iterable[Try[CompleteDefaultGeneData]] = regulationChromosome.map(_.tryCompleteBuild())
       val reg: Iterable[CompleteDefaultGeneData] = regTries.collect({case Success(value) => value})
       if(reg.size != regulationChromosome.size) {
-        exception = exception ++: new CompleteBuildException("Gene: "+ name +" | All regulation chromosome's genes must be complete",
+        exception = exception ++: new CompleteBuildException("Animal: "+ name.get +" | All regulation chromosome's genes must be complete",
           regTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       val sexTries: Iterable[Try[CompleteDefaultGeneData]] = sexualChromosome.map(_.tryCompleteBuild())
       val sex: Iterable[CompleteDefaultGeneData] = sexTries.collect({case Success(value) => value})
       if(sex.size != sexualChromosome.size) {
-        exception = exception ++: new CompleteBuildException("Gene: "+ name +" | All sexual chromosome's genes must be complete",
+        exception = exception ++: new CompleteBuildException("Animal: "+ name.get +" | All sexual chromosome's genes must be complete",
           sexTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       (exception, struct, reg, sex)

@@ -7,7 +7,7 @@ class CompleteBuildException(val motivations: Iterable[Motivation]) extends Exce
   }
 
   def this(motivation: String, exc: Iterable[CompleteBuildException])(implicit i: DummyImplicit) {
-    this(motivation, exc.map(e => new Motivation("---", e.motivations)))
+    this(motivation, exc.flatMap(_.motivations))
   }
 
   def +:(exception: CompleteBuildException): CompleteBuildException = {
@@ -17,7 +17,13 @@ class CompleteBuildException(val motivations: Iterable[Motivation]) extends Exce
   def :+(exception: CompleteBuildException): CompleteBuildException = {
     new CompleteBuildException(motivations ++ exception.motivations)
   }
-  
+
+  override def toString: String = motivations.mkString("\n")
+
 }
 
-class Motivation(motivation: String, subMotivations: Iterable[Motivation])
+class Motivation(val motivation: String, subMotivations: Iterable[Motivation]) {
+  override def toString: String = {
+    motivation + subMotivations.foldLeft("")((a, b) => a + "\n  " + b.toString.replaceAll("\n", "\n  "))
+  }
+}

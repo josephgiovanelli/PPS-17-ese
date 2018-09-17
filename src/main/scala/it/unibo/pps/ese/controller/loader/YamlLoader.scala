@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.loader
 import java.io.InputStream
 
 import it.unibo.pps.ese.controller.loader.beans._
-import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
 import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
 import it.unibo.pps.ese.controller.loader.data.builder._
@@ -12,6 +12,8 @@ import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource}
 import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
+
+import scala.util.Try
 
 
 object YamlLoader extends Loader {
@@ -26,7 +28,15 @@ object YamlLoader extends Loader {
   implicit val iterable: DefaultValue[Iterable[_]] = DefaultValue(Iterable())
   implicit def seq[X]: DefaultValue[Seq[X]] = DefaultValue(Seq[X]())
 
+  def loadCompleteSimulation(configFile: File): Try[CompleteSimulationData] = {
+    obtainSimulationBuilder(configFile).tryCompleteBuild
+  }
+
   override def loadSimulation(configFile: File): PartialSimulationData = {
+    obtainSimulationBuilder(configFile).build()
+  }
+
+  private def obtainSimulationBuilder(configFile: File): SimulationBuilder[_] = {
     val currentFolder = configFile.getParentFolder().get
     val simulation = loadFileContent(configFile).parseYaml.convertTo[Simulation]
 
@@ -45,7 +55,7 @@ object YamlLoader extends Loader {
       })
       builder = builder.addPlants(plants)
     }
-    builder.build()
+    builder
   }
 
   private def loadPlant(config: File): PlantBuilder[_] = {
