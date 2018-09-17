@@ -29,7 +29,26 @@ libraryDependencies += "it.unibo.alice.tuprolog" % "tuprolog" % "3.2"
 libraryDependencies += "com.github.wookietreiber" %% "scala-chart" % "latest.integration"
 libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0"
 libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.6.0"
-libraryDependencies += "org.fxyz3d" % "fxyz3d" % "0.1"
+//libraryDependencies += "de.jensd" % "fontawesomefx-commons" % "9.1.2"
+//libraryDependencies += "de.jensd" % "fontawesomefx-fontawesome" % "4.7.0-9.1.2"
+//libraryDependencies += "de.jensd" % "fontawesomefx-commons" % "8.15"
+
+// https://mvnrepository.com/artifact/de.jensd/fontawesomefx
+libraryDependencies += "de.jensd" % "fontawesomefx-commons" % "8.15"
+libraryDependencies += "de.jensd" % "fontawesomefx-emojione" % "2.2.7-2"
+libraryDependencies += "de.jensd" % "fontawesomefx-materialdesignfont" % "1.7.22-4"
+libraryDependencies += "de.jensd" % "fontawesomefx-fontawesome" % "4.7.0-5"
+libraryDependencies += "de.jensd" % "fontawesomefx-controls" % "8.15"
+libraryDependencies += "de.jensd" % "fontawesomefx-icons525" % "3.0.0-4"
+libraryDependencies += "org.controlsfx" % "controlsfx" % "8.40.11"
+libraryDependencies += "de.jensd" % "fontawesomefx-weathericons" % "2.0.10-5"
+libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.26"
+
+resolvers ++= Seq("Spring Milestone Repository" at "http://repo.spring.io/milestone",
+  "Spring Snapshot Repository" at "http://repo.spring.io/snapshot",
+  "Spring Release Repository" at "http://repo.spring.io/release",
+   "Spring plugins Repository" at "http://repo.spring.io/plugins-release/")
+
 import Tests._
 import CustomSettings._
 

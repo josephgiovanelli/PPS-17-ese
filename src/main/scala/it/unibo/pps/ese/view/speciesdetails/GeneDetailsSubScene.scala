@@ -8,6 +8,8 @@ import javafx.scene.text.Text
 import scalafx.scene.layout.VBox
 import scalafx.scene.text.TextFlow
 import scalafx.scene.{Group, Parent, SceneAntialiasing, SubScene}
+import scalaz._
+import Scalaz._
 
 trait GeneDetails{
   def visualizeGeneStats(geneStats: GeneStats,cName:String)
@@ -15,7 +17,7 @@ trait GeneDetails{
 }
 
 class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubScene(width,height,true,SceneAntialiasing.Balanced) with GeneDetails {
-  import TextUtilities._
+  import it.unibo.pps.ese.view.utilities.TextUtilities._
   private val textLabel = new TextFlow()
   textLabel.children.add("No Gene Selected".toText)
   private[this]def buildDetailsBox(textLabel: TextFlow):Parent= {
@@ -56,7 +58,7 @@ class GeneDetailsSubScene(width:Double, height:Double, side: Side) extends SubSc
         features= featuresToString(f),
         dominanceLevel = d.toString,
         probability = p.toString,
-        active = if(a) "Yes" else "No"
+        active = a ? "Yes" | "No"
       )
     case BasicGeneStats(g,i)=>
       setBasicGeneDetails(

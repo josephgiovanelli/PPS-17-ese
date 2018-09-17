@@ -1,16 +1,18 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.entitybehaviors.LifePhases
-import it.unibo.pps.ese.genericworld.model.EntityInfo
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male, PlantInfo}
 import it.unibo.pps.ese.view.speciesdetails.{NonNumericQualityViewerBox, QualityViewerBox}
 import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.view.speciesdetails.QualityBoxUtilities._
+import it.unibo.pps.ese.view.utilities.TextUtilities._
+import it.unibo.pps.ese.view.utilities.EntityConversions._
 trait DetailsPane extends ScrollPane {
 
-  def showDetails(e: Entity,entityDetails: EntityInfo): Unit
+  def showDetails(e: EntityState): Unit
   def clearDetails() : Unit
 }
 
@@ -22,16 +24,22 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
 
   val nameLabel = Label("")
   val mainPane = new BorderPane()
+  mainPane.translateY = 5
+
+  val title:HBox = "Entity Details".toHBox
+  title.prefWidth <==width
+  mainPane.top = title
   val button:Button = new Button("Genome")
   val vBox:VBox = new VBox()
+  vBox.translateY = 10
   vBox.spacing = 10
   mainPane.center = vBox
 
   content = mainPane
 
-  override def showDetails(e: Entity,entityDetails: EntityInfo): Unit = entityDetails.baseEntityInfo match {
+  override def showDetails(e: EntityState): Unit = e.state.baseEntityInfo match {
     case AnimalInfo(species,gender,dietType,_,qualities,_) =>
-      nameLabel.text = e.name
+      nameLabel.text = e.state.species.toString
       val genderColor = gender match {
         case Male => "-fx-accent: cyan;"
         case Female => "-fx-accent: pink;"
@@ -41,7 +49,7 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
         case Carnivorous => "-fx-accent: red"
       }
 
-      val lifePhaseBox = entityDetails.lifePhase match {
+      val lifePhaseBox = e.state.lifePhase match {
         case LifePhases.CHILD =>
           new NonNumericQualityViewerBox("Child","-fx-accent: lightGreen;")
         case LifePhases.ADULT =>
@@ -52,46 +60,24 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
       val reignBox = new NonNumericQualityViewerBox("Animal","-fx-accent: orange;")
       val genderBox = new NonNumericQualityViewerBox(gender.toString,genderColor)
       val dietBox = new NonNumericQualityViewerBox(dietType.toString,dietColor)
-      vBox.children = nameLabel ::
+      vBox.children =
+        nameLabel ::
         reignBox::
         genderBox ::
         dietBox ::
         lifePhaseBox::
-        getAllAnimalQualities(entityDetails)
-          .map(q=>q._1--->q._2).toList
-    case PlantInfo(s,g,q) =>
-      val reignBox = new NonNumericQualityViewerBox("Plant","-fx-accent: green;")
-      nameLabel.text = e.name
-      vBox.children = nameLabel ::
-        reignBox::
-        getAllPlantQualities(entityDetails)
+        e.state.numericQualities
           .map(q=>q._1--->q._2).toList
 
-  }
-  def getAllAnimalQualities(entityDetails:EntityInfo):Seq[(String,Double)] = {
-    "Strong"->entityDetails.strong::
-    "Action Field"->entityDetails.actionField::
-    "Visual Field"->entityDetails.visualField::
-    "Attractiveness"->entityDetails.attractiveness::
-    "Speed"->entityDetails.actualSpeed::
-    "Fertility"->entityDetails.fertility::
-    "Age"->entityDetails.age.toDouble::
-    "Average Life"->entityDetails.averageLife::
-    "Percentage Decay"->entityDetails.percentageDecay::
-    "Energy"->entityDetails.energy::
-    "Energy Requirement"->entityDetails.energyRequirements::
-    "Height"->entityDetails.height::
-    "Nutritional Value"->entityDetails.nutritionalValue::
-    "Defense"->entityDetails.defense::
-    List()
-  }
-  def getAllPlantQualities(entityDetails:EntityInfo):Seq[(String,Double)] = {
-    "Height"->entityDetails.height::
-    "Nutritional Value"->entityDetails.nutritionalValue::
-//    "Attractiveness"->entityDetails.attractiveness::
-//    "Hardness"->entityDetails.strong::
-    "Availability"->entityDetails.availability::
-    List()
+    case PlantInfo(s,g,q) =>
+      val reignBox = new NonNumericQualityViewerBox("Plant","-fx-accent: green;")
+      nameLabel.text = e.state.species.toString
+      vBox.children =
+        nameLabel ::
+        reignBox::
+        e.state.numericQualities
+          .map(q=>q._1--->q._2).toList
+
   }
   override def clearDetails(): Unit = {
     vBox.children clear()

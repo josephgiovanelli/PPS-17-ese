@@ -2,16 +2,18 @@ package it.unibo.pps.ese.view
 
 import scalafx.Includes._
 import javafx.event.ActionEvent
-
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import WorldPrefernces._
+import it.unibo.pps.ese.genericworld.model.EntityState
 import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.view.bodyViewer.BodyPane
-import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationDialog, ConfirmDialog}
+import it.unibo.pps.ese.view.configuration.dialogs.ConfigurationDialog
+import it.unibo.pps.ese.view.bodyViewer.{AnimalInternalStatus, BodyPane}
+import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
+import it.unibo.pps.ese.view.filters.FiltersPane
+import it.unibo.pps.ese.view.history.{HistoryLog, HistoryPane}
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
 import it.unibo.pps.ese.view.statistics.StatisticsDetailsPane
-
 import scalafx.geometry.{Insets, Orientation}
 import scalafx.scene.layout.BorderPane
 
@@ -25,7 +27,7 @@ object ZoomPreferences {
 private class MainScene(
                          geneticsSimulator: GeneticsSimulator,
                          mainComponent: MainComponent,
-                         width: Double = 1400, height: Double = 900)
+                         width: Double = 1600, height: Double = 900)
   extends Scene(width, height) with WorldView  with BodyViewer with HistoryViewer{
 
   val generationTextLabel: String = "Generation: "
@@ -63,14 +65,14 @@ private class MainScene(
   val genomePane = GenomeDetailsPane(None)
 
   val worldContainerPane = new SplitPane()
-  val historyPane = HistoryPane()
+  val historyPane:HistoryPane = HistoryPane()
   val detailsPane = DetailsPane(mainComponent)
-  val worldPane: WorldPane = WorldPane(geneticsSimulator,mainComponent, detailsPane,genomePane, worldWidth, worldHeigth)
+  val worldPane: WorldPane = WorldPane(geneticsSimulator, mainComponent, this, detailsPane,genomePane, worldWidth, worldHeigth)
   detailsPane.prefHeight <== worldContainerPane.height
 
   worldContainerPane.orientation = Orientation.Horizontal
   worldContainerPane.items ++= List(historyPane,worldPane, detailsPane)
-  worldContainerPane.setDividerPositions(0.3,0.8,0.15)
+  worldContainerPane.setDividerPositions(0.22,0.78)
   worldTab.content = worldContainerPane
 
   val zoomSlider = new Slider(ZoomPreferences.minZoom, ZoomPreferences.maxZoom, ZoomPreferences.prefZoom)
@@ -92,6 +94,12 @@ private class MainScene(
   topPane.bottom = generationPane
   topPane.center = zoomPane
 
+  val filtersTab = new Tab()
+  filtersTab.text = "Filters"
+  filtersTab.closable = false
+  filtersTab.content = FiltersPane(worldPane, geneticsSimulator)
+
+
   val statisticsTab = new Tab()
   statisticsTab.text = "Statistics"
   statisticsTab.closable = false
@@ -108,7 +116,7 @@ private class MainScene(
   bodyTab.content = bodyPane
 
   val simulationPane = new TabPane()
-  simulationPane.tabs = List(worldTab, statisticsTab,genomeTab,bodyTab)
+  simulationPane.tabs = List(worldTab, filtersTab, statisticsTab,genomeTab,bodyTab)
   val mainPane = new BorderPane()
   mainPane.top = topPane
   mainPane.center = simulationPane
@@ -119,7 +127,7 @@ private class MainScene(
 
   root = contentPane
 
-  override def updateWorld(generation: Int, world: List[Entity]): Unit = {
+  override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
     generationLabel.text = generationTextLabel + generation
     worldPane.updateWorld(generation, world)
   }
@@ -131,4 +139,6 @@ private class MainScene(
   override def updateHistoryLog(newLog: HistoryLog): Unit = {
     historyPane.updateHistoryLog(newLog)
   }
+
+  override def clearStatus(): Unit = bodyPane.clearStatus()
 }
