@@ -7,6 +7,7 @@ import org.apache.commons.io.FilenameUtils
 
 trait IOResource {
   def getParent(): Option[FolderResource]
+  def getName(): String
 }
 
 trait ExistingResource extends IOResource {
@@ -61,6 +62,8 @@ sealed abstract class IOResourceImpl(path: URL) extends IOResource {
           throw new IllegalStateException()
       }
   }
+
+  def getName(): String = javaFile.getName
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[IOResourceImpl]
 

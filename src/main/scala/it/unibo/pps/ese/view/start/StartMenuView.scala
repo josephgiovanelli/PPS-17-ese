@@ -1,16 +1,9 @@
 package it.unibo.pps.ese.view.start
 
-import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
-import it.unibo.pps.ese.controller.loader.exception.PartialSimulationDataException
 import it.unibo.pps.ese.controller.util.io.{File, IOResource}
-import it.unibo.pps.ese.genericworld.controller.Controller
-import it.unibo.pps.ese.view.{MainComponent, StartViewBridge, ViewLauncher}
-import it.unibo.pps.ese.view.configuration.dialogs.ConfigurationDialog
-import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
+import it.unibo.pps.ese.view.StartViewBridge
 import scalafx.Includes._
 import scalafx.scene.Scene
-import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, Priority, VBox}
 import scalafx.stage.FileChooser
@@ -33,7 +26,7 @@ object StartMenuView {
       throw new IllegalArgumentException
   }
 
-  private class StartMenuViewImpl(viewController: StartViewBridge) extends Scene(250, 350) with StartMenuView {
+  private class StartMenuViewImpl(startViewBridge: StartViewBridge) extends Scene(250, 350) with StartMenuView {
 
 
     val currentWindow: scalafx.stage.Window = this.window()
@@ -50,10 +43,10 @@ object StartMenuView {
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
-          viewController.startSimulation(file, currentWindow) match {
+          startViewBridge.startSimulation(file, currentWindow) match {
             case Success(_) =>
             case Failure(exception) =>
-              //TODO show exception pane(IO)
+              UnexpectedExceptionAlert(currentWindow, exception)
           }
         }
       }
@@ -66,10 +59,10 @@ object StartMenuView {
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
-          viewController.loadSimulation(file, currentWindow) match {
+          startViewBridge.loadSimulation(file, currentWindow) match {
             case Success(_) =>
             case Failure(exception) =>
-              //TODO show exception pane(IO)
+              UnexpectedExceptionAlert(currentWindow, exception)
           }
         }
       }
@@ -80,7 +73,7 @@ object StartMenuView {
       maxHeight = Double.MaxValue
       maxWidth = Double.MaxValue
 
-      onAction = _ => viewController.launchSetup(currentWindow)
+      onAction = _ => startViewBridge.launchSetup(currentWindow)
     }
 
     val vbox: VBox = new VBox() {

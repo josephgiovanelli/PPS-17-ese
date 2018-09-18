@@ -1,18 +1,27 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
+import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
+import it.unibo.pps.ese.controller.loader.exception.ResourceAlreadyExistsException
+import it.unibo.pps.ese.controller.util.io.{File, Folder, IOResource}
 import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.configuration.ConfigurationView
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.{AnimalDialog, ChromosomeDialog}
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
+import it.unibo.pps.ese.view.start.{ResourceExistsAlert, UnexpectedExceptionAlert}
+import it.unibo.pps.ese.view.start.ResourceExistsAlert.Buttons
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.scene.control.{Button, Label, ListView}
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.scene.paint.Color
-import scalafx.stage.Window
+import scalafx.stage.FileChooser.ExtensionFilter
+import scalafx.stage.{FileChooser, Window}
+
+import scala.util.{Failure, Success, Try}
 
 case class ConfigurationDialog(window: Window,
                                setupViewBridge: Option[SetupViewBridge],
@@ -87,6 +96,42 @@ case class ConfigurationDialog(window: Window,
   plantsPane.left = new Label("Plants")
   plantsPane.right = plantsAddButton
 
+
+  val fileChooser = new FileChooser() {
+    title = "Save simulation YAML"
+  }
+
+  val saveButton: Button = new Button("Save") {
+    onAction = _ => {
+      val data: PartialSimulationData = null
+      val chosenFile: java.io.File = fileChooser.showSaveDialog(window)
+      IOResource(chosenFile.toURI.toURL).getParent() match {
+        case f: Folder =>
+          val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
+          handleSaveResult(saver.saveSimulationData(data, chosenFile.getName, f), saver, f)
+        case _ =>
+          throw new IllegalStateException()
+      }
+    }
+  }
+
+  def handleSaveResult(saveResult: Try[Unit], saver: SetupViewBridge, target: Folder) = saveResult match {
+    case Success(_) =>
+    case Failure(exception: ResourceAlreadyExistsException) =>
+      handleSaveFailure(exception, saver, target)
+    case Failure(exception) =>
+      UnexpectedExceptionAlert(window, exception)
+  }
+
+  def handleSaveFailure(exception: ResourceAlreadyExistsException, saver: SetupViewBridge, target: Folder): Unit = {
+    ResourceExistsAlert(window, exception.existingResource).showAndWait() match {
+      case Some(Buttons.Override) =>
+        handleSaveResult(saver.retrySave(target, Some(exception.existingResource)), saver, target)
+      case Some(Buttons.OverrideAll) =>
+        handleSaveResult(saver.retrySave(target, None, true), saver, target)
+      case _ =>
+    }
+  }
 
   dialogPane().content = new VBox() {
     children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"))
