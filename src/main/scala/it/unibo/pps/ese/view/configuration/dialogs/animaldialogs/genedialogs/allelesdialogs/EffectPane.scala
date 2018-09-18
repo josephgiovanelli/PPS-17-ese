@@ -1,22 +1,25 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs
 
 
-import it.unibo.pps.ese.view.configuration.dialogs.AbstractDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.scene.control._
+import scalafx.scene.layout.Pane
 import scalafx.stage.Window
 
-case class EffectDialog(window: Window, currentEffect: (String, Double)) extends AbstractDialog[(String, Double)](window, None) {
+case class EffectPane(mainDialog: MainDialog,
+                      override val previousContent: Option[Pane],
+                      currentEffect: (String, Double)) extends BackPane[(String, Double)](mainDialog, previousContent, None) {
 
   /*
   Header
    */
 
-  title = "Effect Dialog"
-  headerText = "Define an allele effect"
+  mainDialog.title = "Effect Dialog"
+  mainDialog.headerText = "Define an allele effect"
 
   /*
   Fields
@@ -31,7 +34,7 @@ case class EffectDialog(window: Window, currentEffect: (String, Double)) extends
     effectValue -> (new Label("Value"), new Label(""))
   )
 
-  dialogPane().content = createGrid(0)
+  center = createGrid(0)
 
   Platform.runLater(propertyName.requestFocus())
 
@@ -57,9 +60,9 @@ case class EffectDialog(window: Window, currentEffect: (String, Double)) extends
   Result
    */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) (propertyName.text.value, effectValue.text.value.toDouble)
-    else null
+//  resultConverter = dialogButton =>
+//    if (dialogButton == okButtonType) (propertyName.text.value, effectValue.text.value.toDouble)
+//    else null
 }
 
 

@@ -10,17 +10,23 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, VBox}
+import scalafx.scene.layout.{GridPane, Pane, VBox}
 import scalafx.stage.Window
 
-case class AlleleDialog(window: Window, animal: String, gene: String, allele: Option[String], properties: Set[String], chromosomeTypes: ChromosomeTypes.Value) extends AbstractDialog[AlleleInfo](window, allele) {
+case class AllelePane(mainDialog: MainDialog,
+                      override val previousContent: Option[Pane],
+                      animal: String,
+                      gene: String,
+                      allele: Option[String],
+                      properties: Set[String],
+                      chromosomeTypes: ChromosomeTypes.Value) extends BackPane[AlleleInfo](mainDialog, previousContent, allele) {
 
   /*
   Header
    */
 
-  title = "Allele Dialog"
-  headerText = "Create an allele"
+  mainDialog.title = "Allele Dialog"
+  mainDialog.headerText = "Create an allele"
 
   /*
   Fields
@@ -65,19 +71,20 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
     items = effectsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        EffectDialog(window, (value, effects(value))).showAndWait() match {
-          case Some((name: String, value: Double)) =>
-            effects += (name -> value)
-          case None => println("Dialog returned: None")
-        }
+        EffectPane(mainDialog, Some(AllelePane.this), (value, effects(value)))
+//          .showAndWait() match {
+//          case Some((name: String, value: Double)) =>
+//            effects += (name -> value)
+//          case None => println("Dialog returned: None")
+//        }
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-  effectsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+//  effectsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
-  dialogPane().content = new VBox() {
+  center = new VBox() {
     children ++= Seq(grid, new Label("Effects"), effectsListView, new Label("At least one effect"))
     styleClass += "sample-page"
   }
@@ -118,10 +125,10 @@ case class AlleleDialog(window: Window, animal: String, gene: String, allele: Op
   Result
    */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType)
-      AlleleInfo(gene, idAllele.text.value, dominance.text.value.toDouble, consume.text.value.toDouble, probability.text.value.toDouble, effects)
-    else
-      null
+//  resultConverter = dialogButton =>
+//    if (dialogButton == okButtonType)
+//      AlleleInfo(gene, idAllele.text.value, dominance.text.value.toDouble, consume.text.value.toDouble, probability.text.value.toDouble, effects)
+//    else
+//      null
 }
 

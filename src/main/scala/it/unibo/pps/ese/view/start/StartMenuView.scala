@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationD
 import it.unibo.pps.ese.controller.loader.exception.PartialSimulationDataException
 import it.unibo.pps.ese.controller.util.io.{File, IOResource}
 import it.unibo.pps.ese.view.MainComponent
-import it.unibo.pps.ese.view.configuration.dialogs.ConfigurationDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationPane, MainDialog}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import scalafx.Includes._
 import scalafx.scene.Scene
@@ -74,9 +74,10 @@ object StartMenuView {
             case Success(data) =>
               EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
                 data.getPlants.getOrElse(Iterable()).map(_._1))
-              ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
+//              ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
+              MainDialog(currentWindow, mainComponent, setUp = true).show()
             case Failure(exception) =>
-              new Alert(AlertType.Information, exception.toString).showAndWait()
+              new Alert(AlertType.Information, exception.toString).show()
            }
         }
       }
@@ -87,7 +88,8 @@ object StartMenuView {
       maxHeight = Double.MaxValue
       maxWidth = Double.MaxValue
 
-      onAction = _ => ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
+//      onAction = _ => ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
+      onAction = _ => MainDialog(currentWindow, mainComponent, setUp = true).show()
     }
 
     val vbox: VBox = new VBox() {

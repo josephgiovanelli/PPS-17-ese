@@ -3,22 +3,25 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo, GeneInfo}
-
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, VBox}
+import scalafx.scene.layout.{BorderPane, Pane, VBox}
 import scalafx.stage.Window
 
-case class AllelesDialog(window: Window, animal: String, gene: String, chromosomeTypes: ChromosomeTypes.Value) extends AbstractDialog(window, None) {
+case class AllelesPane(mainDialog: MainDialog,
+                       override val previousContent: Option[Pane],
+                       animal: String,
+                       gene: String,
+                       chromosomeTypes: ChromosomeTypes.Value) extends BackPane(mainDialog, previousContent, None) {
 
   /*
   Header
   */
 
-  title = "Alleles Dialog"
-  headerText = "Define chromosome alleles"
+  mainDialog.title = "Alleles Dialog"
+  mainDialog.headerText = "Define chromosome alleles"
 
   /*
   Fields
@@ -48,12 +51,13 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
         currentAllele.effect ++= missedProperties
         currentAlleles += (value -> currentAllele)
         EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
-        AlleleDialog(window, animal, gene, Some(value), properties, chromosomeTypes).showAndWait() match {
-          case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
-            currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
-            EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
-          case None => println("Dialog returned: None")
-        }
+        mainDialog.setContent(AllelePane(mainDialog, Some(AllelesPane.this), animal, gene, Some(value), properties, chromosomeTypes))
+//          .showAndWait() match {
+//          case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
+//            currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
+//            EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
+//          case None => println("Dialog returned: None")
+//        }
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -61,22 +65,23 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
 
 
 
-  allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+//  allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val allelesButton = new Button("Add")
-  allelesButton.onAction = _ => AlleleDialog(window, animal, gene, None, properties, chromosomeTypes).showAndWait() match {
-    case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
-      currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
-      allelesName.insert(allelesName.size, id)
-      EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
-    case None => println("Dialog returned: None")
-  }
+  allelesButton.onAction = _ => AllelePane(mainDialog, Some(this), animal, gene, None, properties, chromosomeTypes)
+//   .showAndWait() match {
+//    case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
+//      currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
+//      allelesName.insert(allelesName.size, id)
+//      EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
+//    case None => println("Dialog returned: None")
+//  }
 
   val allelesPane = new BorderPane()
   allelesPane.left = new Label("Alleles")
   allelesPane.right = allelesButton
 
-  dialogPane().content = new VBox() {
+  center = new VBox() {
     children ++= Seq(allelesPane, allelesListView, new Label("At least one allele"))
     styleClass += "sample-page"
   }
@@ -87,6 +92,17 @@ case class AllelesDialog(window: Window, animal: String, gene: String, chromosom
 
   listFields = Seq(allelesName)
   createChecks()
+
+  def confirmAddedAlleleInfo(a: AlleleInfo): Unit = {
+    currentAlleles += (a.id -> a)
+    allelesName.insert(allelesName.size, a.id)
+    EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
+  }
+
+  def confirmModifiedAlleleInfo(a: AlleleInfo): Unit = {
+    currentAlleles += (a.id -> a)
+    EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
+  }
 
 }
 

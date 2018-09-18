@@ -1,29 +1,32 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
-import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
 import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
-import scalafx.scene.Node
+import scalafx.scene.{Node, Scene}
 import scalafx.scene.control.ButtonBar.ButtonData
-import scalafx.scene.control.{ButtonType, Dialog, Label, TextField}
-import scalafx.scene.layout.GridPane
+import scalafx.scene.control.{Button, ButtonType, Label, TextField}
+import scalafx.scene.layout.{BorderPane, GridPane, Pane}
 import scalafx.scene.paint.Color
-import scalafx.stage.Window
 
-abstract class AbstractDialog[A](window: Window, key: Option[String] = None) extends Dialog[A] {
+class BackPane[A](mainDialog: MainDialog, val previousContent: Option[Pane], val key: Option[String]) extends BorderPane {
 
-  val ROW_HEIGHT = 26
-  val MIN_ELEM = 3
+  prefWidth = 500
+  prefHeight = 600
 
-  initOwner(window)
+  if (previousContent.isDefined) {
+    val backButton = new Button("Back")
 
-  val cancelCloseButtonType: ButtonType = new ButtonType("Exit", ButtonData.CancelClose)
-  dialogPane().buttonTypes = Seq(cancelCloseButtonType)
-  val cancelCloseButton: Node = dialogPane().lookupButton(cancelCloseButtonType)
-  cancelCloseButton.visible = false
+    backButton.onAction = _ => {
+      mainDialog.setContent(previousContent.get)
+    }
 
-  /*object ParseUtils {
+    top = backButton
+  }
+
+
+
+  object ParseUtils {
     case class ParseOp[T](op: String => T)
 
     implicit val popDouble: ParseOp[Double] = ParseOp[Double](_.toDouble)
@@ -37,8 +40,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   Dialog Setup
    */
 
-  initOwner(window)
-  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
+  this.getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
   val errorClass = PseudoClass("error")
 
   /*
@@ -57,10 +59,8 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   OkButton
    */
 
-  val okButtonType: ButtonType = new ButtonType("Confirm", ButtonData.OKDone)
-  dialogPane().buttonTypes = Seq(okButtonType)
-  val okButton: Node = dialogPane().lookupButton(okButtonType)
-
+  val okButton = new Button("Confirm")
+  bottom = okButton
 
   /*
   Methods
@@ -151,7 +151,6 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
       (lengthFields.keySet.exists(field => lengthCheck(field)) && lengthFields.nonEmpty) ||
       (probabilityFields.exists(field => probabilityCheck(field)) && probabilityFields.nonEmpty) ||
       listFields.exists(x => x.isEmpty)
-  }*/
-
+  }
 
 }

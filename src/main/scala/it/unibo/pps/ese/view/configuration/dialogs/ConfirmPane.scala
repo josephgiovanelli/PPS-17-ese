@@ -9,24 +9,25 @@ import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
-case class ConfirmDialog(window: Window,
-                         mainComponent: MainComponent,
-                         setUp: Boolean,
-                         newAnimalSpecies: Seq[String] = Seq.empty,
-                         newPlantSpecies: Seq[String] = Seq.empty,
-                         previousAnimalsCount: Map[String, Int] = Map.empty,
-                         previousPlantsCount: Map[String, Int] = Map.empty) extends AbstractDialog[Unit](window, None) {
+case class ConfirmPane(mainDialog: MainDialog,
+                       override val previousContent: Option[Pane],
+                       mainComponent: MainComponent,
+                       setUp: Boolean,
+                       newAnimalSpecies: Seq[String] = Seq.empty,
+                       newPlantSpecies: Seq[String] = Seq.empty,
+                       previousAnimalsCount: Map[String, Int] = Map.empty,
+                       previousPlantsCount: Map[String, Int] = Map.empty) extends BackPane[Unit](mainDialog, previousContent, None) {
 
   /*
   Header
    */
 
-  title = "Confirm Dialog"
-  headerText = "Choose number of entities for each species"
+  mainDialog.title = "Confirm Dialog"
+  mainDialog.headerText = "Choose number of entities for each species"
 
 
   val animalsEntities: Map[TextField, (Label, Label)] =
@@ -76,7 +77,7 @@ case class ConfirmDialog(window: Window,
   plantsPane.top = new Label("Plants")
   plantsPane.bottom = plantsGrid
 
-  dialogPane().content = new VBox() {
+  center = new VBox() {
     children ++= Seq(animalsPane, plantsPane)
     styleClass += "sample-page"
   }
@@ -105,23 +106,22 @@ case class ConfirmDialog(window: Window,
   Result
    */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) {
-      val animals: Map[String, Int] = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
-      val plants: Map[String, Int] = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
-      val simulationData: CompleteSimulationData = EntitiesInfo.instance().getSimulationData(animals, plants)
-      if (setUp) {
-        mainComponent.setUp(simulationData)
-      } else {
-        val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
-        val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
-        val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
-        val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
-        println((newPlants.map(x => x._1.name), oldPlants.keySet))
-        mainComponent.addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
-      }
+  okButton.onAction = _ => {
+
+    val animals: Map[String, Int] = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
+    val plants: Map[String, Int] = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
+    val simulationData: CompleteSimulationData = EntitiesInfo.instance().getSimulationData(animals, plants)
+    if (setUp) {
+      mainComponent.setUp(simulationData)
+    } else {
+      val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
+      val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
+      val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
+      val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
+      println((newPlants.map(x => x._1.name), oldPlants.keySet))
+      mainComponent.addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
     }
-    else
-      null
+
+  }
 
 }

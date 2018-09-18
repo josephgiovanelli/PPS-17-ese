@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs.plantdialogs
 
-import it.unibo.pps.ese.view.configuration.dialogs.AbstractDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, ConfigurationPane, MainDialog}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
 
@@ -8,16 +8,21 @@ import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.scene.control._
+import scalafx.scene.layout.{BorderPane, Pane}
 import scalafx.stage.Window
 
-case class PlantDialog(window: Window, key: Option[String] = None) extends AbstractDialog[String](window, key) {
+case class PlantPane(mainDialog: MainDialog,
+                     override val previousContent: Option[ConfigurationPane],
+                     override val key: Option[String] = None) extends BackPane(mainDialog, previousContent, key) {
 
   /*
   Header
    */
 
-  title = "Plant Dialog"
-  headerText = "Create a plant"
+  println(uniqueFields)
+
+  mainDialog.title = "Plant Dialog"
+  mainDialog.headerText = "Create a plant"
 
   /*
   Fields
@@ -38,7 +43,7 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Abstr
 
 
 
-  dialogPane().content = createGrid(0)
+  center = createGrid(0)
 
   Platform.runLater(name.requestFocus())
 
@@ -73,12 +78,18 @@ case class PlantDialog(window: Window, key: Option[String] = None) extends Abstr
   Result
    */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) {
-      EntitiesInfo.instance().setPlantInfo(name.text.value, PlantInfo(heightPlant.text.value.toDouble, nutritionalValue.text.value.toDouble, hardness.text.value.toDouble, availability.text.value.toDouble))
-      name.text.value
-    }
-    else
-      null
+  okButton.onAction = _ => {
+    EntitiesInfo.instance().setPlantInfo(
+      name.text.value,
+      PlantInfo(heightPlant.text.value.toDouble,
+      nutritionalValue.text.value.toDouble,
+        hardness.text.value.toDouble,
+        availability.text.value.toDouble))
+
+    previousContent.get.addNewSpecies(name.text.value)
+    mainDialog.setContent(previousContent.get)
+  }
+
+
 
 }

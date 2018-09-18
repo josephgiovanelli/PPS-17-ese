@@ -64,8 +64,8 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
   var currentView: ViewType.Value = ViewType.MainView
 
   //da riaggiungere
-  //setScene(ViewType.ConfigurationView)
-  setScene(ViewType.MainView)
+  setScene(ViewType.ConfigurationView)
+//  setScene(ViewType.MainView)
 
   override def addObserver(observer: Observer): Unit = {
     observers = observer :: observers

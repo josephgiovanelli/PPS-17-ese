@@ -1,22 +1,25 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog
 
-import it.unibo.pps.ese.view.configuration.dialogs.AbstractDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, VBox}
+import scalafx.scene.layout.{GridPane, Pane, VBox}
 import scalafx.stage.Window
 
-case class ConversionMapDialog(window: Window, currentConversion: Option[(String, Double)], qualities: Set[String]) extends AbstractDialog[(String, Double)](window, None) {
+case class ConversionMapPane(mainDialog: MainDialog,
+                             override val previousContent: Option[Pane],
+                             currentConversion: Option[(String, Double)],
+                             qualities: Set[String]) extends BackPane[(String, Double)](mainDialog, previousContent, None) {
 
   /*
   Header
   */
 
-  title = "Conversion Map Dialog"
-  headerText = "Define a conversion map"
+  mainDialog.title = "Conversion Map Dialog"
+  mainDialog.headerText = "Define a conversion map"
 
   /*
   Fields
@@ -36,7 +39,7 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
   grid.add(new Label("Name"), 0, 0)
   grid.add(if (currentConversion.isDefined) previousConversionName else conversionName, 1, 0)
 
-  dialogPane().content = new VBox() {
+  center = new VBox() {
     children ++= Seq(grid)
     styleClass += "sample-page"
   }
@@ -69,9 +72,9 @@ case class ConversionMapDialog(window: Window, currentConversion: Option[(String
   Result
   */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) (conversionName.value.value, conversionValue.text.value.toDouble)
-    else null
+//  resultConverter = dialogButton =>
+//    if (dialogButton == okButtonType) (conversionName.value.value, conversionValue.text.value.toDouble)
+//    else null
 
 }
 
