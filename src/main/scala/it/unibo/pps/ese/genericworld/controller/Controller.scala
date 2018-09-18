@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genericworld.controller
 
 import it.unibo.pps.ese.controller.loader.{Saver, YamlLoader, YamlSaver}
-import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
@@ -12,6 +12,7 @@ import scala.util.{Failure, Success, Try}
 trait Controller {
   //Partenza simulazione
   def startSimulation(file: File): Try[SimulationController]
+  def startSimulation(data: CompleteSimulationData): Try[SimulationController]
   //Editing simulazione
   def loadSimulation(file: File): Try[PartialSimulationData]
   //Cachare saver e target
@@ -25,6 +26,13 @@ object Controller {
   private class BaseController()(implicit executionContext: ExecutionContext) extends Controller {
 
     var saver: Option[Saver] = None
+
+    override def startSimulation(data: CompleteSimulationData): Try[SimulationController] = {
+      Success(new SimulationBuilder[EmptySimulation]
+        .dimension(500, 500)
+        .data(data)
+        .build)
+    }
 
     override def startSimulation(file: File): Try[SimulationController] = {
       YamlLoader.loadCompleteSimulation(file) match {

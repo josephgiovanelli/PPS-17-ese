@@ -1,12 +1,11 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
-import it.unibo.pps.ese.view.MainComponent
+import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.configuration.ConfigurationView
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.{AnimalDialog, ChromosomeDialog}
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
-
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
@@ -16,7 +15,8 @@ import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
 case class ConfigurationDialog(window: Window,
-                               mainComponent: MainComponent,
+                               setupViewBridge: Option[SetupViewBridge],
+                               mainComponent: Option[MainComponent],
                                setUp: Boolean,
                                previousAnimalsCount: Map[String, Int] = Map.empty,
                                previousPlantsCount: Map[String, Int] = Map.empty) extends AbstractDialog[Unit](window, None) {
@@ -107,6 +107,7 @@ case class ConfigurationDialog(window: Window,
   resultConverter = dialogButton =>
     if (dialogButton == okButtonType) {
       ConfirmDialog(window,
+        setupViewBridge,
         mainComponent,
         setUp,
         newAnimalSpecies,

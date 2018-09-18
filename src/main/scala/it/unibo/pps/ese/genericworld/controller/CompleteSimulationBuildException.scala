@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.genericworld.controller
 
-class CompleteSimulationBuildException {
+import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
+
+case class CompleteSimulationBuildException(partialSimulationData: PartialSimulationData) extends Exception{
 
 }

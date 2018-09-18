@@ -51,11 +51,11 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   }
 
   addEntitiesItem.onAction = (e: ActionEvent) => {
-    ConfirmDialog(currentWindow, mainComponent, setUp = false).showAndWait()
+    ConfirmDialog(currentWindow, None, Option(mainComponent), setUp = false).showAndWait()
   }
 
   addSpeciesItem.onAction = (e: ActionEvent) => {
-    ConfigurationDialog(currentWindow, mainComponent, setUp = false).showAndWait()
+    ConfigurationDialog(currentWindow, None, Option(mainComponent), setUp = false).showAndWait()
   }
 
   val worldTab = new Tab()

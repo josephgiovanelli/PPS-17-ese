@@ -6,8 +6,6 @@ import scalafx.Includes._
 import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, Tooltip}
 import WorldPrefernces._
-import ZoomPreferences._
-import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
 import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
@@ -358,4 +356,9 @@ private class WorldPaneImpl(
     entityFiltersValues = None
     drawWorld(currentWorld.values.toList, None)
   }
+}
+
+object WorldPrefernces {
+  val worldWidth: Int = 500
+  val worldHeigth: Int = 500
 }
