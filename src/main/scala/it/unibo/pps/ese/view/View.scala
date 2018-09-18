@@ -2,7 +2,6 @@ package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.{CompletePlantData, SimulationData}
-import .stage
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer, ReplayController, SimulationController}
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.bodyViewer.AnimalInternalStatus
