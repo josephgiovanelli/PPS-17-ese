@@ -2,18 +2,21 @@ package it.unibo.pps.ese.controller.loader
 
 import java.io.InputStream
 
+import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.loader.beans._
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
 import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
 import it.unibo.pps.ese.controller.loader.data.builder._
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
+import it.unibo.pps.ese.controller.loader.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource}
 import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 
 object YamlLoader extends Loader {
@@ -29,7 +32,15 @@ object YamlLoader extends Loader {
   implicit def seq[X]: DefaultValue[Seq[X]] = DefaultValue(Seq[X]())
 
   def loadCompleteSimulation(configFile: File): Try[CompleteSimulationData] = {
-    obtainSimulationBuilder(configFile).tryCompleteBuild
+    val builder = obtainSimulationBuilder(configFile)
+      builder.tryCompleteBuild match {
+      case Success(value) =>
+        Success(value)
+      case Failure(exception: CompleteBuildException) =>
+        Failure(CompleteSimulationBuildException(builder.build(), exception))
+      case Failure(exception) =>
+          Failure(exception)
+    }
   }
 
   override def loadSimulation(configFile: File): PartialSimulationData = {

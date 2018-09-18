@@ -284,7 +284,7 @@ object EntitiesInfo {
       animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
 
     private def animalBaseInfoMapping(animal: PartialAnimalData): AnimalBaseInfo =
-      AnimalBaseInfo(animal.getGeneLength.getOrDefault, animal.getAlleleLength.getOrDefault, animal.getTypology.getOrDefault)
+      AnimalBaseInfo(animal.getGeneLength.getOrDefault, animal.getAlleleLength.getOrDefault, typologyMap(animal.getTypology.getOrDefault))
 
     private def animalChromosomeInfoMapping(animal: PartialAnimalData): AnimalChromosomeInfo =
       AnimalChromosomeInfo(structuralChromosomeMapping(animal.getStructuralChromosome.getOrDefault), regulationChromosomeMapping(animal.getRegulationChromosome.getOrDefault), sexualChromosomeMapping(animal.getSexualChromosome.getOrDefault))

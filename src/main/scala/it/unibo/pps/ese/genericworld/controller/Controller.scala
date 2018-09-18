@@ -42,7 +42,6 @@ object Controller {
             .data(value)
             .build)
         case Failure(exception) =>
-          //TODO completebuildfailedexception or something
           Failure(exception)
       }
     }

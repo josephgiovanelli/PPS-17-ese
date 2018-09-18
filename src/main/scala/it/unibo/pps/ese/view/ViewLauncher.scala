@@ -1,12 +1,13 @@
 package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
+import it.unibo.pps.ese.controller.loader.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder}
-import it.unibo.pps.ese.genericworld.controller.{CompleteSimulationBuildException, Controller, SimulationController}
+import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationController}
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.configuration.dialogs.ConfigurationDialog
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
-import it.unibo.pps.ese.view.start.StartMenuView
+import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, StartMenuView}
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.stage.Window
 
@@ -51,6 +52,7 @@ object ViewLauncher {
           this.hide()
           Success()
         case Failure(exception: CompleteSimulationBuildException) =>
+          NoCompleteSimulationAlert(currentWindow, exception.buildException).showAndWait()
           EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
             exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
           ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
