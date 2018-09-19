@@ -10,13 +10,15 @@ case class Surgeon(realTimeState: ReadOnlyEntityState) {
 
   var inspected: Option[String] = None
 
-  def inspects(entityId: String): Unit =
+  def inspects(entityId: String): Unit = synchronized {
     inspected = Some(entityId)
+  }
 
-  def leaves(): Unit =
+  def leaves(): Unit = synchronized {
     inspected = None
+  }
 
-  def informAboutOrgansStatus(view: View): Unit = {
+  def informAboutOrgansStatus(view: View): Unit = synchronized {
     if(inspected.isDefined) {
       import EntityInfoConversion._
       val entity: Option[EntityState] = realTimeState getFilteredState(x => x.entityId == inspected.get) match {

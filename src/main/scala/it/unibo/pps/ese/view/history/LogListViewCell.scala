@@ -25,6 +25,7 @@ class LogListViewCell extends ListCell[Log]{
         case PopulationLog => new MaterialDesignIconView(MaterialDesignIcon.CHART_AREASPLINE)
         case GenerationLog => new MaterialDesignIconView(MaterialDesignIcon.CALENDAR_CLOCK)
         case MostPopulousLog => new MaterialDesignIconView(MaterialDesignIcon.CROWN);
+        case NewEraLog => new MaterialDesignIconView(MaterialDesignIcon.NEWSPAPER)
       }
       label.font = Font.font("Calibri", 16)
       icon.setGlyphSize(18)

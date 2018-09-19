@@ -60,12 +60,10 @@ sealed abstract class AnimalRepresentation{
     canvas
   }
 
-  /**
-    * Return a [[Canvas]] with the animal representation after setting the brain status
-    * @param brainStatus
-    *                    The [[BrainStatus]] to set
-    * @return
-    *         The [[Canvas]] after setting the brain status
+  /** Return a [[Canvas]] with the animal representation after setting the brain status
+    *
+    * @param brainStatus The [[BrainStatus]] to set
+    * @return The [[Canvas]] after setting the brain status
     */
   def setBrainStatus(brainStatus: BrainStatus):Canvas = {
     actualBrain = brainStatus match {

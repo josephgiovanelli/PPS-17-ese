@@ -39,7 +39,7 @@ object SimulationLoop {
 
           _era += 1
 
-          println("Era " + _era + " computation started")
+//          println("Era " + _era + " computation started")
 
           val ret =
             for {
@@ -49,7 +49,7 @@ object SimulationLoop {
 
           Await.result(ret, Duration.Inf)
 
-          println("Era " + _era + " computation finished")
+//          println("Era " + _era + " computation finished")
 
           _eraListeners foreach(_(_era))
         }
