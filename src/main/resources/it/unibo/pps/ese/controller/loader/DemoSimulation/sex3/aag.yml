@@ -4,4 +4,4 @@ dominance: 5.0
 consume: 5.0
 probability: 1.0
 effect:
-  fecundity: 2.0
+  fecundity: 8

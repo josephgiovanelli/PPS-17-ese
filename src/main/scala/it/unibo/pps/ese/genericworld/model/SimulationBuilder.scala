@@ -50,6 +50,9 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
   def build(implicit ev: Simulation =:= ReadySimulation): SimulationController = controller
 
+  val attackThreshold = 10
+  val heighThreshold = 7
+  val couplingThreshold = 6
   private lazy val controller: SimulationController = {
 
     import EntityBuilderHelpers._
@@ -62,7 +65,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       (a, p) => EntityBuilderHelpers.initializeEntity(a, p, width, height, animalCreationFunction)
 
     StaticRules.instance().addSpecies((geneticsSimulator.speciesList ++ geneticsSimulator.plantSpeciesList) toSet)
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, Integer.MAX_VALUE, 0)
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(attackThreshold,heighThreshold,couplingThreshold)
     StaticRules.instance().setRules(worldRules)
 
     geneticsSimulator.speciesList

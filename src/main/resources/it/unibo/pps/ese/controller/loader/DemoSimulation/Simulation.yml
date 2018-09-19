@@ -1,7 +1,7 @@
 animals:
-  ./Stegosauro.yml: 200
+  ./Stegosauro.yml: 400
   ./Brontosaurus.yml: 1000
-  ./Tyrannosaurus.yml: 200
+  ./Tyrannosaurus.yml: 400
 
 plants:
-  ./Conifere.yml: 500
+  ./Conifere.yml: 1000
