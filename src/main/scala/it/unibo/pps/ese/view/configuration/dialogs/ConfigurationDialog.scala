@@ -105,6 +105,9 @@ case class ConfigurationDialog(window: Window,
 
   val saveButton: Button = new Button("Save") {
     onAction = _ => {
+      //val animalEntities: Map[String, Int] = animalsName.zip(List.fill(animalsName.size)(0)).toMap
+      //val plantEntities: Map[String, Int] = plantsName.zip(List.fill(plantsName.size)(0)).toMap
+      //val data: PartialSimulationData = EntitiesInfo.instance().getSimulationData(animalEntities, plantEntities)
       val data: PartialSimulationData = null
       val chosenFile: java.io.File = fileChooser.showSaveDialog(window)
       IOResource(chosenFile.toURI.toURL).getParent() match {
