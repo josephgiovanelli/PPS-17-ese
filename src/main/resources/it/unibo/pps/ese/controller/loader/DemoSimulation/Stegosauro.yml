@@ -1,0 +1,20 @@
+name: Stegosauro
+geneLength: 3
+alleleLength: 3
+reign: A
+typology: H
+structuralChromosome: ./struct3
+regulationChromosome:
+  allelesPath: ./reg3
+  names:
+    life: aaa
+    childhood: aab
+    maturity: aac
+    oldness: aad
+    decline: aae
+sexualChromosome:
+  allelesPath: ./sex3
+  names:
+    fertility: aaf
+    fecundity: aag
+    pregnancyDuration: aak

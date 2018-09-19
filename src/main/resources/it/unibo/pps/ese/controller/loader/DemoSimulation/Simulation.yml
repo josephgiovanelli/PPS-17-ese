@@ -1,0 +1,7 @@
+animals:
+  ./Gatto.yml: 200
+  ./Brontosaurus.yml: 1000
+  ./Tyrannosaurus.yml: 200
+
+plants:
+  ./Conifere.yml: 500

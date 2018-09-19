@@ -1,0 +1,7 @@
+gene: occ
+id: sda
+dominance: 3.0
+consume: 2.0
+probability: 1.0
+effect:
+  view: 3.0

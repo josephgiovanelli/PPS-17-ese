@@ -67,12 +67,13 @@ object BodyPane {
       }
     }
 
+
     override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
       AnimalStatusUtilities.isAOldState(animalInternalStatus) match {
         case false =>{
           updateBoxes(animalInternalStatus)
           val newCanvas = animalInternalStatus match {
-            case FemaleInternalStatus(brain, eyes, reproductive, digestive, fetus) => {
+            case FemaleInternalStatus(brain, eyes, reproductive, digestive, fetus) =>
               val female: FemaleAnimalRepresentation = FemaleAnimalRepresentation()
               if (fetus.isDefined) female.setEmbryoStatus(fetus.get)
               female.setBrainStatus(brain)
@@ -81,8 +82,7 @@ object BodyPane {
                 case Reproducing => female.setReproductiveSystemStatus(reproductive)
                 case NotReproducing => female.setDigestiveSystemStatus(digestive)
               }
-            }
-            case MaleInternalStatus(brain, eyes, reproductive, digestive) => {
+            case MaleInternalStatus(brain, eyes, reproductive, digestive) =>
               val male: MaleAnimalRepresentation = MaleAnimalRepresentation()
               male.setBrainStatus(brain)
               male.setEyesStatus(eyes)
@@ -90,7 +90,6 @@ object BodyPane {
                 case Reproducing => male.setReproductiveSystemStatus(reproductive)
                 case NotReproducing => male.setDigestiveSystemStatus(digestive)
               }
-            }
           }
           Platform.runLater {
             () -> {
