@@ -37,11 +37,6 @@ class DetailsReplayPane() extends ScrollPane {
           case "female" => "-fx-accent: pink;"
           case _ => "-fx-accent: black;"
         }
-        val dietColor = target.structuralData.diet match {
-          case "herbivore" => "-fx-accent: green;"
-          case "carnivore" => "-fx-accent: red"
-          case _ => "-fx-accent: black;"
-        }
         val lifePhaseBox = animalDynamic.lifePhase match {
           case "CHILD" =>
             new NonNumericQualityViewerBox("Child","-fx-accent: lightGreen;")
@@ -52,14 +47,12 @@ class DetailsReplayPane() extends ScrollPane {
         }
         val reignBox = new NonNumericQualityViewerBox("Animal","-fx-accent: orange;")
         val genderBox = new NonNumericQualityViewerBox(target.structuralData.gender.toString,genderColor)
-        val dietBox = new NonNumericQualityViewerBox(target.structuralData.diet.toString,dietColor)
         vBox.children =
           nameLabel ::
           eraLabel ::
           positionLabel ::
           reignBox::
           genderBox ::
-          dietBox ::
           lifePhaseBox::
           getAllAnimalQualities(animalDynamic)
             .map(q=>q._1--->q._2).toList

@@ -36,6 +36,7 @@ trait AnimalDynamicData extends DynamicData {
   val energy: Double
   val lifePhase: LifePhase
   val speed: Double
+  val fertility: Double
   val coupling: Seq[String]
   val eating: Seq[String]
   val givingBirth: Seq[String]

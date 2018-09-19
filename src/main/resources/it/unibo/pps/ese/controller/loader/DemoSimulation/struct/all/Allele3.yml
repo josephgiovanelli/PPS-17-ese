@@ -1,8 +1,8 @@
 gene: gmb
 id: sdb
 dominance: 5.0
-consume: 5.0
+consume: 6.0
 probability: 0.5
 effect:
   lunghezza: 4.0
-  muscolatura: 4.0
+  muscolatura: 3.0

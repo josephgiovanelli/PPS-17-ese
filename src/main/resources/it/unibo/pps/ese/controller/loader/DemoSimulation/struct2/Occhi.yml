@@ -5,4 +5,6 @@ properties:
   view:
     conversionMap:
       fieldofview: 4.0
+  beauty:
+    conversionMap:
       Attractiveness : 5.0

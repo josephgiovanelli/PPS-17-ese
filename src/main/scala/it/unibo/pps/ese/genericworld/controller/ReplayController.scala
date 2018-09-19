@@ -14,7 +14,7 @@ object ReplayController {
 
   private class BaseReplayController(consolidatedState: ReadOnlyEntityRepository) extends ReplayController {
 
-    private[this] val _stalker = new Stalker(consolidatedState)
+    private[this] val _stalker = Stalker(consolidatedState)
     private[this] var _replayViewList: Seq[ReplayView] = Seq empty
     private[this] var _timer: Option[java.util.Timer] = None
 

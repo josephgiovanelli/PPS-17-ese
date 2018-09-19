@@ -1,7 +1,7 @@
 gene: aae
 id: sda
-dominance: 5.0
+dominance: 4.0
 consume: 5.0
-probability: 1.0
+probability: 0.5
 effect:
-  decline: 3.0
+  decline: 0.3

@@ -1,8 +1,7 @@
-gene: brc
-id: sda
+gene: aae
+id: sdb
 dominance: 4.0
 consume: 5.0
 probability: 0.5
 effect:
-  lunghezza: 3.0
-  muscolatura: 2.0
+  decline: 0.9

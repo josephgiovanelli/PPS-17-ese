@@ -24,7 +24,8 @@ case class PhysicalStatusInfo(averageLife: Double,
 case class DynamicPhysicalStatusInfo(age: Int,
                                      energy: Double,
                                      lifePhase: LifePhases.Value,
-                                     actualSpeed: Double) extends BaseEvent
+                                     actualSpeed: Double,
+                                     actualFertility: Double) extends BaseEvent
 
 case class PhysicalStatusComponent(override val entitySpecifications: EntitySpecifications,
                                    averageLife: Double,
@@ -59,7 +60,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   }
 
   private def dynamicInfo: DynamicPhysicalStatusInfo = this synchronized {
-    DynamicPhysicalStatusInfo(currentYear, currentEnergy, currentPhase, currentSpeed)
+    DynamicPhysicalStatusInfo(currentYear, currentEnergy, currentPhase, currentSpeed, currentFertility)
   }
 
   private def subscribeEvents(): Unit = {
@@ -143,7 +144,8 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
       EntityProperty("age", ev age),
       EntityProperty("energy", ev energy),
       EntityProperty("lifePhase", ev lifePhase),
-      EntityProperty("actualSpeed", ev actualSpeed)
+      EntityProperty("actualSpeed", ev actualSpeed),
+      EntityProperty("actualFertility", ev actualFertility)
     )))
   }
 

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genericworld.controller
 
 import java.io.File
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.CompletePlantData
@@ -31,6 +31,8 @@ trait ManageableController {
   def play(): Unit
   def pause(): Unit
   def exit(): Unit
+  def add(animals: Map[String, Int], plants: Map[String, Int],
+          newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
   def isPlaying: Boolean
   def isStopped: Boolean
 }
@@ -38,7 +40,6 @@ trait QueryableController {
   def entityData(id: String): Option[EntityState]
   def watch(entity: String): Unit
   def unwatch(): Unit
-  def add(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
   def historicalData(): Future[ChartsData]
   def simulationEras(): Future[Seq[Long]]
   def entitiesInEra(era: Long): Future[Seq[String]]
@@ -51,6 +52,11 @@ trait BaseManageableController extends ManageableController {
   private[this] var _paused = true
 
   def simulation: SimulationLoop
+
+  def add(animals: Map[String, Int], plants: Map[String, Int],
+                   newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
+    simulation.addEntities(animals, plants, newAnimals, newPlants)
+  }
 
   def play(): Unit = this synchronized {
     simulation play()
@@ -118,16 +124,16 @@ trait BaseQueryableController extends QueryableController {
 
 trait SingleViewController extends SimulationController with BaseManageableController with BaseQueryableController {
 
-  protected val surgeon = Surgeon(realTimeState)
-  protected val storyTeller = StoryTeller(consolidatedState)
+  private[this] val surgeon = Surgeon(realTimeState)
+  private[this] val storyTeller = StoryTeller(consolidatedState)
+  private[this] val _era: AtomicInteger = new AtomicInteger(1)
 
-  def watch(entity: String): Unit = surgeon inspects entity
+  simulation attachEraListener(era => _era set era.toInt)
+  consolidatedState attachNewDataListener(era => storyTeller updateHistoryLog era)
+
+  override def watch(entity: String): Unit = surgeon inspects entity
 
   override def unwatch(): Unit = surgeon leaves()
-
-  override def add(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
-    simulation.addEntities(animals, plants, newAnimals, newPlants)
-  }
 
   def attachView(view: View, frameRate: Int): Unit = {
     storyTeller attachView view
@@ -137,7 +143,7 @@ trait SingleViewController extends SimulationController with BaseManageableContr
       while(!isStopped) {
         normalizeFrameRate(() => {
           if (!isPlaying) this synchronized wait()
-          view updateWorld (0, realTimeState getFilteredState(_ => true))
+          view updateWorld (_era get(), realTimeState getFilteredState(_ => true))
           surgeon informAboutOrgansStatus view
         }, frameRate)
       }
@@ -167,17 +173,5 @@ object SimulationController {
   private case class BaseController(simulation: SimulationLoop,
                                     realTimeState: ReadOnlyEntityState,
                                     consolidatedState: ReadOnlyEntityRepository)
-                                   (implicit val executionContext: ExecutionContext) extends SingleViewController {
-
-    private[this] val _era: AtomicLong = new AtomicLong(1)
-
-    simulation attachEraListener(era => _era set era)
-
-    consolidatedState attachNewDataListener(era => {
-      println("Era " + era + " data ready (Population trend: " + DataMiner(consolidatedState).populationTrend() + ")")
-      storyTeller updateHistoryLog era
-      //val saver = DataSaver()
-      //val p = saver.saveData("prova", consolidatedState getAllDynamicLogs())
-    })
-  }
+                                   (implicit val executionContext: ExecutionContext) extends SingleViewController
 }

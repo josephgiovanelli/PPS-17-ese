@@ -47,6 +47,7 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
       state energy,
       state.lifePhase.toString,
       state actualSpeed,
+      state actualFertility,
       state position,
       state nutritionalValue,
       state couple,

@@ -4,4 +4,5 @@ dominance: 5.0
 consume: 5.0
 probability: 0.0
 effect:
-  view: 4.0
+  view: 1.0
+  beauty: 10.0

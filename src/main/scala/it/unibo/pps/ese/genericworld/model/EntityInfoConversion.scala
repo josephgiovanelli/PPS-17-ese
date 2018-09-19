@@ -38,6 +38,7 @@ object EntityInfoConversion {
     def energy: Double = obj.selectDynamic("energy").asInstanceOf[Double]
     def lifePhase: LifePhases.Value = obj.selectDynamic("lifePhase").asInstanceOf[LifePhases.Value]
     def actualSpeed: Double = obj.selectDynamic("actualSpeed").asInstanceOf[Double]
+    def actualFertility: Double = obj.selectDynamic("actualFertility").asInstanceOf[Double]
   }
 
   implicit class BaseInfoConversions(obj: EntityInfo) {

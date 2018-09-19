@@ -5,7 +5,7 @@ import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
 object TryCommunication extends App {
 
   StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
-  val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(3, (0, 5), 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
+  val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(3, 5, 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
 
   StaticRules.instance().setRules(worldRules)
