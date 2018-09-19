@@ -24,7 +24,7 @@ class ReproductionTest extends FunSuite {
 
   import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
   StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
-  private val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0,
+  private val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, Integer.MAX_VALUE, 0,
     Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
     Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
   StaticRules.instance().setRules(worldRules)

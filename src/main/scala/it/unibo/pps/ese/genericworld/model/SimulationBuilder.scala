@@ -62,7 +62,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       (a, p) => EntityBuilderHelpers.initializeEntity(a, p, width, height, animalCreationFunction)
 
     StaticRules.instance().addSpecies((geneticsSimulator.speciesList ++ geneticsSimulator.plantSpeciesList) toSet)
-    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0)
+    val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, Integer.MAX_VALUE, 0)
     StaticRules.instance().setRules(worldRules)
 
     geneticsSimulator.speciesList
