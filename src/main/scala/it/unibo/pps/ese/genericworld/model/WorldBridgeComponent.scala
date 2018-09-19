@@ -25,7 +25,7 @@ case class ComputeNextState() extends BaseEvent with HighPriorityEvent
 case class ComputeNextStateAck() extends BaseEvent with HighPriorityEvent
 
 case class Kill(entityId: String) extends BaseEvent
-case class Create(sons: Iterable[AnimalInfo]) extends BaseEvent
+case class Create(entities: Iterable[Entity]) extends BaseEvent
 /*
 case class CreateEntities(sons: Iterable[Entity]) extends BaseEvent
 */
@@ -68,23 +68,17 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     case Kill(entityId)  =>
       //Completed before next entity computation?
       if (!disposed) world removeEntity entityId
-    case Create(sons)  =>
+    case Create(entities)  =>
 //      println(sons.size + " entities Creation")
       //Completed before next entity computation?
-      if (!disposed) //Necessary?
-      requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest).onComplete({
-        case Success(info) =>
-          val ids: Seq[String] = Seq.empty
-          publish(NewMutantAlleles(sons.flatMap(s=>GeneticsSimulator.checkNewMutation(s.species.name,s.genome)).toSeq))
-          sons.map(i => EntityBuilderHelpers.initializeEntity(i, info.position, world.info.height, world.info.width))
-              .foreach(entity => {
-                ids :+ entity.id
-                world addEntity entity
-              })
-          publish(GiveBirth(ids))
-        case Failure(exception) =>
-          throw exception
-      })
+      if (!disposed) {
+        val ids: Seq[String] = Seq.empty
+        entities.foreach(entity => {
+          ids :+ entity.id
+          world addEntity entity
+        })
+        publish(GiveBirth(ids))
+      }
     /*case CreateEntities(entities) =>
       entities.foreach(entity => world addEntity entity)*/
     case ComputeNextStateAck() =>

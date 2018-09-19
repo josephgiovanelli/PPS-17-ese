@@ -7,6 +7,7 @@ import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, InteractionEvent, RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.genetics.dna.AnimalGenome
 import it.unibo.pps.ese.genetics.entities.AnimalInfo
+import it.unibo.pps.ese.utils.Point
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -50,7 +51,8 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
                                  pregnancyDuration: Double,
                                  clocksPerYear: Long,
                                  mutationProb: Double,
-                                 energyRequirements: Double)
+                                 energyRequirements: Double,
+                                 animalCreationFunction: (AnimalInfo, Point) => Entity)
                                 (implicit val executionContext: ExecutionContext)
                                   extends WriterComponent(entitySpecifications)  {
 
@@ -79,12 +81,18 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
           if(inPregnancyTime == pregnancyDurationInClocks / 3 * 2)
             publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / 2))
           if(inPregnancyTime >= pregnancyDurationInClocks) {
-            publish(Create(embryos))
+            val sons = embryos
             embryos = Seq()
             inPregnancyTime = 0
             publish(PregnancyEnd())
-            //TODO death possible?
-            //println("Childbirth")
+            requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest).onComplete({
+              case Success(info) =>
+                publish(NewMutantAlleles(sons.flatMap(s=>GeneticsSimulator.checkNewMutation(s.species.name,s.genome)).toSeq))
+                val newEntities = sons.map(i => animalCreationFunction(i, info.position))
+                publish(Create(newEntities))
+              case Failure(exception) =>
+                throw exception
+            })
           }
         }
         publish(new ComputeNextStateAck)
