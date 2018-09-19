@@ -47,7 +47,6 @@ object Controller {
     }
 
     override def loadSimulation(file: File): Try[PartialSimulationData] = {
-      //TODO move to loader
       Try(YamlLoader.loadSimulation(file))
     }
 
