@@ -51,9 +51,7 @@ case class PlantReproductionComponent(override val entitySpecifications: EntityS
           case Success(data) =>
             val entities: Set[Entity] = distinctRandomPoints(plantsGrown, currentInseminationRadius, currentInseminationRadius)
               .map(point => initializeEntity(geneticsSimulator.newPlant(data.species), Point(point.x + data.position.x, point.y + data.position.y)))
-/*
-            publish(CreateEntities(entities))
-*/
+            publish(Create(entities))
           case Failure(error) => throw error
         }
       }

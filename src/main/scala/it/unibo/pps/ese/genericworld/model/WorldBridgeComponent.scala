@@ -26,9 +26,7 @@ case class ComputeNextStateAck() extends BaseEvent with HighPriorityEvent
 
 case class Kill(entityId: String) extends BaseEvent
 case class Create(entities: Iterable[Entity]) extends BaseEvent
-/*
-case class CreateEntities(sons: Iterable[Entity]) extends BaseEvent
-*/
+
 
 case class GetInfo() extends BaseEvent with HighPriorityEvent
 case class GetInfoAck() extends BaseEvent with HighPriorityEvent
