@@ -4,4 +4,4 @@ dominance: 4.0
 consume: 5.0
 probability: 0.5
 effect:
-  decline: 0.3
+  decline: 0.8

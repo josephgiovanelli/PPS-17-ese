@@ -1,7 +1,8 @@
-gene: aae
+gene: gmb
 id: sda
 dominance: 4.0
 consume: 5.0
 probability: 0.5
 effect:
-  decline: 0.8
+  lunghezza: 3.0
+  muscolatura: 2.0
