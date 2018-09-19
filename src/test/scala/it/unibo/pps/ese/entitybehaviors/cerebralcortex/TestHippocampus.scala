@@ -1,7 +1,7 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex
 
 import it.unibo.pps.ese.entitybehaviors.Direction
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus.Hippocampus
 import org.scalatest.FunSuite
 
 class TestHippocampus extends FunSuite {

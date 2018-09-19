@@ -25,7 +25,7 @@ object PrologDecisionSupport {
 
 
     val engine: Term => Stream[Term] = createEngine
-    val filename: String = getClass.getResource("/DecisionTree.pl").getPath
+    val filename: String = getClass.getResource("/it/unibo/pps/ese/entitybehavior/DecisionTree.pl").getPath
     val fileContents: String = Source.fromFile(filename).getLines.reduce((line1, line2) => line1 + "\n" + line2)
     mkPrologTheory(fileContents)
     modifyDynamicKnowledge("setAttackThreshold(" + worldRules.attackThreshold + ")")

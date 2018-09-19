@@ -31,7 +31,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
    */
 
   initOwner(window)
-  dialogPane().getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
+  dialogPane().getStylesheets.add(getClass.getResource("/it/unibo/pps/ese/view/configuration/red-border.css").toExternalForm)
   val errorClass = PseudoClass("error")
 
   /*

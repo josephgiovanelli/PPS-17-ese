@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex
 
 object MemoryType extends Enumeration {
   type MemoryType = Value

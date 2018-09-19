@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex
 
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, ShortTermMemory}
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Memory.{LongTermMemory, ShortTermMemory}
 import org.scalatest.FunSuite
 
 class TestNeocortex extends FunSuite {

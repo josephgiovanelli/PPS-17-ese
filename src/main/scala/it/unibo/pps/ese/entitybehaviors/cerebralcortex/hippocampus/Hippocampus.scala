@@ -1,11 +1,11 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus
 
 import it.unibo.pps.ese.entitybehaviors.Direction
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.SearchingState.SearchingState
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{Position, Memory => _, _}
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Memory._
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.MemoryType.MemoryType
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus.Hippocampus.SearchingState.SearchingState
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.{Position, Memory => _, _}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random

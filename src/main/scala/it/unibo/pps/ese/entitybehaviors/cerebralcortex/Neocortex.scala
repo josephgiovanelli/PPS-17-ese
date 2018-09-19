@@ -1,19 +1,19 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex
 
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, ShortTermMemory}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Memory.{LongTermMemory, ShortTermMemory}
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.MemoryType.MemoryType
 
 import scala.collection.mutable.Map
 import scala.collection.mutable.ListBuffer
 
 
-private[cerebralCortex] trait Neocortex {
+private[cerebralcortex] trait Neocortex {
   def memories: Map[MemoryType, ListBuffer[LongTermMemory]]
   def addMemory(memoryType: MemoryType, memory: LongTermMemory)
   def getMemeories(memoryType: MemoryType): Option[ListBuffer[LongTermMemory]]
 }
 
-private[cerebralCortex] object Neocortex {
+private[cerebralcortex] object Neocortex {
 
   def apply(): Neocortex = new NeocortexImpl()
 

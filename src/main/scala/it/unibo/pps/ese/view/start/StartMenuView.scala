@@ -111,7 +111,7 @@ object StartMenuView {
       top  = text
       center = vbox
     }
-    val back:Image = new Image("it.unibo.pps.ese.view/backgrounds/launcherBack.jpg")
+    val back:Image = new Image("it/unibo/pps/ese/view/backgrounds/launcherBack.jpg")
     border.background = new Background(Array(new BackgroundFill(new ImagePattern(back),CornerRadii.Empty, Insets.Empty)))
 
     root = border

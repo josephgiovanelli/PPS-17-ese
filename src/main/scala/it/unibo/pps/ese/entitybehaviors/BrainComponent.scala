@@ -4,10 +4,10 @@ import java.util.Random
 
 import it.unibo.pps.ese.entitybehaviors.ActionKind.ActionKind
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{MemoryType, Position}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus.SearchingState
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.{MemoryType, Position}
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.MemoryType.MemoryType
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus.Hippocampus
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus.Hippocampus.SearchingState
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.genericworld.model._
