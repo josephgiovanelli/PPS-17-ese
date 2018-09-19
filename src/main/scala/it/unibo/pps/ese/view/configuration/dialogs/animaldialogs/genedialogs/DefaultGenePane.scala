@@ -19,11 +19,12 @@ abstract class GenePane(mainDialog: MainDialog,
                         gene: Option[String]) extends BackPane[String](mainDialog, previousContent, gene) {
 
 
-  def confirmAddAlleles(defaultGene: DefaultGene)
+  def confirmAlleles(gene: String)
 }
 
 case class DefaultGenePane(mainDialog: MainDialog,
                            override val previousContent: Option[ChromosomePane],
+                           modality: Modality,
                            chromosomeTypes: ChromosomeTypes.Value,
                            animal: String,
                            gene: Option[String],
@@ -65,7 +66,7 @@ case class DefaultGenePane(mainDialog: MainDialog,
   grid.add(if (gene.isDefined) previousNameGene else nameGene, 1, fields.size * 2)
 
 
-  mainDialog.setContent(grid)
+  center = grid
 
 
   /*
@@ -108,14 +109,12 @@ case class DefaultGenePane(mainDialog: MainDialog,
     mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, defaultGene.name, chromosomeTypes))
   }
 
-  override def confirmAddAlleles(defaultGene: DefaultGene): Unit = {
+  override def confirmAlleles(gene: String): Unit = {
     chromosomeTypes match {
       case ChromosomeTypes.REGULATION =>
-        previousContent.get.confirmAddRegulationChromosome(defaultGene.name)
-        mainDialog.setContent(this)
+        previousContent.get.confirmRegulationChromosome(modality, gene)
       case ChromosomeTypes.SEXUAL =>
-        previousContent.get.confirmAddSexualChromosome(defaultGene.name)
-        mainDialog.setContent(this)
+        previousContent.get.confirmSexualChromosome(modality, gene)
     }
   }
 

@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs.plantdialogs
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, ConfigurationPane, MainDialog}
+import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
 
@@ -13,6 +13,7 @@ import scalafx.stage.Window
 
 case class PlantPane(mainDialog: MainDialog,
                      override val previousContent: Option[ConfigurationPane],
+                     modality: Modality,
                      override val key: Option[String] = None) extends BackPane(mainDialog, previousContent, key) {
 
   /*
@@ -86,8 +87,7 @@ case class PlantPane(mainDialog: MainDialog,
         hardness.text.value.toDouble,
         availability.text.value.toDouble))
 
-    previousContent.get.addNewSpecies(name.text.value)
-    mainDialog.setContent(previousContent.get)
+    previousContent.get.confirmPlantSpecies(modality, name.text.value)
   }
 
 

@@ -20,8 +20,9 @@ import scalafx.stage.Window
 
 case class CustomGenePane(mainDialog: MainDialog,
                           override val previousContent: Option[ChromosomePane],
+                          modality: Modality,
                           animal: String,
-                          gene: Option[String] = None) extends GenePane(mainDialog, previousContent, gene) with GenePane {
+                          gene: Option[String] = None) extends GenePane(mainDialog, previousContent, gene) {
 
   /*
   Header
@@ -56,7 +57,8 @@ case class CustomGenePane(mainDialog: MainDialog,
     items = propertiesName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        mainDialog.setContent(PropertiesPane(mainDialog, Some(CustomGenePane.this), animal, gene,  Some(value), if (conversionMap.isEmpty) None else Some(conversionMap(value)), propertiesName))
+        mainDialog.setContent(PropertiesPane(mainDialog, Some(CustomGenePane.this), ModifyModality, animal, gene,
+          Some(value), if (conversionMap.isEmpty) None else Some(conversionMap(value)), propertiesName))
 //          .showAndWait() match {
 //          case Some(ConversionMap(propertyName, map)) =>
 //            conversionMap += (propertyName -> map)
@@ -70,7 +72,7 @@ case class CustomGenePane(mainDialog: MainDialog,
 //  propertiesListView.prefHeight =   MIN_ELEM *   ROW_HEIGHT
 
   val propertiesButton = new Button("Add")
-  propertiesButton.onAction = _ => mainDialog.setContent(PropertiesPane(mainDialog, Some(this), animal, None, None, None, propertiesName))
+  propertiesButton.onAction = _ => mainDialog.setContent(PropertiesPane(mainDialog, Some(this), AddModality, animal, None, None, None, propertiesName))
 //    .showAndWait() match {
 //    case Some(ConversionMap(propertyName, map)) =>
 //      conversionMap += (propertyName -> map)
@@ -133,23 +135,29 @@ case class CustomGenePane(mainDialog: MainDialog,
     EntitiesInfo.instance().setChromosomeBaseInfo(animal, ChromosomeTypes.STRUCTURAL,
       CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, conversionMap))
     mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, nameGene.text.value, ChromosomeTypes.STRUCTURAL))
+
+//    previousContent.get.confirm
   }
 
-  override def confirmAddAlleles(defaultGene: DefaultGene): Unit = {
-    previousContent.get.confirmAddStructuralChromosome(defaultGene.name)
-    mainDialog.setContent(this)
+
+
+  override def confirmAlleles(gene: String): Unit = {
+    println(modality)
+    previousContent.get.confirmStructuralChromosome(modality, gene)
   }
 
-  def confirmModifyProperty(c: ConversionMap): Unit = {
-    conversionMap += (c.property -> c.map)
-    mainDialog.setContent(this)
-  }
 
-  def confirmAddProperty(c: ConversionMap): Unit = {
-    conversionMap += (c.property -> c.map)
-    properties += (c.property -> Double.getClass)
-    propertiesName.insert(propertiesName.size, c.property)
+  def confirmProperties(modality: Modality, c: ConversionMap): Unit = {
+    modality match {
+      case AddModality =>
+        conversionMap += (c.property -> c.map)
+        properties += (c.property -> Double.getClass)
+        propertiesName.insert(propertiesName.size, c.property)
+      case ModifyModality =>
+        conversionMap += (c.property -> c.map)
+    }
     mainDialog.setContent(this)
+
   }
 
 }

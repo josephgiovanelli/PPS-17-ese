@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs
 
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.ChromosomePane
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.GenePane
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo, GeneInfo}
@@ -110,6 +111,15 @@ case class AllelesPane(mainDialog: MainDialog,
   }
 
   okButton.onAction = _ => {
+    mainDialog.setContent(previousContent.get)
+    previousContent.get.confirmAlleles(gene)
+//    chromosomeTypes match {
+//      case ChromosomeTypes.STRUCTURAL =>
+//        previousContent.get.confirmAlleles(gene)
+//      case ChromosomeTypes.REGULATION =>
+//        previousContent.get.confirmAlleles(gene)
+//      case ChromosomeTypes.SEXUAL =>
+//    }
 
   }
 

@@ -3,6 +3,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 
 import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.CustomGenePane
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 
@@ -16,7 +17,8 @@ import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
 import scalafx.stage.Window
 
 case class PropertiesPane(mainDialog: MainDialog,
-                          override val previousContent: Option[Pane],
+                          override val previousContent: Option[CustomGenePane],
+                          modality: Modality,
                           animal: String,
                           gene: Option[String],
                           property: Option[String],
@@ -58,7 +60,8 @@ case class PropertiesPane(mainDialog: MainDialog,
     items = conversionMapName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        mainDialog.setContent(ConversionMapPane(mainDialog, Some(PropertiesPane.this), Some((value, conversionMap(value))), qualities))
+        mainDialog.setContent(ConversionMapPane(
+          mainDialog, Some(PropertiesPane.this), ModifyModality, Some((value, conversionMap(value))), qualities))
 //          .showAndWait() match {
 //          case Some((name: String, value: Double)) =>
 //            conversionMap += (name -> value)
@@ -72,7 +75,8 @@ case class PropertiesPane(mainDialog: MainDialog,
 //  conversionMapListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val conversionMapButton = new Button("Add")
-  conversionMapButton.onAction = _ => mainDialog.setContent(ConversionMapPane(mainDialog, Some(PropertiesPane.this), None, qualities))
+  conversionMapButton.onAction = _ => mainDialog.setContent(ConversionMapPane(
+    mainDialog, Some(PropertiesPane.this), AddModality, None, qualities))
 //    .showAndWait() match {
 //    case Some((name: String, value: Double)) =>
 //      conversionMap += (name -> value)
@@ -118,10 +122,23 @@ case class PropertiesPane(mainDialog: MainDialog,
 //    if (dialogButton == okButtonType) ConversionMap(propertyName.text.value, conversionMap)
 //    else null
 
-  def confirmAddConversionMap(): {
-
+  okButton.onAction = _ => {
+    previousContent.get.confirmProperties(modality, ConversionMap(propertyName.text.value, conversionMap))
   }
 
+  def confirmConversionMap(m: Modality, name: String, value: Double): Unit = {
+    m match {
+      case AddModality =>
+        conversionMap += (name -> value)
+        conversionMapName.insert(conversionMapName.size, name)
+        qualities -= name
+        conversionMapButton.disable = qualities.isEmpty
+      case ModifyModality =>
+        conversionMap += (name -> value)
+    }
+    mainDialog.setContent(this)
+
+  }
 }
 
 

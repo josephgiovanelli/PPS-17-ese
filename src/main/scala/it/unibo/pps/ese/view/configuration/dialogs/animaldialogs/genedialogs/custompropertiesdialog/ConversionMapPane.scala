@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog}
+import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog, Modality}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -11,6 +11,7 @@ import scalafx.stage.Window
 
 case class ConversionMapPane(mainDialog: MainDialog,
                              override val previousContent: Option[PropertiesPane],
+                             modality: Modality,
                              currentConversion: Option[(String, Double)],
                              qualities: Set[String]) extends BackPane[(String, Double)](mainDialog, previousContent, None) {
 
@@ -77,7 +78,7 @@ case class ConversionMapPane(mainDialog: MainDialog,
 //    else null
 
   okButton.onAction = _ => {
-//    previousContent.
+    previousContent.get.confirmConversionMap(modality, conversionName.value.value, conversionValue.text.value.toDouble)
   }
 
 }

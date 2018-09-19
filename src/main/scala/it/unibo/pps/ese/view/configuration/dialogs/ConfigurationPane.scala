@@ -44,7 +44,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
     items = animalsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1 && ((!setUp && newAnimalSpecies.contains(value)) || setUp)) {
-        mainDialog.setContent(AnimalPane(mainDialog, Some(ConfigurationPane.this), Some(value)))
+        mainDialog.setContent(AnimalPane(mainDialog, Some(ConfigurationPane.this), ModifyModality, Some(value)))
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -55,25 +55,17 @@ case class ConfigurationPane(mainDialog: MainDialog,
     items = plantsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1 && ((!setUp && newPlantSpecies.contains(value)) || setUp)) {
-        mainDialog.setContent(PlantPane(mainDialog, Some(ConfigurationPane.this), Some(value)))
+        mainDialog.setContent(PlantPane(mainDialog, Some(ConfigurationPane.this), ModifyModality, Some(value)))
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-//  animalsListView.prefHeight = mainDialog.MIN_ELEM * mainDialog.ROW_HEIGHT
-//  plantsListView.prefHeight <== mainDialog.MIN_ELEM * mainDialog.ROW_HEIGHT
-
   val animalsAddButton = new Button("Add")
   val plantsAddButton = new Button("Add")
-  animalsAddButton.onAction = _ => mainDialog.setContent(AnimalPane(mainDialog, Some(this)))
-//    .showAndWait() match {
-//    case Some(name) =>
-//      if (!setUp) newAnimalSpecies = newAnimalSpecies :+ name.toString
-//      animalsName.insert(animalsName.size, name.toString)
-//    case None => println("Dialog returned: None")
-//  }
-  plantsAddButton.onAction = _ => mainDialog.setContent(PlantPane(mainDialog, Some(this)))
+  animalsAddButton.onAction = _ => mainDialog.setContent(AnimalPane(mainDialog, Some(this), AddModality))
+
+  plantsAddButton.onAction = _ => mainDialog.setContent(PlantPane(mainDialog, Some(this), AddModality))
 
 
   val animalsPane = new BorderPane()
@@ -86,7 +78,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
 
 
   center = new VBox() {
-    children ++= Seq(animalsPane, /*animalsListView,*/ plantsPane, plantsListView, new Label("At least one species per reign"))
+    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"))
     styleClass += "sample-page"
   }
 
@@ -114,9 +106,26 @@ case class ConfigurationPane(mainDialog: MainDialog,
           previousPlantsCount))
 
 
-  def addNewSpecies(name: String): Unit = {
-      if (!setUp) newPlantSpecies = newPlantSpecies :+ name.toString
-      plantsName.insert(plantsName.size, name.toString)
+  def confirmPlantSpecies(m: Modality, name: String): Unit = {
+    m match {
+      case AddModality =>
+        if (!setUp) newPlantSpecies = newPlantSpecies :+ name.toString
+        plantsName.insert(plantsName.size, name.toString)
+      case ModifyModality =>
+        Platform.runLater(plantsListView.selectionModel().clearSelection())
+    }
+    mainDialog.setContent(this)
+  }
+
+  def confirmAnimalSpecies(m: Modality, name: String): Unit = {
+    m match {
+      case AddModality =>
+        if (!setUp) newAnimalSpecies = newAnimalSpecies :+ name.toString
+        animalsName.insert(animalsName.size, name.toString)
+      case ModifyModality =>
+        Platform.runLater(animalsListView.selectionModel().clearSelection())
+    }
+    mainDialog.setContent(this)
   }
 
 

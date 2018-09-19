@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, ConfigurationPane, MainDialog}
+import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
 
@@ -14,6 +14,7 @@ import scalafx.stage.Window
 
 case class AnimalPane(mainDialog: MainDialog,
                       override val previousContent: Option[ConfigurationPane],
+                      modality: Modality,
                       animal: Option[String] = None) extends BackPane[String](mainDialog, previousContent, animal) {
 
   /*
@@ -80,12 +81,11 @@ case class AnimalPane(mainDialog: MainDialog,
   okButton.onAction = _ => {
     EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt,
       alleleLength.text.value.toInt, typology.value.value))
-    mainDialog.setContent(ChromosomePane(mainDialog, Some(this), if (animal.isEmpty) name.text.value else animal.get))
+    mainDialog.setContent(ChromosomePane(mainDialog, Some(this), AddModality, if (animal.isEmpty) name.text.value else animal.get))
   }
 
-  def confirmCreation(): Unit = {
-    previousContent.get.addNewSpecies(name.text.value)
-    mainDialog.setContent(this)
+  def confirmChromosome(name: String): Unit = {
+    previousContent.get.confirmAnimalSpecies(modality, name)
   }
 
 

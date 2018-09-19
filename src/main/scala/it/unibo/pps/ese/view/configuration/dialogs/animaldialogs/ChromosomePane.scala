@@ -15,6 +15,7 @@ import scalafx.stage.Window
 
 case class ChromosomePane(mainDialog: MainDialog,
                           override val previousContent: Option[AnimalPane],
+                          modality: Modality,
                           animal: String) extends BackPane(mainDialog, previousContent, None) {
 
   /*
@@ -35,7 +36,7 @@ case class ChromosomePane(mainDialog: MainDialog,
     items = structuralName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        mainDialog.setContent(CustomGenePane(mainDialog, Some(ChromosomePane.this), animal, Some(value)))
+        mainDialog.setContent(CustomGenePane(mainDialog, Some(ChromosomePane.this), ModifyModality, animal, Some(value)))
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -46,7 +47,7 @@ case class ChromosomePane(mainDialog: MainDialog,
     items = regulationName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ChromosomeTypes.REGULATION, animal, Some(value),
+        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ModifyModality, ChromosomeTypes.REGULATION, animal, Some(value),
           RegulationDefaultGenes.elements -- getCurrentRegulationChromosome))
         Platform.runLater(selectionModel().clearSelection())
       }
@@ -58,7 +59,7 @@ case class ChromosomePane(mainDialog: MainDialog,
     items = sexualName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ChromosomeTypes.SEXUAL, animal, Some(value),
+        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ModifyModality, ChromosomeTypes.SEXUAL, animal, Some(value),
           SexualDefaultGenes.elements -- getCurrentSexualChromosome))
         Platform.runLater(selectionModel().clearSelection())
       }
@@ -70,17 +71,17 @@ case class ChromosomePane(mainDialog: MainDialog,
 //  sexualChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
 
   val structuralButton = new Button("Add")
-  structuralButton.onAction = _ => mainDialog.setContent(CustomGenePane(mainDialog, Some(ChromosomePane.this), animal, None))
+  structuralButton.onAction = _ => mainDialog.setContent(CustomGenePane(mainDialog, Some(ChromosomePane.this), AddModality, animal, None))
 
   val regulationButton = new Button("Add")
   regulationButton.onAction = _ => {
-    mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ChromosomeTypes.REGULATION, animal, None,
+    mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), AddModality, ChromosomeTypes.REGULATION, animal, None,
       RegulationDefaultGenes.elements -- getCurrentRegulationChromosome))
   }
 
   val sexualButton = new Button("Add")
   sexualButton.onAction = _ => {
-    mainDialog.setContent(DefaultGenePane(mainDialog, Some(this), ChromosomeTypes.SEXUAL, animal, None,
+    mainDialog.setContent(DefaultGenePane(mainDialog, Some(this), AddModality, ChromosomeTypes.SEXUAL, animal, None,
       SexualDefaultGenes.elements -- getCurrentSexualChromosome))
   }
 
@@ -98,8 +99,8 @@ case class ChromosomePane(mainDialog: MainDialog,
   sexualPane.right = sexualButton
 
   center = new VBox() {
-    children ++= Seq(structuralPane, /*structuralChromosomeListView,*/ regulationPane, regulationChromosomeListView,
-      sexualPane, /*sexualChromosomeListView,*/ new Label("At least one element per chromosome"))
+    children ++= Seq(structuralPane, structuralChromosomeListView, regulationPane, regulationChromosomeListView,
+      sexualPane, sexualChromosomeListView, new Label("At least one element per chromosome"))
     styleClass += "sample-page"
   }
 
@@ -121,37 +122,43 @@ case class ChromosomePane(mainDialog: MainDialog,
   private def getCurrentSexualChromosome: Set[SexualDefaultGene] =
     currentAnimalChromosome.sexualChromosome.keySet.map(x => SexualDefaultGenes.elements.filter(y => y.name.equals(x)).head)
 
+  okButton.onAction = _ => {
+    previousContent.get.confirmChromosome(animal)
+  }
 
-  def confirmAddStructuralChromosome(name: String): Unit = {
-    structuralName.insert(structuralName.size, name.toString)
+
+  def confirmStructuralChromosome(m: Modality, name: String): Unit = {
+    m match {
+      case AddModality =>
+        structuralName.insert(structuralName.size, name)
+      case ModifyModality =>
+        Platform.runLater(structuralChromosomeListView.selectionModel().clearSelection())
+    }
     mainDialog.setContent(this)
   }
 
-  def confirmAddRegulationChromosome(name: String): Unit = {
-    regulationName.insert(regulationName.size, name.toString)
-    regulationButton.disable = (RegulationDefaultGenes.elements -- getCurrentRegulationChromosome).isEmpty
+  def confirmRegulationChromosome(m: Modality, name: String): Unit = {
+    m match {
+      case AddModality =>
+        regulationName.insert(regulationName.size, name.toString)
+        regulationButton.disable = (RegulationDefaultGenes.elements -- getCurrentRegulationChromosome).isEmpty
+      case ModifyModality =>
+        Platform.runLater(regulationChromosomeListView.selectionModel().clearSelection())
+    }
     mainDialog.setContent(this)
   }
 
-  def confirmAddSexualChromosome(name: String): Unit = {
-    sexualName.insert(sexualName.size, name.toString)
-    sexualButton.disable = (SexualDefaultGenes.elements -- getCurrentSexualChromosome).isEmpty
+  def confirmSexualChromosome(m: Modality, name: String): Unit = {
+    m match {
+      case AddModality =>
+        sexualName.insert(sexualName.size, name.toString)
+        sexualButton.disable = (SexualDefaultGenes.elements -- getCurrentSexualChromosome).isEmpty
+      case ModifyModality =>
+        Platform.runLater(regulationChromosomeListView.selectionModel().clearSelection())
+
+    }
     mainDialog.setContent(this)
   }
 
-  def confirmModifyStructuralChromosome(name: String): Unit = {
-    Platform.runLater(structuralChromosomeListView.selectionModel().clearSelection())
-    mainDialog.setContent(this)
-  }
-
-  def confirmModifySexualChromosome(name: String): Unit = {
-    Platform.runLater(sexualChromosomeListView.selectionModel().clearSelection())
-    mainDialog.setContent(this)
-  }
-
-  def confirmModifyRegulationChromosome(name: String): Unit = {
-    Platform.runLater(regulationChromosomeListView.selectionModel().clearSelection())
-    mainDialog.setContent(this)
-  }
 
 }

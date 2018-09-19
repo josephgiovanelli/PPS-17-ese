@@ -9,6 +9,10 @@ import scalafx.scene.control.{Button, ButtonType, Label, TextField}
 import scalafx.scene.layout.{BorderPane, GridPane, Pane}
 import scalafx.scene.paint.Color
 
+trait Modality
+case object AddModality extends Modality
+case object ModifyModality extends Modality
+
 class BackPane[A](mainDialog: MainDialog, val previousContent: Option[Pane], val key: Option[String]) extends BorderPane {
 
   prefWidth = 500
