@@ -2,10 +2,16 @@ package it.unibo.pps.ese.view.start
 
 import it.unibo.pps.ese.controller.util.io.{File, IOResource}
 import it.unibo.pps.ese.view.StartViewBridge
+import javafx.scene.paint.ImagePattern
+import javafx.scene.text.Font
 import scalafx.Includes._
+import scalafx.geometry.Insets
 import scalafx.scene.Scene
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, Priority, VBox}
+import scalafx.scene.image.Image
+import scalafx.scene.layout._
+import scalafx.scene.paint.Color
+import scalafx.scene.text.Text
 import scalafx.stage.FileChooser
 import scalafx.stage.FileChooser.ExtensionFilter
 
@@ -26,8 +32,7 @@ object StartMenuView {
       throw new IllegalArgumentException
   }
 
-  private class StartMenuViewImpl(startViewBridge: StartViewBridge) extends Scene(250, 350) with StartMenuView {
-
+  private class StartMenuViewImpl(startViewBridge: StartViewBridge) extends Scene(433, 650) with StartMenuView {
 
     val currentWindow: scalafx.stage.Window = this.window()
 
@@ -35,11 +40,22 @@ object StartMenuView {
       title = "Open Simulation Config File"
       extensionFilters ++= Seq(new ExtensionFilter("Simulation Files", File.FileFormats.YAML.extensions.map("*" + _)) )
     }
+    val vbox: VBox = new VBox() {
+      fillWidth = true
+      prefWidth <== width
+      prefHeight <== height
+      spacing = 80
+    }
     val loadButton = new Button("Load And Run Existing Simulation") {
-      hgrow = Priority.Always
-      vgrow = Priority.Always
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
+      background = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
+      textFill = Color.web("34495e")
+      prefHeight = 40
+      style = "-fx-font-weight: 600;\n" +
+        "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
+        "-fx-font-size: 11pt ;"
+//      font = Font.font("Calibri",19)
+      margin = Insets(80,85,0,85)
+      prefWidth <== vbox.width*0.6
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
@@ -52,10 +68,14 @@ object StartMenuView {
       }
     }
     val loadEditButton = new Button("Load And Edit Existing Simulation") {
-      hgrow = Priority.Always
-      vgrow = Priority.Always
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
+      background = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
+      textFill = Color.web("34495e")
+      prefHeight = 40
+      style = "-fx-font-weight: 600;\n" +
+        "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
+        "-fx-font-size: 11pt ;"
+      margin = Insets(0,85,0,85)
+      prefWidth <== vbox.width*0.6
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
@@ -68,24 +88,33 @@ object StartMenuView {
       }
     }
     val createButton = new Button("Create New Simulation") {
-      hgrow = Priority.Always
-      vgrow = Priority.Always
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
-
+      background = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
+      textFill = Color.web("34495e")
+      prefHeight = 40
+      style = "-fx-font-weight: 600;\n" +
+        "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
+        "-fx-font-size: 11pt ;"
+      margin = Insets(0,85,0,85)
+      prefWidth <== vbox.width*0.6
       onAction = _ => startViewBridge.launchSetup(currentWindow)
     }
 
-    val vbox: VBox = new VBox() {
-      fillWidth = true
-      children = Seq(loadButton, loadEditButton, createButton)
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
+    vbox.children = List(loadButton, loadEditButton, createButton)
+    val text = new Text{
+      text = "Evolution Simulation Engine"
+      margin  = Insets(30,55,0,55)
+      fill = Color.White
     }
-
+    text.prefWidth(width.value)
+    text.style = "-fx-font-weight: 600;\n" +
+      "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
+      "-fx-font-size: 20pt ;"
     val border = new BorderPane() {
+      top  = text
       center = vbox
     }
+    val back:Image = new Image("it.unibo.pps.ese.view/backgrounds/launcherBack.jpg")
+    border.background = new Background(Array(new BackgroundFill(new ImagePattern(back),CornerRadii.Empty, Insets.Empty)))
 
     root = border
   }

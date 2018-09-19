@@ -37,6 +37,7 @@ object ViewLauncher {
   private class ViewLauncherImpl(geneticsSimulator: GeneticsSimulator, controller: Controller)
                                 (implicit executionContext: ExecutionContext)extends PrimaryStage with ViewLauncher
     with SetupViewBridge with StartViewBridge {
+    title = "Evolution Simulation Engine"
     val simulationController: Option[SimulationController] = None
     this.scene = StartMenuView(this)
 
