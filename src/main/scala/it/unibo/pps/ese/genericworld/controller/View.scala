@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genericworld.controller
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.util.io.File
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Position
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.Entity
@@ -59,7 +59,7 @@ object ViewHelpers {
   implicit def toViewData(data: Seq[EntityState]): List[Entity] =
     (data map toEntityViewData).toList
 
-  implicit class ManageableObserver(queryableController: Controller) extends Observer {
+  implicit class ManageableObserver(queryableController: SimulationController) extends Observer {
     override def getEntityDetails(id: String): Option[EntityInfo] = queryableController.query.entityData(id) map(_.state.copy())
 
     override def setWatched(id: String): Unit = queryableController.query watch id

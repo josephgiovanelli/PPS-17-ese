@@ -2,28 +2,20 @@ package it.unibo.pps.ese.view
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.{CompletePlantData, SimulationData}
-import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
-import it.unibo.pps.ese.controller.util.io.File
-import it.unibo.pps.ese.genericworld.controller.{Controller, Observer, ReplayController}
-import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, SimulationBuilder}
-import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
+import it.unibo.pps.ese.genericworld.controller.{Controller, Observer, ReplayController, SimulationController}
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.bodyViewer.AnimalInternalStatus
 import it.unibo.pps.ese.view.configuration.{ConfigurationView, ConfigurationViewImpl}
 import it.unibo.pps.ese.view.history.HistoryLog
-import scalafx.application.JFXApp.PrimaryStage
-
-import scala.concurrent.Future
-import scala.util.Try
-import it.unibo.pps.ese.controller.loader.data.SimulationData
-import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 import it.unibo.pps.ese.genericworld.controller.{Controller, Observer, ReplayController}
-import it.unibo.pps.ese.genericworld.model.{EntityInfo, SimulationBuilder}
+import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, SimulationBuilder}
 import it.unibo.pps.ese.view.statistics.ChartsData
+import scalafx.stage.{Stage, WindowEvent}
+import scalafx.Includes._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait View extends PrimaryStage with WorldView with ConfigurationView {
+trait View extends Stage with WorldView with ConfigurationView {
   def addObserver(observer: Observer): Unit
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
   def updateHistoryLog(newLog:HistoryLog):Unit
@@ -34,7 +26,6 @@ trait MainComponent {
   def getEntityDetails(id: String): Option[EntityInfo]
   def watchEntity(id:String):Unit
   def unwatchEntity(id:String):Unit
-  def setUp(simulationData: CompleteSimulationData)
   def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
   def historicalData(): Future[ChartsData]
   def simulationEras(): Future[Seq[Long]]
@@ -51,21 +42,23 @@ trait HistoryViewer{
   def updateHistoryLog(newLog:HistoryLog):Unit
 }
 object View {
-  def apply(geneticsSimulator: GeneticsSimulator)
-           (implicit executionContext: ExecutionContext): View = new ViewImpl(geneticsSimulator)
+  def apply(geneticsSimulator: GeneticsSimulator, controller: SimulationController)
+           (implicit executionContext: ExecutionContext): View = new ViewImpl(geneticsSimulator, controller)
 }
 
-private class ViewImpl(geneticsSimulator: GeneticsSimulator)
+private class ViewImpl(geneticsSimulator: GeneticsSimulator, controller: SimulationController)
                       (implicit executionContext: ExecutionContext) extends View with MainComponent {
 
   var observers: List[Observer] = Nil
   var configurationView: ConfigurationView = null
   var mainView: WorldView = new MainScene(geneticsSimulator,this)
   var currentView: ViewType.Value = ViewType.MainView
-
-  //da riaggiungere
-  setScene(ViewType.ConfigurationView)
-//  setScene(ViewType.MainView)
+  setScene(ViewType.MainView)
+  controller.manage.play()
+  this.setOnCloseRequest((e: WindowEvent) => {
+    controller.manage.exit()
+  })
+  this.show()
 
   override def addObserver(observer: Observer): Unit = {
     observers = observer :: observers
@@ -78,11 +71,10 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
         val v = new MainScene(geneticsSimulator,this)
         mainView = v
         this.scene = v
-      case ViewType.ConfigurationView => {
+      case ViewType.ConfigurationView =>
         val v = new ConfigurationViewImpl(this)
         configurationView = v
         this.scene = v
-      }
     }
   }
 
@@ -96,18 +88,6 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
   override def getEntityDetails(id: String): Option[EntityInfo] = {
     observers.head.getEntityDetails(id)
   }
-
-  override def setUp(simulationData: CompleteSimulationData): Unit =
-    currentView match {
-    case ViewType.ConfigurationView => {
-      val controller: Controller = new SimulationBuilder[EmptySimulation].dimension(500, 500).data(simulationData).build
-      controller.attachView(this, 30)
-      controller.manage.play()
-      setScene(ViewType.MainView)
-    }
-    case _ =>
-  }
-
 
   override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
     import it.unibo.pps.ese.view.utilities.Conversions._
@@ -143,12 +123,8 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator)
     observers.foreach(_.addEntities(animals, plants, newAnimals, newPlants))
   }
 
-  override def pause(): Unit = observers.foreach(o => o.pause())
+  override def pause(): Unit = observers.foreach(_.pause())
 
-  override def play(): Unit = observers.foreach(o => o.play())
+  override def play(): Unit = observers.foreach(_.play())
 }
 
-object ViewType extends Enumeration {
-  type ViewType = Value
-  val MainView, ConfigurationView = Value
-}

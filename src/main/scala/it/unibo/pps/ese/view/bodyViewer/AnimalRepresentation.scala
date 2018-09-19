@@ -60,12 +60,10 @@ sealed abstract class AnimalRepresentation{
     canvas
   }
 
-  /**
-    * Return a [[Canvas]] with the animal representation after setting the brain status
-    * @param brainStatus
-    *                    The [[BrainStatus]] to set
-    * @return
-    *         The [[Canvas]] after setting the brain status
+  /** Return a [[Canvas]] with the animal representation after setting the brain status
+    *
+    * @param brainStatus The [[BrainStatus]] to set
+    * @return The [[Canvas]] after setting the brain status
     */
   def setBrainStatus(brainStatus: BrainStatus):Canvas = {
     actualBrain = brainStatus match {
@@ -152,10 +150,9 @@ sealed trait FemaleRepresentation extends AnimalRepresentation{
   val bigFetus:Image = BodyImages.bigFetus
   val bigFetusDigesting:Image =  BodyImages.bigFetusDigesting
 
-  override def drawRepresentation: Canvas = {
-    actualDigestiveSystem = this.digestiveSystem
-    super.drawRepresentation
-  }
+//  override def drawRepresentation: Canvas = {
+//    super.drawRepresentation
+//  }
   override def digestiveSystem:Image = embryoStatus match {
     case Some(EmbryoStatus.primal) =>littleFetus
     case Some(EmbryoStatus.mid) =>mediumFetus

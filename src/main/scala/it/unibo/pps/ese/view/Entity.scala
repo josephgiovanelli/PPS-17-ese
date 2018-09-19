@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view
 
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Position
 import scalafx.scene.paint.Color
 
 case class Entity(id: String,

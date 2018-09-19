@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulatio
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus
 import it.unibo.pps.ese.controller.loader.data.builder.SimulationBuilder.SimulationStatus.{EmptySimulation, FullSimulation, SimulationWithAnimals, SimulationWithPlants}
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
+import it.unibo.pps.ese.controller.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException}
 
 import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
@@ -40,9 +40,13 @@ object SimulationBuilder {
           if(check._1.isEmpty)
             Success(new SimulationDataImpl(check._2, check._3) with CompleteSimulationData)
           else
-            Failure(check._1.get)
+            Failure(CompleteSimulationBuildException(new SimulationDataImpl[PartialAnimalData, PartialPlantData](
+              animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2))),
+              check._1.get))
         case _ =>
-          Failure(new CompleteBuildException("Simulation: animals and plants must be set"))
+          Failure(CompleteSimulationBuildException(new SimulationDataImpl[PartialAnimalData, PartialPlantData](
+            animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2))),
+            new CompleteBuildException("Simulation: animals and plants must be set")))
       }
     }
 
@@ -60,12 +64,12 @@ object SimulationBuilder {
       tryCompleteBuild match {
         case Success(value) =>
           value
-        case Failure(_) =>
-          new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2)))
+        case Failure(exception: CompleteSimulationBuildException) =>
+          exception.partialSimulationData
       }
     }
 
-    private def checkComplete(): (Option[Exception], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) ={
+    private def checkComplete(): (Option[CompleteBuildException], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) ={
       var exception: Option[CompleteBuildException] = None
       val aTries: Iterable[(Try[CompleteAnimalData], Int)] = animals.map(t => (t._1.tryBuildComplete(), t._2))
       val a: Iterable[(CompleteAnimalData, Int)] = aTries.collect({

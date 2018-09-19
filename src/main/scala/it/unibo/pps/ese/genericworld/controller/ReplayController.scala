@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.genericworld.controller
 
 import it.unibo.pps.ese.dataminer.ReadOnlyEntityRepository
-import it.unibo.pps.ese.entitywatcher.Stalker
+import it.unibo.pps.ese.entitywatchers.Stalker
 import it.unibo.pps.ese.view.statistics.ReplayView
 
 trait ReplayController {

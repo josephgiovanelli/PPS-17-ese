@@ -1,17 +1,17 @@
 package it.unibo.pps.ese.view.start
 
-import it.unibo.pps.ese.controller.loader.YamlLoader
-import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
-import it.unibo.pps.ese.controller.loader.exception.PartialSimulationDataException
 import it.unibo.pps.ese.controller.util.io.{File, IOResource}
-import it.unibo.pps.ese.view.MainComponent
-import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationPane, MainDialog}
-import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
+import it.unibo.pps.ese.view.StartViewBridge
+import javafx.scene.paint.ImagePattern
+import javafx.scene.text.Font
 import scalafx.Includes._
+import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, Priority, VBox}
+import scalafx.scene.image.Image
+import scalafx.scene.layout._
+import scalafx.scene.paint.Color
+import scalafx.scene.text.Text
 import scalafx.stage.FileChooser
 import scalafx.stage.FileChooser.ExtensionFilter
 
@@ -22,7 +22,7 @@ trait StartMenuView extends Scene {
 
 object StartMenuView {
 
-  def apply(mainComponent: MainComponent): StartMenuView = new StartMenuViewImpl(mainComponent)
+  def apply(viewController: StartViewBridge): StartMenuView = new StartMenuViewImpl(viewController)
 
   //TODO in IO package object? seems insecure
   private implicit def javaFileToMyFile(file: java.io.File): File = IOResource(file.toURI.toURL) match {
@@ -32,76 +32,87 @@ object StartMenuView {
       throw new IllegalArgumentException
   }
 
-  private class StartMenuViewImpl(mainComponent: MainComponent) extends Scene(250, 350) with StartMenuView {
-
+  private class StartMenuViewImpl(startViewBridge: StartViewBridge) extends Scene(433, 650) with StartMenuView {
 
     val currentWindow: scalafx.stage.Window = this.window()
-
+    val buttonStyle =
+      "-fx-font-weight: 600;\n" +
+      "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
+      "-fx-font-size: 11pt ;"
+    val buttonBackground = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
     val fileChooser = new FileChooser() {
       title = "Open Simulation Config File"
       extensionFilters ++= Seq(new ExtensionFilter("Simulation Files", File.FileFormats.YAML.extensions.map("*" + _)) )
     }
+    val vbox: VBox = new VBox() {
+      fillWidth = true
+      prefWidth <== width
+      prefHeight <== height
+      spacing = 80
+    }
     val loadButton = new Button("Load And Run Existing Simulation") {
-      hgrow = Priority.Always
-      vgrow = Priority.Always
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
+      background = buttonBackground
+      textFill = Color.web("34495e")
+      prefHeight = 40
+      style = buttonStyle
+//      font = Font.font("Calibri",19)
+      margin = Insets(80,85,0,85)
+      prefWidth <== vbox.width*0.6
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
-//          mainComponent.startSimulation(file) match {
-//            case Success(_) =>
-//              //TODO launch simulation view
-//            case Failure(exception: PartialSimulationDataException) =>
-//              EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
-//                exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
-//              ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
-//          }
+          startViewBridge.startSimulation(file, currentWindow) match {
+            case Success(_) =>
+            case Failure(exception) =>
+              UnexpectedExceptionAlert(currentWindow, exception)
+          }
         }
       }
     }
     val loadEditButton = new Button("Load And Edit Existing Simulation") {
-      hgrow = Priority.Always
-      vgrow = Priority.Always
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
+      background = buttonBackground
+      textFill = Color.web("34495e")
+      prefHeight = 40
+      style = buttonStyle
+      margin = Insets(0,85,0,85)
+      prefWidth <== vbox.width*0.6
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
-          //val t: Try[PartialSimulationData] = mainComponent.loadSimulation(file)
-          val t: Try[PartialSimulationData] = Success(YamlLoader.loadSimulation(file))
-           t match {
-            case Success(data) =>
-              EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
-                data.getPlants.getOrElse(Iterable()).map(_._1))
-//              ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
-              MainDialog(currentWindow, mainComponent, setUp = true).show()
+          startViewBridge.loadSimulation(file, currentWindow) match {
+            case Success(_) =>
             case Failure(exception) =>
-              new Alert(AlertType.Information, exception.toString).show()
-           }
+              UnexpectedExceptionAlert(currentWindow, exception)
+          }
         }
       }
     }
     val createButton = new Button("Create New Simulation") {
-      hgrow = Priority.Always
-      vgrow = Priority.Always
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
-
-//      onAction = _ => ConfigurationDialog(currentWindow, mainComponent, setUp = true).showAndWait()
-      onAction = _ => MainDialog(currentWindow, mainComponent, setUp = true).show()
+      background = buttonBackground
+      textFill = Color.web("34495e")
+      prefHeight = 40
+      style = buttonStyle
+      margin = Insets(0,85,0,85)
+      prefWidth <== vbox.width*0.6
+      onAction = _ => startViewBridge.launchSetup(currentWindow)
     }
 
-    val vbox: VBox = new VBox() {
-      fillWidth = true
-      children = Seq(loadButton, loadEditButton, createButton)
-      maxHeight = Double.MaxValue
-      maxWidth = Double.MaxValue
+    vbox.children = List(loadButton, loadEditButton, createButton)
+    val text = new Text{
+      text = "Evolution Simulation Engine"
+      margin  = Insets(30,55,0,55)
+      fill = Color.White
     }
-
+    text.prefWidth(width.value)
+    text.style = "-fx-font-weight: 600;\n" +
+      "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
+      "-fx-font-size: 20pt ;"
     val border = new BorderPane() {
+      top  = text
       center = vbox
     }
+    val back:Image = new Image("it/unibo/pps/ese/view/backgrounds/launcherBack.jpg")
+    border.background = new Background(Array(new BackgroundFill(new ImagePattern(back),CornerRadii.Empty, Insets.Empty)))
 
     root = border
   }

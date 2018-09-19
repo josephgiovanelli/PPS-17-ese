@@ -11,7 +11,7 @@ import it.unibo.pps.ese.entitybehaviors._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl._
-import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationLoop}
+import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationController, SimulationLoop}
 import it.unibo.pps.ese.genericworld.model.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, DietType, PlantInfo, Quality, Reign}
 import it.unibo.pps.ese.genetics.entities.QualityType.{Attractiveness, _}
@@ -48,9 +48,9 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
   def data(data: CompleteSimulationData): SimulationBuilder[Simulation with Data] =
     new SimulationBuilder(width, height, data)
 
-  def build(implicit ev: Simulation =:= ReadySimulation): Controller = controller
+  def build(implicit ev: Simulation =:= ReadySimulation): SimulationController = controller
 
-  private lazy val controller: Controller = {
+  private lazy val controller: SimulationController = {
 
     import EntityBuilderHelpers._
 
@@ -58,6 +58,8 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
     val geneticsSimulator = GeneticsSimulator
     val initializedSimulation = geneticsSimulator.beginSimulation(data)
+    def animalCreationFunction: (AnimalInfo, Point) => Entity =
+      (a, p) => EntityBuilderHelpers.initializeEntity(a, p, width, height, animalCreationFunction)
 
     StaticRules.instance().addSpecies((geneticsSimulator.speciesList ++ geneticsSimulator.plantSpeciesList) toSet)
     val worldRules: WorldRulesImpl = decisionsupport.WorldRulesImpl.WorldRulesImpl(Integer.MIN_VALUE, (Integer.MIN_VALUE, Integer.MAX_VALUE), 0)
@@ -66,7 +68,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
     geneticsSimulator.speciesList
       .flatMap(x => initializedSimulation.getAllAnimals(x))
       .zip(distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
-      .map(x => initializeEntity(x._1, x._2, height, width))
+      .map(x => initializeEntity(x._1, x._2, height, width, animalCreationFunction))
       .foreach(world addEntity)
 
     geneticsSimulator.plantSpeciesList
@@ -82,7 +84,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
     simulation attachEraListener (era => {
       aggregator ingestData era
     })
-    Controller(simulation, world entitiesState, aggregator ingestedData)
+    SimulationController(simulation, world entitiesState, aggregator ingestedData)
   }
 }
 
@@ -104,12 +106,13 @@ object EntityBuilderHelpers {
                          newAnimals: Map[CompleteAnimalData, Int],
                          newPlants: Map[CompletePlantData, Int],
                          worldHeight: Long ,
-                         worldWidth: Long): Seq[Entity] = {
+                         worldWidth: Long,
+                         animalCreationFunction: (AnimalInfo, Point) => Entity): Seq[Entity] = {
 
     import scala.concurrent.ExecutionContext.Implicits.global
     val animalEntities: Seq[Entity] = animals.flatMap(entity => Seq.fill(entity._2)(entity._1))
       .zip(distinctRandomPoints(animals.values.sum, worldHeight.toInt, worldWidth.toInt))
-      .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2, worldHeight, worldWidth)).toSeq
+      .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2, worldHeight, worldWidth, animalCreationFunction)).toSeq
 
     val plantEntities: Seq[Entity] = plants.flatMap(entity => Seq.fill(entity._2)(entity._1))
         .zip(distinctRandomPoints(plants.values.sum, worldHeight.toInt, worldWidth.toInt))
@@ -117,7 +120,7 @@ object EntityBuilderHelpers {
 
     val newAnimalEntities: Seq[Entity] = newAnimals.flatMap(entity => GeneticsSimulator.addNewAnimalSpecies(entity._1, entity._2))
       .zip(distinctRandomPoints(newAnimals.values.sum, worldHeight.toInt, worldWidth.toInt))
-      .map(entity => initializeEntity(entity._1, entity._2, worldHeight, worldWidth)).toSeq
+      .map(entity => initializeEntity(entity._1, entity._2, worldHeight, worldWidth, animalCreationFunction)).toSeq
 
     val newPlantEntities: Seq[Entity] = newPlants.flatMap(entity => GeneticsSimulator.addNewPlantSpecies(entity._1, entity._2))
       .zip(distinctRandomPoints(newPlants.values.sum, worldHeight.toInt, worldWidth.toInt))
@@ -127,13 +130,13 @@ object EntityBuilderHelpers {
     animalEntities ++ plantEntities ++ newAnimalEntities ++ newPlantEntities
   }
 
-  def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long)
+  def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long, animalCreationFunction: (AnimalInfo, Point) => Entity)
                       (implicit executionContext: ExecutionContext): Entity = {
     val entity = Entity("improved", randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
     entity addComponent initializeBrainComponent(entity, animalInfo, worldHeight, worldWidth)
     entity addComponent initializeAnimalPhysicalComponent(entity, animalInfo)
-    entity addComponent initializeReproductionComponent(entity, animalInfo)
+    entity addComponent initializeReproductionComponent(entity, animalInfo, animalCreationFunction)
     entity addComponent initializeOrgansTrackerComponent(entity)
     entity addComponent initializeInteractionTrackerComponent(entity)
     entity
@@ -197,7 +200,7 @@ object EntityBuilderHelpers {
       yearToClock)
   }
 
-  private def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo)
+  private def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo, entitiesCreationFunction: (AnimalInfo, Point) => Entity)
                                              (implicit executionContext: ExecutionContext): Component = {
     ReproductionComponent(
       entity specifications,
@@ -207,7 +210,8 @@ object EntityBuilderHelpers {
       animalInfo.qualities.getOrElse(PregnancyDuration, Quality(0, PregnancyDuration)).qualityValue,
       yearToClock,
       mutationProb,
-      animalInfo.qualities(EnergyRequirements).qualityValue
+      animalInfo.qualities(EnergyRequirements).qualityValue,
+      entitiesCreationFunction
     )
   }
 

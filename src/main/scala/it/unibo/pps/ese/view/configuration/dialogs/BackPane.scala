@@ -44,7 +44,7 @@ class BackPane[A](mainDialog: MainDialog, val previousContent: Option[Pane], val
   Dialog Setup
    */
 
-  this.getStylesheets.add(getClass.getResource("/red-border.css").toExternalForm)
+
   val errorClass = PseudoClass("error")
 
   /*

@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
-import it.unibo.pps.ese.view.MainComponent
+import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.configuration.ConfigurationView
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.{AnimalPane, ChromosomePane}
 import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantPane
@@ -13,10 +13,22 @@ import scalafx.scene.control.{Button, Label, ListView}
 import scalafx.scene.layout.{BorderPane, Pane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
+import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
+import it.unibo.pps.ese.controller.loader.exception.ResourceAlreadyExistsException
+import it.unibo.pps.ese.controller.util.io.{File, Folder, IOResource}
+import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
+import it.unibo.pps.ese.view.start.{ResourceExistsAlert, UnexpectedExceptionAlert}
+import it.unibo.pps.ese.view.start.ResourceExistsAlert.Buttons
+import scalafx.stage.FileChooser.ExtensionFilter
+import scalafx.stage.{FileChooser, Window}
+
+import scala.util.{Failure, Success, Try}
 
 case class ConfigurationPane(mainDialog: MainDialog,
                              override val previousContent: Option[Pane],
-                             mainComponent: MainComponent,
+                             setupViewBridge: Option[SetupViewBridge],
+                             mainComponent: Option[MainComponent],
                              setUp: Boolean,
                              previousAnimalsCount: Map[String, Int] = Map.empty,
                              previousPlantsCount: Map[String, Int] = Map.empty) extends BackPane[Unit](mainDialog, previousContent, None) {
@@ -76,9 +88,52 @@ case class ConfigurationPane(mainDialog: MainDialog,
   plantsPane.left = new Label("Plants")
   plantsPane.right = plantsAddButton
 
+  /*
+   * FILE SAVING
+   */
+  val fileChooser = new FileChooser() {
+    title = "Save simulation YAML"
+  }
+
+  val saveButton: Button = new Button("Save") {
+    onAction = _ => {
+      val animalEntities: Map[String, Int] = animalsName.zip(List.fill(animalsName.size)(0)).toMap
+      val plantEntities: Map[String, Int] = plantsName.zip(List.fill(plantsName.size)(0)).toMap
+      val data: PartialSimulationData = EntitiesInfo.instance().getPartialSimulationData(animalEntities, plantEntities)
+      val chosenFile: java.io.File = fileChooser.showSaveDialog(mainDialog.window)
+      IOResource(chosenFile.toURI.toURL).getParent() match {
+        case Some(f: Folder) =>
+          val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
+          handleSaveResult(saver.saveSimulationData(data, chosenFile.getName, f), saver, f)
+        case _ =>
+          throw new IllegalStateException()
+      }
+    }
+  }
+  if (!setUp) {
+    saveButton.disable = true
+  }
+
+  def handleSaveResult(saveResult: Try[Unit], saver: SetupViewBridge, target: Folder) = saveResult match {
+    case Success(_) =>
+    case Failure(exception: ResourceAlreadyExistsException) =>
+      handleSaveFailure(exception, saver, target)
+    case Failure(exception) =>
+      UnexpectedExceptionAlert(mainDialog.window, exception)
+  }
+
+  def handleSaveFailure(exception: ResourceAlreadyExistsException, saver: SetupViewBridge, target: Folder): Unit = {
+    ResourceExistsAlert(mainDialog.window, exception.existingResource).showAndWait() match {
+      case Some(Buttons.Override) =>
+        handleSaveResult(saver.retrySave(target, Some(exception.existingResource)), saver, target)
+      case Some(Buttons.OverrideAll) =>
+        handleSaveResult(saver.retrySave(target, None, true), saver, target)
+      case _ =>
+    }
+  }
 
   center = new VBox() {
-    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"))
+    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"), saveButton)
     styleClass += "sample-page"
   }
 
@@ -98,6 +153,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
         ConfirmPane(
           mainDialog,
           Some(ConfigurationPane.this),
+          setupViewBridge,
           mainComponent,
           setUp,
           newAnimalSpecies,

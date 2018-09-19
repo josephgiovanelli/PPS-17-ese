@@ -38,7 +38,6 @@ object HistoryPane{
       }
     }
     override def updateHistoryLog(newLog: HistoryLog): Unit = {
-      println(newLog)
       Platform.runLater{
         ()->{
           logsList.addAll(newLog.allLogsWithAggregation(historyAggregator).asJava)

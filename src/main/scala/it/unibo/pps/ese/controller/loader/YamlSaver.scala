@@ -156,7 +156,7 @@ object YamlSaver {
 
     def savePlant(plant: PartialPlantData)(file: FileResource, overrideAll: Boolean): Unit = {
       val yamlObj = Plant(plant.name, plant.getGeneLength, plant.getAlleleLength, plant.getReign, plant.getHeight,
-        plant.getAttractiveness, plant.getHardness, plant.getNutritionalValue, plant.getAvailability).toYaml
+        plant.getHardness, plant.getNutritionalValue, plant.getAvailability).toYaml
       (file, Some(yamlObj.prettyPrint)) +=: toWrite
     }
 

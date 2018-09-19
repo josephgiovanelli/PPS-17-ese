@@ -6,12 +6,10 @@ import scalafx.Includes._
 import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, Tooltip}
 import WorldPrefernces._
-import ZoomPreferences._
-import it.unibo.pps.ese.controller.loader.YamlLoader
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
 import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Position
 import it.unibo.pps.ese.genericworld.controller.EntityDetails
 import it.unibo.pps.ese.genericworld.model
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, ReignType}
@@ -86,12 +84,11 @@ private class WorldPaneImpl(
     DeepSkyBlue
   )
 
-
   var animalColorPool: List[Color] = animalColors
-  val animalColorMap: Map[String, Color] = getAnimalColors
+  var animalColorMap: Map[String, Color] = getAnimalColors
 
   var plantColorPool: List[Color] = plantColors
-  val plantColorMap: Map[String, Color] = getPlantColors
+  var plantColorMap: Map[String, Color] = getPlantColors
 
   var currentWorld: Map[Position, EntityState] = Map()
   var currentSelected: Option[String] = None
@@ -188,6 +185,10 @@ private class WorldPaneImpl(
 
 
   override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
+    val newColors:Map[String,Color] = geneticsSimulator.plantSpeciesList.filter(!plantColorMap.contains(_)).map(s=>s->getPlantColorOfPool).toMap
+    plantColorMap ++= newColors
+    val newAnimalColors:Map[String,Color] = geneticsSimulator.speciesList.filter(!animalColorMap.contains(_)).map(s=>s->getAnimalColorOfPool).toMap
+    animalColorMap ++= newAnimalColors
     drawWorld(world, entityFiltersValues)
   }
 
@@ -214,8 +215,8 @@ private class WorldPaneImpl(
               val draw: Boolean = entityFiltersValues match {
                 case None => true
                 case Some(f) => f.reign match {
-                  case Some(ReignType.PLANT) => println(e.state.applyFilter(f));e.state.applyFilter(f)
-                  case _ => true
+                  case Some(ReignType.PLANT) => e.state.applyFilter(f)
+                  case _ => false
                 }
               }
               if (draw) {
@@ -226,7 +227,7 @@ private class WorldPaneImpl(
                 case None => true
                 case Some(f) => f.reign match {
                   case Some(ReignType.ANIMAL) => e.state.applyFilter(f)
-                  case _ => true
+                  case _ => false
                 }
               }
               if (draw) {
@@ -331,20 +332,26 @@ private class WorldPaneImpl(
 
     geneticsSimulator.speciesList.map(s => (s, {
       if (animalColorPool.isEmpty) animalColorPool=animalColors
-      val r = Random.nextInt(animalColorPool.size)
-      val c = animalColorPool(r)
-      animalColorPool = animalColorPool diff List(c)
-      c
+        getAnimalColorOfPool
     })).toMap
   }
 
+  def getAnimalColorOfPool:Color = {
+    val r = Random.nextInt(animalColorPool.size)
+    val c = animalColorPool(r)
+    animalColorPool = animalColorPool diff List(c)
+    c
+  }
+  def getPlantColorOfPool:Color = {
+    val r = Random.nextInt(plantColorPool.size)
+    val c = plantColorPool(r)
+    plantColorPool = plantColorPool diff List(c)
+    c
+  }
   private def getPlantColors: Map[String, Color] = {
     geneticsSimulator.plantSpeciesList.map(s => (s, {
       if (plantColorPool.isEmpty) plantColorPool=plantColors
-      val r = Random.nextInt(plantColorPool.size)
-      val c = plantColorPool(r)
-      plantColorPool = plantColorPool diff List(c)
-      c
+      getPlantColorOfPool
     })).toMap
   }
 
@@ -358,4 +365,9 @@ private class WorldPaneImpl(
     entityFiltersValues = None
     drawWorld(currentWorld.values.toList, None)
   }
+}
+
+object WorldPrefernces {
+  val worldWidth: Int = 500
+  val worldHeigth: Int = 500
 }

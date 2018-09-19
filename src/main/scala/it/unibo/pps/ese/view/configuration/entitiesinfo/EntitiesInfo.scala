@@ -4,14 +4,16 @@ import it.unibo.pps.ese.controller.loader.beans.{Allele, Gene, Plant, PropertyIn
 import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.loader.data.CustomGeneData.PartialCustomGeneData
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGeneData
-import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
-import it.unibo.pps.ese.controller.loader.data.builder.gene.{DefaultGeneBuilder, CustomGeneBuilder}
+import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.utils.DefaultValue
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
+
+import scala.util.Try
 
 
 sealed trait EntitiesInfo {
@@ -54,7 +56,8 @@ sealed trait EntitiesInfo {
 
   def getPlants: Set[String]
 
-  def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): CompleteSimulationData
+  def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): Try[CompleteSimulationData]
+  def getPartialSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): PartialSimulationData
 
   def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit
 }
@@ -160,11 +163,17 @@ object EntitiesInfo {
     def getPlants: Set[String] = plants.keySet
 
 
-    def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): CompleteSimulationData =
+    def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): Try[CompleteSimulationData] =
       SimulationBuilder()
       .addAnimals(animalsMapping(animalsEntities))
       .addPlants(plantsMapping(plantsEntities))
-      .buildComplete
+      .tryCompleteBuild
+
+    def getPartialSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): PartialSimulationData =
+      SimulationBuilder()
+        .addAnimals(animalsMapping(animalsEntities))
+        .addPlants(plantsMapping(plantsEntities))
+        .build()
 
     def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit = {
       animals ++= animalsMapping(animalData)
@@ -182,13 +191,10 @@ object EntitiesInfo {
           plant._1 ->
             PlantBuilder()
               .setName(plant._1)
-              //TODO why?
               .setGeneLength(3)
               .setAlleleLength(3)
               .setReign("P")
               .setHeight(plant._2.height)
-              //TODO why?
-              .setAttractiveness(0)
               .setHardness(plant._2.hardness)
               .setNutritionalValue(plant._2.nutritionalValue)
               .setAvailability(plant._2.availability)
@@ -284,7 +290,7 @@ object EntitiesInfo {
       animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap
 
     private def animalBaseInfoMapping(animal: PartialAnimalData): AnimalBaseInfo =
-      AnimalBaseInfo(animal.getGeneLength.getOrDefault, animal.getAlleleLength.getOrDefault, animal.getTypology.getOrDefault)
+      AnimalBaseInfo(animal.getGeneLength.getOrDefault, animal.getAlleleLength.getOrDefault, typologyMap(animal.getTypology.getOrDefault))
 
     private def animalChromosomeInfoMapping(animal: PartialAnimalData): AnimalChromosomeInfo =
       AnimalChromosomeInfo(structuralChromosomeMapping(animal.getStructuralChromosome.getOrDefault), regulationChromosomeMapping(animal.getRegulationChromosome.getOrDefault), sexualChromosomeMapping(animal.getSexualChromosome.getOrDefault))

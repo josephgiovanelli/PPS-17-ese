@@ -25,7 +25,6 @@ object PlantInfo{
     override val qualities: Map[QualityType, Quality] = Map(
       QualityType.Height |->| plantData.height,
       QualityType.NutritionalValue |->| plantData.nutritionalValue,
-      QualityType.Attractiveness |->| plantData.attractiveness,
       QualityType.Hardness |->| plantData.hardness,
       QualityType.Availability |->| plantData.availability
     )

@@ -3,9 +3,11 @@ package it.unibo.pps.ese.view.configuration.dialogs
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.controller.loader.data.{AnimalData, CompletePlantData, SimulationData}
-import it.unibo.pps.ese.view.MainComponent
+import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
+import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, UnexpectedExceptionAlert}
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import scalafx.scene.control._
@@ -13,9 +15,12 @@ import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
+import scala.util.{Failure, Success}
+
 case class ConfirmPane(mainDialog: MainDialog,
                        override val previousContent: Option[Pane],
-                       mainComponent: MainComponent,
+                       setupViewBridge: Option[SetupViewBridge],
+                       mainComponent: Option[MainComponent],
                        setUp: Boolean,
                        newAnimalSpecies: Seq[String] = Seq.empty,
                        newPlantSpecies: Seq[String] = Seq.empty,
@@ -107,21 +112,28 @@ case class ConfirmPane(mainDialog: MainDialog,
    */
 
   okButton.onAction = _ => {
-
-    val animals: Map[String, Int] = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
-    val plants: Map[String, Int] = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
-    val simulationData: CompleteSimulationData = EntitiesInfo.instance().getSimulationData(animals, plants)
-    if (setUp) {
-      mainComponent.setUp(simulationData)
-    } else {
-      val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
-      val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
-      val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
-      val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
-      println((newPlants.map(x => x._1.name), oldPlants.keySet))
-      mainComponent.addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
+      val animals: Map[String, Int] = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
+      val plants: Map[String, Int] = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
+    EntitiesInfo.instance().getSimulationData(animals, plants) match {
+      case Success(simulationData) =>
+      if (setUp) {
+        setupViewBridge.getOrElse(throw new IllegalStateException()).startSimulation(simulationData)
+      } else {
+        val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
+        val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
+        val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
+        val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
+        println((newPlants.map(x => x._1.name), oldPlants.keySet))
+        mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
+      }
+      case Failure(exception: CompleteSimulationBuildException) =>
+        NoCompleteSimulationAlert(mainDialog.window, exception.buildException).showAndWait()
+        null
+      case Failure(exception) =>
+        UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
+        null
     }
-
+    mainDialog.closeDialog()
   }
 
 }

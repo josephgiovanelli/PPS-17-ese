@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration
 
-import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationPane, MainDialog}
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationContent, ConfigurationPane, ConfirmContent, MainDialog}
 import it.unibo.pps.ese.view.MainComponent
 import scalafx.Includes._
 import scalafx.scene.Scene
@@ -16,7 +16,7 @@ class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350
 
   val confirmButton = new Button("Confirm")
   confirmButton.onAction = _ => {
-     MainDialog(currentWindow, mainComponent, setUp = true).show()
+     MainDialog(currentWindow, Some(mainComponent), None, setUp = true, ConfigurationContent).show()
   }
 
   content = confirmButton

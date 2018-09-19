@@ -1,13 +1,16 @@
 package it.unibo.pps.ese.view.statistics
 
-import it.unibo.pps.ese.entitywatcher.{ResultEra, ResultOther}
 import scalafx.Includes._
 import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, SplitPane, Tooltip}
 import javafx.application.Platform
+
+import it.unibo.pps.ese.entitywatchers.ResultEra
+
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.utils.Point
+
 import scalafx.geometry.Orientation
 
 trait ReplayView {

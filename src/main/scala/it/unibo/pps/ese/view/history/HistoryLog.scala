@@ -1,6 +1,11 @@
 package it.unibo.pps.ese.view.history
 
+/**The various type of Log that can be visualized*/
 sealed trait LogType
+
+/**
+  * The
+  */
 case object BornLog extends LogType
 case object DeadLog extends LogType
 case object MutationLog extends LogType
@@ -9,7 +14,7 @@ case object ExtinctionLog extends LogType
 case object PopulationLog extends LogType
 case object GenerationLog extends LogType
 case object MostPopulousLog extends LogType
-
+case object NewEraLog extends LogType
 case class Log(logText:String,logType:LogType)
 
 case class HistoryLog(
@@ -51,7 +56,7 @@ object LogConversions{
       mutantLogs
     }
     def allLogsWithAggregation(historyAggregator: HistoryAggregator):List[Log] = {
-      allLogs ::: historyAggregator.processLog(historyLog)
+      historyAggregator.processLog(historyLog):::allLogs
     }
   }
 }

@@ -28,7 +28,7 @@ sealed trait BodyPane extends ScrollPane{
 object BodyPane {
   def apply():BodyPane= new BodyPaneImpl()
   private[this] class BodyPaneImpl() extends BodyPane {
-    val back:Image = new Image("it.unibo.pps.ese.view/backgrounds/backBig.jpg")
+    val back:Image = new Image("it/unibo/pps/ese/view/backgrounds/backBig.jpg")
     val canvasGroup = new Group()
     val root = new Pane()
     root.prefHeight = 850
@@ -77,15 +77,19 @@ object BodyPane {
               if (fetus.isDefined) female.setEmbryoStatus(fetus.get)
               female.setBrainStatus(brain)
               female.setEyesStatus(eyes)
-              female.setDigestiveSystemStatus(digestive)
-              female.setReproductiveSystemStatus(reproductive)
+              reproductive match {
+                case Reproducing => female.setReproductiveSystemStatus(reproductive)
+                case NotReproducing => female.setDigestiveSystemStatus(digestive)
+              }
             }
             case MaleInternalStatus(brain, eyes, reproductive, digestive) => {
               val male: MaleAnimalRepresentation = MaleAnimalRepresentation()
               male.setBrainStatus(brain)
               male.setEyesStatus(eyes)
-              male.setDigestiveSystemStatus(digestive)
-              male.setReproductiveSystemStatus(reproductive)
+              reproductive match {
+                case Reproducing => male.setReproductiveSystemStatus(reproductive)
+                case NotReproducing => male.setDigestiveSystemStatus(digestive)
+              }
             }
           }
           Platform.runLater {

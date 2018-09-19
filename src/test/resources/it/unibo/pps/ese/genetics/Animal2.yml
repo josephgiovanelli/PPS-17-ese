@@ -1,0 +1,20 @@
+name: Giraffa
+geneLength: 3
+alleleLength: 3
+reign: A
+typology: H
+structuralChromosome: ./struct2
+regulationChromosome:
+  allelesPath: ./reg2
+  names:
+    life: aaa
+    childhood: aab
+    maturity: aac
+    oldness: aad
+    decline: aae
+sexualChromosome:
+  allelesPath: ./sex2
+  names:
+    fertility: aaf
+    fecundity: aag
+    pregnancyDuration: aak
