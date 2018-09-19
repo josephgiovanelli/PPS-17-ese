@@ -7,9 +7,8 @@ import scalafx.scene.control._
 import WorldPrefernces._
 import it.unibo.pps.ese.genericworld.model.EntityState
 import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.view.configuration.dialogs.ConfigurationDialog
+import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.bodyViewer.{AnimalInternalStatus, BodyPane}
-import it.unibo.pps.ese.view.configuration.dialogs.ConfirmDialog
 import it.unibo.pps.ese.view.filters.FiltersPane
 import it.unibo.pps.ese.view.history.{HistoryLog, HistoryPane}
 import it.unibo.pps.ese.view.speciesdetails.GenomeDetailsPane
@@ -35,27 +34,39 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   val currentWindow: scalafx.stage.Window = this.window()
 
   val menuBar = new MenuBar()
-  val fileMenu = new Menu("File")
+  val fileMenu = new Menu("Simulation")
   val editMenu = new Menu("Edit")
   val addEntitiesItem = new MenuItem("Add Entities")
   val addSpeciesItem = new MenuItem("Add Species")
-  val newItem = new MenuItem("New")
-  val openItem = new MenuItem("Open")
-  val saveItem = new MenuItem("Save")
-  val exitItem = new MenuItem("Exit")
-  fileMenu.items = List(newItem, openItem, saveItem, new SeparatorMenuItem, exitItem)
+  val pauseItem = new MenuItem("Pause")
+  val playItem = new MenuItem("Restart")
+
+  fileMenu.items = List(pauseItem, playItem)
   editMenu.items = List(addEntitiesItem, addSpeciesItem)
   menuBar.menus = List(fileMenu,editMenu)
-  exitItem.onAction = (e: ActionEvent) => {
-    sys.exit(0)
+
+  playItem.disable = true
+
+  pauseItem.onAction = (e: ActionEvent) => {
+    pauseItem.disable = true
+    playItem.disable = false
+    mainComponent.pause()
+  }
+
+  playItem.onAction = (e: ActionEvent) => {
+    playItem.disable = true
+    pauseItem.disable = false
+    mainComponent.play()
   }
 
   addEntitiesItem.onAction = (e: ActionEvent) => {
-    ConfirmDialog(currentWindow, None, Option(mainComponent), setUp = false).showAndWait()
+//    ConfirmDialog(currentWindow, None, Option(mainComponent), setUp = false).showAndWait()
+    MainDialog(currentWindow, Option(mainComponent), None, setUp = false, ConfirmContent).show()
   }
 
   addSpeciesItem.onAction = (e: ActionEvent) => {
-    ConfigurationDialog(currentWindow, None, Option(mainComponent), setUp = false).showAndWait()
+//    ConfigurationDialog(currentWindow, None, Option(mainComponent), setUp = false).showAndWait()
+    MainDialog(currentWindow, Option(mainComponent), None, setUp = false, ConfigurationContent).show()
   }
 
   val worldTab = new Tab()

@@ -2,7 +2,8 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
 import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
-import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesDialog
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.ChromosomePane
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesPane
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
 
@@ -10,17 +11,31 @@ import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.GridPane
+import scalafx.scene.layout.{GridPane, Pane}
 import scalafx.stage.Window
 
-case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Value, animal: String, gene: Option[String], propertiesSet: Set[_ <: DefaultGene] ) extends AbstractDialog[String](window, gene) {
+abstract class GenePane(mainDialog: MainDialog,
+                        override val previousContent: Option[ChromosomePane],
+                        gene: Option[String]) extends BackPane[String](mainDialog, previousContent, gene) {
+
+
+  def confirmAlleles(gene: String)
+}
+
+case class DefaultGenePane(mainDialog: MainDialog,
+                           override val previousContent: Option[ChromosomePane],
+                           modality: Modality,
+                           chromosomeTypes: ChromosomeTypes.Value,
+                           animal: String,
+                           gene: Option[String],
+                           propertiesSet: Set[_ <: DefaultGene]) extends GenePane(mainDialog, previousContent, gene) {
 
   /*
   Header
    */
 
-  title = "Default Gene Dialog"
-  headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
+  mainDialog.title = "Default Gene Dialog"
+  mainDialog.headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
 
   /*
   Fields
@@ -51,7 +66,7 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   grid.add(if (gene.isDefined) previousNameGene else nameGene, 1, fields.size * 2)
 
 
-  dialogPane().content = grid
+  center = grid
 
 
   /*
@@ -87,16 +102,21 @@ case class DefaultGeneDialog(window: Window, chromosomeTypes: ChromosomeTypes.Va
   Result
   */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) {
-      val defaultGene: DefaultGene = if (gene.isDefined) currentDefaultChromosome(gene.get).geneInfo.defaultGene
-                                     else propertiesSet.filter(x => x.name.equals(nameGene.selectionModel().getSelectedItem)).head
-      EntitiesInfo.instance().setChromosomeBaseInfo(animal, chromosomeTypes, DefaultGeneInfo(defaultGene, idGene.text.value))
-      AllelesDialog(window, animal, defaultGene.name, chromosomeTypes).showAndWait()
-      defaultGene.name
-    } else {
-      null
+  okButton.onAction = _ => {
+    val defaultGene: DefaultGene = if (gene.isDefined) currentDefaultChromosome(gene.get).geneInfo.defaultGene
+    else propertiesSet.filter(x => x.name.equals(nameGene.selectionModel().getSelectedItem)).head
+    EntitiesInfo.instance().setChromosomeBaseInfo(animal, chromosomeTypes, DefaultGeneInfo(defaultGene, idGene.text.value))
+    mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, defaultGene.name, chromosomeTypes))
+  }
+
+  override def confirmAlleles(gene: String): Unit = {
+    chromosomeTypes match {
+      case ChromosomeTypes.REGULATION =>
+        previousContent.get.confirmRegulationChromosome(modality, gene)
+      case ChromosomeTypes.SEXUAL =>
+        previousContent.get.confirmSexualChromosome(modality, gene)
     }
+  }
 
 }
 

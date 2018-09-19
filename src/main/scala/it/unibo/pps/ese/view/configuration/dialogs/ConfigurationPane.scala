@@ -1,41 +1,44 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
+import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
+import it.unibo.pps.ese.view.configuration.ConfigurationView
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.{AnimalPane, ChromosomePane}
+import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantPane
+import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
+import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
+import scalafx.application.Platform
+import scalafx.collections.ObservableBuffer
+import scalafx.Includes._
+import scalafx.scene.control.{Button, Label, ListView}
+import scalafx.scene.layout.{BorderPane, Pane, VBox}
+import scalafx.scene.paint.Color
+import scalafx.stage.Window
 import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.loader.exception.ResourceAlreadyExistsException
 import it.unibo.pps.ese.controller.util.io.{File, Folder, IOResource}
 import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
-import it.unibo.pps.ese.view.configuration.ConfigurationView
-import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.{AnimalDialog, ChromosomeDialog}
-import it.unibo.pps.ese.view.configuration.dialogs.plantdialogs.PlantDialog
-import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
-import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
 import it.unibo.pps.ese.view.start.{ResourceExistsAlert, UnexpectedExceptionAlert}
 import it.unibo.pps.ese.view.start.ResourceExistsAlert.Buttons
-import scalafx.application.Platform
-import scalafx.collections.ObservableBuffer
-import scalafx.Includes._
-import scalafx.scene.control.{Button, Label, ListView}
-import scalafx.scene.layout.{BorderPane, VBox}
-import scalafx.scene.paint.Color
 import scalafx.stage.FileChooser.ExtensionFilter
 import scalafx.stage.{FileChooser, Window}
 
 import scala.util.{Failure, Success, Try}
 
-case class ConfigurationDialog(window: Window,
-                               setupViewBridge: Option[SetupViewBridge],
-                               mainComponent: Option[MainComponent],
-                               setUp: Boolean,
-                               previousAnimalsCount: Map[String, Int] = Map.empty,
-                               previousPlantsCount: Map[String, Int] = Map.empty) extends AbstractDialog[Unit](window, None) {
+case class ConfigurationPane(mainDialog: MainDialog,
+                             override val previousContent: Option[Pane],
+                             setupViewBridge: Option[SetupViewBridge],
+                             mainComponent: Option[MainComponent],
+                             setUp: Boolean,
+                             previousAnimalsCount: Map[String, Int] = Map.empty,
+                             previousPlantsCount: Map[String, Int] = Map.empty) extends BackPane[Unit](mainDialog, previousContent, None) {
 
   /*
   Header
    */
 
-  title = "Configuration Dialog"
-  headerText = if (setUp) "Insert or edit your species" else "Insert another species"
+  mainDialog.title = "Configuration Dialog"
+  mainDialog.headerText = if (setUp) "Insert or edit your species" else "Insert another species"
 
   val errorLabel = new Label("")
   errorLabel.textFill = Color.Red
@@ -53,7 +56,7 @@ case class ConfigurationDialog(window: Window,
     items = animalsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1 && ((!setUp && newAnimalSpecies.contains(value)) || setUp)) {
-        AnimalDialog(window, Some(value)).showAndWait()
+        mainDialog.setContent(AnimalPane(mainDialog, Some(ConfigurationPane.this), ModifyModality, Some(value)))
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -64,29 +67,18 @@ case class ConfigurationDialog(window: Window,
     items = plantsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1 && ((!setUp && newPlantSpecies.contains(value)) || setUp)) {
-        PlantDialog(window, Some(value)).showAndWait()
+        mainDialog.setContent(PlantPane(mainDialog, Some(ConfigurationPane.this), ModifyModality, Some(value)))
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-  animalsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
-  plantsListView.prefHeight <== MIN_ELEM * ROW_HEIGHT
-
   val animalsAddButton = new Button("Add")
   val plantsAddButton = new Button("Add")
-  animalsAddButton.onAction = _ => AnimalDialog(window).showAndWait() match {
-    case Some(name) =>
-      if (!setUp) newAnimalSpecies = newAnimalSpecies :+ name.toString
-      animalsName.insert(animalsName.size, name.toString)
-    case None => println("Dialog returned: None")
-  }
-  plantsAddButton.onAction = _ => PlantDialog(window).showAndWait() match {
-    case Some(name) =>
-      if (!setUp) newPlantSpecies = newPlantSpecies :+ name.toString
-      plantsName.insert(plantsName.size, name.toString)
-    case None => println("Dialog returned: None")
-  }
+  animalsAddButton.onAction = _ => mainDialog.setContent(AnimalPane(mainDialog, Some(this), AddModality))
+
+  plantsAddButton.onAction = _ => mainDialog.setContent(PlantPane(mainDialog, Some(this), AddModality))
+
 
   val animalsPane = new BorderPane()
   animalsPane.left = new Label("Animals")
@@ -108,7 +100,7 @@ case class ConfigurationDialog(window: Window,
       val animalEntities: Map[String, Int] = animalsName.zip(List.fill(animalsName.size)(0)).toMap
       val plantEntities: Map[String, Int] = plantsName.zip(List.fill(plantsName.size)(0)).toMap
       val data: PartialSimulationData = EntitiesInfo.instance().getPartialSimulationData(animalEntities, plantEntities)
-      val chosenFile: java.io.File = fileChooser.showSaveDialog(window)
+      val chosenFile: java.io.File = fileChooser.showSaveDialog(mainDialog.window)
       IOResource(chosenFile.toURI.toURL).getParent() match {
         case Some(f: Folder) =>
           val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
@@ -118,17 +110,20 @@ case class ConfigurationDialog(window: Window,
       }
     }
   }
+  if (!setUp) {
+    saveButton.disable = true
+  }
 
   def handleSaveResult(saveResult: Try[Unit], saver: SetupViewBridge, target: Folder) = saveResult match {
     case Success(_) =>
     case Failure(exception: ResourceAlreadyExistsException) =>
       handleSaveFailure(exception, saver, target)
     case Failure(exception) =>
-      UnexpectedExceptionAlert(window, exception)
+      UnexpectedExceptionAlert(mainDialog.window, exception)
   }
 
   def handleSaveFailure(exception: ResourceAlreadyExistsException, saver: SetupViewBridge, target: Folder): Unit = {
-    ResourceExistsAlert(window, exception.existingResource).showAndWait() match {
+    ResourceExistsAlert(mainDialog.window, exception.existingResource).showAndWait() match {
       case Some(Buttons.Override) =>
         handleSaveResult(saver.retrySave(target, Some(exception.existingResource)), saver, target)
       case Some(Buttons.OverrideAll) =>
@@ -137,7 +132,7 @@ case class ConfigurationDialog(window: Window,
     }
   }
 
-  dialogPane().content = new VBox() {
+  center = new VBox() {
     children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"), saveButton)
     styleClass += "sample-page"
   }
@@ -153,18 +148,41 @@ case class ConfigurationDialog(window: Window,
   Result
    */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) {
-      ConfirmDialog(window,
-        setupViewBridge,
-        mainComponent,
-        setUp,
-        newAnimalSpecies,
-        newPlantSpecies,
-        previousAnimalsCount,
-        previousPlantsCount).showAndWait()
+  okButton.onAction = _ =>
+      mainDialog.setContent(
+        ConfirmPane(
+          mainDialog,
+          Some(ConfigurationPane.this),
+          setupViewBridge,
+          mainComponent,
+          setUp,
+          newAnimalSpecies,
+          newPlantSpecies,
+          previousAnimalsCount,
+          previousPlantsCount))
+
+
+  def confirmPlantSpecies(m: Modality, name: String): Unit = {
+    m match {
+      case AddModality =>
+        if (!setUp) newPlantSpecies = newPlantSpecies :+ name.toString
+        plantsName.insert(plantsName.size, name.toString)
+      case ModifyModality =>
+        Platform.runLater(plantsListView.selectionModel().clearSelection())
     }
-    else
-      null
+    mainDialog.setContent(this)
+  }
+
+  def confirmAnimalSpecies(m: Modality, name: String): Unit = {
+    m match {
+      case AddModality =>
+        if (!setUp) newAnimalSpecies = newAnimalSpecies :+ name.toString
+        animalsName.insert(animalsName.size, name.toString)
+      case ModifyModality =>
+        Platform.runLater(animalsListView.selectionModel().clearSelection())
+    }
+    mainDialog.setContent(this)
+  }
+
 
 }

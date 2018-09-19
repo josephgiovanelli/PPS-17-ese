@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteSimulat
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder}
 import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationController}
 import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.view.configuration.dialogs.ConfigurationDialog
+import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationContent, MainDialog}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, StartMenuView}
 import scalafx.application.JFXApp.PrimaryStage
@@ -44,7 +44,8 @@ object ViewLauncher {
     var saver: Option[Saver] = None
 
     def launchSetup(currentWindow: Window): Unit = {
-      ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+//      ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+      MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
     }
 
     def startSimulation(file: File, currentWindow: Window): Try[Unit] = {
@@ -60,7 +61,8 @@ object ViewLauncher {
           NoCompleteSimulationAlert(currentWindow, exception.buildException).showAndWait()
           EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
             exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
-          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+//          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+          MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
           Success()
         case Failure(exception) =>
           Failure(exception)
@@ -72,7 +74,8 @@ object ViewLauncher {
         case Success(data) =>
           EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
             data.getPlants.getOrElse(Iterable()).map(_._1))
-          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+//          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+          MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
           Success()
         case Failure(exception) =>
           Failure(exception)

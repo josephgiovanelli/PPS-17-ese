@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
-import it.unibo.pps.ese.view.configuration.dialogs.AbstractDialog
+import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
 
@@ -9,17 +9,20 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.GridPane
+import scalafx.scene.layout.{GridPane, Pane}
 import scalafx.stage.Window
 
-case class AnimalDialog(window: Window, animal: Option[String] = None) extends AbstractDialog[String](window, animal) {
+case class AnimalPane(mainDialog: MainDialog,
+                      override val previousContent: Option[ConfigurationPane],
+                      modality: Modality,
+                      animal: Option[String] = None) extends BackPane[String](mainDialog, previousContent, animal) {
 
   /*
   Header
    */
 
-  title = "Animal Dialog"
-  headerText = "Create an animal"
+  mainDialog.title = "Animal Dialog"
+  mainDialog.headerText = "Create an animal"
 
   /*
   Fields
@@ -44,7 +47,7 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends A
   grid.add(new Label("Typology"), 0, fields.size * 2)
   grid.add(typology, 1, fields.size * 2)
 
-  dialogPane().content = grid
+  center = grid
 
   Platform.runLater(name.requestFocus())
 
@@ -75,13 +78,15 @@ case class AnimalDialog(window: Window, animal: Option[String] = None) extends A
   Result
    */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) {
-      EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt, alleleLength.text.value.toInt, typology.value.value))
-      ChromosomeDialog(window, if (animal.isEmpty) name.text.value else animal.get).showAndWait()
-      name.text.value
-    }
-    else
-      null
+  okButton.onAction = _ => {
+    EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt,
+      alleleLength.text.value.toInt, typology.value.value))
+    mainDialog.setContent(ChromosomePane(mainDialog, Some(this), AddModality, if (animal.isEmpty) name.text.value else animal.get))
+  }
+
+  def confirmChromosome(name: String): Unit = {
+    previousContent.get.confirmAnimalSpecies(modality, name)
+  }
+
 
 }

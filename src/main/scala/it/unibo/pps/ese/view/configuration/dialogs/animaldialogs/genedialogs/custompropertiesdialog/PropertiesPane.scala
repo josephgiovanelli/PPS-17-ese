@@ -3,6 +3,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 
 import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.CustomGenePane
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 
@@ -12,17 +13,24 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
 import scalafx.stage.Window
 
-case class PropertiesDialog(window: Window, animal: String, gene: Option[String], property: Option[String], currentConversionMap: Option[Map[String, Double]], properties: Iterable[String]) extends AbstractDialog[ConversionMap](window, property) {
+case class PropertiesPane(mainDialog: MainDialog,
+                          override val previousContent: Option[CustomGenePane],
+                          modality: Modality,
+                          animal: String,
+                          gene: Option[String],
+                          property: Option[String],
+                          currentConversionMap: Option[Map[String, Double]],
+                          properties: Iterable[String]) extends BackPane[ConversionMap](mainDialog, previousContent, property) {
 
   /*
   Header
    */
 
-  title = "Properties Dialog"
-  headerText = "Define gene properties"
+  mainDialog.title = "Properties Dialog"
+  mainDialog.headerText = "Define gene properties"
 
   /*
   Fields
@@ -52,33 +60,37 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
     items = conversionMapName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        ConversionMapDialog(window, Some((value, conversionMap(value))), qualities).showAndWait() match {
-          case Some((name: String, value: Double)) =>
-            conversionMap += (name -> value)
-          case None => println("Dialog returned: None")
-        }
+        mainDialog.setContent(ConversionMapPane(
+          mainDialog, Some(PropertiesPane.this), ModifyModality, Some((value, conversionMap(value))), qualities))
+//          .showAndWait() match {
+//          case Some((name: String, value: Double)) =>
+//            conversionMap += (name -> value)
+//          case None => println("Dialog returned: None")
+//        }
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-  conversionMapListView.prefHeight = MIN_ELEM * ROW_HEIGHT
+//  conversionMapListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val conversionMapButton = new Button("Add")
-  conversionMapButton.onAction = _ => ConversionMapDialog(window, None, qualities).showAndWait() match {
-    case Some((name: String, value: Double)) =>
-      conversionMap += (name -> value)
-      conversionMapName.insert(conversionMapName.size, name)
-      qualities -= name
-      conversionMapButton.disable = qualities.isEmpty
-    case None => println("Dialog returned: None")
-  }
+  conversionMapButton.onAction = _ => mainDialog.setContent(ConversionMapPane(
+    mainDialog, Some(PropertiesPane.this), AddModality, None, qualities))
+//    .showAndWait() match {
+//    case Some((name: String, value: Double)) =>
+//      conversionMap += (name -> value)
+//      conversionMapName.insert(conversionMapName.size, name)
+//      qualities -= name
+//      conversionMapButton.disable = qualities.isEmpty
+//    case None => println("Dialog returned: None")
+//  }
 
   val conversionMapPane = new BorderPane()
   conversionMapPane.left = new Label("Conversion Map")
   conversionMapPane.right = conversionMapButton
 
-  dialogPane().content = new VBox() {
+  center = new VBox() {
     children ++= Seq(grid, conversionMapPane, conversionMapListView, new Label("At least one conversion map"))
     styleClass += "sample-page"
   }
@@ -91,7 +103,7 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
   listFields = Seq(conversionMapName)
   uniqueFields = Map(propertyName -> properties.toSet)
 
-  createChecks()
+ createChecks()
 
   /*
   Restart information
@@ -106,10 +118,27 @@ case class PropertiesDialog(window: Window, animal: String, gene: Option[String]
   Result
    */
 
-  resultConverter = dialogButton =>
-    if (dialogButton == okButtonType) ConversionMap(propertyName.text.value, conversionMap)
-    else null
+//  resultConverter = dialogButton =>
+//    if (dialogButton == okButtonType) ConversionMap(propertyName.text.value, conversionMap)
+//    else null
 
+  okButton.onAction = _ => {
+    previousContent.get.confirmProperties(modality, ConversionMap(propertyName.text.value, conversionMap))
+  }
+
+  def confirmConversionMap(m: Modality, name: String, value: Double): Unit = {
+    m match {
+      case AddModality =>
+        conversionMap += (name -> value)
+        conversionMapName.insert(conversionMapName.size, name)
+        qualities -= name
+        conversionMapButton.disable = qualities.isEmpty
+      case ModifyModality =>
+        conversionMap += (name -> value)
+    }
+    mainDialog.setContent(this)
+
+  }
 }
 
 

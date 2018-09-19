@@ -31,6 +31,8 @@ trait MainComponent {
   def simulationEras(): Future[Seq[Long]]
   def entitiesInEra(era: Long): Future[Seq[String]]
   def replay: ReplayController
+  def pause()
+  def play()
 }
 trait BodyViewer {
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
@@ -120,5 +122,9 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator, controller: Simulat
   override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
     observers.foreach(_.addEntities(animals, plants, newAnimals, newPlants))
   }
+
+  override def pause(): Unit = observers.foreach(_.pause())
+
+  override def play(): Unit = observers.foreach(_.play())
 }
 
