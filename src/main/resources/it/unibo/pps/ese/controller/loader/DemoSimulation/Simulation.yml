@@ -1,5 +1,5 @@
 animals:
-  ./Gatto.yml: 200
+  ./Stegosauro.yml: 200
   ./Brontosaurus.yml: 1000
   ./Tyrannosaurus.yml: 200
 
