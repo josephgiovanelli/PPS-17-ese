@@ -75,8 +75,6 @@ object YamlLoader extends Loader {
       builder = builder.setAlleleLength(loadedPlant.alleleLength.get)
     if(loadedPlant.geneLength.isDefined)
       builder = builder.setGeneLength(loadedPlant.geneLength.get)
-    if(loadedPlant.attractiveness.isDefined)
-      builder = builder.setAttractiveness(loadedPlant.attractiveness.get)
     if(loadedPlant.hardness.isDefined)
       builder = builder.setHardness(loadedPlant.hardness.get)
     if(loadedPlant.availability.isDefined)

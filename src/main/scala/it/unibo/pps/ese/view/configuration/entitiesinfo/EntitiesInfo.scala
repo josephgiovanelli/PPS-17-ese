@@ -191,13 +191,10 @@ object EntitiesInfo {
           plant._1 ->
             PlantBuilder()
               .setName(plant._1)
-              //TODO why?
               .setGeneLength(3)
               .setAlleleLength(3)
               .setReign("P")
               .setHeight(plant._2.height)
-              //TODO why?
-              .setAttractiveness(0)
               .setHardness(plant._2.hardness)
               .setNutritionalValue(plant._2.nutritionalValue)
               .setAvailability(plant._2.availability)

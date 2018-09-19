@@ -5,7 +5,7 @@ import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat}
 
 object BeansYamlProtocol extends DefaultYamlProtocol {
   implicit val simulationFormat: YamlFormat[Simulation] = yamlFormat2(Simulation)
-  implicit val plantFormat: YamlFormat[Plant] = yamlFormat9(Plant)
+  implicit val plantFormat: YamlFormat[Plant] = yamlFormat8(Plant)
   implicit val defaultChromosomeDataFormat: YamlFormat[DefaultChromosomeData] = yamlFormat2(DefaultChromosomeData)
   implicit val animalFormat: YamlFormat[Animal] = yamlFormat8(Animal)
   implicit val propertyInfoFormat: YamlFormat[PropertyInfo] = yamlFormat1(PropertyInfo)
