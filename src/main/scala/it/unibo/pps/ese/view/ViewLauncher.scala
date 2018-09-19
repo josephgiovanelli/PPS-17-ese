@@ -1,7 +1,8 @@
 package it.unibo.pps.ese.view
 
+import it.unibo.pps.ese.controller.loader.{Saver, YamlSaver}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
-import it.unibo.pps.ese.controller.loader.exception.CompleteSimulationBuildException
+import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder}
 import it.unibo.pps.ese.genericworld.controller.{Controller, SimulationController}
 import it.unibo.pps.ese.genetics.GeneticsSimulator
@@ -40,6 +41,7 @@ object ViewLauncher {
     title = "Evolution Simulation Engine"
     val simulationController: Option[SimulationController] = None
     this.scene = StartMenuView(this)
+    var saver: Option[Saver] = None
 
     def launchSetup(currentWindow: Window): Unit = {
       ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
@@ -87,12 +89,14 @@ object ViewLauncher {
       }
     }
 
-    //Cachare saver e target
     def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Try[Unit] = {
-      Success()
+      val s = YamlSaver(simulation, simulationName)
+      saver = Some(s)
+      s.saveData(target, false)
     }
     def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Try[Unit] = {
-      Success()
+      overrideResource.foreach(saver.getOrElse(throw new IllegalStateException()).addResourceToOverride)
+      saver.getOrElse(throw new IllegalStateException()).saveData(target, overrideAll)
     }
   }
 }

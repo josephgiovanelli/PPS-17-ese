@@ -8,9 +8,8 @@ import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulatio
 import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
 import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
 import it.unibo.pps.ese.controller.loader.data.builder._
-import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
+import it.unibo.pps.ese.controller.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException}
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
-import it.unibo.pps.ese.controller.loader.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
 import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder, IOResource}
 import it.unibo.pps.ese.utils.DefaultValue
@@ -36,8 +35,6 @@ object YamlLoader extends Loader {
       builder.tryCompleteBuild match {
       case Success(value) =>
         Success(value)
-      case Failure(exception: CompleteBuildException) =>
-        Failure(CompleteSimulationBuildException(builder.build(), exception))
       case Failure(exception) =>
           Failure(exception)
     }

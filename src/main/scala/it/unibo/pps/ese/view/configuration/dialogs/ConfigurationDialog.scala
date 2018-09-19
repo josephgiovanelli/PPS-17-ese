@@ -105,13 +105,12 @@ case class ConfigurationDialog(window: Window,
 
   val saveButton: Button = new Button("Save") {
     onAction = _ => {
-      //val animalEntities: Map[String, Int] = animalsName.zip(List.fill(animalsName.size)(0)).toMap
-      //val plantEntities: Map[String, Int] = plantsName.zip(List.fill(plantsName.size)(0)).toMap
-      //val data: PartialSimulationData = EntitiesInfo.instance().getSimulationData(animalEntities, plantEntities)
-      val data: PartialSimulationData = null
+      val animalEntities: Map[String, Int] = animalsName.zip(List.fill(animalsName.size)(0)).toMap
+      val plantEntities: Map[String, Int] = plantsName.zip(List.fill(plantsName.size)(0)).toMap
+      val data: PartialSimulationData = EntitiesInfo.instance().getPartialSimulationData(animalEntities, plantEntities)
       val chosenFile: java.io.File = fileChooser.showSaveDialog(window)
       IOResource(chosenFile.toURI.toURL).getParent() match {
-        case f: Folder =>
+        case Some(f: Folder) =>
           val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
           handleSaveResult(saver.saveSimulationData(data, chosenFile.getName, f), saver, f)
         case _ =>
