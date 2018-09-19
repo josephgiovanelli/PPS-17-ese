@@ -28,7 +28,7 @@ sealed trait BodyPane extends ScrollPane{
 object BodyPane {
   def apply():BodyPane= new BodyPaneImpl()
   private[this] class BodyPaneImpl() extends BodyPane {
-    val back:Image = new Image("it.unibo.pps.ese.view/backgrounds/backBig.jpg")
+    val back:Image = new Image("it/unibo/pps/ese/view/backgrounds/backBig.jpg")
     val canvasGroup = new Group()
     val root = new Pane()
     root.prefHeight = 850
