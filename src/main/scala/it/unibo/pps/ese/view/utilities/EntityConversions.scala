@@ -33,7 +33,7 @@ object EntityConversions {
           visualField->entityInfo.visualField,
           attractiveness->entityInfo.attractiveness,
           speed->entityInfo.actualSpeed,
-          fertility->entityInfo.fertility*100,
+          fertility->entityInfo.actualFertility*100,
           age->entityInfo.age.toDouble,
           averageLife->entityInfo.averageLife,
           percentageDecay->entityInfo.percentageDecay,

@@ -234,7 +234,6 @@ private class WorldPaneImpl(
                 drawEntity(Position(e.state.position.x * entitySize(), e.state.position.y * entitySize()), animalColorMap(e.state.species.toString))
               }
           }
-
         })
         currentSelected match {
           case Some(id) =>
