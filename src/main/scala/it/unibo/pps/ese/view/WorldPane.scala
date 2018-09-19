@@ -84,12 +84,11 @@ private class WorldPaneImpl(
     DeepSkyBlue
   )
 
-
   var animalColorPool: List[Color] = animalColors
-  val animalColorMap: Map[String, Color] = getAnimalColors
+  var animalColorMap: Map[String, Color] = getAnimalColors
 
   var plantColorPool: List[Color] = plantColors
-  val plantColorMap: Map[String, Color] = getPlantColors
+  var plantColorMap: Map[String, Color] = getPlantColors
 
   var currentWorld: Map[Position, EntityState] = Map()
   var currentSelected: Option[String] = None
@@ -186,6 +185,10 @@ private class WorldPaneImpl(
 
 
   override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
+    val newColors:Map[String,Color] = geneticsSimulator.plantSpeciesList.filter(!plantColorMap.contains(_)).map(s=>s->getPlantColorOfPool).toMap
+    plantColorMap ++= newColors
+    val newAnimalColors:Map[String,Color] = geneticsSimulator.speciesList.filter(!animalColorMap.contains(_)).map(s=>s->getAnimalColorOfPool).toMap
+    animalColorMap ++= newAnimalColors
     drawWorld(world, entityFiltersValues)
   }
 
@@ -336,6 +339,18 @@ private class WorldPaneImpl(
     })).toMap
   }
 
+  def getAnimalColorOfPool:Color = {
+    val r = Random.nextInt(animalColorPool.size)
+    val c = animalColorPool(r)
+    animalColorPool = animalColorPool diff List(c)
+    c
+  }
+  def getPlantColorOfPool:Color = {
+    val r = Random.nextInt(plantColorPool.size)
+    val c = plantColorPool(r)
+    plantColorPool = plantColorPool diff List(c)
+    c
+  }
   private def getPlantColors: Map[String, Color] = {
     geneticsSimulator.plantSpeciesList.map(s => (s, {
       if (plantColorPool.isEmpty) plantColorPool=plantColors
