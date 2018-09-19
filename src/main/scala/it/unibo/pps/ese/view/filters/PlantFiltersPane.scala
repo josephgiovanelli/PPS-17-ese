@@ -25,6 +25,7 @@ import it.unibo.pps.ese.view.filters.PlantFiltersValues
 
 trait PlantFiltersPane extends FiltersVBox with DisablePane {
   def entityFiltersValues: EntityFiltersValues
+  def updateFilters()
 }
 
 object PlantFiltersPane {
@@ -34,7 +35,7 @@ object PlantFiltersPane {
 
   private class PlantFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends PlantFiltersPane {
 
-    val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
+    var speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
     val heightVBox: SliderVBox = sliderVBox(EntityConversions.height)
     val nutritionalValueVBox: SliderVBox = sliderVBox(nutritionalValue)
     val availabilityVBox: SliderVBox = sliderVBox(availability)
@@ -72,5 +73,7 @@ object PlantFiltersPane {
         availability->Range(availabilityVBox.lowValue, availabilityVBox.highValue)
       )
     )
+
+    override def updateFilters(): Unit = speciesHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
   }
 }
