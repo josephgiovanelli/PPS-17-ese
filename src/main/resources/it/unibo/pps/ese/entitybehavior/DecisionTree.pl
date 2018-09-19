@@ -13,8 +13,7 @@ Example of dynamic contents.
 */
 /*
 threshold(attack, 3).
-threshold(subHeight, 0).
-threshold(topHeight, 5).
+threshold(height, 5).
 threshold(attractiveness, 2).
 
 kind(prey, carnivorous, herbivore).
@@ -29,9 +28,9 @@ setAttackThreshold(Threshold) :-
 setAttractivenessThreshold(Threshold) :-
 	assert(threshold(attractiveness, Threshold)).
 
-setHeightThresholds(SubThreshold, TopThreshold) :-
-	assert(threshold(subHeight, SubThreshold)),
-	assert(threshold(topHeight, TopThreshold)).
+setHeightThresholds(Threshold) :-
+	assert(threshold(height, Threshold)).
+
 
 addCompatibleHuntingKinds(HunterKind, PreyKind) :-
 	assert(kind(prey, HunterKind, PreyKind)).
@@ -93,9 +92,8 @@ Check if the height of the prey Y is suitable for the hunter X.
 */
 heightDiff(HeightX, HeightY) :-
 	Z is HeightX - HeightY,
-	threshold(subHeight, S),
-	threshold(topHeight, T),
-	(Z > S, Z < T).
+	threshold(height, T),
+	(Z < T).
 
 /*
 discoverPreys(+X, -Y, -Lenght)

@@ -58,7 +58,7 @@ object DecisionSupport {
 
     private def heightDiff(entity1: EntityAttributes, entity2: EntityAttributes): Boolean = {
       val diff = abs(entity1.height - entity2.height)
-      diff > worldRules.heightThresholds._1 && diff < worldRules.heightThresholds._2
+      diff < worldRules.heightThresholds
     }
 
     private def compatiblePreysKind(hunter: EntityAttributes, prey: EntityAttributes): Boolean =
