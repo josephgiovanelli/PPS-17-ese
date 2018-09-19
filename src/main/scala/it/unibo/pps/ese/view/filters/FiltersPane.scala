@@ -23,6 +23,7 @@ import scalafx.scene.paint.Color
 
 trait FiltersPane extends ScrollPane {
   def filtersOn: BooleanProperty
+  def updateFilters()
 }
 
 object FiltersPane {
@@ -118,7 +119,10 @@ object FiltersPane {
       worldPane.clearFilters()
     }
 
-
+    override def updateFilters(): Unit = {
+      animalVBox.updateFilters()
+      plantVBox.updateFilters()
+    }
   }
 
 }

@@ -106,10 +106,11 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   topPane.bottom = generationPane
   topPane.center = zoomPane
 
+  val filtersPane = FiltersPane(worldPane, geneticsSimulator)
   val filtersTab = new Tab()
   filtersTab.text = "Filters"
   filtersTab.closable = false
-  filtersTab.content = FiltersPane(worldPane, geneticsSimulator)
+  filtersTab.content = filtersPane
 
   val statisticsPane = StatisticsDetailsPane(mainComponent)
 
@@ -146,7 +147,12 @@ private class MainScene(geneticsSimulator: GeneticsSimulator, mainComponent: Mai
   root = contentPane
 
   override def updateWorld(generation: Int, world: Seq[EntityState]): Unit = {
-    generationLabel.text = generationTextLabel + generation
+    Platform.runLater {
+      () => {
+        filtersPane.updateFilters()
+        generationLabel.text = generationTextLabel + generation
+      }
+    }
     worldPane.updateWorld(generation, world)
   }
 

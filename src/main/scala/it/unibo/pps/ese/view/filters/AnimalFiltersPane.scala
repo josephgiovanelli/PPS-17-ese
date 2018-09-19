@@ -11,6 +11,7 @@ import it.unibo.pps.ese.view.utilities.EntityConversions._
 
 trait AnimalFiltersPane extends FiltersVBox with DisablePane {
   def entityFiltersValues: EntityFiltersValues
+  def updateFilters()
 }
 
 object AnimalFiltersPane {
@@ -28,7 +29,7 @@ object AnimalFiltersPane {
     val herbivoreRepresentation: String = "Herbivore"
     val carnivorusRepresentation: String = "Carnivorus"
 
-    val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.speciesList)
+    var speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.speciesList)
     val genderHBox: ChoiceHBox = choiceHBox("Gender",
       maleRepresentation ::
       femaleRepresentation ::
@@ -188,6 +189,8 @@ object AnimalFiltersPane {
         defense->Range(defenseVBox.lowValue, defenseVBox.highValue),
       )
     )
+
+    override def updateFilters(): Unit = speciesHBox = choiceHBox("Species", geneticsSimulator.speciesList)
   }
 }
 
