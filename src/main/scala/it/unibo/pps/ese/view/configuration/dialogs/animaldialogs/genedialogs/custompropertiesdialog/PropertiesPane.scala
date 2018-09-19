@@ -29,8 +29,8 @@ case class PropertiesPane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Properties Dialog"
-  mainDialog.headerText = "Define gene properties"
+  title = "Properties Dialog"
+  headerText = "Define gene properties"
 
   /*
   Fields
@@ -62,29 +62,16 @@ case class PropertiesPane(mainDialog: MainDialog,
       if (selectionModel().getSelectedIndex != -1) {
         mainDialog.setContent(ConversionMapPane(
           mainDialog, Some(PropertiesPane.this), ModifyModality, Some((value, conversionMap(value))), qualities))
-//          .showAndWait() match {
-//          case Some((name: String, value: Double)) =>
-//            conversionMap += (name -> value)
-//          case None => println("Dialog returned: None")
-//        }
+
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-//  conversionMapListView.prefHeight = MIN_ELEM * ROW_HEIGHT
-
   val conversionMapButton = new Button("Add")
   conversionMapButton.onAction = _ => mainDialog.setContent(ConversionMapPane(
     mainDialog, Some(PropertiesPane.this), AddModality, None, qualities))
-//    .showAndWait() match {
-//    case Some((name: String, value: Double)) =>
-//      conversionMap += (name -> value)
-//      conversionMapName.insert(conversionMapName.size, name)
-//      qualities -= name
-//      conversionMapButton.disable = qualities.isEmpty
-//    case None => println("Dialog returned: None")
-//  }
+
 
   val conversionMapPane = new BorderPane()
   conversionMapPane.left = new Label("Conversion Map")
@@ -117,10 +104,6 @@ case class PropertiesPane(mainDialog: MainDialog,
   /*
   Result
    */
-
-//  resultConverter = dialogButton =>
-//    if (dialogButton == okButtonType) ConversionMap(propertyName.text.value, conversionMap)
-//    else null
 
   okButton.onAction = _ => {
     previousContent.get.confirmProperties(modality, ConversionMap(propertyName.text.value, conversionMap))

@@ -26,7 +26,7 @@ import scalafx.stage.{FileChooser, Window}
 import scala.util.{Failure, Success, Try}
 
 case class ConfigurationPane(mainDialog: MainDialog,
-                             override val previousContent: Option[Pane],
+                             override val previousContent: Option[DialogPane],
                              setupViewBridge: Option[SetupViewBridge],
                              mainComponent: Option[MainComponent],
                              setUp: Boolean,
@@ -37,8 +37,8 @@ case class ConfigurationPane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Configuration Dialog"
-  mainDialog.headerText = if (setUp) "Insert or edit your species" else "Insert another species"
+  title = "Configuration Dialog"
+  headerText = if (setUp) "Insert or edit your species" else "Insert another species"
 
   val errorLabel = new Label("")
   errorLabel.textFill = Color.Red

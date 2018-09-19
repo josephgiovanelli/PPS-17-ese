@@ -13,10 +13,17 @@ trait Modality
 case object AddModality extends Modality
 case object ModifyModality extends Modality
 
-class BackPane[A](mainDialog: MainDialog, val previousContent: Option[Pane], val key: Option[String]) extends BorderPane {
+class DialogPane extends BorderPane {
+  var title: String = ""
+  var headerText: String = ""
+
+}
+
+class BackPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String]) extends DialogPane {
 
   prefWidth = 500
   prefHeight = 600
+
 
   if (previousContent.isDefined) {
     val backButton = new Button("Back")

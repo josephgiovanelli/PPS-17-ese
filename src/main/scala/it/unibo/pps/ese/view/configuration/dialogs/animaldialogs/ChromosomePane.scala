@@ -22,8 +22,8 @@ case class ChromosomePane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Chromosome Dialog"
-  mainDialog.headerText = "Define animal chromosome"
+  title = "Chromosome Dialog"
+  headerText = "Define animal chromosome"
 
   /*
   Fields

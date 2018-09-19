@@ -19,8 +19,8 @@ case class ConversionMapPane(mainDialog: MainDialog,
   Header
   */
 
-  mainDialog.title = "Conversion Map Dialog"
-  mainDialog.headerText = "Define a conversion map"
+  title = "Conversion Map Dialog"
+  headerText = "Define a conversion map"
 
   /*
   Fields
@@ -73,9 +73,7 @@ case class ConversionMapPane(mainDialog: MainDialog,
   Result
   */
 
-//  resultConverter = dialogButton =>
-//    if (dialogButton == okButtonType) (conversionName.value.value, conversionValue.text.value.toDouble)
-//    else null
+
 
   okButton.onAction = _ => {
     previousContent.get.confirmConversionMap(modality, conversionName.value.value, conversionValue.text.value.toDouble)

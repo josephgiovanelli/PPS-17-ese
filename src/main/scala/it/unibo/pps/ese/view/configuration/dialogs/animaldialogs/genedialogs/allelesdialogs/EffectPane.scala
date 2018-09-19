@@ -18,8 +18,8 @@ case class EffectPane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Effect Dialog"
-  mainDialog.headerText = "Define an allele effect"
+  title = "Effect Dialog"
+  headerText = "Define an allele effect"
 
   /*
   Fields
@@ -60,9 +60,6 @@ case class EffectPane(mainDialog: MainDialog,
   Result
    */
 
-//  resultConverter = dialogButton =>
-//    if (dialogButton == okButtonType) (propertyName.text.value, effectValue.text.value.toDouble)
-//    else null
 
   okButton.onAction = _ => {
     previousContent.get.confirmAddEffect(propertyName.text.value, effectValue.text.value.toDouble)

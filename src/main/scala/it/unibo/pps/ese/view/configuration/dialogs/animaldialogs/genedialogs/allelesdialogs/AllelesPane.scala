@@ -22,8 +22,8 @@ case class AllelesPane(mainDialog: MainDialog,
   Header
   */
 
-  mainDialog.title = "Alleles Dialog"
-  mainDialog.headerText = "Define chromosome alleles"
+  title = "Alleles Dialog"
+  headerText = "Define chromosome alleles"
 
   /*
   Fields
@@ -54,13 +54,7 @@ case class AllelesPane(mainDialog: MainDialog,
         currentAlleles += (value -> currentAllele)
         EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
         mainDialog.setContent(AllelePane(mainDialog, Some(AllelesPane.this), animal, gene, Some(value), properties, chromosomeTypes))
-//        fatto
-//          .showAndWait() match {
-//          case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
-//            currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
-//            EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
-//          case None => println("Dialog returned: None")
-//        }
+
         Platform.runLater(selectionModel().clearSelection())
       }
     })
@@ -72,14 +66,6 @@ case class AllelesPane(mainDialog: MainDialog,
 
   val allelesButton = new Button("Add")
   allelesButton.onAction = _ => mainDialog.setContent(AllelePane(mainDialog, Some(this), animal, gene, None, properties, chromosomeTypes))
-//  fatto
-//   .showAndWait() match {
-//    case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
-//      currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
-//      allelesName.insert(allelesName.size, id)
-//      EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
-//    case None => println("Dialog returned: None")
-//  }
 
   val allelesPane = new BorderPane()
   allelesPane.left = new Label("Alleles")
@@ -113,13 +99,6 @@ case class AllelesPane(mainDialog: MainDialog,
   okButton.onAction = _ => {
     mainDialog.setContent(previousContent.get)
     previousContent.get.confirmAlleles(gene)
-//    chromosomeTypes match {
-//      case ChromosomeTypes.STRUCTURAL =>
-//        previousContent.get.confirmAlleles(gene)
-//      case ChromosomeTypes.REGULATION =>
-//        previousContent.get.confirmAlleles(gene)
-//      case ChromosomeTypes.SEXUAL =>
-//    }
 
   }
 
