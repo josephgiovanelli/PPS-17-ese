@@ -10,7 +10,7 @@ import scalafx.scene.layout.{GridPane, Pane, VBox}
 import scalafx.stage.Window
 
 case class ConversionMapPane(mainDialog: MainDialog,
-                             override val previousContent: Option[Pane],
+                             override val previousContent: Option[PropertiesPane],
                              currentConversion: Option[(String, Double)],
                              qualities: Set[String]) extends BackPane[(String, Double)](mainDialog, previousContent, None) {
 
@@ -75,6 +75,10 @@ case class ConversionMapPane(mainDialog: MainDialog,
 //  resultConverter = dialogButton =>
 //    if (dialogButton == okButtonType) (conversionName.value.value, conversionValue.text.value.toDouble)
 //    else null
+
+  okButton.onAction = _ => {
+//    previousContent.
+  }
 
 }
 

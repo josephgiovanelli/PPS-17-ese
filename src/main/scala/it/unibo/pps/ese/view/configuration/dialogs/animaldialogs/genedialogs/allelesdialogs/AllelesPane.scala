@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs
 
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.GenePane
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo, GeneInfo}
 import scalafx.Includes._
@@ -11,7 +12,7 @@ import scalafx.scene.layout.{BorderPane, Pane, VBox}
 import scalafx.stage.Window
 
 case class AllelesPane(mainDialog: MainDialog,
-                       override val previousContent: Option[Pane],
+                       override val previousContent: Option[GenePane],
                        animal: String,
                        gene: String,
                        chromosomeTypes: ChromosomeTypes.Value) extends BackPane(mainDialog, previousContent, None) {
@@ -52,6 +53,7 @@ case class AllelesPane(mainDialog: MainDialog,
         currentAlleles += (value -> currentAllele)
         EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
         mainDialog.setContent(AllelePane(mainDialog, Some(AllelesPane.this), animal, gene, Some(value), properties, chromosomeTypes))
+//        fatto
 //          .showAndWait() match {
 //          case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
 //            currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
@@ -68,7 +70,8 @@ case class AllelesPane(mainDialog: MainDialog,
 //  allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val allelesButton = new Button("Add")
-  allelesButton.onAction = _ => AllelePane(mainDialog, Some(this), animal, gene, None, properties, chromosomeTypes)
+  allelesButton.onAction = _ => mainDialog.setContent(AllelePane(mainDialog, Some(this), animal, gene, None, properties, chromosomeTypes))
+//  fatto
 //   .showAndWait() match {
 //    case Some(AlleleInfo(alleleGene, id, dominance, consume, probability, effect)) =>
 //      currentAlleles += (id -> AlleleInfo(alleleGene, id, dominance, consume, probability, effect))
@@ -93,15 +96,21 @@ case class AllelesPane(mainDialog: MainDialog,
   listFields = Seq(allelesName)
   createChecks()
 
-  def confirmAddedAlleleInfo(a: AlleleInfo): Unit = {
+  def confirmAddAlleleInfo(a: AlleleInfo): Unit = {
     currentAlleles += (a.id -> a)
     allelesName.insert(allelesName.size, a.id)
     EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
+    mainDialog.setContent(this)
   }
 
-  def confirmModifiedAlleleInfo(a: AlleleInfo): Unit = {
+  def confirmModifyAlleleInfo(a: AlleleInfo): Unit = {
     currentAlleles += (a.id -> a)
     EntitiesInfo.instance().setChromosomeAlleles(animal, chromosomeTypes, gene, currentAlleles)
+    mainDialog.setContent(this)
+  }
+
+  okButton.onAction = _ => {
+
   }
 
 }

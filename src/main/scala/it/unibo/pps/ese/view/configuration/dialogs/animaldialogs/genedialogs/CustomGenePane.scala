@@ -2,7 +2,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs
 
 
 
-import it.unibo.pps.ese.controller.loader.{RegulationDefaultGenes, SexualDefaultGenes}
+import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.ChromosomePane
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesPane
@@ -21,7 +21,7 @@ import scalafx.stage.Window
 case class CustomGenePane(mainDialog: MainDialog,
                           override val previousContent: Option[ChromosomePane],
                           animal: String,
-                          gene: Option[String] = None) extends BackPane[String](mainDialog, previousContent, gene) {
+                          gene: Option[String] = None) extends GenePane(mainDialog, previousContent, gene) with GenePane {
 
   /*
   Header
@@ -135,18 +135,21 @@ case class CustomGenePane(mainDialog: MainDialog,
     mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, nameGene.text.value, ChromosomeTypes.STRUCTURAL))
   }
 
-  def confirmAlleles(): Unit = {
-    previousContent.get.confirmStructuralChromosome(nameGene.text.value)
+  override def confirmAddAlleles(defaultGene: DefaultGene): Unit = {
+    previousContent.get.confirmAddStructuralChromosome(defaultGene.name)
+    mainDialog.setContent(this)
   }
 
-  def confirmModifiedProperty(c: ConversionMap): Unit = {
+  def confirmModifyProperty(c: ConversionMap): Unit = {
     conversionMap += (c.property -> c.map)
+    mainDialog.setContent(this)
   }
 
-  def confirmAddedProperty(c: ConversionMap): Unit = {
+  def confirmAddProperty(c: ConversionMap): Unit = {
     conversionMap += (c.property -> c.map)
     properties += (c.property -> Double.getClass)
     propertiesName.insert(propertiesName.size, c.property)
+    mainDialog.setContent(this)
   }
 
 }

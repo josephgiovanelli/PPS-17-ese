@@ -14,7 +14,7 @@ import scalafx.scene.layout.{GridPane, Pane, VBox}
 import scalafx.stage.Window
 
 case class AllelePane(mainDialog: MainDialog,
-                      override val previousContent: Option[Pane],
+                      override val previousContent: Option[AllelesPane],
                       animal: String,
                       gene: String,
                       allele: Option[String],
@@ -71,7 +71,8 @@ case class AllelePane(mainDialog: MainDialog,
     items = effectsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        EffectPane(mainDialog, Some(AllelePane.this), (value, effects(value)))
+        mainDialog.setContent(EffectPane(mainDialog, Some(AllelePane.this), (value, effects(value))))
+//        fatto
 //          .showAndWait() match {
 //          case Some((name: String, value: Double)) =>
 //            effects += (name -> value)
@@ -125,10 +126,18 @@ case class AllelePane(mainDialog: MainDialog,
   Result
    */
 
-//  resultConverter = dialogButton =>
-//    if (dialogButton == okButtonType)
-//      AlleleInfo(gene, idAllele.text.value, dominance.text.value.toDouble, consume.text.value.toDouble, probability.text.value.toDouble, effects)
-//    else
-//      null
+  okButton.onAction = _ => {
+    allele match {
+      case Some(_) => previousContent.get.confirmModifyAlleleInfo(AlleleInfo(gene, idAllele.text.value, dominance.text.value.toDouble,
+        consume.text.value.toDouble, probability.text.value.toDouble, effects))
+      case None => previousContent.get.confirmAddAlleleInfo(AlleleInfo(gene, idAllele.text.value, dominance.text.value.toDouble,
+        consume.text.value.toDouble, probability.text.value.toDouble, effects))
+    }
+  }
+
+  def confirmAddEffect(name: String, value: Double): Unit = {
+    effects += (name -> value)
+    mainDialog.setContent(this)
+  }
 }
 

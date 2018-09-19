@@ -85,6 +85,7 @@ case class AnimalPane(mainDialog: MainDialog,
 
   def confirmCreation(): Unit = {
     previousContent.get.addNewSpecies(name.text.value)
+    mainDialog.setContent(this)
   }
 
 

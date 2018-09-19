@@ -14,12 +14,20 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, Pane}
 import scalafx.stage.Window
 
+abstract class GenePane(mainDialog: MainDialog,
+                        override val previousContent: Option[ChromosomePane],
+                        gene: Option[String]) extends BackPane[String](mainDialog, previousContent, gene) {
+
+
+  def confirmAddAlleles(defaultGene: DefaultGene)
+}
+
 case class DefaultGenePane(mainDialog: MainDialog,
                            override val previousContent: Option[ChromosomePane],
                            chromosomeTypes: ChromosomeTypes.Value,
                            animal: String,
                            gene: Option[String],
-                           propertiesSet: Set[_ <: DefaultGene]) extends BackPane[String](mainDialog, previousContent, gene) {
+                           propertiesSet: Set[_ <: DefaultGene]) extends GenePane(mainDialog, previousContent, gene) {
 
   /*
   Header
@@ -100,10 +108,14 @@ case class DefaultGenePane(mainDialog: MainDialog,
     mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, defaultGene.name, chromosomeTypes))
   }
 
-  def confirmAllelesCreation(defaultGene: DefaultGene): Unit = {
+  override def confirmAddAlleles(defaultGene: DefaultGene): Unit = {
     chromosomeTypes match {
-      case ChromosomeTypes.REGULATION => previousContent.get.confirmRegulationChromosome(defaultGene.name)
-      case ChromosomeTypes.SEXUAL => previousContent.get.confirmSexualChromosome(defaultGene.name)
+      case ChromosomeTypes.REGULATION =>
+        previousContent.get.confirmAddRegulationChromosome(defaultGene.name)
+        mainDialog.setContent(this)
+      case ChromosomeTypes.SEXUAL =>
+        previousContent.get.confirmAddSexualChromosome(defaultGene.name)
+        mainDialog.setContent(this)
     }
   }
 

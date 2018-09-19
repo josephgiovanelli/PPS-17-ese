@@ -11,7 +11,7 @@ import scalafx.scene.layout.Pane
 import scalafx.stage.Window
 
 case class EffectPane(mainDialog: MainDialog,
-                      override val previousContent: Option[Pane],
+                      override val previousContent: Option[AllelePane],
                       currentEffect: (String, Double)) extends BackPane[(String, Double)](mainDialog, previousContent, None) {
 
   /*
@@ -63,6 +63,10 @@ case class EffectPane(mainDialog: MainDialog,
 //  resultConverter = dialogButton =>
 //    if (dialogButton == okButtonType) (propertyName.text.value, effectValue.text.value.toDouble)
 //    else null
+
+  okButton.onAction = _ => {
+    previousContent.get.confirmAddEffect(propertyName.text.value, effectValue.text.value.toDouble)
+  }
 }
 
 

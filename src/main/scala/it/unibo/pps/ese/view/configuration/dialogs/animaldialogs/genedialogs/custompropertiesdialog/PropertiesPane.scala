@@ -118,6 +118,10 @@ case class PropertiesPane(mainDialog: MainDialog,
 //    if (dialogButton == okButtonType) ConversionMap(propertyName.text.value, conversionMap)
 //    else null
 
+  def confirmAddConversionMap(): {
+
+  }
+
 }
 
 

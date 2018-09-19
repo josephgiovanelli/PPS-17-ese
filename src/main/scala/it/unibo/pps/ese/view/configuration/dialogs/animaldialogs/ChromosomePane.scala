@@ -122,18 +122,36 @@ case class ChromosomePane(mainDialog: MainDialog,
     currentAnimalChromosome.sexualChromosome.keySet.map(x => SexualDefaultGenes.elements.filter(y => y.name.equals(x)).head)
 
 
-  def confirmStructuralChromosome(name: String): Unit = {
+  def confirmAddStructuralChromosome(name: String): Unit = {
     structuralName.insert(structuralName.size, name.toString)
+    mainDialog.setContent(this)
   }
 
-  def confirmRegulationChromosome(name: String): Unit = {
+  def confirmAddRegulationChromosome(name: String): Unit = {
     regulationName.insert(regulationName.size, name.toString)
     regulationButton.disable = (RegulationDefaultGenes.elements -- getCurrentRegulationChromosome).isEmpty
+    mainDialog.setContent(this)
   }
 
-  def confirmSexualChromosome(name: String): Unit = {
+  def confirmAddSexualChromosome(name: String): Unit = {
     sexualName.insert(sexualName.size, name.toString)
     sexualButton.disable = (SexualDefaultGenes.elements -- getCurrentSexualChromosome).isEmpty
+    mainDialog.setContent(this)
+  }
+
+  def confirmModifyStructuralChromosome(name: String): Unit = {
+    Platform.runLater(structuralChromosomeListView.selectionModel().clearSelection())
+    mainDialog.setContent(this)
+  }
+
+  def confirmModifySexualChromosome(name: String): Unit = {
+    Platform.runLater(sexualChromosomeListView.selectionModel().clearSelection())
+    mainDialog.setContent(this)
+  }
+
+  def confirmModifyRegulationChromosome(name: String): Unit = {
+    Platform.runLater(regulationChromosomeListView.selectionModel().clearSelection())
+    mainDialog.setContent(this)
   }
 
 }
