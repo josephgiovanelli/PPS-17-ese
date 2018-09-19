@@ -5,12 +5,12 @@ properties:
   lunghezza:
     conversionMap:
       speed: 6.0
-      height: 4.0
-      rangeofaction: 5.0
+      height: 3.0
+      rangeofaction: 2.0
 
   muscolatura:
     conversionMap:
-      speed: 4.0
+      speed: 3.0
       ResistenceToAttack: 4.0
-      Strength: 9.0
+      Strength: 10.0
       NutritionalValue: 6.0
