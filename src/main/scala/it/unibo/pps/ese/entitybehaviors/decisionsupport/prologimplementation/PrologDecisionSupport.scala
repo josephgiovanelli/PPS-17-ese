@@ -5,10 +5,15 @@ import it.unibo.pps.ese.entitybehaviors.decisionsupport._
 
 import scala.io.Source
 
+trait WorldRulesListener {
+  def updateCouplingKind(set: Set[(String, String)]): Unit
+  def updateHuntingKind(set: Set[(String, String)]): Unit
+}
+
 object PrologDecisionSupport {
   def apply(): DecisionSupport = new PrologDecisionSupportImpl()
 
-  private class PrologDecisionSupportImpl() extends DecisionSupport {
+  private class PrologDecisionSupportImpl() extends DecisionSupport with WorldRulesListener{
 
     import Scala2P._
     import alice.tuprolog._
@@ -22,6 +27,8 @@ object PrologDecisionSupport {
     implicit def tupleTermToEntityChoice(tuple: (Term, Term)): EntityChoice = new EntityChoice(tuple._1, tuple._2)
     implicit def streamTupleTermStreamEntityChoice(tuples: Stream[(Term, Term)]): Stream[EntityChoice] = tuples map tupleTermToEntityChoice
     implicit def tupleTermToPoint(tuple: (Term, Term)): GeneralPosition[scala.Int] = GeneralPosition(tuple._1, tuple._2)
+    implicit def streamTupleTermStreamGeneralPosition(tuples: Stream[(Term, Term)]): Stream[GeneralPosition[scala.Int]] = tuples map tupleTermToPoint
+
 
 
     val engine: Term => Stream[Term] = createEngine
@@ -33,7 +40,7 @@ object PrologDecisionSupport {
     modifyDynamicKnowledge("setHeightThresholds(" + worldRules.heightThresholds + ")")
     worldRules.compatibleHuntingKinds foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleHuntingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
     worldRules.compatibleCouplingKinds foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleCouplingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
-
+    worldRules.addListener(this)
 
     var supportMap: Map[String, String] = Map.empty
 
@@ -74,8 +81,18 @@ object PrologDecisionSupport {
 
     override def nextMove(from: EntityAttributes, to: EntityAttributes): GeneralPosition[scala.Int] = {
       val nextMove = new Struct("nextMove", supportMap(from.name), supportMap(to.name), new Var("NewX"), new Var("NewY"))
-      engine(nextMove) map (x => (extractTerm(x, 2), extractTerm(x, 3))) head
+      val result: Stream[GeneralPosition[scala.Int]] = engine(nextMove) map (x => (extractTerm(x, 2), extractTerm(x, 3)))
+      if (result isEmpty) from.position else result head
     }
+
+    override def updateCouplingKind(set: Set[(String, String)]): Unit = {
+      set foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleCouplingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
+    }
+
+    override def updateHuntingKind(set: Set[(String, String)]): Unit = {
+      set foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleHuntingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
+    }
+
   }
 
 }
