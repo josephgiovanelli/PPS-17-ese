@@ -26,7 +26,7 @@ object EntityConversions {
   implicit class RichEntityInfo(entityInfo:EntityInfo){
     def numericQualities:Map[String,Double] = entityInfo.reign match {
       case ReignType.ANIMAL =>
-        println(entityInfo.fertility)
+//        println(entityInfo.fertility)
         Map(
           strength->entityInfo.strong,
           actionField->entityInfo.actionField,

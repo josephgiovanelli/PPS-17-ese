@@ -105,11 +105,28 @@ object EntityAttributesImpl {
 case class EntityChoiceImpl(name: String, distance: Int)
 
 object WorldRulesImpl {
+  /**
+    *
+    * @param attackThreshold
+    * @param heightThresholds
+    * @param couplingThreshold
+    * @param compatibleHuntingKinds
+    * @param compatibleCouplingKinds
+    * @return
+    */
   def apply(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, couplingThreshold, compatibleHuntingKinds, compatibleCouplingKinds)
   implicit def stringToEntityKinds(string: String): EntityKinds.Value = EntityKinds(Symbol(string))
   implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
   implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
+  /**
+    *
+    * @param attackThreshold
+    * @param heightThresholds
+    * @param couplingThreshold
+    * @param compatibleHuntingKinds
+    * @param compatibleCouplingKinds
+    */
   case class WorldRulesImpl(attackThreshold: Double, heightThresholds: (Double, Double), couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
     def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = compatibleHuntingKinds = set
     def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set

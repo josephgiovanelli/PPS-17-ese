@@ -1,0 +1,15 @@
+id: cll
+simpleName: collo
+allelesPath: ./allB
+properties:
+  lunghezza:
+    conversionMap:
+      height: 2.0
+      rangeofaction: 5.0
+
+  muscolatura:
+    conversionMap:
+      speed: 2.0
+      ResistenceToAttack: 4.0
+      Strength: 9.0
+      NutritionalValue: 6.0

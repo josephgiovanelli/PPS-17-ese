@@ -1,0 +1,8 @@
+gene: gmb
+id: sdc
+dominance: 5.0
+consume: 5.0
+probability: 0.0
+effect:
+  lunghezza: 6.0
+  muscolatura: 4.0

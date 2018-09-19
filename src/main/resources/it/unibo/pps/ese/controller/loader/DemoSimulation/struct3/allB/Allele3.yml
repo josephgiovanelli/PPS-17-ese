@@ -1,0 +1,8 @@
+gene: brc
+id: sdb
+dominance: 5.0
+consume: 5.0
+probability: 0.5
+effect:
+  lunghezza: 4.0
+  muscolatura: 4.0
