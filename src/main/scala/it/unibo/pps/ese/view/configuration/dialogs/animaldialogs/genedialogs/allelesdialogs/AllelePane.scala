@@ -25,8 +25,8 @@ case class AllelePane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Allele Dialog"
-  mainDialog.headerText = "Create an allele"
+  title = "Allele Dialog"
+  headerText = "Create an allele"
 
   /*
   Fields

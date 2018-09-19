@@ -272,7 +272,7 @@ private class WorldPaneImpl(
   private def showSelectedEntity(position: Position, entity: EntityState): Unit = {
     drawEntity(position, selectionColor)
     entity.state.reign match {
-      case ReignType.ANIMAL => showVisualField(position, entity.state.visualField)
+      case ReignType.ANIMAL => showFields(position, entity.state.visualField, entity.state.actionField)
       case _ =>
     }
   }
@@ -284,7 +284,7 @@ private class WorldPaneImpl(
     }
 
     entity.state.reign match {
-      case ReignType.ANIMAL => clearVisualField(position, entity.state.visualField)
+      case ReignType.ANIMAL => clearFields(position, entity.state.visualField, entity.state.actionField)
       case _ =>
     }
   }
@@ -294,18 +294,20 @@ private class WorldPaneImpl(
     graphicsContext.fillOval(position.x, position.y, entitySize(), entitySize())
   }
 
-  private def showVisualField(position: Position, visualField: Double): Unit = {
-    drawVisualField(position, selectionColor, visualField)
+  private def showFields(position: Position, visualField: Double, actionField: Double): Unit = {
+    drawFields(position, selectionColor, visualField, actionField)
   }
 
-  private def clearVisualField(position: Position, visualField: Double): Unit = {
-    drawVisualField(position, backGroundColor, visualField)
+  private def clearFields(position: Position, visualField: Double, actionField: Double): Unit = {
+    drawFields(position, backGroundColor, visualField, actionField)
   }
 
-  private def drawVisualField(position: Position, color: Color, visualField: Double): Unit = {
+  private def drawFields(position: Position, color: Color, visualField: Double, actionField: Double): Unit = {
     graphicsContext.stroke = color
-    val centerPosition = Position(position.x-entitySize()*(visualField/2), position.y-entitySize()*(visualField/2))
-    graphicsContext.strokeOval(centerPosition.x, centerPosition.y, entitySize()*visualField, entitySize()*visualField)
+    val visualFieldCenterPosition = Position(position.x-entitySize()*(visualField/2), position.y-entitySize()*(visualField/2))
+    val actionFieldCenterPosition = Position(position.x-entitySize()*(actionField/2), position.y-entitySize()*(actionField/2))
+    graphicsContext.strokeOval(visualFieldCenterPosition.x, visualFieldCenterPosition.y, entitySize()*visualField, entitySize()*visualField)
+    graphicsContext.strokeOval(actionFieldCenterPosition.x, actionFieldCenterPosition.y, entitySize()*actionField, entitySize()*actionField)
   }
 
   private def getEntityById(id: String): Option[EntityState] = {
@@ -356,7 +358,6 @@ private class WorldPaneImpl(
 
   override def applyFilters(e: EntityFiltersValues): Unit = {
     entityFiltersValues = Some(e)
-//    println(e)
     drawWorld(currentWorld.values.toList, entityFiltersValues)
   }
 

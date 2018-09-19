@@ -21,8 +21,8 @@ case class AnimalPane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Animal Dialog"
-  mainDialog.headerText = "Create an animal"
+  title = "Animal Dialog"
+  headerText = "Create an animal"
 
   /*
   Fields

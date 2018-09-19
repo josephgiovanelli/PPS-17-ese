@@ -28,8 +28,8 @@ case class CustomGenePane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Custom Gene Dialog"
-  mainDialog.headerText = "Define structural chromosome"
+  title = "Custom Gene Dialog"
+  headerText = "Define structural chromosome"
 
   /*
   Fields
@@ -59,27 +59,15 @@ case class CustomGenePane(mainDialog: MainDialog,
       if (selectionModel().getSelectedIndex != -1) {
         mainDialog.setContent(PropertiesPane(mainDialog, Some(CustomGenePane.this), ModifyModality, animal, gene,
           Some(value), if (conversionMap.isEmpty) None else Some(conversionMap(value)), propertiesName))
-//          .showAndWait() match {
-//          case Some(ConversionMap(propertyName, map)) =>
-//            conversionMap += (propertyName -> map)
-//          case None => println("Dialog returned: None")
-//        }
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-//  propertiesListView.prefHeight =   MIN_ELEM *   ROW_HEIGHT
 
   val propertiesButton = new Button("Add")
   propertiesButton.onAction = _ => mainDialog.setContent(PropertiesPane(mainDialog, Some(this), AddModality, animal, None, None, None, propertiesName))
-//    .showAndWait() match {
-//    case Some(ConversionMap(propertyName, map)) =>
-//      conversionMap += (propertyName -> map)
-//      properties += (propertyName -> Double.getClass)
-//      propertiesName.insert(propertiesName.size, propertyName)
-//    case None => println("Dialog returned: None")
-//  }
+
 
 
   val propertiesPane = new BorderPane()
@@ -135,8 +123,6 @@ case class CustomGenePane(mainDialog: MainDialog,
     EntitiesInfo.instance().setChromosomeBaseInfo(animal, ChromosomeTypes.STRUCTURAL,
       CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, conversionMap))
     mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, nameGene.text.value, ChromosomeTypes.STRUCTURAL))
-
-//    previousContent.get.confirm
   }
 
 

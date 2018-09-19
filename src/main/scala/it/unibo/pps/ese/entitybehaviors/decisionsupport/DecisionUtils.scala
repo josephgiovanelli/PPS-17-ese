@@ -4,6 +4,7 @@ import it.unibo.pps.ese.entitybehaviors.StaticRules
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityKinds.entityKinds
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.WorldRulesImpl.WorldRulesImpl
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation.{PrologDecisionSupport, WorldRulesListener}
 
 
 trait WorldTypes {
@@ -128,8 +129,18 @@ object WorldRulesImpl {
     * @param compatibleCouplingKinds
     */
   case class WorldRulesImpl(attackThreshold: Double, heightThresholds: Double, couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
-    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = compatibleHuntingKinds = set
-    def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = compatibleCouplingKinds = set
+    private var listeners: Seq[WorldRulesListener] = Seq.empty
+
+    def addListener(impl: WorldRulesListener) = listeners = listeners :+ impl
+
+    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = {
+      compatibleHuntingKinds = set
+      listeners.foreach(_.updateHuntingKind(set))
+    }
+    def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = {
+      compatibleCouplingKinds = set
+      listeners.foreach(_.updateCouplingKind(set))
+    }
   }
 }
 

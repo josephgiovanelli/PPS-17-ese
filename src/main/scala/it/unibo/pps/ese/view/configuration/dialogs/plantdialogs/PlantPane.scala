@@ -22,8 +22,8 @@ case class PlantPane(mainDialog: MainDialog,
 
   println(uniqueFields)
 
-  mainDialog.title = "Plant Dialog"
-  mainDialog.headerText = "Create a plant"
+  title = "Plant Dialog"
+  headerText = "Create a plant"
 
   /*
   Fields

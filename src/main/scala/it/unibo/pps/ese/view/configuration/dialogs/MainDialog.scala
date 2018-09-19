@@ -14,7 +14,7 @@ trait MainDialog {
   def title_=(title: String)
   def headerText: StringProperty
   def headerText_=(headerText: String)
-  def setContent(content: Pane)
+  def setContent(content: DialogPane)
   def show()
   def window: Window
   def closeDialog()
@@ -65,7 +65,11 @@ object MainDialog {
       case ConfirmContent => confirmPane
     }
 
-    def setContent(content: Pane): Unit = dialogPane().content = content
+    def setContent(content: DialogPane): Unit = {
+      dialogPane().content = content
+      title = content.title
+      headerText = content.headerText
+    }
 
     dialogPane().getStylesheets.add(getClass.getResource("/it/unibo/pps/ese/view/configuration/red-border.css").toExternalForm)
 

@@ -18,7 +18,7 @@ import scalafx.stage.Window
 import scala.util.{Failure, Success}
 
 case class ConfirmPane(mainDialog: MainDialog,
-                       override val previousContent: Option[Pane],
+                       override val previousContent: Option[DialogPane],
                        setupViewBridge: Option[SetupViewBridge],
                        mainComponent: Option[MainComponent],
                        setUp: Boolean,
@@ -31,8 +31,8 @@ case class ConfirmPane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Confirm Dialog"
-  mainDialog.headerText = "Choose number of entities for each species"
+  title = "Confirm Dialog"
+  headerText = "Choose number of entities for each species"
 
 
   val animalsEntities: Map[TextField, (Label, Label)] =

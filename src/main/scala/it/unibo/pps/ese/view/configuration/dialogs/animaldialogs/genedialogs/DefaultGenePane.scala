@@ -34,8 +34,8 @@ case class DefaultGenePane(mainDialog: MainDialog,
   Header
    */
 
-  mainDialog.title = "Default Gene Dialog"
-  mainDialog.headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
+  title = "Default Gene Dialog"
+  headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
 
   /*
   Fields
