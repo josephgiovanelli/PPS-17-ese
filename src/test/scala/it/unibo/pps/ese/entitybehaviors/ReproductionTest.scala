@@ -92,7 +92,8 @@ class ReproductionTest extends FunSuite {
   }
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo): Component = {
-    println(info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue)
+    def animalCreationFunction: (AnimalInfo, Point) => Entity =
+      (a, p) => EntityBuilderHelpers.initializeEntity(a, p, 10, 10, animalCreationFunction)
     ReproductionComponent(
       entity specifications,
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
@@ -101,7 +102,8 @@ class ReproductionTest extends FunSuite {
       0.5,
       6,
       -1,
-      info.qualities(EnergyRequirements).qualityValue
+      info.qualities(EnergyRequirements).qualityValue,
+      animalCreationFunction
     )
   }
 

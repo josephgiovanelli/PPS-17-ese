@@ -96,13 +96,18 @@ case class ConfigurationDialog(window: Window,
   plantsPane.left = new Label("Plants")
   plantsPane.right = plantsAddButton
 
-
+  /*
+   * FILE SAVING
+   */
   val fileChooser = new FileChooser() {
     title = "Save simulation YAML"
   }
 
   val saveButton: Button = new Button("Save") {
     onAction = _ => {
+      //val animalEntities: Map[String, Int] = animalsName.zip(List.fill(animalsName.size)(0)).toMap
+      //val plantEntities: Map[String, Int] = plantsName.zip(List.fill(plantsName.size)(0)).toMap
+      //val data: PartialSimulationData = EntitiesInfo.instance().getSimulationData(animalEntities, plantEntities)
       val data: PartialSimulationData = null
       val chosenFile: java.io.File = fileChooser.showSaveDialog(window)
       IOResource(chosenFile.toURI.toURL).getParent() match {
@@ -134,7 +139,7 @@ case class ConfigurationDialog(window: Window,
   }
 
   dialogPane().content = new VBox() {
-    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"))
+    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"), saveButton)
     styleClass += "sample-page"
   }
 
