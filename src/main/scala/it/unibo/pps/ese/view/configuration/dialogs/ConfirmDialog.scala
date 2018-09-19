@@ -127,10 +127,10 @@ case class ConfirmDialog(window: Window,
             mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
           }
         case Failure(exception: CompleteSimulationBuildException) =>
-          NoCompleteSimulationAlert(window, exception.buildException)
+          NoCompleteSimulationAlert(window, exception.buildException).showAndWait()
           null
         case Failure(exception) =>
-          UnexpectedExceptionAlert(window, exception)
+          UnexpectedExceptionAlert(window, exception).showAndWait()
           null
       }
     }
