@@ -1,6 +1,6 @@
 id: gmb
 simpleName: gambe
-allelesPath: ./allB
+allelesPath: ./all
 properties:
   lunghezza:
     conversionMap:
