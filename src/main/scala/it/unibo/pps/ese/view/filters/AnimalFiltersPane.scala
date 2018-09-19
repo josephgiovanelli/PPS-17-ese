@@ -29,7 +29,7 @@ object AnimalFiltersPane {
     val herbivoreRepresentation: String = "Herbivore"
     val carnivorusRepresentation: String = "Carnivorus"
 
-    var speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.speciesList)
+    val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.speciesList)
     val genderHBox: ChoiceHBox = choiceHBox("Gender",
       maleRepresentation ::
       femaleRepresentation ::
@@ -190,7 +190,7 @@ object AnimalFiltersPane {
       )
     )
 
-    override def updateFilters(): Unit = speciesHBox = choiceHBox("Species", geneticsSimulator.speciesList)
+    override def updateFilters(): Unit = speciesHBox.setItems(geneticsSimulator.speciesList)
   }
 }
 

@@ -111,6 +111,7 @@ object FiltersComponentsFactory {
 
     trait ChoiceHBox extends FiltersHBox with DisablePane {
       def selectedItem: String
+      def setItems(items: Seq[String])
     }
 
     private class DefaultHBox extends FiltersHBox
@@ -121,6 +122,7 @@ object FiltersComponentsFactory {
 
     private class ChoiceHBoxImpl(name: String, items: Seq[String]) extends ComponentsHBox with ChoiceHBox {
 
+      var previousItems: Set[String] = items.toSet
       val label: FiltersLabel = normalLabel(name)
       val choiceBox: FiltersChoiceBox[String] = defaultChoiceBox
       choiceBox.items = ObservableBuffer(emptyItem +: items)
@@ -132,6 +134,14 @@ object FiltersComponentsFactory {
       override def enableComponents(): Unit = choiceBox.disable = false
 
       override def selectedItem: String = choiceBox.value()
+
+      override def setItems(items: Seq[String]): Unit = {
+        if (items.toSet != previousItems) {
+          previousItems = items.toSet
+          choiceBox.items = ObservableBuffer(emptyItem +: items)
+          choiceBox.value = emptyItem
+        }
+      }
     }
 
 

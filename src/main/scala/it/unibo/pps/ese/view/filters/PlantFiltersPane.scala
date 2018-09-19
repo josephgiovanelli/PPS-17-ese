@@ -35,7 +35,7 @@ object PlantFiltersPane {
 
   private class PlantFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends PlantFiltersPane {
 
-    var speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
+    val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
     val heightVBox: SliderVBox = sliderVBox(EntityConversions.height)
     val nutritionalValueVBox: SliderVBox = sliderVBox(nutritionalValue)
     val availabilityVBox: SliderVBox = sliderVBox(availability)
@@ -74,6 +74,7 @@ object PlantFiltersPane {
       )
     )
 
-    override def updateFilters(): Unit = speciesHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
+    override def updateFilters(): Unit = speciesHBox.setItems(geneticsSimulator.plantSpeciesList)
+
   }
 }
