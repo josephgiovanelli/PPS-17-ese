@@ -332,10 +332,7 @@ private class WorldPaneImpl(
 
     geneticsSimulator.speciesList.map(s => (s, {
       if (animalColorPool.isEmpty) animalColorPool=animalColors
-      val r = Random.nextInt(animalColorPool.size)
-      val c = animalColorPool(r)
-      animalColorPool = animalColorPool diff List(c)
-      c
+        getAnimalColorOfPool
     })).toMap
   }
 
@@ -354,10 +351,7 @@ private class WorldPaneImpl(
   private def getPlantColors: Map[String, Color] = {
     geneticsSimulator.plantSpeciesList.map(s => (s, {
       if (plantColorPool.isEmpty) plantColorPool=plantColors
-      val r = Random.nextInt(plantColorPool.size)
-      val c = plantColorPool(r)
-      plantColorPool = plantColorPool diff List(c)
-      c
+      getPlantColorOfPool
     })).toMap
   }
 
