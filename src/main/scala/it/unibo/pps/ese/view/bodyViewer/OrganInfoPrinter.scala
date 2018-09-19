@@ -2,7 +2,17 @@ package it.unibo.pps.ese.view.bodyViewer
 
 import it.unibo.pps.ese.entitybehaviors.EmbryoStatus
 
+/**
+  * Utilities object object for obtaining the right description based on the state of the organ
+  */
 private[bodyViewer] object OrganInfoPrinter{
+  /**
+    * To obtain the description for the head text box based on [[BrainStatus]] and [[EyesStatus]]
+    * @param brainStatus
+    * @param eyesStatus
+    * @return
+    *         The description for text box
+    */
   def getHeadText(brainStatus: BrainStatus,eyesStatus: EyesStatus):String
   =(brainStatus,eyesStatus) match {
     case (HippoCampusActive(r),EyesDisabled) =>
@@ -30,11 +40,27 @@ private[bodyViewer] object OrganInfoPrinter{
       "I have nothing to do..."
     case _=>""
   }
+
+  /**
+    * To obtain the description for the digestive system text box based on [[DigestiveSystemStatus]]
+    * @param digestiveSystemStatus
+    * @return
+    *         The description for digestive System status box
+    */
   def getDigestiveSystemStatus(digestiveSystemStatus: DigestiveSystemStatus):String=
     digestiveSystemStatus match {
       case Digesting => "What a good meal, I'm digesting..."
       case NotDigesting => "I have nothing to digest..."
     }
+
+  /**
+    * To obtain the description for the digestive system text box based on [[ReproductiveApparatusStatus]]
+    *
+    * @param reproductiveApparatusStatus
+    * @param embryoStatus
+    * @return
+            The description for reproductive System status box
+    */
   def getReproductiveSystemStatus(
                                    reproductiveApparatusStatus: ReproductiveApparatusStatus,
                                    embryoStatus: Option[EmbryoStatus.Value]):String=

@@ -3,9 +3,6 @@ package it.unibo.pps.ese.view.history
 /**The various type of Log that can be visualized*/
 sealed trait LogType
 
-/**
-  * The
-  */
 case object BornLog extends LogType
 case object DeadLog extends LogType
 case object MutationLog extends LogType
@@ -17,6 +14,14 @@ case object MostPopulousLog extends LogType
 case object NewEraLog extends LogType
 case class Log(logText:String,logType:LogType)
 
+/**
+  *
+  * @param extinctSpecies
+  * @param mutantAlleles
+  * @param bornRegistry
+  * @param deadRegistry
+  * @param couplingRegistry
+  */
 case class HistoryLog(
   extinctSpecies:Seq[String],//Species extincted in this era
   mutantAlleles:Seq[String],//Sequence of Mutant Alleles Appeared in this era

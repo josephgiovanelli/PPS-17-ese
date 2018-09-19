@@ -26,17 +26,18 @@ object EntityConversions {
   implicit class RichEntityInfo(entityInfo:EntityInfo){
     def numericQualities:Map[String,Double] = entityInfo.reign match {
       case ReignType.ANIMAL =>
+        println(entityInfo.fertility)
         Map(
           strength->entityInfo.strong,
           actionField->entityInfo.actionField,
           visualField->entityInfo.visualField,
           attractiveness->entityInfo.attractiveness,
           speed->entityInfo.actualSpeed,
-          fertility->entityInfo.fertility,
+          fertility->entityInfo.fertility*100,
           age->entityInfo.age.toDouble,
           averageLife->entityInfo.averageLife,
           percentageDecay->entityInfo.percentageDecay,
-          energy->entityInfo.energy,
+          energy->(entityInfo.energy*0.1).toInt,
           energyRequirement->entityInfo.energyRequirements,
           height->entityInfo.height,
           nutritionalValue->entityInfo.nutritionalValue,
