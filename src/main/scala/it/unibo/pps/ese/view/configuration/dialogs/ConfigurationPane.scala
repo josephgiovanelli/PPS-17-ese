@@ -101,12 +101,14 @@ case class ConfigurationPane(mainDialog: MainDialog,
       val plantEntities: Map[String, Int] = plantsName.zip(List.fill(plantsName.size)(0)).toMap
       val data: PartialSimulationData = EntitiesInfo.instance().getPartialSimulationData(animalEntities, plantEntities)
       val chosenFile: java.io.File = fileChooser.showSaveDialog(mainDialog.window)
-      IOResource(chosenFile.toURI.toURL).getParent() match {
-        case Some(f: Folder) =>
-          val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
-          handleSaveResult(saver.saveSimulationData(data, chosenFile.getName, f), saver, f)
-        case _ =>
-          throw new IllegalStateException()
+      if (chosenFile != null) {
+        IOResource(chosenFile.toURI.toURL).getParent() match {
+          case Some(f: Folder) =>
+            val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
+            handleSaveResult(saver.saveSimulationData(data, chosenFile.getName, f), saver, f)
+          case _ =>
+            throw new IllegalStateException()
+        }
       }
     }
   }
