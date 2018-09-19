@@ -96,7 +96,9 @@ case class ConfigurationDialog(window: Window,
   plantsPane.left = new Label("Plants")
   plantsPane.right = plantsAddButton
 
-
+  /*
+   * FILE SAVING
+   */
   val fileChooser = new FileChooser() {
     title = "Save simulation YAML"
   }
@@ -134,7 +136,7 @@ case class ConfigurationDialog(window: Window,
   }
 
   dialogPane().content = new VBox() {
-    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"))
+    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"), saveButton)
     styleClass += "sample-page"
   }
 
