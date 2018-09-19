@@ -3,7 +3,7 @@ package it.unibo.pps.ese.genericworld.controller
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.util.io.File
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Position
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityInfoConversion, EntityState}
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.Entity

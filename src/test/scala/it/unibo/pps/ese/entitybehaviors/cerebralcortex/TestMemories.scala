@@ -1,8 +1,8 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex
 
 import org.scalatest.FunSuite
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory._
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus.Hippocampus
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Memory._
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus.Hippocampus
 
 class TestMemories extends FunSuite {
 

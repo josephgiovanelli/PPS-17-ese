@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex
 
 import it.unibo.pps.ese.utils.Point
 

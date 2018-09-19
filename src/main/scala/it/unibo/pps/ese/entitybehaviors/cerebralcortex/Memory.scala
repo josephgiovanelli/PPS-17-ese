@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex
 
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.MemoryType.MemoryType
 
 object Memory {
   type Score = Double

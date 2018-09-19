@@ -9,7 +9,7 @@ import WorldPrefernces._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, PlantInfo}
 import it.unibo.pps.ese.view.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Position
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Position
 import it.unibo.pps.ese.genericworld.controller.EntityDetails
 import it.unibo.pps.ese.genericworld.model
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState, ReignType}

@@ -1,10 +1,10 @@
-package it.unibo.pps.ese.entitybehaviors.cerebralCortex.hippocampus
+package it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus
 
 import it.unibo.pps.ese.entitybehaviors.Direction
 import it.unibo.pps.ese.entitybehaviors.Direction.Direction
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.{LocationalField, Position}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.Memory.{LongTermMemory, Memory, ShortTermMemory}
-import it.unibo.pps.ese.entitybehaviors.cerebralCortex.MemoryType.MemoryType
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.{LocationalField, Position}
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.Memory.{LongTermMemory, Memory, ShortTermMemory}
+import it.unibo.pps.ese.entitybehaviors.cerebralcortex.MemoryType.MemoryType
 
 import scala.collection.mutable.ListBuffer
 
