@@ -11,7 +11,7 @@ import scala.util.{Failure, Success, Try}
 
 trait Controller {
   //Partenza simulazione
-  def startSimulation(file: File): Try[SimulationController]
+  def startSimulation(file: File): Try[(SimulationController, CompleteSimulationData)]
   def startSimulation(data: CompleteSimulationData): Try[SimulationController]
   //Editing simulazione
   def loadSimulation(file: File): Try[PartialSimulationData]
@@ -34,13 +34,13 @@ object Controller {
         .build)
     }
 
-    override def startSimulation(file: File): Try[SimulationController] = {
+    override def startSimulation(file: File): Try[(SimulationController, CompleteSimulationData)] = {
       YamlLoader.loadCompleteSimulation(file) match {
         case Success(value) =>
-          Success(new SimulationBuilder[EmptySimulation]
+          Success((new SimulationBuilder[EmptySimulation]
             .dimension(500, 500)
             .data(value)
-            .build)
+            .build, value))
         case Failure(exception) =>
           Failure(exception)
       }

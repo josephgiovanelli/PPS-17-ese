@@ -49,9 +49,11 @@ object ViewLauncher {
 
     def startSimulation(file: File, currentWindow: Window): Try[Unit] = {
       controller.startSimulation(file) match {
-        case Success(value) =>
-          val mainView = View(geneticsSimulator, value)
-          value.attachView(mainView, 30)
+        case Success((contr, data)) =>
+          EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
+            data.getPlants.getOrElse(Iterable()).map(_._1))
+          val mainView = View(geneticsSimulator, contr)
+          contr.attachView(mainView, 30)
           this.hide()
           Success()
         case Failure(exception: CompleteSimulationBuildException) =>
