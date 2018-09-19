@@ -4,14 +4,12 @@ import scalafx.Includes._
 import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, SplitPane, Tooltip}
 import javafx.application.Platform
-
 import it.unibo.pps.ese.entitywatchers.ResultEra
-
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.utils.Point
-
 import scalafx.geometry.Orientation
+import scalafx.scene.paint.Color.valueOf
 
 trait ReplayView {
   def render(data: (Long, ResultEra)): Unit
@@ -79,9 +77,10 @@ private class ReplayPaneImpl() extends ReplayPane {
 
     Platform.runLater {
       () => {
-        graphicsContext.clearRect(0, 0, 500, 500)
+        graphicsContext.fill = valueOf("#2c3e50")
+        graphicsContext.clearRect(0, 0, worldWidth, worldHeight)
         drawTarget(Color.Gold)
-        drawActors("prey", Color.AliceBlue)
+        drawActors("prey", Color.Violet)
         drawActors("partner", Color.Red)
         drawActors("child", Color.Green)
         drawActors("killer", Color.Black)

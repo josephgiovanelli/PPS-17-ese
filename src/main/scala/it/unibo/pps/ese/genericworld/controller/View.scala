@@ -73,7 +73,7 @@ object ViewHelpers {
     override def unsetWatched(id: String): Unit = queryableController.query unwatch()
 
     override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit =
-      queryableController.query.add (animals, plants, newAnimals, newPlants)
+      queryableController.manage.add (animals, plants, newAnimals, newPlants)
 
     override def replay: ReplayController = queryableController.query replay
 
