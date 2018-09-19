@@ -35,7 +35,11 @@ object StartMenuView {
   private class StartMenuViewImpl(startViewBridge: StartViewBridge) extends Scene(433, 650) with StartMenuView {
 
     val currentWindow: scalafx.stage.Window = this.window()
-
+    val buttonStyle =
+      "-fx-font-weight: 600;\n" +
+      "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
+      "-fx-font-size: 11pt ;"
+    val buttonBackground = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
     val fileChooser = new FileChooser() {
       title = "Open Simulation Config File"
       extensionFilters ++= Seq(new ExtensionFilter("Simulation Files", File.FileFormats.YAML.extensions.map("*" + _)) )
@@ -47,12 +51,10 @@ object StartMenuView {
       spacing = 80
     }
     val loadButton = new Button("Load And Run Existing Simulation") {
-      background = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
+      background = buttonBackground
       textFill = Color.web("34495e")
       prefHeight = 40
-      style = "-fx-font-weight: 600;\n" +
-        "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
-        "-fx-font-size: 11pt ;"
+      style = buttonStyle
 //      font = Font.font("Calibri",19)
       margin = Insets(80,85,0,85)
       prefWidth <== vbox.width*0.6
@@ -68,12 +70,10 @@ object StartMenuView {
       }
     }
     val loadEditButton = new Button("Load And Edit Existing Simulation") {
-      background = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
+      background = buttonBackground
       textFill = Color.web("34495e")
       prefHeight = 40
-      style = "-fx-font-weight: 600;\n" +
-        "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
-        "-fx-font-size: 11pt ;"
+      style = buttonStyle
       margin = Insets(0,85,0,85)
       prefWidth <== vbox.width*0.6
       onAction = _ => {
@@ -88,12 +88,10 @@ object StartMenuView {
       }
     }
     val createButton = new Button("Create New Simulation") {
-      background = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
+      background = buttonBackground
       textFill = Color.web("34495e")
       prefHeight = 40
-      style = "-fx-font-weight: 600;\n" +
-        "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
-        "-fx-font-size: 11pt ;"
+      style = buttonStyle
       margin = Insets(0,85,0,85)
       prefWidth <== vbox.width*0.6
       onAction = _ => startViewBridge.launchSetup(currentWindow)
