@@ -5,6 +5,7 @@ import it.unibo.pps.ese.view.StartViewBridge
 import javafx.scene.paint.ImagePattern
 import javafx.scene.text.Font
 import scalafx.Includes._
+import scalafx.application.Platform
 import scalafx.geometry.Insets
 import scalafx.scene.{Cursor, Scene}
 import scalafx.scene.control._
@@ -16,6 +17,7 @@ import scalafx.scene.text.Text
 import scalafx.stage.FileChooser
 import scalafx.stage.FileChooser.ExtensionFilter
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 trait StartMenuView extends Scene {
@@ -23,7 +25,7 @@ trait StartMenuView extends Scene {
 
 object StartMenuView {
 
-  def apply(viewController: StartViewBridge): StartMenuView = new StartMenuViewImpl(viewController)
+  def apply(viewController: StartViewBridge)(implicit executionContext: ExecutionContext): StartMenuView = new StartMenuViewImpl(viewController)
 
   //TODO in IO package object? seems insecure
   private implicit def javaFileToMyFile(file: java.io.File): File = IOResource(file.toURI.toURL) match {
@@ -33,7 +35,7 @@ object StartMenuView {
       throw new IllegalArgumentException
   }
 
-  private class StartMenuViewImpl(startViewBridge: StartViewBridge) extends Scene(433, 650) with StartMenuView {
+  private class StartMenuViewImpl(startViewBridge: StartViewBridge)(implicit executionContext: ExecutionContext) extends Scene(433, 650) with StartMenuView {
 
     val currentWindow: scalafx.stage.Window = this.window()
     val buttonStyle =
@@ -65,10 +67,16 @@ object StartMenuView {
         if(file != null) {
           cursor = Cursor.Wait
           disable = true
-          startViewBridge.startSimulation(file, currentWindow) match {
-            case Success(_) => cursor = Cursor.Default
+          startViewBridge.startSimulation(file, currentWindow) onComplete {
+            case Success(value) =>
+              value match {
+                case Success(_) =>
+                  Platform.runLater(cursor = Cursor.Default)
+                case Failure(exception) =>
+                  Platform.runLater(UnexpectedExceptionAlert(currentWindow, exception))
+              }
             case Failure(exception) =>
-              UnexpectedExceptionAlert(currentWindow, exception)
+              Platform.runLater(UnexpectedExceptionAlert(currentWindow, exception))
           }
         }
       }
@@ -86,7 +94,7 @@ object StartMenuView {
           cursor = Cursor.Wait
           disable = true
           startViewBridge.loadSimulation(file, currentWindow) match {
-            case Success(_) => Cursor.Default
+            case Success(_) => cursor = Cursor.Default
             case Failure(exception) =>
               UnexpectedExceptionAlert(currentWindow, exception)
           }

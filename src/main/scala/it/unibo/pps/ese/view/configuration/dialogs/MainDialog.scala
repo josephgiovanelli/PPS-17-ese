@@ -9,6 +9,8 @@ import scalafx.scene.Node
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control.{Button, ButtonType}
 
+import scala.concurrent.ExecutionContext
+
 trait MainDialog {
   def title: StringProperty
   def title_=(title: String)
@@ -34,7 +36,8 @@ object MainDialog {
             newAnimalSpecies: Seq[String] = Seq.empty,
             newPlantSpecies: Seq[String] = Seq.empty,
             previousAnimalsCount: Map[String, Int] = Map.empty,
-            previousPlantsCount: Map[String, Int] = Map.empty): MainDialog =
+            previousPlantsCount: Map[String, Int] = Map.empty)
+           (implicit executionContext: ExecutionContext): MainDialog =
     new MainDialogImpl(window, mainComponent, setupViewBridge, setUp, firstContent, newAnimalSpecies,
       newPlantSpecies, previousAnimalsCount, previousPlantsCount)
 
@@ -46,7 +49,8 @@ object MainDialog {
                        newAnimalSpecies: Seq[String] = Seq.empty,
                        newPlantSpecies: Seq[String] = Seq.empty,
                        previousAnimalsCount: Map[String, Int] = Map.empty,
-                       previousPlantsCount: Map[String, Int] = Map.empty) extends AbstractDialog[Unit](window, None) with MainDialog {
+                       previousPlantsCount: Map[String, Int] = Map.empty)
+                      (implicit executionContext: ExecutionContext) extends AbstractDialog[Unit](window, None) with MainDialog {
 
     val configurationPane = ConfigurationPane(this, None, setupViewBridge, mainComponent, setUp, previousAnimalsCount, previousPlantsCount)
     val confirmPane = ConfirmPane(

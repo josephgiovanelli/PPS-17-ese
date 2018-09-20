@@ -6,10 +6,13 @@ import scalafx.Includes._
 import scalafx.scene.Scene
 import scalafx.scene.control._
 
+import scala.concurrent.ExecutionContext
+
 trait ConfigurationView {
 }
 
-class ConfigurationViewImpl(mainComponent: MainComponent) extends Scene(250, 350) with ConfigurationView {
+class ConfigurationViewImpl(mainComponent: MainComponent)
+                           (implicit executionContext: ExecutionContext)extends Scene(250, 350) with ConfigurationView {
 
 
   val currentWindow: scalafx.stage.Window = this.window()

@@ -23,6 +23,7 @@ import it.unibo.pps.ese.view.start.ResourceExistsAlert.Buttons
 import scalafx.stage.FileChooser.ExtensionFilter
 import scalafx.stage.{FileChooser, Window}
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 case class ConfigurationPane(mainDialog: MainDialog,
@@ -31,7 +32,8 @@ case class ConfigurationPane(mainDialog: MainDialog,
                              mainComponent: Option[MainComponent],
                              setUp: Boolean,
                              previousAnimalsCount: Map[String, Int] = Map.empty,
-                             previousPlantsCount: Map[String, Int] = Map.empty) extends BackPane[Unit](mainDialog, previousContent, None) {
+                             previousPlantsCount: Map[String, Int] = Map.empty)
+                            (implicit executionContext: ExecutionContext)extends BackPane[Unit](mainDialog, previousContent, None) {
 
   /*
   Header
@@ -102,6 +104,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
       val data: PartialSimulationData = EntitiesInfo.instance().getPartialSimulationData(animalEntities, plantEntities)
       val chosenFile: java.io.File = fileChooser.showSaveDialog(mainDialog.window)
       if (chosenFile != null) {
+        this.disable = true
         IOResource(chosenFile.toURI.toURL).getParent() match {
           case Some(f: Folder) =>
             val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
@@ -116,12 +119,16 @@ case class ConfigurationPane(mainDialog: MainDialog,
     saveButton.disable = true
   }
 
-  def handleSaveResult(saveResult: Try[Unit], saver: SetupViewBridge, target: Folder) = saveResult match {
-    case Success(_) =>
-    case Failure(exception: ResourceAlreadyExistsException) =>
-      handleSaveFailure(exception, saver, target)
+  def handleSaveResult(saveResult: Future[Try[Unit]], saver: SetupViewBridge, target: Folder) = saveResult onComplete  {
+    case Success(result) =>
+      result match {
+        case Success(_) =>
+          Platform.runLater(saveButton.disable = false)
+        case Failure(exception: ResourceAlreadyExistsException) =>
+          Platform.runLater(handleSaveFailure(exception, saver, target))
+      }
     case Failure(exception) =>
-      UnexpectedExceptionAlert(mainDialog.window, exception)
+      Platform.runLater(UnexpectedExceptionAlert(mainDialog.window, exception))
   }
 
   def handleSaveFailure(exception: ResourceAlreadyExistsException, saver: SetupViewBridge, target: Folder): Unit = {

@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.view
 
+import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.loader.{Saver, YamlSaver}
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteSimulationBuildException
@@ -10,24 +11,25 @@ import it.unibo.pps.ese.view.configuration.dialogs.{ConfigurationContent, MainDi
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, StartMenuView}
 import scalafx.application.JFXApp.PrimaryStage
+import scalafx.application.Platform
 import scalafx.stage.Window
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 
 trait ViewLauncher
 
 trait StartViewBridge {
-  def startSimulation(file: File, currentWindow: Window): Try[Unit]
+  def startSimulation(file: File, currentWindow: Window): Future[Try[Unit]]
   def loadSimulation(file: File, currentWindow: Window): Try[Unit]
   def launchSetup(currentWindow: Window): Unit
 }
 
 trait SetupViewBridge {
-  def startSimulation(data: CompleteSimulationData): Try[Unit]
-  def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Try[Unit]
-  def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Try[Unit]
+  def startSimulation(data: CompleteSimulationData): Future[Try[Unit]]
+  def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]]
+  def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]]
 }
 
 object ViewLauncher {
@@ -41,32 +43,35 @@ object ViewLauncher {
     title = "Evolution Simulation Engine"
     val simulationController: Option[SimulationController] = None
     this.scene = StartMenuView(this)
-    var saver: Option[Saver] = None
 
     def launchSetup(currentWindow: Window): Unit = {
 //      ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
       MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
     }
 
-    def startSimulation(file: File, currentWindow: Window): Try[Unit] = {
-      controller.startSimulation(file) match {
+    def startSimulation(file: File, currentWindow: Window): Future[Try[Unit]] = {
+      controller.startSimulation(file).map({
         case Success((contr, data)) =>
-          EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
-            data.getPlants.getOrElse(Iterable()).map(_._1))
-          val mainView = View(geneticsSimulator, contr)
-          contr.attachView(mainView, 30)
-          this.hide()
+          Platform.runLater({
+            EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
+              data.getPlants.getOrElse(Iterable()).map(_._1))
+            val mainView = View(geneticsSimulator, contr)
+            contr.attachView(mainView, 30)
+            this.hide()
+          })
           Success()
         case Failure(exception: CompleteSimulationBuildException) =>
-          NoCompleteSimulationAlert(currentWindow, exception.buildException).showAndWait()
-          EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
-            exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
-//          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
-          MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
+          Platform.runLater({
+            NoCompleteSimulationAlert(currentWindow, exception.buildException).showAndWait()
+            EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
+              exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
+            //          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+            MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
+          })
           Success()
         case Failure(exception) =>
           Failure(exception)
-      }
+      })
     }
     //Editing simulazione
     def loadSimulation(file: File, currentWindow: Window): Try[Unit] = {
@@ -82,26 +87,25 @@ object ViewLauncher {
       }
     }
 
-    def startSimulation(data: CompleteSimulationData): Try[Unit] = {
-      controller.startSimulation(data) match {
+    def startSimulation(data: CompleteSimulationData): Future[Try[Unit]] = {
+      controller.startSimulation(data) map {
         case Success(value) =>
-          val mainView = View(geneticsSimulator, value)
-          value.attachView(mainView, 30)
-          this.hide()
+          Platform.runLater({
+            val mainView = View(geneticsSimulator, value)
+            value.attachView(mainView, 30)
+            this.hide()
+          })
           Success()
         case _ =>
           throw new IllegalStateException()
       }
     }
 
-    def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Try[Unit] = {
-      val s = YamlSaver(simulation, simulationName)
-      saver = Some(s)
-      s.saveData(target, false)
+    def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]] = {
+      controller.saveSimulationData(simulation, simulationName, target)
     }
-    def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Try[Unit] = {
-      overrideResource.foreach(saver.getOrElse(throw new IllegalStateException()).addResourceToOverride)
-      saver.getOrElse(throw new IllegalStateException()).saveData(target, overrideAll)
+    def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]] = {
+      controller.retrySave(target, overrideResource, overrideAll)
     }
   }
 }

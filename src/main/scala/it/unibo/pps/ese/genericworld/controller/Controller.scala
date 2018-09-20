@@ -6,18 +6,18 @@ import it.unibo.pps.ese.controller.util.io.{ExistingResource, File, Folder}
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder
 import it.unibo.pps.ese.genericworld.model.SimulationBuilder.Simulation.EmptySimulation
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 trait Controller {
   //Partenza simulazione
-  def startSimulation(file: File): Try[(SimulationController, CompleteSimulationData)]
-  def startSimulation(data: CompleteSimulationData): Try[SimulationController]
+  def startSimulation(file: File): Future[Try[(SimulationController, CompleteSimulationData)]]
+  def startSimulation(data: CompleteSimulationData): Future[Try[SimulationController]]
   //Editing simulazione
   def loadSimulation(file: File): Try[PartialSimulationData]
   //Cachare saver e target
-  def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Try[Unit]
-  def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Try[Unit]
+  def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]]
+  def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]]
 }
 object Controller {
 
@@ -27,15 +27,15 @@ object Controller {
 
     var saver: Option[Saver] = None
 
-    override def startSimulation(data: CompleteSimulationData): Try[SimulationController] = {
-      Success(new SimulationBuilder[EmptySimulation]
+    override def startSimulation(data: CompleteSimulationData): Future[Try[SimulationController]] = {
+      Future(Success(new SimulationBuilder[EmptySimulation]
         .dimension(500, 500)
         .data(data)
-        .build)
+        .build))
     }
 
-    override def startSimulation(file: File): Try[(SimulationController, CompleteSimulationData)] = {
-      YamlLoader.loadCompleteSimulation(file) match {
+    override def startSimulation(file: File): Future[Try[(SimulationController, CompleteSimulationData)]] = {
+      Future(YamlLoader.loadCompleteSimulation(file) match {
         case Success(value) =>
           Success((new SimulationBuilder[EmptySimulation]
             .dimension(500, 500)
@@ -43,26 +43,28 @@ object Controller {
             .build, value))
         case Failure(exception) =>
           Failure(exception)
-      }
+      })
     }
 
     override def loadSimulation(file: File): Try[PartialSimulationData] = {
       Try(YamlLoader.loadSimulation(file))
     }
 
-    override def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Try[Unit] = {
-      saver = Some(YamlSaver(simulation, simulationName))
-      saver.get.saveData(target, false)
+    override def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]] = {
+      Future({
+        saver = Some(YamlSaver(simulation, simulationName))
+        saver.get.saveData(target, false)
+      })
     }
 
-    override def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Try[Unit] = {
-      saver match {
+    override def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]] = {
+      Future(saver match {
         case Some(s) =>
           overrideResource.foreach(s.addResourceToOverride)
           s.saveData(target, overrideAll)
         case None =>
           Failure(new IllegalStateException())
-      }
+      })
     }
   }
 }
