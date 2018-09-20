@@ -54,31 +54,17 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
   runningJobPromise success new Done()
 
   override def initialize(): Unit = subscribe {
-    case r: WorldInfoRequest =>
-      publish(WorldInfoResponse(r id, (world info) width, (world info) height))
+    case r: WorldInfoRequest => publish(WorldInfoResponse(r id, (world info) width, (world info) height))
     case r: EntitiesStateRequest =>
-      publish(EntitiesStateResponse(r id,
-        world.state(r.filter)filterNot(x => x.entityId == entitySpecifications.id)))
+      publish(EntitiesStateResponse(r id, world.state(r.filter)filterNot(x => x.entityId == entitySpecifications.id)))
     case r: InteractionEvent if r.receiverId != entitySpecifications.id =>
       if (!disposed) world interact InteractionEnvelope(entitySpecifications id, r receiverId, r)
     case UpdateEntityState(properties) => properties foreach (e =>
       if (!disposed) world updateState (entitySpecifications id, e))
     case Kill(entityId)  =>
-      //Completed before next entity computation?
       if (!disposed) world removeEntity entityId
     case Create(entities)  =>
-//      println(sons.size + " entities Creation")
-      //Completed before next entity computation?
-      if (!disposed) {
-        val ids: Seq[String] = Seq.empty
-        entities.foreach(entity => {
-          ids :+ entity.id
-          world addEntity entity
-        })
-        publish(GiveBirth(ids))
-      }
-    /*case CreateEntities(entities) =>
-      entities.foreach(entity => world addEntity entity)*/
+      if (!disposed) publish(GiveBirth(entities.map(entity => { world addEntity entity; entity id}).toSeq))
     case ComputeNextStateAck() =>
       runningJobAccumulator.incrementAndGet
       checkRunningJobCompletion()
