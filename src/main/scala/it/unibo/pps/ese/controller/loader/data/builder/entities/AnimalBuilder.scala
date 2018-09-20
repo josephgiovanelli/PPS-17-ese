@@ -4,33 +4,28 @@ import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, P
 import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.entities.AnimalBuilder.AnimalStatus
-import it.unibo.pps.ese.controller.loader.data.builder.entities.AnimalBuilder.AnimalStatus._
+import it.unibo.pps.ese.controller.loader.data.builder.GenericBuilder
+import it.unibo.pps.ese.controller.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 
+import scala.reflect.runtime.universe
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
-trait AnimalBuilder[T <: AnimalStatus] {
-  def setName(name: String): AnimalBuilder[T with AnimalWithName]
-  def setGeneLength(geneLength: Int): AnimalBuilder[T with AnimalWithGeneLength]
-  def setAlleleLength(alleleLength: Int): AnimalBuilder[T with AnimalWithAlleleLength]
-  def setReign(reign: String): AnimalBuilder[T with AnimalWithReign]
+trait AnimalBuilder[T <: EntityStatus] extends EntityBuilder[T] with GenericBuilder[T, FullAnimal, PartialAnimalData, CompleteAnimalData]{
+  override type RET[A <: EntityStatus] = AnimalBuilder[A]
   def setTypology(typology: String): AnimalBuilder[T with AnimalWithTypology]
   def addStructuralChromosome(structuralChromosome: Iterable[CustomGeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome]
   def addRegulationChromosome(regulationChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T with AnimalWithRegChromosome]
   def addSexualChromosome(sexualChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T with AnimalWithSexChromosome]
-  def tryCompleteBuild(): Try[CompleteAnimalData]
-  def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData
-  def build(): PartialAnimalData
 }
 
 object AnimalBuilder {
 
-  def apply(): AnimalBuilder[EmptyAnimal] = new AnimalBuilderImpl[EmptyAnimal](None, None, None, None, None, Seq(), Seq(), Seq())
+  def apply(): AnimalBuilder[EmptyEntity] = new AnimalBuilderImpl[EmptyEntity](None, None, None, None, None, Seq(), Seq(), Seq())
 
-  private class AnimalBuilderImpl[T <: AnimalStatus](name: Option[String],
+  private class AnimalBuilderImpl[T <: EntityStatus](name: Option[String],
                                              geneLength: Option[Int],
                                              alleleLength: Option[Int],
                                              reign: Option[String],
@@ -38,23 +33,8 @@ object AnimalBuilder {
                                              structuralChromosome: Iterable[CustomGeneBuilder[_]],
                                              regulationChromosome: Iterable[DefaultGeneBuilder[_]],
                                              sexualChromosome: Iterable[DefaultGeneBuilder[_]])
-                                            (implicit val status: TypeTag[T]) extends AnimalBuilder[T]{
+                                            (implicit val status: TypeTag[T]) extends EntityBuilderImpl[T](name, geneLength, alleleLength, reign) with AnimalBuilder[T] {
 
-    def setName(name: String): AnimalBuilder[T with AnimalWithName] =
-      new AnimalBuilderImpl(Some(name), geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
-        sexualChromosome)
-
-    def setGeneLength(geneLength: Int): AnimalBuilder[T with AnimalWithGeneLength] =
-      new AnimalBuilderImpl(name, Some(geneLength), alleleLength, reign, typology, structuralChromosome, regulationChromosome,
-        sexualChromosome)
-
-    def setAlleleLength(alleleLength: Int): AnimalBuilder[T with AnimalWithAlleleLength] =
-      new AnimalBuilderImpl(name, geneLength, Some(alleleLength), reign, typology, structuralChromosome, regulationChromosome,
-        sexualChromosome)
-
-    def setReign(reign: String): AnimalBuilder[T with AnimalWithReign] =
-      new AnimalBuilderImpl(name, geneLength, alleleLength, Some(reign), typology, structuralChromosome, regulationChromosome,
-        sexualChromosome)
 
     def setTypology(typology: String): AnimalBuilder[T with AnimalWithTypology] =
       new AnimalBuilderImpl(name, geneLength, alleleLength, reign, Some(typology), structuralChromosome, regulationChromosome,
@@ -86,7 +66,7 @@ object AnimalBuilder {
           } else {
             Failure(check._1.get)
           }
-        case t if t <:< typeOf[ValidAnimal] =>
+        case t if t <:< typeOf[ValidEntity] =>
           Failure(new CompleteBuildException("Animal: " + name + "must have all fields set"))
       }
     }
@@ -102,7 +82,7 @@ object AnimalBuilder {
       }
     }
 
-    def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData = {
+    def buildComplete(implicit ev: T =:= FullAnimal, st: TypeTag[T]): CompleteAnimalData = {
       tryCompleteBuild() match {
         case Success(value) =>
           value
@@ -142,25 +122,13 @@ object AnimalBuilder {
       }
       (exception, struct, reg, sex)
     }
-  }
 
-  sealed trait AnimalStatus
-  object AnimalStatus {
-    sealed trait EmptyAnimal extends AnimalStatus
-    sealed trait AnimalWithName extends AnimalStatus
-    sealed trait AnimalWithGeneLength extends AnimalStatus
-    sealed trait AnimalWithAlleleLength extends AnimalStatus
-    sealed trait AnimalWithReign extends AnimalStatus
-    sealed trait AnimalWithTypology extends AnimalStatus
-    sealed trait AnimalWithStructChromosome extends AnimalStatus
-    sealed trait AnimalWithRegChromosome extends AnimalStatus
-    sealed trait AnimalWithSexChromosome extends AnimalStatus
-
-    type ValidAnimal = EmptyAnimal with AnimalWithName
-    type AnimalWithBaseInfo = ValidAnimal with AnimalWithGeneLength with AnimalWithAlleleLength
-      with  AnimalWithReign with AnimalWithTypology
-    type AnimalTemplate = AnimalWithBaseInfo with AnimalWithStructChromosome
-    type FullAnimal = AnimalTemplate with AnimalWithRegChromosome with AnimalWithSexChromosome
+    override def newInstance[NT <: EntityStatus](name: Option[String], geneLength: Option[Int],
+                                                 alleleLength: Option[Int], reign: Option[String])
+                                                (implicit tt: TypeTag[NT]): AnimalBuilder[NT] = {
+      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
+        sexualChromosome)
+    }
   }
 
   private class AnimalDataImpl[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](val name: String,

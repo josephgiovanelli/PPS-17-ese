@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.controller.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.loader.data.builder.BuilderStatus
-import it.unibo.pps.ese.controller.loader.data.builder.entities.PlantStatus.{EntityWithAlleleLength, EntityWithGeneLength, EntityWithReign, PlantWithHardness, PlantWithNutritionalValue, _}
+import it.unibo.pps.ese.controller.loader.data.builder.entities.EntityStatus.{EntityWithAlleleLength, EntityWithGeneLength, EntityWithReign, PlantWithHardness, PlantWithNutritionalValue, _}
 
 import scala.reflect.runtime.universe._
 
@@ -36,7 +36,7 @@ abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
 }
 
 sealed trait EntityStatus extends BuilderStatus
-object PlantStatus {
+object EntityStatus {
   sealed trait EmptyEntity extends EntityStatus
   sealed trait EntityWithName extends EntityStatus
   sealed trait EntityWithGeneLength extends EntityStatus
@@ -45,8 +45,14 @@ object PlantStatus {
   sealed trait PlantWithNutritionalValue extends EntityStatus
   sealed trait PlantWithHardness extends EntityStatus
   sealed trait PlantWithHeight extends EntityStatus
+  sealed trait AnimalWithTypology extends EntityStatus
+  sealed trait AnimalWithStructChromosome extends EntityStatus
+  sealed trait AnimalWithRegChromosome extends EntityStatus
+  sealed trait AnimalWithSexChromosome extends EntityStatus
 
   type ValidEntity = EmptyEntity with EntityWithName
   type FullEntity = ValidEntity with  EntityWithGeneLength with EntityWithAlleleLength with EntityWithReign
   type FullPlant = FullEntity  with PlantWithHeight with PlantWithNutritionalValue with PlantWithHardness
+  type FullAnimal = FullEntity with AnimalWithTypology with AnimalWithStructChromosome with AnimalWithRegChromosome
+    with AnimalWithSexChromosome
 }

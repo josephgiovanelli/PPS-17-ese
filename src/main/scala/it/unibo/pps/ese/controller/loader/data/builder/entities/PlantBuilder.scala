@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder.GenericBuilder
-import it.unibo.pps.ese.controller.loader.data.builder.entities.PlantStatus._
+import it.unibo.pps.ese.controller.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
 import scala.reflect.runtime.universe

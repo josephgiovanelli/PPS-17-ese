@@ -6,7 +6,6 @@ import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.loader.beans._
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data.builder._
-import it.unibo.pps.ese.controller.loader.data.builder.entities.AnimalBuilder.AnimalStatus
 import it.unibo.pps.ese.controller.loader.data.builder.entities.{AnimalBuilder, EntityStatus, PlantBuilder}
 import it.unibo.pps.ese.controller.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException}
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
@@ -52,7 +51,7 @@ object YamlLoader extends Loader {
     if(simulation.animals.isDefined) {
       val animals = simulation.animals.get.map({
         case (animalConfigPath, v) =>
-          (normalizeConfigPath(animalConfigPath, currentFolder) match {case f: File => loadAnimal(f).asInstanceOf[AnimalBuilder[_ <: AnimalStatus]]}, v)
+          (normalizeConfigPath(animalConfigPath, currentFolder) match {case f: File => loadAnimal(f).asInstanceOf[AnimalBuilder[_ <: EntityStatus]]}, v)
       })
       builder = builder.addAnimals(animals)
     }
