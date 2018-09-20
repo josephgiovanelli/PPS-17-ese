@@ -5,3 +5,4 @@ animals:
 
 plants:
   ./Conifere.yml: 1000
+  ./Felce.yml: 800

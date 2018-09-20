@@ -32,7 +32,6 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
 
   private def mapToPlantStructuralData(state: EntityInfo): StructuralData =
     PlantStructuralDataImpl(
-      state availability,
       state.species.toString,
       state.reign.toString,
       state.gender.toString,

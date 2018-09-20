@@ -47,9 +47,7 @@ object EntityConversions {
         Map(
           height->entityInfo.height,
           nutritionalValue->entityInfo.nutritionalValue,
-          //    "Attractiveness"->entityDetails.attractiveness,
-          //    "Hardness"->entityDetails.strong,
-          availability->entityInfo.availability
+          "Hardness"->entityInfo.defense
         )
     }
     def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean = {
