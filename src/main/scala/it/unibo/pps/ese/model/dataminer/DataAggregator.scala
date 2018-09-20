@@ -13,7 +13,7 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
 
   private def mapToAnimalStructuralData(state: EntityInfo): StructuralData =
     AnimalStructuralDataImpl(
-      state strong,
+      state strength,
       state actionField,
       state visualField,
       state averageLife,

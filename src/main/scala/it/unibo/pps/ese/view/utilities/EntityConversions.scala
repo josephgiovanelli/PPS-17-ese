@@ -30,7 +30,7 @@ object EntityConversions {
       case ReignType.ANIMAL =>
 //        println(entityInfo.fertility)
         Map(
-          strength->entityInfo.strong,
+          strength->entityInfo.strength,
           actionField->entityInfo.actionField,
           visualField->entityInfo.visualField,
           attractiveness->entityInfo.attractiveness,

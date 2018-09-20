@@ -46,38 +46,38 @@ deleteCompatibleCouplingKinds(HunterKind, PartnerKind) :-
 
 
 /*
-addEntity(+Name, +Kind, +Height, +Strong, +Defense, +Pos)
+addEntity(+Name, +Kind, +Height, +strength, +Defense, +Pos)
 add entity in the world.
 */
-addEntity(Name, Kind, Height, Strong, Defense, Pos, Attractiveness, Sex) :-
-	assert(entity(Name, Kind, Height, Strong, Defense, Pos, Attractiveness, Sex)).
+addEntity(Name, Kind, Height, strength, Defense, Pos, Attractiveness, Sex) :-
+	assert(entity(Name, Kind, Height, strength, Defense, Pos, Attractiveness, Sex)).
 
 /*
 deleteEntity(+Name)
 delete entity from the world.
 */
 deleteEntity(Name) :-
-	retract(entity(Name, Kind, Height, Strong, Defense, Pos, Attractiveness, Sex)).
+	retract(entity(Name, Kind, Height, strength, Defense, Pos, Attractiveness, Sex)).
 
 /*
-simulateAttack(+StrongX, +DefenseY)
+simulateAttack(+strengthX, +DefenseY)
 Check if the defense of the prey Y is acceptable for the hunter X.
 */
-simulateAttack(StrongX, DefenseY) :-
-	Z is StrongX - DefenseY,
+simulateAttack(strengthX, DefenseY) :-
+	Z is strengthX - DefenseY,
 	threshold(attack, T),
 	Z > T.
 
 /*
-simulateCoupling(+AttractivenessY, +SexX, +SexY, +StrongX, +DefenseY)
+simulateCoupling(+AttractivenessY, +SexX, +SexY, +strengthX, +DefenseY)
 Check if the partner Y is suitable for the hunter X.
 */
-simulateCoupling(AttractivenessX, AttractivenessY, SexX, SexY, StrongX, DefenseY) :-
+simulateCoupling(AttractivenessX, AttractivenessY, SexX, SexY, strengthX, DefenseY) :-
 	threshold(attractiveness, T),
 	AttractivenessY > T,
 	SexX == male,
 	SexY == female,
-	(simulateAttack(StrongX, DefenseY); AttractivenessX > T).
+	(simulateAttack(strengthX, DefenseY); AttractivenessX > T).
 
 /*
 compatiblePreysKind(+KindX, +KindY)
@@ -107,12 +107,12 @@ discoverPreys(+X, -Y, -Lenght)
 Giving as input x simulates, through a set of rules, the behavior of a binary tree, finding all the preys Y and calculating for each the lenght of the best route to get there.
 */
 discoverPreys(X, Y, Lenght) :-
-	entity(X, KindX, HeightX, StrongX, DefenseX, PosX, AttractivenessX, SexX),
-	entity(Y, KindY, HeightY, StrongY, DefenseY, PosY, AttractivenessY, SexY),
+	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, SexX),
+	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, SexY),
 	Y \== X,
 	heightDiff(HeightX, HeightY),
 	compatiblePreysKind(KindX, KindY),
-	simulateAttack(StrongX, DefenseY),
+	simulateAttack(strengthX, DefenseY),
 	lenght(PosX, PosY, Lenght).
 
 /*
@@ -121,12 +121,12 @@ Giving as input x simulates, through a set of rules, the behavior of a binary tr
 Da completare e poi fattorizzare.
 */
 discoverPartners(X, Y, Lenght) :-
-	entity(X, KindX, HeightX, StrongX, DefenseX, PosX, AttractivenessX, SexX),
-	entity(Y, KindY, HeightY, StrongY, DefenseY, PosY, AttractivenessY, SexY),
+	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, SexX),
+	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, SexY),
 	Y \== X,
 	heightDiff(HeightX, HeightY),
 	compatiblePartnersKind(KindX, KindY),
-	simulateCoupling(AttractivenessX, AttractivenessY, SexX, SexY, StrongX, DefenseY),
+	simulateCoupling(AttractivenessX, AttractivenessY, SexX, SexY, strengthX, DefenseY),
 	lenght(PosX, PosY, Lenght).
 
 /*
@@ -145,8 +145,8 @@ nextMove(+X, +Y, -Move) :-
 return the next move of the path from PosX to PosY.
 */
 nextMove(X, Y, NewX, NewY) :-
-	entity(X, KindX, HeightX, StrongX, DefenseX, PosX, AttractivenessX, SexX),
-	entity(Y, KindY, HeightY, StrongY, DefenseY, PosY, AttractivenessY, SexY),
+	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, SexX),
+	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, SexY),
 	path(PosX, PosY, PathDirection, [[NewX, NewY] | OtherMoves]).
 
 /*

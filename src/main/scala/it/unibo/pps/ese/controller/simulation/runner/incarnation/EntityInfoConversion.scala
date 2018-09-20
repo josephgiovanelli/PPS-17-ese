@@ -19,7 +19,7 @@ object EntityInfoConversion {
   }
 
   implicit class BrainComponentConversions(obj: EntityInfo) {
-    def strong : Double = obj.selectDynamic("strong").asInstanceOf[Double]
+    def strength : Double = obj.selectDynamic("strength").asInstanceOf[Double]
     def actionField : Double = obj.selectDynamic("actionField").asInstanceOf[Double]
     def visualField : Double = obj.selectDynamic("visualField").asInstanceOf[Double]
     def attractiveness : Double = obj.selectDynamic("attractiveness").asInstanceOf[Double]

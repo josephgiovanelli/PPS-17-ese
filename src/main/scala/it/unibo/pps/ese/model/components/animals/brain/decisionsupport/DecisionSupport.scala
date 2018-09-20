@@ -68,7 +68,7 @@ object DecisionSupport {
       worldRules.compatibleCouplingKinds.contains((hunter.kind, partner.kind))
 
     private def simulateAttack(hunter: EntityAttributes, prey: EntityAttributes): Boolean =
-      (hunter.strong - prey.defense) > worldRules.attackThreshold
+      (hunter.strength - prey.defense) > worldRules.attackThreshold
 
     private def simulateCoupling(entity: EntityAttributes, partner: EntityAttributes): Boolean = entity.sex == SexTypes.male && partner.sex == SexTypes.female &&
       partner.attractiveness > worldRules.couplingThreshold && (simulateAttack(entity, partner) || entity.attractiveness > worldRules.couplingThreshold)

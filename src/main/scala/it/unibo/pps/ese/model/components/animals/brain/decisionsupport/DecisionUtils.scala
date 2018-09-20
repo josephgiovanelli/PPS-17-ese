@@ -20,7 +20,7 @@ trait WorldTypes {
     def name: Name
     def kind: Kind
     def height: HeightMeasure
-    def strong: AttackMeasure
+    def strength: AttackMeasure
     def defense: AttackMeasure
     def position: GeneralPosition[PositionMeasure]
     def attractiveness: AttractivenessMeasure
@@ -84,7 +84,7 @@ case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: Positi
 }
 
 object AnimalAttributes {
-  def apply(name: String, kind: EntityKinds.Value, height: Double, strong: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position, attractiveness, sex)
+  def apply(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strength, defense, position, attractiveness, sex)
 }
 
 object PlantAttributes {
@@ -92,13 +92,13 @@ object PlantAttributes {
 }
 
 object EntityAttributesImpl {
-  def apply(name: String, kind: EntityKinds.Value, height: Double, strong: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strong, defense, position, attractiveness, sex)
+  def apply(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strength, defense, position, attractiveness, sex)
 
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
 
-  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Double, strong: Double, defense: Double, var position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value){
-    override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strong + ", " + defense + ", [" + position.x + ", " + position.y + "], " + attractiveness + ", " + sex + ")"
+  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, var position: GeneralPosition[Int], attractiveness: Double, sex: SexTypes.Value){
+    override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strength + ", " + defense + ", [" + position.x + ", " + position.y + "], " + attractiveness + ", " + sex + ")"
   }
 
 }

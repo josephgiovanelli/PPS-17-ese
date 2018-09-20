@@ -21,7 +21,7 @@ import it.unibo.pps.ese.utils.{Point, Position}
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-case class BrainInfo(strong: Double,
+case class BrainInfo(strength: Double,
                      actionField: Double,
                      visualField: Double,
                      attractiveness: Double
@@ -49,7 +49,7 @@ object Direction extends Enumeration {
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
                           widthWorld: Int,
-                          strong: Double,
+                          strength: Double,
                           actionField: Double,
                           visualField: Double,
                           attractiveness: Double)
@@ -125,7 +125,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
           }
 
           def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
-            x.state.strong, x.state.defense, (x.state.position.x, x.state.position.y),
+            x.state.strength, x.state.defense, (x.state.position.x, x.state.position.y),
             x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
         }
       case r: AutoForceReproduction =>
@@ -139,7 +139,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       case p: PregnancyEnd =>
         pregnantState = false
       case GetInfo() =>
-        publish(BrainInfo(strong, actionField, visualField, attractiveness))
+        publish(BrainInfo(strength, actionField, visualField, attractiveness))
         publish(new GetInfoAck)
       case _ => Unit
     }
@@ -150,7 +150,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     addMapping[ComputeNextState]((classOf[ComputeNextState], _ => Seq(EntityProperty("will", ActionKind.NOTHING))))
     addMapping[EntityWill]((classOf[EntityWill], ev => Seq(EntityProperty("will", ev will))))
     addMapping[BrainInfo]((classOf[BrainInfo], ev => Seq(
-      EntityProperty("strong", ev strong),
+      EntityProperty("strength", ev strength),
       EntityProperty("actionField", ev actionField),
       EntityProperty("visualField", ev visualField),
       EntityProperty("attractiveness", ev attractiveness),
@@ -164,7 +164,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       var position = data position
       val floorSpeed = speed.toInt
       val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id,
-        EntityKinds(Symbol(data species)), data height, strong, data defense, (data.position.x, data.position.y),
+        EntityKinds(Symbol(data species)), data height, strength, data defense, (data.position.x, data.position.y),
         attractiveness, SexTypes.withNameOpt(data gender).get)
       decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
       val partners = decisionSupport.discoverPartners(me)
