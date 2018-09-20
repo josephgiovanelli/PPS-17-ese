@@ -2,6 +2,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 
 
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.components.{CustomListView, ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo}
 
@@ -19,14 +20,15 @@ case class AllelePane(mainDialog: MainDialog,
                       gene: String,
                       allele: Option[String],
                       properties: Set[String],
-                      chromosomeTypes: ChromosomeTypes.Value) extends BackPane[AlleleInfo](mainDialog, previousContent, allele) {
+                      chromosomeTypes: ChromosomeTypes.Value)
+  extends BackPane[AlleleInfo](mainDialog, previousContent, allele, "", "", "") {
 
   /*
   Header
    */
 
-  title = "Allele Dialog"
-  headerText = "Create an allele"
+//  title = "Allele Dialog"
+//  headerText = "Create an allele"
 
   /*
   Fields
@@ -39,10 +41,10 @@ case class AllelePane(mainDialog: MainDialog,
   val probability: TextField = new TextField()
 
   fields = ListMap(
-    idAllele -> (new Label("Id"), new Label("")),
-    dominance -> (new Label("Dominance"), new Label("")),
-    consume -> (new Label("Consume"), new Label("")),
-    probability -> (new Label("Probability"), new Label("")),
+    idAllele -> (new WhiteLabel("Id"), new ErrorLabel("")),
+    dominance -> (new WhiteLabel("Dominance"), new ErrorLabel("")),
+    consume -> (new WhiteLabel("Consume"), new ErrorLabel("")),
+    probability -> (new WhiteLabel("Probability"), new ErrorLabel("")),
   )
 
 
@@ -67,26 +69,19 @@ case class AllelePane(mainDialog: MainDialog,
     if (allele.isDefined) currentAlleles(allele.get).effect
     else properties.map(x => (x, 0.0)).groupBy(_._1).map{ case (k,v) => (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
   val effectsName: ObservableBuffer[String] = ObservableBuffer[String](effects.keySet toSeq)
-  val effectsListView: ListView[String] = new ListView[String] {
+  val effectsListView: ListView[String] = new CustomListView[String] {
     items = effectsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
         mainDialog.setContent(EffectPane(mainDialog, Some(AllelePane.this), (value, effects(value))))
-//        fatto
-//          .showAndWait() match {
-//          case Some((name: String, value: Double)) =>
-//            effects += (name -> value)
-//          case None => println("Dialog returned: None")
-//        }
         Platform.runLater(selectionModel().clearSelection())
       }
     })
   }
 
-//  effectsListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   center = new VBox() {
-    children ++= Seq(grid, new Label("Effects"), effectsListView, new Label("At least one effect"))
+    children ++= Seq(grid, new WhiteLabel("Effects"), effectsListView, new WhiteLabel("At least one effect"))
     styleClass += "sample-page"
   }
 

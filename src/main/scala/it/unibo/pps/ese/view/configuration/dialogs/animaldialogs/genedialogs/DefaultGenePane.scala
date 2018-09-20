@@ -4,6 +4,7 @@ import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.ChromosomePane
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs.AllelesPane
+import it.unibo.pps.ese.view.configuration.dialogs.components.WhiteLabel
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
 
@@ -16,7 +17,8 @@ import scalafx.stage.Window
 
 abstract class GenePane(mainDialog: MainDialog,
                         override val previousContent: Option[ChromosomePane],
-                        gene: Option[String]) extends BackPane[String](mainDialog, previousContent, gene) {
+                        gene: Option[String])
+  extends BackPane[String](mainDialog, previousContent, gene, "", "", "") {
 
 
   def confirmAlleles(gene: String)
@@ -34,8 +36,8 @@ case class DefaultGenePane(mainDialog: MainDialog,
   Header
    */
 
-  title = "Default Gene Dialog"
-  headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
+//  title = "Default Gene Dialog"
+//  headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
 
   /*
   Fields
@@ -57,12 +59,12 @@ case class DefaultGenePane(mainDialog: MainDialog,
   val previousNameGene = new TextField()
 
   fields = ListMap(
-    idGene -> (new Label("Id"), new Label(""))
+    idGene -> (new WhiteLabel("Id"), new WhiteLabel(""))
   )
 
   val grid: GridPane = createGrid(0)
 
-  grid.add(new Label("Name"), 0, fields.size * 2)
+  grid.add(new WhiteLabel("Name"), 0, fields.size * 2)
   grid.add(if (gene.isDefined) previousNameGene else nameGene, 1, fields.size * 2)
 
 

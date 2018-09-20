@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.components.{ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalBaseInfo
 
@@ -12,17 +13,25 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, Pane}
 import scalafx.stage.Window
 
+object AnimalProperties {
+  val title = "Animal Pane"
+  val headerText = "Create an animal"
+}
+
+import AnimalProperties._
+import PaneProperties._
+
 case class AnimalPane(mainDialog: MainDialog,
                       override val previousContent: Option[ConfigurationPane],
                       modality: Modality,
-                      animal: Option[String] = None) extends BackPane[String](mainDialog, previousContent, animal) {
+                      animal: Option[String] = None)
+  extends BackPane[String](mainDialog, previousContent, animal, title, headerText, previousContent.get.path + newLine(1) + title) {
 
   /*
   Header
    */
 
-  title = "Animal Dialog"
-  headerText = "Create an animal"
+
 
   /*
   Fields
@@ -37,14 +46,14 @@ case class AnimalPane(mainDialog: MainDialog,
   typology.selectionModel().select(0)
 
   fields = ListMap(
-    name -> (new Label("Name"), new Label("")),
-    geneLength -> (new Label("Gene Length"), new Label("")),
-    alleleLength -> (new Label("Allele Length"), new Label("")),
+    name -> (new WhiteLabel("Name"), new ErrorLabel("")),
+    geneLength -> (new WhiteLabel("Gene Length"), new ErrorLabel("")),
+    alleleLength -> (new WhiteLabel("Allele Length"), new ErrorLabel("")),
   )
 
   val grid: GridPane = createGrid(0)
 
-  grid.add(new Label("Typology"), 0, fields.size * 2)
+  grid.add(new WhiteLabel("Typology"), 0, fields.size * 2)
   grid.add(typology, 1, fields.size * 2)
 
   center = grid

@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.custompropertiesdialog
 
-import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog, Modality}
+import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.components.{ErrorLabel, WhiteLabel}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -13,14 +14,15 @@ case class ConversionMapPane(mainDialog: MainDialog,
                              override val previousContent: Option[PropertiesPane],
                              modality: Modality,
                              currentConversion: Option[(String, Double)],
-                             qualities: Set[String]) extends BackPane[(String, Double)](mainDialog, previousContent, None) {
+                             qualities: Set[String])
+  extends BackPane[(String, Double)](mainDialog, previousContent, None, "", "", "") {
 
   /*
   Header
   */
 
-  title = "Conversion Map Dialog"
-  headerText = "Define a conversion map"
+//  title = "Conversion Map Dialog"
+//  headerText = "Define a conversion map"
 
   /*
   Fields
@@ -32,12 +34,12 @@ case class ConversionMapPane(mainDialog: MainDialog,
   val conversionValue: TextField = new TextField()
 
   fields = ListMap(
-    conversionValue -> (new Label("Value"), new Label("")),
+    conversionValue -> (new WhiteLabel("Value"), new ErrorLabel("")),
   )
 
   val grid: GridPane = createGrid(1)
   grid.vgap = 10
-  grid.add(new Label("Name"), 0, 0)
+  grid.add(new WhiteLabel("Name"), 0, 0)
   grid.add(if (currentConversion.isDefined) previousConversionName else conversionName, 1, 0)
 
   center = new VBox() {

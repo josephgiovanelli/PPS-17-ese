@@ -3,11 +3,13 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.ChromosomePane
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.GenePane
+import it.unibo.pps.ese.view.configuration.dialogs.components.WhiteLabel
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo, GeneInfo}
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
+import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, Pane, VBox}
 import scalafx.stage.Window
@@ -16,14 +18,15 @@ case class AllelesPane(mainDialog: MainDialog,
                        override val previousContent: Option[GenePane],
                        animal: String,
                        gene: String,
-                       chromosomeTypes: ChromosomeTypes.Value) extends BackPane(mainDialog, previousContent, None) {
+                       chromosomeTypes: ChromosomeTypes.Value)
+  extends BackPane(mainDialog, previousContent, None, "", "", "") {
 
   /*
   Header
   */
 
-  title = "Alleles Dialog"
-  headerText = "Define chromosome alleles"
+//  title = "Alleles Dialog"
+//  headerText = "Define chromosome alleles"
 
   /*
   Fields
@@ -68,8 +71,9 @@ case class AllelesPane(mainDialog: MainDialog,
   allelesButton.onAction = _ => mainDialog.setContent(AllelePane(mainDialog, Some(this), animal, gene, None, properties, chromosomeTypes))
 
   val allelesPane = new BorderPane()
-  allelesPane.left = new Label("Alleles")
+  allelesPane.left = new WhiteLabel("Alleles")
   allelesPane.right = allelesButton
+  allelesPane.margin = Insets(30,0,0,0)
 
   center = new VBox() {
     children ++= Seq(allelesPane, allelesListView, new Label("At least one allele"))

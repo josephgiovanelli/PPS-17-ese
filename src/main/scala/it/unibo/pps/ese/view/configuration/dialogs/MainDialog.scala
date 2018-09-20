@@ -1,13 +1,15 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
 import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
-import scalafx.scene.layout.Pane
+import scalafx.scene.layout._
 import scalafx.stage.Window
 import scalafx.Includes._
 import scalafx.beans.property.StringProperty
+import scalafx.geometry.Insets
 import scalafx.scene.Node
 import scalafx.scene.control.ButtonBar.ButtonData
-import scalafx.scene.control.{Button, ButtonType}
+import scalafx.scene.control.{Button, ButtonType, Label}
+import scalafx.scene.paint.Color
 
 trait MainDialog {
   def title: StringProperty
@@ -67,8 +69,20 @@ object MainDialog {
 
     def setContent(content: DialogPane): Unit = {
       dialogPane().content = content
+
+      dialogPane().header = new BorderPane {
+
+        center = new Label{
+          margin = Insets(20, 0, 20, 0)
+          text = content.headerText
+          style = "-fx-text-fill:white;" +
+            "-fx-font-size:30px;"
+        }
+
+        background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+      }
+
       title = content.title
-      headerText = content.headerText
     }
 
     dialogPane().getStylesheets.add(getClass.getResource("/it/unibo/pps/ese/view/configuration/red-border.css").toExternalForm)

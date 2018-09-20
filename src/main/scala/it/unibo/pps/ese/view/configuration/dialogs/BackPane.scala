@@ -1,25 +1,35 @@
 package it.unibo.pps.ese.view.configuration.dialogs
 
+import java.awt.MouseInfo
+
 import scalafx.collections.ObservableBuffer
 import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.{Node, Scene}
 import scalafx.scene.control.ButtonBar.ButtonData
-import scalafx.scene.control.{Button, ButtonType, Label, TextField}
-import scalafx.scene.layout.{BorderPane, GridPane, Pane}
+import scalafx.scene.control._
+import scalafx.scene.layout.{BorderPane, GridPane, HBox, Pane}
 import scalafx.scene.paint.Color
 
 trait Modality
 case object AddModality extends Modality
 case object ModifyModality extends Modality
 
-abstract class DialogPane extends BorderPane {
-  var title: String = ""
-  var headerText: String = ""
-
+object PaneProperties {
+  def newLine(level: Int): String = {
+    var n: String = "\n"
+    for (i <- 0 to level) {
+      n += "\t"
+    }
+    n + "|_"
+  }
 }
 
-abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String]) extends DialogPane {
+abstract class DialogPane(val title: String, val headerText: String, val path: String) extends BorderPane
+
+abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String],
+                           title: String, headerText: String, path: String)
+  extends DialogPane(title, headerText, path) {
 
   prefWidth = 500
   prefHeight = 600
@@ -27,12 +37,29 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
 
   if (previousContent.isDefined) {
     val backButton = new Button("Back")
+    val info = new Button("Info")
+
+    val tooltip = new Tooltip()
+
+    info.tooltip = tooltip
+
+    info.onMouseMoved = _ => {
+      tooltip.text = path
+      tooltip.show(this, MouseInfo.getPointerInfo.getLocation.x+10, MouseInfo.getPointerInfo.getLocation.y+10)
+    }
+
+    info.onMouseExited = _ => {
+      tooltip.hide()
+    }
+
+
+    backButton.margin = Insets(0, 0, 20, 0)
 
     backButton.onAction = _ => {
       mainDialog.setContent(previousContent.get)
     }
 
-    top = backButton
+    top = new HBox(backButton, info)
   }
 
 
@@ -70,7 +97,10 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
   OkButton
    */
 
-  val okButton = new Button("Confirm")
+  val okButton = new Button{
+    margin = Insets(10,0,0,0)
+    text = "Confirm"
+  }
   bottom = okButton
 
   /*

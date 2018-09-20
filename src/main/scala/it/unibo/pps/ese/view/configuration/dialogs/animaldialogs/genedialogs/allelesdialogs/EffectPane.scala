@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.allelesdialogs
 
 
+import it.unibo.pps.ese.view.configuration.dialogs.components.{ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog}
 
 import scala.collection.immutable.ListMap
@@ -12,14 +13,15 @@ import scalafx.stage.Window
 
 case class EffectPane(mainDialog: MainDialog,
                       override val previousContent: Option[AllelePane],
-                      currentEffect: (String, Double)) extends BackPane[(String, Double)](mainDialog, previousContent, None) {
+                      currentEffect: (String, Double))
+  extends BackPane[(String, Double)](mainDialog, previousContent, None, "", "", "") {
 
   /*
   Header
    */
 
-  title = "Effect Dialog"
-  headerText = "Define an allele effect"
+//  title = "Effect Dialog"
+//  headerText = "Define an allele effect"
 
   /*
   Fields
@@ -30,8 +32,8 @@ case class EffectPane(mainDialog: MainDialog,
   val effectValue: TextField = new TextField()
 
   fields = ListMap(
-    propertyName -> (new Label("Name"), new Label("")),
-    effectValue -> (new Label("Value"), new Label(""))
+    propertyName -> (new WhiteLabel("Name"), new ErrorLabel("")),
+    effectValue -> (new WhiteLabel("Value"), new ErrorLabel(""))
   )
 
   center = createGrid(0)

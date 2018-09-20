@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.configuration.dialogs.plantdialogs
 
 import it.unibo.pps.ese.view.configuration.dialogs._
+import it.unibo.pps.ese.view.configuration.dialogs.components.WhiteLabel
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.plants.PlantInfo
 
@@ -11,19 +12,25 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, Pane}
 import scalafx.stage.Window
 
+object PlantProperties {
+  val title = "Plant Dialog"
+  val headerText = "Create a plant"
+}
+
+import PlantProperties._
+import PaneProperties._
+
 case class PlantPane(mainDialog: MainDialog,
                      override val previousContent: Option[ConfigurationPane],
                      modality: Modality,
-                     override val key: Option[String] = None) extends BackPane(mainDialog, previousContent, key) {
+                     override val key: Option[String] = None)
+  extends BackPane(mainDialog, previousContent, key, title, headerText, previousContent.get.path + newLine(1) + title) {
 
   /*
   Header
    */
 
   println(uniqueFields)
-
-  title = "Plant Dialog"
-  headerText = "Create a plant"
 
   /*
   Fields
@@ -36,11 +43,11 @@ case class PlantPane(mainDialog: MainDialog,
   val availability: TextField = new TextField()
 
   fields = ListMap(
-    name -> (new Label("Name"), new Label("")),
-    heightPlant -> (new Label("Height"), new Label("")),
-    nutritionalValue -> (new Label("Nutritional Value"), new Label("")),
-    hardness -> (new Label("Hardness"), new Label("")),
-    availability -> (new Label("Availability"), new Label("")))
+    name -> (new WhiteLabel("Name"), new Label("")),
+    heightPlant -> (new WhiteLabel("Height"), new Label("")),
+    nutritionalValue -> (new WhiteLabel("Nutritional Value"), new Label("")),
+    hardness -> (new WhiteLabel("Hardness"), new Label("")),
+    availability -> (new WhiteLabel("Availability"), new Label("")))
 
 
 
