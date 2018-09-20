@@ -23,7 +23,7 @@ case class ConversionMapPane(mainDialog: MainDialog,
                              modality: Modality,
                              currentConversion: Option[(String, Double)],
                              qualities: Set[String])
-  extends BackPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(4) + title) {
+  extends BackPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(5) + title) {
 
   /*
   Header
