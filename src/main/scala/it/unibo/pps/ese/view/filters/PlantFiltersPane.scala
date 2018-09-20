@@ -37,27 +37,23 @@ object PlantFiltersPane {
 
     val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
     val heightVBox: SliderVBox = sliderVBox(EntityConversions.height)
-    val nutritionalValueVBox: SliderVBox = sliderVBox(nutritionalValue)
     val availabilityVBox: SliderVBox = sliderVBox(availability)
 
     children =
       speciesHBox ::
       heightVBox ::
-      nutritionalValueVBox ::
       availabilityVBox ::
       List()
 
     override def disableComponents(): Unit = {
       speciesHBox.disableComponents()
       heightVBox.disableComponents()
-      nutritionalValueVBox.disableComponents()
       availabilityVBox.disableComponents()
     }
 
     override def enableComponents(): Unit = {
       speciesHBox.enableComponents()
       heightVBox.enableComponents()
-      nutritionalValueVBox.enableComponents()
       availabilityVBox.enableComponents()
     }
 
@@ -69,7 +65,6 @@ object PlantFiltersPane {
       },
       Map[String, Range](
         EntityConversions.height->Range(heightVBox.lowValue, heightVBox.highValue),
-        nutritionalValue->Range(nutritionalValueVBox.lowValue, nutritionalValueVBox.highValue),
         availability->Range(availabilityVBox.lowValue, availabilityVBox.highValue)
       )
     )

@@ -46,7 +46,7 @@ object EntityConversions {
       case ReignType.PLANT =>
         Map(
           height->entityInfo.height,
-          nutritionalValue->entityInfo.nutritionalValue,
+          availability->entityInfo.nutritionalValue,
           "Hardness"->entityInfo.defense
         )
     }
