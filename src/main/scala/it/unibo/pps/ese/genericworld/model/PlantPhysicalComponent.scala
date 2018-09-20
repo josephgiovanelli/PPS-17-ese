@@ -10,7 +10,6 @@ case class EntityNutritionalValue(nutritionalValue: Double) extends BaseEvent
 case class PlantPhysicalInfo(availability: Double) extends BaseEvent
 
 case class PlantPhysicalComponent(override val entitySpecifications: EntitySpecifications,
-                                  availability: Double,
                                   yearToClock: Int)
                                  (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
   val ROTTING_FACTOR = 1
@@ -33,15 +32,15 @@ case class PlantPhysicalComponent(override val entitySpecifications: EntitySpeci
       }
       publish(new ComputeNextStateAck)
     case GetInfo() =>
-      publish(PlantPhysicalInfo(availability))
+      //publish(PlantPhysicalInfo(availability))
       publish(new GetInfoAck)
     case _ => Unit
   }
 
   private def configureMappings(): Unit = {
-    addMapping[PlantPhysicalInfo]((classOf[PlantPhysicalInfo], ev => Seq(
-      EntityProperty("availability", ev availability)
-    )))
+//    addMapping[PlantPhysicalInfo]((classOf[PlantPhysicalInfo], ev => Seq(
+//      EntityProperty("availability", ev availability)
+//    )))
   }
 
   private def decrementNutritionValue(value: Double): Unit = {

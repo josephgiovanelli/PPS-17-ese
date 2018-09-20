@@ -77,8 +77,6 @@ object YamlLoader extends Loader {
       builder = builder.setGeneLength(loadedPlant.geneLength.get)
     if(loadedPlant.hardness.isDefined)
       builder = builder.setHardness(loadedPlant.hardness.get)
-    if(loadedPlant.availability.isDefined)
-      builder = builder.setAvailability(loadedPlant.availability.get)
     if(loadedPlant.height.isDefined)
       builder = builder.setHeight(loadedPlant.height.get)
     if(loadedPlant.nutritionalValue.isDefined)
