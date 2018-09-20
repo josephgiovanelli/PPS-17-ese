@@ -51,7 +51,7 @@ class TestChromosomeMixing extends FunSuite {
   }
 
   test("Chromosomes couples can be correctly mixed with mutations") {
-    val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/entitybehaviors/util/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
+    val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/simulation/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
     val initializedSimulation = GeneticsSimulator.beginSimulation(data)
     val animalGenome = initializedSimulation.getAllAnimals.head._2.head.genome
 

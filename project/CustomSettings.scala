@@ -1,5 +1,5 @@
 object CustomSettings {
   lazy val aloneTests = Set(
-    "it.unibo.pps.ese.entitybehaviors.ReproductionTest"
+    "it.unibo.pps.ese.model.components.animals.reproduction.ReproductionTest"
   )
 }

@@ -6,6 +6,6 @@ import org.scalatest.FunSuite
 
 class TestYamlLoader extends FunSuite {
   test("YamlLoader.loadSimulation") {
-    YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml")))
+    YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/simulation/loader/Simulation.yml")))
   }
 }
