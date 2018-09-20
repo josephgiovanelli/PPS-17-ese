@@ -65,18 +65,25 @@ sealed trait UpdatableWorld {
 
   def requireStateUpdate(implicit context: ExecutionContext): Future[Done] = {
 
-    def updateRoutine(): WorldBridgeComponent => Future[Done] = bridge => {
-        _entitiesUpdateState = _entitiesUpdateState + (bridge.entitySpecifications.id -> EntityUpdateState.UPDATING)
-        bridge.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList)) andThen {
-          case Success(_) =>
-            removeDeletedEntities()
-            _interactionSideEffects = Seq.empty
-            _entitiesUpdateState = _entitiesUpdateState + (bridge.entitySpecifications.id -> EntityUpdateState.UPDATED)
-          case Failure(exception) => throw exception
-        } map(_ => new Done())
+    def updateState(entityId: String = "ALL", newState: EntityUpdateState.Value): Unit = this synchronized {
+      entityId match {
+        case "ALL" => _entitiesUpdateState = _entitiesUpdateState map { case (key, _) => key -> newState }
+        case _ => _entitiesUpdateState = _entitiesUpdateState + (entityId -> newState)
+      }
     }
 
-    _entitiesUpdateState = _entitiesUpdateState map { case (key, _) => key -> EntityUpdateState.WAITING }
+    def updateRoutine(): WorldBridgeComponent => Future[Done] = bridge => {
+      updateState(bridge.entitySpecifications.id, EntityUpdateState.UPDATING)
+      bridge.computeNewState flatMap (_ => Future.sequence(_interactionSideEffects.toList)) andThen {
+        case Success(_) =>
+          removeDeletedEntities()
+          _interactionSideEffects = Seq.empty
+          updateState(bridge.entitySpecifications.id, EntityUpdateState.UPDATED)
+        case Failure(exception) => throw exception
+      } map(_ => new Done())
+    }
+
+    updateState(newState = EntityUpdateState.WAITING)
     initializeNewEntities() flatMap (_ => serializeFutures(updateOrder(_entityBridges))(updateRoutine())) map (_ => new Done())
   }
 
@@ -108,10 +115,11 @@ sealed trait UpdatableWorld {
       _toAddBridges = Set.empty
       temp
     }
-    Future.sequence(bridges map(_ initializeInfo())) map (_ => {
-      _entityBridges = _entityBridges ++: bridges.toSeq
-      new Done()
-    })
+    Future.sequence(bridges map(_ initializeInfo())) andThen {
+      case Success(e) =>
+        _entityBridges = _entityBridges ++: bridges.toSeq
+      case Failure(e) => throw e
+    } map(_ => new Done)
   }
 
   private def removeDeletedEntities(): Unit = {
@@ -164,13 +172,13 @@ object World {
           addBridge(bridge)
         case _ => Unit
       }
-      entities_=(entities :+ entity)
+      this synchronized { entities_=(entities :+ entity) }
     }
 
     override def removeEntity(id: String): Unit = {
       removeBridge(id)
       entities find (x => x.id == id) foreach (x => x.dispose())
-      entities_=(entities filterNot(e => e.id == id))
+      this synchronized { entities_=(entities filterNot(e => e.id == id)) }
       hideState(id)
     }
 
