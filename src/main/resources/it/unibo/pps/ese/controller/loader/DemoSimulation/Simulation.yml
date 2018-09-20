@@ -1,8 +1,8 @@
 animals:
-  ./Stegosauro.yml: 400
+  ./Stegosauro.yml: 500
   ./Brontosaurus.yml: 1000
   ./Tyrannosaurus.yml: 400
 
 plants:
-  ./Conifere.yml: 1000
-  ./Felce.yml: 800
+  ./Conifere.yml: 500
+  ./Felce.yml: 1000

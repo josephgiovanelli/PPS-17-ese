@@ -15,7 +15,7 @@ case class PlantReproductionComponent(override val entitySpecifications: EntityS
                                       yearToClock: Int)
                                      (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications) {
 
-  val MAX_SEEDS_PRODUCTION = 5
+  val MAX_SEEDS_PRODUCTION = 4
   val MAX_INSEMINATION_RADIUS = 100
 
   val pollinationCapacity: Double = Random.nextDouble()
