@@ -3,11 +3,12 @@ package it.unibo.pps.ese.view.statistics
 import it.unibo.pps.ese.view.MainComponent
 import javafx.application.Platform
 import scalafx.collections.ObservableBuffer
-import scalafx.geometry.{HPos, Insets, Orientation, Side}
-import scalafx.scene.Group
+import scalafx.geometry._
 import scalafx.scene.chart._
 import scalafx.scene.control.{Button, ComboBox, ScrollPane}
 import scalafx.scene.layout._
+import scalafx.Includes._
+import scalafx.scene.paint.Color
 
 import scala.concurrent.ExecutionContext
 
@@ -16,7 +17,7 @@ case class ChartsData(populationTrend: Seq[(String, Seq[(Long, Long)])],
                       births: Seq[(String, Seq[(Long, Long)])],
                       mutations: Seq[(String, Seq[(Long, Long)])])
 
-sealed trait StatisticsDetailsPane extends ScrollPane {
+sealed trait StatisticsDetailsPane extends BorderPane {
   def initializeCharts(chartsData: ChartsData)
   def populateEraDropdown(era: Seq[Long])
 }
@@ -28,21 +29,14 @@ object StatisticsDetailsPane {
   private[this] class WebBasedStatisticsDetailsPane(mainComponent: MainComponent)
             (implicit executionContext: ExecutionContext) extends StatisticsDetailsPane {
 
-    fitToWidth = true
+    prefWidth <== 1000
+    prefHeight <== 800
+    background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
 
     val eraCombo: ComboBox[String] = new ComboBox[String] {
       maxWidth = 200
       promptText = "Choose a era..."
       onAction = _ => populateEntityDropdown(eraCombo.value.value)
-    }
-
-    val replayButton: Button = new Button("Replay") {
-      prefWidth = 125
-      disable = true
-      onMouseClicked = _ => {
-        val dialogStage = new ReplayStage(entityCombo.value.value, mainComponent replay)
-        dialogStage.showAndWait()
-      }
     }
 
     val entityCombo: ComboBox[String] = new ComboBox[String] {
@@ -51,18 +45,38 @@ object StatisticsDetailsPane {
       onAction = _ => replayButton setDisable (entityCombo.value.value == null)
     }
 
-    val borderPane: BorderPane = new BorderPane {
-      center = new HBox {
-        //padding = Insets(10, 400, 10, 400)
-        children = List(eraCombo, entityCombo, replayButton)
-      }
-      fitToWidth = true
+    val replayButton: Button = new Button {
+      text = "Replay"
+      prefWidth <== 125
+      disable = true
+      onMouseClicked = _ => new ReplayStage(entityCombo.value.value, mainComponent replay) showAndWait()
     }
 
-    GridPane.setConstraints(borderPane, 0, 0)
-    GridPane.setHalignment(borderPane, HPos.Center)
+    val refreshButton: Button = new Button("Refresh") {
+      onAction = _ => {
+        mainComponent historicalData() foreach (y => Platform.runLater {() => initializeCharts(y) })
+        mainComponent simulationEras() foreach(y => Platform.runLater {() => {
+          entityCombo.getItems.clear()
+          replayButton setDisable true
+          populateEraDropdown(y)
+        }})
+      }
+    }
 
-    val SCALE_DELTA = 1.1
+    val controlReplayHBox: HBox = new HBox {
+      spacing = 10
+      margin = Insets(10, 0, 10, 0)
+      children addAll (refreshButton, eraCombo, entityCombo, replayButton)
+      alignmentInParent = Pos.Center
+      alignment = Pos.Center
+    }
+
+    controlReplayHBox.prefWidth <== width
+
+    val borderPane: BorderPane = new BorderPane {
+      alignmentInParent = Pos.Center
+      center = controlReplayHBox
+    }
 
     val barChart: LineChart[Number, Number] = new LineChart(NumberAxis("Era"), NumberAxis("Births")) {
       title = "Births Chart"
@@ -87,33 +101,27 @@ object StatisticsDetailsPane {
       createSymbols = false
     }
 
-    val root = new Group()
-    content = root
-
     val flowPane: FlowPane = new FlowPane() {
       orientation = Orientation.Vertical
       padding = Insets(5, 0, 5, 0)
       hgap = 4
       vgap = 4
       prefWrapLength = 1000
-      fitToWidth = true
+      children = List(categoryLine, barChart, pieChart, areaChart)
     }
 
-    (flowPane children) addAll (categoryLine, barChart, pieChart, areaChart)
+    flowPane.translateX = 100
 
-//    val vBox: BorderPane = new BorderPane() {
-//      top = borderPane
-//      center = flowPane
-//      prefWidth = 800
-//    }
-    GridPane.setConstraints(flowPane, 0, 1)
-    GridPane.setHalignment(flowPane, HPos.Center)
-
-    val grid: GridPane = new GridPane {
-      children = List(borderPane, flowPane)
+    val scrollPane: ScrollPane = new ScrollPane {
+      content = flowPane
+      hbarPolicy = ScrollPane.ScrollBarPolicy.Never
     }
 
-    (root children) add grid
+    scrollPane.prefWidth <== width
+    scrollPane.prefHeight <== height
+
+    top = borderPane
+    center = scrollPane
 
     override def initializeCharts(chartsData: ChartsData): Unit = {
 

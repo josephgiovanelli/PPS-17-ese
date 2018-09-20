@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.genericworld.controller
 
-import java.io.File
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
@@ -12,17 +11,8 @@ import it.unibo.pps.ese.view.View
 import it.unibo.pps.ese.view.statistics.ChartsData
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 trait SimulationController {
-  //Partenza simulazione
-  //def startSimulation(file: File): Try[Unit]
-  //Editing simulazione
-  //def loadSimulation(file: File): Try[PartialSimulationData]
-  //Cachare saver e target
-  //def saveSimulationData(simulation: PartialSimulationData, target: File): Try[Unit]
-  //def retrySave(overrideResource: Option[ExistingResource])
-
   def attachView(view: View, frameRate: Int): Unit
   def manage: ManageableController
   def query: QueryableController
