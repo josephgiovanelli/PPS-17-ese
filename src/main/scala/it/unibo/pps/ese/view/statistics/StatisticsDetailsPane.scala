@@ -39,19 +39,17 @@ object StatisticsDetailsPane {
       onAction = _ => populateEntityDropdown(eraCombo.value.value)
     }
 
-    val replayButton: Button = new Button("Replay") {
-      prefWidth <== 125
-      disable = true
-      onMouseClicked = _ => {
-        val dialogStage = new ReplayStage(entityCombo.value.value, mainComponent replay)
-        dialogStage.showAndWait()
-      }
-    }
-
     val entityCombo: ComboBox[String] = new ComboBox[String] {
       maxWidth = 200
       promptText = "Choose an entity..."
       onAction = _ => replayButton setDisable (entityCombo.value.value == null)
+    }
+
+    val replayButton: Button = new Button {
+      text = "Replay"
+      prefWidth <== 125
+      disable = true
+      onMouseClicked = _ => new ReplayStage(entityCombo.value.value, mainComponent replay) showAndWait()
     }
 
     val refreshButton: Button = new Button("Refresh") {

@@ -82,10 +82,7 @@ sealed trait UpdatableWorld {
 
 
   def requireInfoUpdate(implicit context: ExecutionContext): Future[Done] =
-    initializeNewEntities() andThen {
-      case Success(_) => Future.traverse(_entityBridges)(e => e.requireInfo())
-      case Failure(e) => throw e
-    }
+    initializeNewEntities() flatMap (_ => Future.traverse(_entityBridges)(e => e.requireInfo())) map (_ => new Done())
 
   def deliver[A <: InteractionEvent](interactionEnvelope: InteractionEnvelope[A])
                                     (implicit context: ExecutionContext): Unit = {
