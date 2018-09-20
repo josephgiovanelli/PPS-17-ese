@@ -4,26 +4,34 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs
 import it.unibo.pps.ese.controller.loader._
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.{CustomGenePane, DefaultGenePane}
+import it.unibo.pps.ese.view.configuration.dialogs.components.{CustomListView, WhiteLabel}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals.AnimalChromosomeInfo
 import it.unibo.pps.ese.view.configuration.entitiesinfo.{ChromosomeTypes, EntitiesInfo}
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
+import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, Pane, VBox}
 import scalafx.stage.Window
 
+object ChromosomeProperties {
+  val title = "Chromosome Pane"
+  val headerText = "Define animal chromosome"
+}
+
+import ChromosomeProperties._
+import PaneProperties._
+
 case class ChromosomePane(mainDialog: MainDialog,
                           override val previousContent: Option[AnimalPane],
                           modality: Modality,
-                          animal: String) extends BackPane(mainDialog, previousContent, None) {
+                          animal: String)
+  extends BackPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(2) + title) {
 
   /*
   Header
    */
-
-  title = "Chromosome Dialog"
-  headerText = "Define animal chromosome"
 
   /*
   Fields
@@ -32,7 +40,7 @@ case class ChromosomePane(mainDialog: MainDialog,
   val currentAnimalChromosome: AnimalChromosomeInfo = EntitiesInfo.instance().getAnimalChromosomeInfo(animal)
 
   val structuralName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.structuralChromosome.keySet toSeq)
-  val structuralChromosomeListView: ListView[String] = new ListView[String] {
+  val structuralChromosomeListView: ListView[String] = new CustomListView[String] {
     items = structuralName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
@@ -43,7 +51,7 @@ case class ChromosomePane(mainDialog: MainDialog,
   }
 
   val regulationName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.regulationChromosome.keySet toSeq)
-  val regulationChromosomeListView: ListView[String] = new ListView[String] {
+  val regulationChromosomeListView: ListView[String] = new CustomListView[String] {
     items = regulationName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
@@ -55,7 +63,7 @@ case class ChromosomePane(mainDialog: MainDialog,
   }
 
   val sexualName: ObservableBuffer[String] = ObservableBuffer[String](currentAnimalChromosome.sexualChromosome.keySet toSeq)
-  val sexualChromosomeListView: ListView[String] = new ListView[String] {
+  val sexualChromosomeListView: ListView[String] = new CustomListView[String] {
     items = sexualName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
@@ -86,21 +94,24 @@ case class ChromosomePane(mainDialog: MainDialog,
   }
 
   val structuralPane = new BorderPane()
-  structuralPane.left = new Label("Structural Chromosome")
+  structuralPane.left = new WhiteLabel("Structural Chromosome")
   structuralPane.right = structuralButton
+  structuralPane.margin = Insets(30,0,0,0)
 
 
   val regulationPane = new BorderPane()
-  regulationPane.left = new Label("Regulation Chromosome")
+  regulationPane.left = new WhiteLabel("Regulation Chromosome")
   regulationPane.right = regulationButton
+  regulationPane.margin = Insets(30,0,0,0)
 
   val sexualPane = new BorderPane()
-  sexualPane.left = new Label("Sexual Chromosome")
+  sexualPane.left = new WhiteLabel("Sexual Chromosome")
   sexualPane.right = sexualButton
+  sexualPane.margin = Insets(30,0,0,0)
 
   center = new VBox() {
     children ++= Seq(structuralPane, structuralChromosomeListView, regulationPane, regulationChromosomeListView,
-      sexualPane, sexualChromosomeListView, new Label("At least one element per chromosome"))
+      sexualPane, sexualChromosomeListView, new WhiteLabel("At least one element per chromosome"))
     styleClass += "sample-page"
   }
 

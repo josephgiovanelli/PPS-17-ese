@@ -4,6 +4,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.cu
 import it.unibo.pps.ese.genetics.entities.QualityType
 import it.unibo.pps.ese.view.configuration.dialogs._
 import it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.CustomGenePane
+import it.unibo.pps.ese.view.configuration.dialogs.components.{CustomListView, ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.configuration.entitiesinfo.support.animals._
 
@@ -12,9 +13,18 @@ import scala.language.postfixOps
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
+import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
 import scalafx.stage.Window
+
+object PropertiesProperties {
+  val title = "Properties Pane"
+  val headerText = "Define gene properties"
+}
+
+import PropertiesProperties._
+import PaneProperties._
 
 case class PropertiesPane(mainDialog: MainDialog,
                           override val previousContent: Option[CustomGenePane],
@@ -23,14 +33,13 @@ case class PropertiesPane(mainDialog: MainDialog,
                           gene: Option[String],
                           property: Option[String],
                           currentConversionMap: Option[Map[String, Double]],
-                          properties: Iterable[String]) extends BackPane[ConversionMap](mainDialog, previousContent, property) {
+                          properties: Iterable[String])
+  extends BackPane[ConversionMap](mainDialog, previousContent, property, title, headerText, previousContent.get.path + newLine(4) + title) {
 
   /*
   Header
    */
 
-  title = "Properties Dialog"
-  headerText = "Define gene properties"
 
   /*
   Fields
@@ -38,7 +47,7 @@ case class PropertiesPane(mainDialog: MainDialog,
 
   val propertyName: TextField = new TextField()
   fields = ListMap(
-    propertyName -> (new Label("Name"), new Label("")),
+    propertyName -> (new WhiteLabel("Name"), new ErrorLabel("")),
   )
 
   val grid: GridPane = createGrid(0)
@@ -56,7 +65,7 @@ case class PropertiesPane(mainDialog: MainDialog,
   var qualities: Set[String] = QualityType.values.map(x => x.toString).toSet -- conversionMap.keySet
 
   val conversionMapName: ObservableBuffer[String] = ObservableBuffer[String](conversionMap.keySet toSeq)
-  val conversionMapListView: ListView[String] = new ListView[String] {
+  val conversionMapListView: ListView[String] = new CustomListView[String] {
     items = conversionMapName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
@@ -74,11 +83,12 @@ case class PropertiesPane(mainDialog: MainDialog,
 
 
   val conversionMapPane = new BorderPane()
-  conversionMapPane.left = new Label("Conversion Map")
+  conversionMapPane.left = new WhiteLabel("Conversion Map")
   conversionMapPane.right = conversionMapButton
+  conversionMapPane.margin = Insets(30,0,0,0)
 
   center = new VBox() {
-    children ++= Seq(grid, conversionMapPane, conversionMapListView, new Label("At least one conversion map"))
+    children ++= Seq(grid, conversionMapPane, conversionMapListView, new WhiteLabel("At least one conversion map"))
     styleClass += "sample-page"
   }
 

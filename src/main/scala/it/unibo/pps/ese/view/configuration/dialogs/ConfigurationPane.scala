@@ -17,14 +17,24 @@ import it.unibo.pps.ese.controller.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.loader.exception.ResourceAlreadyExistsException
 import it.unibo.pps.ese.controller.util.io.{File, Folder, IOResource}
+import it.unibo.pps.ese.view.configuration.dialogs.components.{CustomListView, ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.start.{ResourceExistsAlert, UnexpectedExceptionAlert}
 import it.unibo.pps.ese.view.start.ResourceExistsAlert.Buttons
+import scalafx.geometry.Insets
 import scalafx.stage.FileChooser.ExtensionFilter
 import scalafx.stage.{FileChooser, Window}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
+
+object ConfigurationProperties {
+  val title = "Configuration Pane"
+  val headerText = "Insert or edit your species"
+}
+
+import ConfigurationProperties._
+import PaneProperties._
 
 case class ConfigurationPane(mainDialog: MainDialog,
                              override val previousContent: Option[DialogPane],
@@ -33,17 +43,14 @@ case class ConfigurationPane(mainDialog: MainDialog,
                              setUp: Boolean,
                              previousAnimalsCount: Map[String, Int] = Map.empty,
                              previousPlantsCount: Map[String, Int] = Map.empty)
-                            (implicit executionContext: ExecutionContext)extends BackPane[Unit](mainDialog, previousContent, None) {
+                            (implicit executionContext: ExecutionContext)
+  extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
 
   /*
   Header
    */
 
-  title = "Configuration Dialog"
-  headerText = if (setUp) "Insert or edit your species" else "Insert another species"
-
-  val errorLabel = new Label("")
-  errorLabel.textFill = Color.Red
+  val errorLabel = new ErrorLabel("")
 
   /*
   Fields
@@ -54,7 +61,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
 
 
   val animalsName: ObservableBuffer[String] = ObservableBuffer[String](EntitiesInfo.instance().getAnimals toSeq)
-  val animalsListView: ListView[String] = new ListView[String] {
+  val animalsListView: ListView[String] = new CustomListView[String] {
     items = animalsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1 && ((!setUp && newAnimalSpecies.contains(value)) || setUp)) {
@@ -65,7 +72,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
   }
 
   val plantsName: ObservableBuffer[String] = ObservableBuffer[String](EntitiesInfo.instance().getPlants toSeq)
-  val plantsListView: ListView[String] = new ListView[String] {
+  val plantsListView: ListView[String] = new CustomListView[String] {
     items = plantsName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1 && ((!setUp && newPlantSpecies.contains(value)) || setUp)) {
@@ -83,12 +90,14 @@ case class ConfigurationPane(mainDialog: MainDialog,
 
 
   val animalsPane = new BorderPane()
-  animalsPane.left = new Label("Animals")
+  animalsPane.left = new WhiteLabel("Animals")
   animalsPane.right = animalsAddButton
+  animalsPane.margin = Insets(30,0,0,0)
 
   val plantsPane = new BorderPane()
-  plantsPane.left = new Label("Plants")
+  plantsPane.left = new WhiteLabel("Plants")
   plantsPane.right = plantsAddButton
+  plantsPane.margin = Insets(30,0,0,0)
 
   /*
    * FILE SAVING
@@ -142,9 +151,11 @@ case class ConfigurationPane(mainDialog: MainDialog,
   }
 
   center = new VBox() {
-    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new Label("At least one species per reign"), saveButton)
+    children ++= Seq(animalsPane, animalsListView, plantsPane, plantsListView, new WhiteLabel("At least one species per reign"), saveButton)
     styleClass += "sample-page"
   }
+
+  saveButton.margin = Insets(40, 0, 0, 0)
 
   /*
   Checks

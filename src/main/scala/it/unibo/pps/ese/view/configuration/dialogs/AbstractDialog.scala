@@ -23,6 +23,7 @@ abstract class AbstractDialog[A](window: Window, key: Option[String] = None) ext
   val cancelCloseButton: Node = dialogPane().lookupButton(cancelCloseButtonType)
   cancelCloseButton.visible = false
 
-//  dialogPane().background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+  dialogPane().background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+
 
 }

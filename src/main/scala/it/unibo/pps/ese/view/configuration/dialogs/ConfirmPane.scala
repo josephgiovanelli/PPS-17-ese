@@ -5,6 +5,7 @@ import it.unibo.pps.ese.controller.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.controller.loader.data.{AnimalData, CompletePlantData, SimulationData}
+import it.unibo.pps.ese.view.configuration.dialogs.components.{ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, UnexpectedExceptionAlert}
@@ -17,6 +18,14 @@ import scalafx.stage.Window
 
 import scala.util.{Failure, Success}
 
+object ConfirmProperties {
+  val title = "Confirm Dialog"
+  val headerText = "Choose number of entities for each species"
+}
+
+import ConfirmProperties._
+import PaneProperties._
+
 case class ConfirmPane(mainDialog: MainDialog,
                        override val previousContent: Option[DialogPane],
                        setupViewBridge: Option[SetupViewBridge],
@@ -25,21 +34,21 @@ case class ConfirmPane(mainDialog: MainDialog,
                        newAnimalSpecies: Seq[String] = Seq.empty,
                        newPlantSpecies: Seq[String] = Seq.empty,
                        previousAnimalsCount: Map[String, Int] = Map.empty,
-                       previousPlantsCount: Map[String, Int] = Map.empty) extends BackPane[Unit](mainDialog, previousContent, None) {
+                       previousPlantsCount: Map[String, Int] = Map.empty)
+  extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
 
   /*
   Header
    */
 
-  title = "Confirm Dialog"
-  headerText = "Choose number of entities for each species"
+
 
 
   val animalsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new Label(x), new Label(""))).groupBy(_._1).map{ case (k,v) =>
+    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
       (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
   val plantsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new Label(x), new Label(""))).groupBy(_._1).map{ case (k,v) =>
+    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
       (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
 
   fields = animalsEntities ++ plantsEntities
@@ -60,7 +69,7 @@ case class ConfirmPane(mainDialog: MainDialog,
   }
 
   val animalsPane = new BorderPane()
-  animalsPane.top = new Label("Animals")
+  animalsPane.top = new WhiteLabel("Animals", 25)
   animalsPane.bottom = animalsGrid
 
   val plantsGrid: GridPane = new GridPane() {
@@ -79,7 +88,7 @@ case class ConfirmPane(mainDialog: MainDialog,
   }
 
   val plantsPane = new BorderPane()
-  plantsPane.top = new Label("Plants")
+  plantsPane.top = new WhiteLabel("Plants", 25)
   plantsPane.bottom = plantsGrid
 
   center = new VBox() {

@@ -81,7 +81,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       .foreach(world addEntity)
 
 
-
+    Await.result(world.requireInfoUpdate, Duration.Inf)
     val simulation = SimulationLoop(world, 250 millis)
     val aggregator = new DataAggregator(world entitiesState)
     simulation attachEraListener (era => {
@@ -110,9 +110,9 @@ object EntityBuilderHelpers {
                          newPlants: Map[CompletePlantData, Int],
                          worldHeight: Long ,
                          worldWidth: Long,
-                         animalCreationFunction: (AnimalInfo, Point) => Entity): Seq[Entity] = {
+                         animalCreationFunction: (AnimalInfo, Point) => Entity)
+                        (implicit executionContext: ExecutionContext): Seq[Entity] = {
 
-    import scala.concurrent.ExecutionContext.Implicits.global
     val animalEntities: Seq[Entity] = animals.flatMap(entity => Seq.fill(entity._2)(entity._1))
       .zip(distinctRandomPoints(animals.values.sum, worldHeight.toInt, worldWidth.toInt))
       .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2, worldHeight, worldWidth, animalCreationFunction)).toSeq

@@ -97,6 +97,8 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
           .map(q=>q._1--->q._2).toList
 
     case PlantInfo(s,g,q) =>
+      currentId = None
+      button.visible = false
       val reignBox = new NonNumericQualityViewerBox("Plant","-fx-accent: green;")
       nameLabel.text = e.state.species.toString
       vBox.children =
