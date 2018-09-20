@@ -47,7 +47,6 @@ class TestLoadingSimulation extends FunSuite{
 //    assert(geneticsSimulator.obtainMutantAlleles("Gatto").isEmpty)
 
     assert(geneticsSimulator.plantSpeciesList.contains("ErbaGatta"))
-    assert(geneticsSimulator.newPlant("ErbaGatta").qualities(QualityType.Availability).qualityValue==4.0)
 
 //    assertThrows[IllegalStateException](geneticsSimulator.beginSimulation(data))
 
