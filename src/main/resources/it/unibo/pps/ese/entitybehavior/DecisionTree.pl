@@ -38,6 +38,13 @@ addCompatibleHuntingKinds(HunterKind, PreyKind) :-
 addCompatibleCouplingKinds(HunterKind, PartnerKind) :-
 	assert(kind(partner, HunterKind, PartnerKind)).
 
+deleteCompatibleHuntingKinds(HunterKind, PreyKind) :-
+	retract(kind(prey, HunterKind, PreyKind)).
+
+deleteCompatibleCouplingKinds(HunterKind, PartnerKind) :-
+	retract(kind(partner, HunterKind, PartnerKind)).
+
+
 /*
 addEntity(+Name, +Kind, +Height, +Strong, +Defense, +Pos)
 add entity in the world.

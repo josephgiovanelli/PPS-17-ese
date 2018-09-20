@@ -29,7 +29,6 @@ class ReproductionTest extends FunSuite {
     Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
   StaticRules.instance().setRules(worldRules)
 
-
   private val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/entitybehaviors/util/reproduction/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
   private val geneticsSimulator = GeneticsSimulator
   private val initializedSimulation = geneticsSimulator.beginSimulation(data)
@@ -38,19 +37,8 @@ class ReproductionTest extends FunSuite {
     val world = World[Deterministic](10, 10)
     val maleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Male).head
     val femaleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Female).head
-    val male = behaviourEntityInit(
-      baseEntityInit(maleInfo),
-      maleInfo,
-      Point(1,1),
-      "male",
-      400,
-      None)
-    val female = behaviourEntityInit(baseEntityInit(femaleInfo),
-      femaleInfo,
-      Point(2,2),
-      "female",
-      400,
-      Some(male.specifications.id))
+    val male = entityInit(maleInfo, Point(1,1), 1.0)
+    val female = entityInit(femaleInfo, Point(2,2), 1.0, Some(male.specifications.id))
     world.addEntity(male)
     world.addEntity(female)
     Await.result(world.requireInfoUpdate, Duration.Inf)
@@ -66,19 +54,8 @@ class ReproductionTest extends FunSuite {
     val world = World[Deterministic](10, 10)
     val maleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Male).head
     val femaleInfo = initializedSimulation.getAllAnimals.head._2.filter(a => a.genome.sexualChromosomeCouple.gender == Female).head
-    val male = behaviourEntityInit(
-      baseEntityInit(maleInfo),
-      maleInfo,
-      Point(1,1),
-      "male",
-      0,
-      None)
-    val female = behaviourEntityInit(baseEntityInit(femaleInfo),
-      femaleInfo,
-      Point(2,2),
-      "female",
-      0,
-      Some(male.specifications.id))
+    val male = entityInit(maleInfo, Point(1,1), 0.0)
+    val female = entityInit(femaleInfo, Point(2,2), 0.0, Some(male.specifications.id))
     world.addEntity(male)
     world.addEntity(female)
     Await.result(world.requireInfoUpdate, Duration.Inf)
@@ -91,9 +68,30 @@ class ReproductionTest extends FunSuite {
     Await.result(world.requireStateUpdate, Duration.Inf)
   }
 
+  def entityInit(animalInfo: AnimalInfo, position: Point, fertility: Double, active: Option[String] = None): Entity = {
+    var gender = ""
+    if(animalInfo.gender == Male) {
+      gender = "male"
+    } else if(animalInfo.gender == Female) {
+      gender = "female"
+    }
+    behaviourEntityInit(
+      baseEntityInit(animalInfo),
+      animalInfo,
+      position,
+      gender,
+      fertility,
+      active)
+  }
+
+  def baseEntityInit(animalInfo: AnimalInfo) : Entity = {
+    val entity = Entity("improved", i.next().toString)
+    entity addComponent initializeReproductionComponent(entity, animalInfo)
+    entity
+  }
+
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo): Component = {
-    def animalCreationFunction: (AnimalInfo, Point) => Entity =
-      (a, p) => EntityBuilderHelpers.initializeEntity(a, p, 10, 10, animalCreationFunction)
+    def animalCreationFunction: (AnimalInfo, Point) => Entity = (a, p) => entityInit(a, p, 0.0)
     ReproductionComponent(
       entity specifications,
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
@@ -105,12 +103,6 @@ class ReproductionTest extends FunSuite {
       info.qualities(EnergyRequirements).qualityValue,
       animalCreationFunction
     )
-  }
-
-  def baseEntityInit(animalInfo: AnimalInfo) : Entity = {
-    val entity = Entity("improved", i.next().toString)
-    entity addComponent initializeReproductionComponent(entity, animalInfo)
-    entity
   }
 
   def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, fertility: Double, active: Option[String]): Entity = {

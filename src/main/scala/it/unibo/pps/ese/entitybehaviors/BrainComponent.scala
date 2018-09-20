@@ -9,6 +9,7 @@ import it.unibo.pps.ese.entitybehaviors.cerebralcortex.MemoryType.MemoryType
 import it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus.Hippocampus
 import it.unibo.pps.ese.entitybehaviors.cerebralcortex.hippocampus.Hippocampus.SearchingState
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
+import it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation.PrologDecisionSupport
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, RequestEvent, ResponseEvent}
