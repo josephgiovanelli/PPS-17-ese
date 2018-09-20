@@ -5,9 +5,9 @@ import java.io.InputStream
 import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.loader.beans._
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
-import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
-import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
 import it.unibo.pps.ese.controller.loader.data.builder._
+import it.unibo.pps.ese.controller.loader.data.builder.entities.AnimalBuilder.AnimalStatus
+import it.unibo.pps.ese.controller.loader.data.builder.entities.{AnimalBuilder, EntityStatus, PlantBuilder}
 import it.unibo.pps.ese.controller.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException}
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 import it.unibo.pps.ese.controller.util.io.File.FileFormats
@@ -59,7 +59,7 @@ object YamlLoader extends Loader {
     if(simulation.plants.isDefined) {
       val plants = simulation.plants.get.map({
         case (plantConfigPath, v) =>
-          (normalizeConfigPath(plantConfigPath, currentFolder) match {case f: File => loadPlant(f).asInstanceOf[PlantBuilder[_ <: PlantStatus]]}, v)
+          (normalizeConfigPath(plantConfigPath, currentFolder) match {case f: File => loadPlant(f).asInstanceOf[PlantBuilder[_ <: EntityStatus]]}, v)
       })
       builder = builder.addPlants(plants)
     }

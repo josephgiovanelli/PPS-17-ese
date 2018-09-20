@@ -1,40 +1,36 @@
-package it.unibo.pps.ese.controller.loader.data.builder
+package it.unibo.pps.ese.controller.loader.data.builder.entities
 
-import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus
-import it.unibo.pps.ese.controller.loader.data.builder.PlantBuilder.PlantStatus._
+import it.unibo.pps.ese.controller.loader.data.builder.GenericBuilder
+import it.unibo.pps.ese.controller.loader.data.builder.entities.PlantStatus._
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 
+import scala.reflect.runtime.universe
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
-trait PlantBuilder [T <: PlantStatus]{
+trait PlantBuilder [T <: EntityStatus] extends EntityBuilder[T] with GenericBuilder[T, FullPlant, PartialPlantData, CompletePlantData] {
+  override type RET[A <: EntityStatus] = PlantBuilder[A]
   def setHeight(height: Double): PlantBuilder[T with PlantWithHeight]
   def setNutritionalValue(nutritionalValue: Double): PlantBuilder[T with PlantWithNutritionalValue]
   def setHardness(hardness: Double): PlantBuilder[T with PlantWithHardness]
-  def setName(name: String): PlantBuilder[T with PlantWithName]
-  def setGeneLength(geneLength: Int): PlantBuilder[T with PlantWithGeneLength]
-  def setAlleleLength(alleleLength: Int): PlantBuilder[T with PlantWithAlleleLength]
-  def setReign(reign: String): PlantBuilder[T with PlantWithReign]
-  def tryBuildComplete: Try[CompletePlantData]
-  def buildComplete(implicit ev: T =:= FullPlant): CompletePlantData
-  def build(): PartialPlantData
 }
 
 object PlantBuilder {
 
-  def apply(): PlantBuilder[EmptyPlant] =
-    new PlantBuilderImpl[EmptyPlant](None, None, None, None, None, None, None)
+  def apply(): PlantBuilder[EmptyEntity] =
+    new PlantBuilderImpl[EmptyEntity](None, None, None, None, None, None, None)
 
-  private class PlantBuilderImpl[T <: PlantStatus] (height: Option[Double],
+  private class PlantBuilderImpl[T <: EntityStatus] (height: Option[Double],
                                                     nutritionalValue: Option[Double],
                                                     hardness: Option[Double],
                                                     name: Option[String],
                                                     geneLength: Option[Int],
                                                     alleleLength: Option[Int],
                                                     reign: Option[String])
-                                                   (implicit val status: TypeTag[T]) extends PlantBuilder[T] {
+                                                   (implicit val status: TypeTag[T])
+    extends EntityBuilderImpl[T](name, geneLength, alleleLength, reign) with PlantBuilder[T] {
+
 
     def setHeight(height: Double): PlantBuilder[T with PlantWithHeight] =
       new PlantBuilderImpl(Some(height), nutritionalValue, hardness,name, geneLength,
@@ -48,23 +44,7 @@ object PlantBuilder {
       new PlantBuilderImpl(height, nutritionalValue, Some(hardness), name, geneLength,
         alleleLength, reign)
 
-    def setName(name: String): PlantBuilder[T with PlantWithName] =
-      new PlantBuilderImpl(height, nutritionalValue, hardness, Some(name), geneLength,
-        alleleLength, reign)
-
-    def setGeneLength(geneLength: Int): PlantBuilder[T with PlantWithGeneLength] =
-      new PlantBuilderImpl(height, nutritionalValue, hardness, name, Some(geneLength),
-        alleleLength, reign)
-
-    def setAlleleLength(alleleLength: Int): PlantBuilder[T with PlantWithAlleleLength] =
-      new PlantBuilderImpl(height, nutritionalValue, hardness, name, geneLength,
-        Some(alleleLength), reign)
-
-    def setReign(reign: String): PlantBuilder[T with PlantWithReign] =
-      new PlantBuilderImpl(height, nutritionalValue, hardness, name, geneLength,
-        alleleLength, Some(reign))
-
-    override def tryBuildComplete: Try[CompletePlantData] = {
+    def tryCompleteBuild(): Try[CompletePlantData] = {
       status.tpe match {
         case t if t <:< typeOf[FullPlant] =>
           Success(new PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength,
@@ -74,15 +54,15 @@ object PlantBuilder {
       }
     }
 
-    def buildComplete(implicit ev: T =:= FullPlant): CompletePlantData = {
+    def buildComplete(implicit ev: T =:= FullPlant, st: TypeTag[T]): CompletePlantData = {
       new PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength,
         alleleLength, reign) with CompletePlantData
     }
 
     def build(): PartialPlantData = {
       //require(status.tpe <:< st.tpe)
-      require(status.tpe <:< typeOf[ValidPlant])
-      tryBuildComplete match {
+      require(status.tpe <:< typeOf[ValidEntity])
+      tryCompleteBuild match {
         case Success(value) =>
           value
         case Failure(_) =>
@@ -90,23 +70,12 @@ object PlantBuilder {
             alleleLength, reign)
       }
     }
-  }
 
-  sealed trait PlantStatus
-  object PlantStatus {
-    sealed trait EmptyPlant extends PlantStatus
-    sealed trait PlantWithHeight extends PlantStatus
-    sealed trait PlantWithNutritionalValue extends PlantStatus
-    sealed trait PlantWithHardness extends PlantStatus
-    sealed trait PlantWithName extends PlantStatus
-    sealed trait PlantWithGeneLength extends PlantStatus
-    sealed trait PlantWithAlleleLength extends PlantStatus
-    sealed trait PlantWithReign extends PlantStatus
+    override def newInstance[NT <: EntityStatus](name: Option[String], geneLength: Option[Int], alleleLength: Option[Int],
+                                                 reign: Option[String])(implicit tt: universe.TypeTag[NT]): PlantBuilderImpl[NT] =
+      new PlantBuilderImpl[NT](height, nutritionalValue, hardness, name, geneLength,
+        alleleLength, reign)
 
-    type ValidPlant = EmptyPlant with PlantWithName
-    type FullPlant = ValidPlant with PlantWithHeight with PlantWithNutritionalValue with
-      PlantWithHardness with PlantWithGeneLength
-      with PlantWithAlleleLength with PlantWithReign
   }
 
   private case class PlantDataImpl(getHeight: Option[Double],
