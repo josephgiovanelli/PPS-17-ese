@@ -35,7 +35,6 @@ object SimulationLoop {
     override def play(): Unit = {
 
       if (_scheduledTask isDefined) throw new IllegalStateException("Loop already running")
-
       val task = new java.util.TimerTask {
         def run(): Unit = {
           _eraListeners foreach(_(_era))
