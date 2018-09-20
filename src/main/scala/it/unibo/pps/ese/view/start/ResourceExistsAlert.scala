@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.start
 
-import it.unibo.pps.ese.controller.util.io.ExistingResource
+import it.unibo.pps.ese.controller.simulation.loader.io.ExistingResource
 import scalafx.scene.control.{Alert, ButtonType}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.stage.Window

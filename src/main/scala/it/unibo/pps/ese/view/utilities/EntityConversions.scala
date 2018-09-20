@@ -1,8 +1,10 @@
 package it.unibo.pps.ese.view.utilities
-import it.unibo.pps.ese.genericworld.model.{EntityInfo, ReignType}
-import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
-import it.unibo.pps.ese.genetics.entities.AnimalInfo
-import it.unibo.pps.ese.view.filters.{AnimalFiltersValues, EntityFiltersValues, PlantFiltersValues, Range}
+import it.unibo.pps.ese.controller.simulation.runner.core.EntityInfo
+import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
+import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
+import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
+import it.unibo.pps.ese.view.sections.filters.{AnimalFiltersValues, EntityFiltersValues, PlantFiltersValues, Range}
+
 import scalaz._
 import Scalaz._
 object EntityConversions {

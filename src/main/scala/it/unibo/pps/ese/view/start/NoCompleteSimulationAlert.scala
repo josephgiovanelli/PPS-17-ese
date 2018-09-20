@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.start
 
-import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException
 import scalafx.scene.control.{Alert, ScrollPane}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.text.{Text, TextFlow}

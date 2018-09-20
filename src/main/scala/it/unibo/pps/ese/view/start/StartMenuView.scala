@@ -1,9 +1,11 @@
 package it.unibo.pps.ese.view.start
 
-import it.unibo.pps.ese.controller.util.io.{File, IOResource}
-import it.unibo.pps.ese.view.StartViewBridge
+import it.unibo.pps.ese.controller.simulation.loader.io.{File, IOResource}
 import javafx.scene.paint.ImagePattern
 import javafx.scene.text.Font
+
+import it.unibo.pps.ese.view.core.StartViewBridge
+
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Insets
@@ -16,7 +18,6 @@ import scalafx.scene.paint.Color
 import scalafx.scene.text.Text
 import scalafx.stage.FileChooser
 import scalafx.stage.FileChooser.ExtensionFilter
-
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
