@@ -1,5 +1,5 @@
 package it.unibo.pps.ese.view
-
+import scalafx.Includes._
 import it.unibo.pps.ese.entitybehaviors.LifePhases
 import it.unibo.pps.ese.genericworld.model.{EntityInfo, EntityState}
 import it.unibo.pps.ese.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male, PlantInfo}
@@ -8,11 +8,14 @@ import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import it.unibo.pps.ese.genericworld.model.EntityInfoConversion._
 import it.unibo.pps.ese.view.speciesdetails.QualityBoxUtilities._
+import it.unibo.pps.ese.view.statistics.ReplayStage
 import it.unibo.pps.ese.view.utilities.TextUtilities._
 import it.unibo.pps.ese.view.utilities.EntityConversions._
+import scalafx.application.Platform
+import scalafx.scene.input.MouseEvent
 trait DetailsPane extends ScrollPane {
 
-  def showDetails(e: EntityState): Unit
+  def showDetails(e: EntityState,entityId:String): Unit
   def clearDetails() : Unit
 }
 
@@ -25,21 +28,45 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
   val nameLabel = Label("")
   val mainPane = new BorderPane()
   mainPane.translateY = 5
-
-  val title:HBox = "Entity Details".toHBox
+  mainPane.translateX = 5
+  val topBox:VBox = new VBox(5)
+  val title = "Entity Details".toHBox
+  val button:Button = new Button{
+    text = "Replay"
+  }
+  button.visible = false
   title.prefWidth <==width
-  mainPane.top = title
-  val button:Button = new Button("Genome")
+  topBox.children = List(title,button)
+  mainPane.top = topBox
   val vBox:VBox = new VBox()
   vBox.translateY = 10
   vBox.spacing = 10
   mainPane.center = vBox
 
+  var currentId:Option[String] = None
+
   content = mainPane
 
-  override def showDetails(e: EntityState): Unit = e.state.baseEntityInfo match {
+  override def showDetails(e: EntityState,entityId:String): Unit = e.state.baseEntityInfo match {
+
     case AnimalInfo(species,gender,dietType,_,qualities,_) =>
+      button.visible = true
       nameLabel.text = e.state.species.toString
+
+      val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
+        val replayStage = new ReplayStage(entityId, mainComponent replay)
+        replayStage.showAndWait()
+      }
+      currentId match {
+        case Some(id) if id != entityId =>
+          currentId = Some(entityId)
+          button.onMouseClicked =clickListener
+        case None=>
+          currentId = Some(entityId)
+          button.onMouseClicked = clickListener
+        case _=>
+      }
+
       val genderColor = gender match {
         case Male => "-fx-accent: cyan;"
         case Female => "-fx-accent: pink;"

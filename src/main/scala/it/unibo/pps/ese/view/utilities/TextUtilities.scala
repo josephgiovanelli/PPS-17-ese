@@ -3,6 +3,7 @@ package it.unibo.pps.ese.view.utilities
 import javafx.scene.text.{Font, Text}
 import scalafx.Includes._
 import scalafx.geometry.Pos
+import scalafx.scene.control.Label
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color
 import scalafx.scene.text.{TextAlignment, TextFlow}
@@ -14,6 +15,9 @@ object TextUtilities {
       text.setFill(color)
       text.setFont(font)
       text
+    }
+    def toLabel:Label = {
+      new Label(string)
     }
     def toLabelText:Text = {
       toTextStyled(
