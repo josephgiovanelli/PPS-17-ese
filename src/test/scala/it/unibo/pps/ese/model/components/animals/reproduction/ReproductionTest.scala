@@ -31,7 +31,7 @@ class ReproductionTest extends FunSuite {
     Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
   StaticRules.instance().setRules(worldRules)
 
-  private val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/entitybehaviors/util/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
+  private val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/simulation/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
   private val geneticsSimulator = GeneticsSimulator
   private val initializedSimulation = geneticsSimulator.beginSimulation(data)
 

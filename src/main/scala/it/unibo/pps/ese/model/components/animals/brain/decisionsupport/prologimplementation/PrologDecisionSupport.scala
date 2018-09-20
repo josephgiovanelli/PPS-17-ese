@@ -64,7 +64,7 @@ object PrologDecisionSupport {
       var result: Stream[EntityChoice] = Stream.empty
       if(supportMap.get(hunter.name).isDefined) {
         val discoverPreys = new Struct("discoverPreys", supportMap(hunter.name), new Var("Y"), new Var("Length"))
-        result= engine(discoverPreys) map (x => (extractTerm(x, 1), extractTerm(x, 2)))
+        result = engine(discoverPreys) map (x => (extractTerm(x, 1), extractTerm(x, 2)))
       }
       result.map(x => (supportMap(x.name), x.distance))
     }
