@@ -79,7 +79,6 @@ case class PlantPane(mainDialog: MainDialog,
     heightPlant.text.value = plantInfo.height.toString
     nutritionalValue.text.value = plantInfo.nutritionalValue.toString
     hardness.text.value = plantInfo.hardness.toString
-    availability.text.value = plantInfo.availability.toString
   }
 
   /*
@@ -91,8 +90,7 @@ case class PlantPane(mainDialog: MainDialog,
       name.text.value,
       PlantInfo(heightPlant.text.value.toDouble,
       nutritionalValue.text.value.toDouble,
-        hardness.text.value.toDouble,
-        availability.text.value.toDouble))
+        hardness.text.value.toDouble))
 
     previousContent.get.confirmPlantSpecies(modality, name.text.value)
   }

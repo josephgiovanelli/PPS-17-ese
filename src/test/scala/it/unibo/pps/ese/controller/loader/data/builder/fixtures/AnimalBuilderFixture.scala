@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.loader.data.builder.fixtures
 
-import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder
+import it.unibo.pps.ese.controller.loader.data.builder.entities.AnimalBuilder
 
 trait AnimalBuilderFixture extends CustomGeneBuildFixture with DefaultGeneBuildFixture{
   def animalBFixture = new {

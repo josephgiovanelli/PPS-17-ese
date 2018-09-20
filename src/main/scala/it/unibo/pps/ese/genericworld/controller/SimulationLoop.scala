@@ -15,8 +15,8 @@ sealed trait SimulationLoop {
   def pause(): Unit
   def dispose(): Unit
   def attachEraListener(listener: Long => Unit): Unit
-
-  def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
+  def addEntities(animals: Map[String, Int], plants: Map[String, Int],
+                  newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
 }
 
 object SimulationLoop {
@@ -38,22 +38,9 @@ object SimulationLoop {
 
       val task = new java.util.TimerTask {
         def run(): Unit = {
-
-          _era += 1
-
-//          println("Era " + _era + " computation started")
-
-          val ret =
-            for {
-              b <- model.requireStateUpdate
-              //c <- model.requireInfoUpdate
-            } yield b
-
-          Await.result(ret, Duration.Inf)
-
-//          println("Era " + _era + " computation finished")
-
           _eraListeners foreach(_(_era))
+          Await.result(model.requireStateUpdate, Duration.Inf)
+          _era += 1
         }
       }
       _timer scheduleAtFixedRate(task, 0, period.toMillis)
@@ -71,7 +58,8 @@ object SimulationLoop {
 
     override def attachEraListener(listener: Long => Unit): Unit = _eraListeners = _eraListeners :+ listener
 
-    override def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
+    override def addEntities(animals: Map[String, Int], plants: Map[String, Int],
+                             newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
       def animalCreationFunction: (AnimalInfo, Point) => Entity =
         (a, p) => EntityBuilderHelpers.initializeEntity(a, p, model.width, model.height, animalCreationFunction)
       val entities: Seq[Entity] = EntityBuilderHelpers.initializeEntities(animals, plants, newAnimals, newPlants, model.width, model.height, animalCreationFunction)

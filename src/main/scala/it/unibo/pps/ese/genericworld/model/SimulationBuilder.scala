@@ -232,7 +232,6 @@ object EntityBuilderHelpers {
                                               (implicit executionContext: ExecutionContext): Component = {
     PlantPhysicalComponent(
       entity specifications,
-      plantInfo.qualities(Availability).qualityValue,
       yearToClock)
   }
 

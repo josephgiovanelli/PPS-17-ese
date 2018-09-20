@@ -6,5 +6,4 @@ case class Plant(name: String,
                  reign: Option[String],
                  height: Option[Double],
                  hardness: Option[Double],
-                 nutritionalValue: Option[Double],
-                 availability: Option[Double])
+                 nutritionalValue: Option[Double])

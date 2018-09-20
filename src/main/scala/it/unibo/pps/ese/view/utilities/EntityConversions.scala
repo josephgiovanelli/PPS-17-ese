@@ -34,9 +34,9 @@ object EntityConversions {
           attractiveness->entityInfo.attractiveness,
           speed->entityInfo.actualSpeed,
           fertility->entityInfo.actualFertility*100,
-          age->entityInfo.age.toDouble,
+          age->entityInfo.age.toDouble*10,
           averageLife->entityInfo.averageLife,
-          percentageDecay->entityInfo.percentageDecay,
+          percentageDecay->entityInfo.percentageDecay*100,
           energy->(entityInfo.energy*0.1).toInt,
           energyRequirement->entityInfo.energyRequirements,
           height->entityInfo.height,
@@ -47,9 +47,7 @@ object EntityConversions {
         Map(
           height->entityInfo.height,
           nutritionalValue->entityInfo.nutritionalValue,
-          //    "Attractiveness"->entityDetails.attractiveness,
-          //    "Hardness"->entityDetails.strong,
-          availability->entityInfo.availability
+          "Hardness"->entityInfo.defense
         )
     }
     def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean = {

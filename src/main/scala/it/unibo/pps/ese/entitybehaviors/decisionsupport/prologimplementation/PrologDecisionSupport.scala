@@ -30,7 +30,6 @@ object PrologDecisionSupport {
     implicit def streamTupleTermStreamGeneralPosition(tuples: Stream[(Term, Term)]): Stream[GeneralPosition[scala.Int]] = tuples map tupleTermToPoint
 
 
-
     val engine: Term => Stream[Term] = createEngine
     val filename: String = getClass.getResource("/it/unibo/pps/ese/entitybehavior/DecisionTree.pl").getPath
     val fileContents: String = Source.fromFile(filename).getLines.reduce((line1, line2) => line1 + "\n" + line2)
@@ -86,11 +85,17 @@ object PrologDecisionSupport {
     }
 
     override def updateCouplingKind(set: Set[(String, String)]): Unit = {
-      set foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleCouplingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
+      set foreach (compatibleKind => {
+        modifyDynamicKnowledge("deleteCompatibleCouplingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")")
+        modifyDynamicKnowledge("addCompatibleCouplingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")")
+      })
     }
 
     override def updateHuntingKind(set: Set[(String, String)]): Unit = {
-      set foreach (compatibleKind => modifyDynamicKnowledge("addCompatibleHuntingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")"))
+      set foreach (compatibleKind => {
+        modifyDynamicKnowledge("deleteCompatibleHuntingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")")
+        modifyDynamicKnowledge("addCompatibleHuntingKinds(" + compatibleKind._1 + "," + compatibleKind._2 + ")")
+      })
     }
 
   }

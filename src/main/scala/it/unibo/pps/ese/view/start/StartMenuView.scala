@@ -6,9 +6,10 @@ import javafx.scene.paint.ImagePattern
 import javafx.scene.text.Font
 import scalafx.Includes._
 import scalafx.geometry.Insets
-import scalafx.scene.Scene
+import scalafx.scene.{Cursor, Scene}
 import scalafx.scene.control._
 import scalafx.scene.image.Image
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.scene.text.Text
@@ -50,6 +51,7 @@ object StartMenuView {
       prefHeight <== height
       spacing = 80
     }
+
     val loadButton = new Button("Load And Run Existing Simulation") {
       background = buttonBackground
       textFill = Color.web("34495e")
@@ -61,8 +63,10 @@ object StartMenuView {
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
+          cursor = Cursor.Wait
+          disable = true
           startViewBridge.startSimulation(file, currentWindow) match {
-            case Success(_) =>
+            case Success(_) => cursor = Cursor.Default
             case Failure(exception) =>
               UnexpectedExceptionAlert(currentWindow, exception)
           }
@@ -79,8 +83,10 @@ object StartMenuView {
       onAction = _ => {
         val file: java.io.File = fileChooser.showOpenDialog(currentWindow)
         if(file != null) {
+          cursor = Cursor.Wait
+          disable = true
           startViewBridge.loadSimulation(file, currentWindow) match {
-            case Success(_) =>
+            case Success(_) => Cursor.Default
             case Failure(exception) =>
               UnexpectedExceptionAlert(currentWindow, exception)
           }

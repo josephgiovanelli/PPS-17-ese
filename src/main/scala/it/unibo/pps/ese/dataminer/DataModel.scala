@@ -69,5 +69,4 @@ trait AnimalStructuralData extends StructuralData {
 }
 
 trait PlantStructuralData extends StructuralData {
-  val availability: Double
 }

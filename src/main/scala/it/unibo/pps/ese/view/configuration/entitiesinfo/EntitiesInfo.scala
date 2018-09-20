@@ -7,6 +7,7 @@ import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGen
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
+import it.unibo.pps.ese.controller.loader.data.builder.entities.{AnimalBuilder, PlantBuilder}
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.utils.DefaultValue
@@ -197,7 +198,6 @@ object EntitiesInfo {
               .setHeight(plant._2.height)
               .setHardness(plant._2.hardness)
               .setNutritionalValue(plant._2.nutritionalValue)
-              .setAvailability(plant._2.availability)
       )
       mappedPlants.map(mappedPlant => mappedPlant._2 -> plantsEntities(mappedPlant._1))
     }
@@ -284,7 +284,7 @@ object EntitiesInfo {
     implicit def set[X]: DefaultValue[Set[X]] = DefaultValue(Set[X]())
 
     private def plantsMapping(plantData: Iterable[PartialPlantData]): Map[String, PlantInfo] =
-      plantData.map(plant => plant.name -> PlantInfo(plant.getHeight.getOrDefault, plant.getNutritionalValue.getOrDefault, plant.getHardness.getOrDefault, plant.getAvailability.getOrDefault)).toMap
+      plantData.map(plant => plant.name -> PlantInfo(plant.getHeight.getOrDefault, plant.getNutritionalValue.getOrDefault, plant.getHardness.getOrDefault)).toMap
 
     private def animalsMapping(animalData: Iterable[PartialAnimalData]): Map[String, AnimalInfo] =
       animalData.map(animal => animal.name -> AnimalInfo(animalBaseInfoMapping(animal), animalChromosomeInfoMapping(animal))).toMap

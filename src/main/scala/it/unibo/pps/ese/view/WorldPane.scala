@@ -155,7 +155,7 @@ private class WorldPaneImpl(
         }
         currentSelected = Some(entity.entityId)
         showSelectedEntity(pos, entity)
-        detailsPane.showDetails(entity)
+        detailsPane.showDetails(entity,currentSelected. get)
 
       case None =>
         if(currentWatched.isDefined){
@@ -248,7 +248,7 @@ private class WorldPaneImpl(
                   )
                 case _=>
               }
-              detailsPane.showDetails(entity)
+              detailsPane.showDetails(entity,currentSelected.get)
               currentSelected = Some(entity.entityId)
               showSelectedEntity(position, entity)
             }else{
