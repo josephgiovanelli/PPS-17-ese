@@ -12,7 +12,7 @@ import it.unibo.pps.ese.entitybehaviors.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.prologimplementation.PrologDecisionSupport
 import it.unibo.pps.ese.entitybehaviors.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.genericworld.model._
-import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, RequestEvent, ResponseEvent}
+import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, RequestEvent, ResponseEvent, SupervisedFuture}
 import it.unibo.pps.ese.utils.Point
 
 import scala.concurrent.duration.Duration

@@ -4,7 +4,7 @@ import it.unibo.pps.ese.entitybehaviors.decisionsupport.SexTypes
 import it.unibo.pps.ese.entitybehaviors.util.reproduction.{EmbryosUtil, GeneticsEngine, ReproductionInfo}
 import it.unibo.pps.ese.genericworld.model._
 import it.unibo.pps.ese.genetics.GeneticsSimulator
-import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, InteractionEvent, RequestEvent, ResponseEvent}
+import it.unibo.pps.ese.genericworld.model.support.{BaseEvent, InteractionEvent, RequestEvent, ResponseEvent, SupervisedFuture}
 import it.unibo.pps.ese.genetics.dna.AnimalGenome
 import it.unibo.pps.ese.genetics.entities.AnimalInfo
 import it.unibo.pps.ese.utils.Point

@@ -3,40 +3,6 @@ package it.unibo.pps.ese.genericworld.model
 import it.unibo.pps.ese.genericworld.model.support._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.util.Try
-
-trait Supervisor {
-  def computationStarted: () => Unit
-  def computationEnded: () => Unit
-}
-
-class SupervisedFuture[T](future: Future[T])(implicit supervisor: Supervisor) {
-
-  private val _future: Future[T] = future
-
-  def onComplete(callback: Try[T] => Unit)(implicit executionContext: ExecutionContext): Unit = {
-    supervisor.computationStarted()
-    future onComplete(_ => {
-      callback(future.value.get)
-      supervisor.computationEnded()
-    })
-  }
-
-  def map[S](mapper: T => S)(implicit executionContext: ExecutionContext): SupervisedFuture[S] =
-    new SupervisedFuture(future map mapper)
-
-  def flatMap[S](mapper: T => SupervisedFuture[S])(implicit executionContext: ExecutionContext): SupervisedFuture[S] =
-    new SupervisedFuture(future flatMap (x => mapper(x)._future))
-
-  def withFilter(p: T => Boolean)(implicit executionContext: ExecutionContext): SupervisedFuture[T] =
-    new SupervisedFuture(future withFilter p)
-
-  def foreach[U](p: T => U)(implicit executionContext: ExecutionContext): Unit = {
-    supervisor.computationStarted()
-    future foreach p
-    supervisor.computationEnded()
-  }
-}
 
 sealed trait NervousSystem {
   def publish(event: IdentifiedEvent) : Unit
@@ -77,16 +43,8 @@ object NervousSystem {
 
     override def requireData[A <: RequestEvent, B <: ResponseEvent: Manifest](publisher: String, request: A): SupervisedFuture[B] = {
       val result = Promise[B]()
-//      var t: Set[B] = Set()
       lazy val consumer : Consumer = IdentifiedConsumer(publisher, {
         case response: B if response.id == request.id =>
-//          try {
-//            result success response
-//          } catch {
-//            case e: IllegalStateException =>
-//              throw new IllegalStateException("Problem with message: " + t.contains(response) + "\n" + request + "\n" + t.head + "\n" + response)
-//          }
-//          t = t + response
           result success response
           _eventBus detach consumer
         case _ => Unit

@@ -56,7 +56,7 @@ sealed trait UpdatableWorld {
   private[this] var _interactionSideEffects : Seq[Future[Done]] = Seq empty
   private[this] var _entitiesUpdateState : Map[String, EntityUpdateState.Value] = Map.empty
 
-  def addBridge(bridge : WorldBridgeComponent)(implicit context: ExecutionContext): Unit = {
+  def addBridge(bridge : WorldBridgeComponent)(implicit context: ExecutionContext): Unit = this synchronized {
     _entitiesUpdateState = _entitiesUpdateState + (bridge.entitySpecifications.id -> EntityUpdateState.INITIALIZING)
     _toAddBridges = _toAddBridges + bridge
   }
@@ -103,8 +103,11 @@ sealed trait UpdatableWorld {
     }
 
   private def initializeNewEntities()(implicit context: ExecutionContext): Future[Done] = {
-    val bridges: Set[WorldBridgeComponent] = _toAddBridges
-    _toAddBridges = Set.empty
+    val bridges: Set[WorldBridgeComponent] = this synchronized {
+      val temp = _toAddBridges
+      _toAddBridges = Set.empty
+      temp
+    }
     Future.sequence(bridges map(_ initializeInfo())) map (_ => {
       _entityBridges = _entityBridges ++: bridges.toSeq
       new Done()
