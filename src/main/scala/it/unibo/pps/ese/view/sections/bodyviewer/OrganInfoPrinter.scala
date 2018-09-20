@@ -15,7 +15,7 @@ private[bodyviewer] object OrganInfoPrinter{
     */
   def getHeadText(brainStatus: BrainStatus,eyesStatus: EyesStatus):String
   =(brainStatus,eyesStatus) match {
-    case (HippoCampusActive(r),EyesDisabled) =>
+    case (HippoCampusActive(r),EyesDisabled(_)) =>
       r match {
         case Evaluating =>
           "I can not see anything in my field" +
@@ -27,7 +27,7 @@ private[bodyviewer] object OrganInfoPrinter{
           "I can not find a source of food in my field of vision " +
             "but I'm trying to remember where I saw one"
       }
-    case (HippoCampusDisabled,EyesActive(r)) =>
+    case (HippoCampusDisabled(_),EyesActive(r)) =>
       r match {
         case Evaluating =>
           "I'm looking around to decide what to do"
@@ -36,8 +36,16 @@ private[bodyviewer] object OrganInfoPrinter{
         case Eating =>
           "I'm hungry and I just spotted something to feed myself"
       }
-    case (HippoCampusDisabled,EyesDisabled)=>
-      "I have nothing to do..."
+    case (HippoCampusDisabled(r),EyesDisabled(_))=>
+      r match {
+        case Evaluating =>
+          "I have nothing to do..."
+        case Coupling =>
+          "I would like to reproduce myself and I'll search for a partner"
+        case Eating =>
+          "I'm hungry and I'll search for a prey"
+
+      }
     case _=>""
   }
 

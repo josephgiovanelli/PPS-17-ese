@@ -112,6 +112,7 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
   }
   override def clearDetails(): Unit = {
     vBox.children clear()
+    button.visible = false
   }
 
 }

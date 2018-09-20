@@ -9,11 +9,11 @@ case object Eating extends Reason
 
 sealed trait BrainStatus
 case class HippoCampusActive(reason:Reason) extends BrainStatus
-case object HippoCampusDisabled extends BrainStatus
+case class HippoCampusDisabled(reason:Reason) extends BrainStatus
 
 sealed trait EyesStatus
 case class EyesActive(reason:Reason) extends EyesStatus
-case object EyesDisabled extends EyesStatus
+case class EyesDisabled(reason:Reason) extends EyesStatus
 
 sealed trait ReproductiveApparatusStatus
 case object Reproducing extends ReproductiveApparatusStatus

@@ -30,8 +30,8 @@ case class Surgeon(realTimeState: ReadOnlyEntityState) {
       if (entity.isDefined && entity.get.state.reign == ReignType.ANIMAL) {
         val state = entity.get.state
         val reason: Reason = if (state.will == ActionKind.EAT) Eating else if (state.will == ActionKind.COUPLE) Coupling else Evaluating
-        val brainStatus: BrainStatus = if (state.hippocampus) HippoCampusActive(reason) else HippoCampusDisabled
-        val eyesStatus: EyesStatus = if (state.eyes) EyesActive(reason) else EyesDisabled
+        val brainStatus: BrainStatus = if (state.hippocampus) HippoCampusActive(reason) else HippoCampusDisabled(reason)
+        val eyesStatus: EyesStatus = if (state.eyes) EyesActive(reason) else EyesDisabled(reason)
         val reproductiveApparatusStatus: ReproductiveApparatusStatus = if (state.reproductionOrgan) Reproducing else NotReproducing
         val digestiveSystemStatus: DigestiveSystemStatus = if (state.stomach) Digesting else NotDigesting
 

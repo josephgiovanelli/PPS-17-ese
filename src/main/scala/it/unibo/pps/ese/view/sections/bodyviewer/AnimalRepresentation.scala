@@ -69,7 +69,7 @@ sealed abstract class AnimalRepresentation{
   def setBrainStatus(brainStatus: BrainStatus):Canvas = {
     actualBrain = brainStatus match {
       case HippoCampusActive(r)=> activatedBrain
-      case HippoCampusDisabled => brain
+      case HippoCampusDisabled(_) => brain
     }
     drawRepresentation
   }
@@ -84,7 +84,7 @@ sealed abstract class AnimalRepresentation{
   def setEyesStatus(eyesStatus: EyesStatus):Canvas = {
     actualEyes = eyesStatus match {
       case EyesActive(r)=> activatedEyes
-      case EyesDisabled => eyes
+      case EyesDisabled(_) => eyes
     }
     drawRepresentation
   }
