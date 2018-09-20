@@ -34,8 +34,7 @@ case class AnimalStructuralDataImpl(strength: Double,
                                     height: Double,
                                     defense: Double) extends AnimalStructuralData
 
-case class PlantStructuralDataImpl(availability: Double,
-                                   species: Species,
+case class PlantStructuralDataImpl(species: Species,
                                    reign: Reign,
                                    gender: Sex,
                                    diet: Diet,

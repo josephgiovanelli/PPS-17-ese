@@ -52,10 +52,6 @@ object EntityInfoConversion {
     def baseEntityInfo : it.unibo.pps.ese.genetics.entities.EntityInfo = obj.selectDynamic("entityInfo").asInstanceOf[it.unibo.pps.ese.genetics.entities.EntityInfo]
   }
 
-  implicit class PlantPhysicalComponentConversions(obj: EntityInfo) {
-    def availability: Double = obj.selectDynamic("availability").asInstanceOf[Double]
-  }
-
   implicit class OrgansTrackerComponentConversion(obj: EntityInfo) {
     def eyes: Boolean = obj.selectDynamic("eyes").asInstanceOf[Boolean]
     def hippocampus: Boolean = obj.selectDynamic("hippocampus").asInstanceOf[Boolean]
