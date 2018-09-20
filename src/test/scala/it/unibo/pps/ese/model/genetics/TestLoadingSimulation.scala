@@ -12,7 +12,7 @@ import it.unibo.pps.ese.model.genetics.generators.data.{InputDataAdapter, Transl
 import org.kaikikm.threadresloader.ResourceLoader
 class TestLoadingSimulation extends FunSuite{
   test("Test loading"){
-    val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
+    val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/simulation/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
     val animalData:TranslatedAnimalData = InputDataAdapter.translateAnimalData(
       data.animals.keySet.toSeq.head
     )
