@@ -40,14 +40,12 @@ case class PlantPane(mainDialog: MainDialog,
   val heightPlant: TextField = new TextField()
   val nutritionalValue: TextField = new TextField()
   val hardness: TextField = new TextField()
-  val availability: TextField = new TextField()
 
   fields = ListMap(
     name -> (new WhiteLabel("Name"), new Label("")),
     heightPlant -> (new WhiteLabel("Height"), new Label("")),
-    nutritionalValue -> (new WhiteLabel("Nutritional Value"), new Label("")),
-    hardness -> (new WhiteLabel("Hardness"), new Label("")),
-    availability -> (new WhiteLabel("Availability"), new Label("")))
+    nutritionalValue -> (new WhiteLabel("Availability"), new Label("")),
+    hardness -> (new WhiteLabel("Hardness"), new Label("")))
 
 
 
