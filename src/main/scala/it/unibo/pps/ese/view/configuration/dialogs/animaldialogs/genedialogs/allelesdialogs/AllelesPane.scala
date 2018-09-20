@@ -14,12 +14,20 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, Pane, VBox}
 import scalafx.stage.Window
 
+object AllelesProperties {
+    val title = "Alleles Pane"
+    val headerText = "Define chromosome alleles"
+}
+
+import AllelesProperties._
+import PaneProperties._
+
 case class AllelesPane(mainDialog: MainDialog,
                        override val previousContent: Option[GenePane],
                        animal: String,
                        gene: String,
                        chromosomeTypes: ChromosomeTypes.Value)
-  extends BackPane(mainDialog, previousContent, None, "", "", "") {
+  extends BackPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(4) + title) {
 
   /*
   Header

@@ -10,19 +10,24 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, Pane, VBox}
 import scalafx.stage.Window
 
+object ConversionMapProperties {
+    val title = "Conversion Map Pane"
+    val headerText = "Define a conversion map"
+}
+
+import ConversionMapProperties._
+import PaneProperties._
+
 case class ConversionMapPane(mainDialog: MainDialog,
                              override val previousContent: Option[PropertiesPane],
                              modality: Modality,
                              currentConversion: Option[(String, Double)],
                              qualities: Set[String])
-  extends BackPane[(String, Double)](mainDialog, previousContent, None, "", "", "") {
+  extends BackPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(4) + title) {
 
   /*
   Header
   */
-
-//  title = "Conversion Map Dialog"
-//  headerText = "Define a conversion map"
 
   /*
   Fields

@@ -2,7 +2,7 @@ package it.unibo.pps.ese.view.configuration.dialogs.animaldialogs.genedialogs.al
 
 
 import it.unibo.pps.ese.view.configuration.dialogs.components.{ErrorLabel, WhiteLabel}
-import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog}
+import it.unibo.pps.ese.view.configuration.dialogs.{AbstractDialog, BackPane, MainDialog, PaneProperties}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -11,10 +11,18 @@ import scalafx.scene.control._
 import scalafx.scene.layout.Pane
 import scalafx.stage.Window
 
+object EffectProperties {
+    val title = "Effect Pane"
+    val headerText = "Define an allele effect"
+}
+
+import EffectProperties._
+import PaneProperties._
+
 case class EffectPane(mainDialog: MainDialog,
                       override val previousContent: Option[AllelePane],
                       currentEffect: (String, Double))
-  extends BackPane[(String, Double)](mainDialog, previousContent, None, "", "", "") {
+  extends BackPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(6) + title) {
 
   /*
   Header

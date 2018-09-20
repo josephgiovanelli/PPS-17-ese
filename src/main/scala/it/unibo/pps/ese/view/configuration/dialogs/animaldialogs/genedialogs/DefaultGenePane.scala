@@ -17,12 +17,23 @@ import scalafx.stage.Window
 
 abstract class GenePane(mainDialog: MainDialog,
                         override val previousContent: Option[ChromosomePane],
-                        gene: Option[String])
-  extends BackPane[String](mainDialog, previousContent, gene, "", "", "") {
+                        gene: Option[String],
+                        title: String,
+                        headerText: String,
+                        path: String)
+  extends BackPane[String](mainDialog, previousContent, gene, title, headerText, path) {
 
 
   def confirmAlleles(gene: String)
 }
+
+object DefaultGeneProperties {
+    val title = "Default Gene Pane"
+    val headerText = "Define your chromosome"
+}
+
+import DefaultGeneProperties._
+import PaneProperties._
 
 case class DefaultGenePane(mainDialog: MainDialog,
                            override val previousContent: Option[ChromosomePane],
@@ -30,7 +41,8 @@ case class DefaultGenePane(mainDialog: MainDialog,
                            chromosomeTypes: ChromosomeTypes.Value,
                            animal: String,
                            gene: Option[String],
-                           propertiesSet: Set[_ <: DefaultGene]) extends GenePane(mainDialog, previousContent, gene) {
+                           propertiesSet: Set[_ <: DefaultGene])
+  extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3)) {
 
   /*
   Header

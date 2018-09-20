@@ -20,11 +20,20 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
 import scalafx.stage.Window
 
+object CustomGeneProperties {
+  val title = "Custom Gene Pane"
+  val headerText = "Define your chromosome"
+}
+
+import CustomGeneProperties._
+import PaneProperties._
+
 case class CustomGenePane(mainDialog: MainDialog,
                           override val previousContent: Option[ChromosomePane],
                           modality: Modality,
                           animal: String,
-                          gene: Option[String] = None) extends GenePane(mainDialog, previousContent, gene) {
+                          gene: Option[String] = None)
+  extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3) + title) {
 
   /*
   Header

@@ -13,7 +13,7 @@ import scalafx.scene.layout.{BorderPane, Pane}
 import scalafx.stage.Window
 
 object PlantProperties {
-  val title = "Plant Dialog"
+  val title = "Plant Pane"
   val headerText = "Create a plant"
 }
 

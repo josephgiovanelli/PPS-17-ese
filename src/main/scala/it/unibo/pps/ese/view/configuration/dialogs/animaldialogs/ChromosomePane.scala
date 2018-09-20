@@ -17,7 +17,7 @@ import scalafx.stage.Window
 
 object ChromosomeProperties {
   val title = "Chromosome Pane"
-  val headerText = "Create an animal"
+  val headerText = "Define animal chromosome"
 }
 
 import ChromosomeProperties._
@@ -32,9 +32,6 @@ case class ChromosomePane(mainDialog: MainDialog,
   /*
   Header
    */
-
-//  title = "Chromosome Dialog"
-//  headerText = "Define animal chromosome"
 
   /*
   Fields
