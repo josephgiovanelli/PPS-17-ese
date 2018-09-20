@@ -78,7 +78,7 @@ private class ReplayPaneImpl() extends ReplayPane {
     Platform.runLater {
       () => {
         graphicsContext.fill = valueOf("#2c3e50")
-        graphicsContext.clearRect(0, 0, worldWidth, worldHeight)
+        graphicsContext.fillRect(0, 0, worldWidth, worldHeight)
         drawTarget(Color.Gold)
         drawActors("prey", Color.Violet)
         drawActors("partner", Color.Red)

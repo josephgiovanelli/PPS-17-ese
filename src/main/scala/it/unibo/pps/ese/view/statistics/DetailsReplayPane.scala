@@ -59,8 +59,8 @@ class DetailsReplayPane() extends ScrollPane {
     }
 
     def getAllAnimalQualities(entityDetails:AnimalDynamicData):Seq[(String,Double)] = {
-      "Speed"->entityDetails.speed::
       "Age"->entityDetails.age.toDouble::
+      "Speed"->entityDetails.speed::
       "Energy"->entityDetails.energy::
       "Nutritional Value"->entityDetails.nutritionalValue::
       List()
