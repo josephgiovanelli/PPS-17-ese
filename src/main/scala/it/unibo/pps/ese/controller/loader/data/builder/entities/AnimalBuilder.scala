@@ -1,11 +1,11 @@
-package it.unibo.pps.ese.controller.loader.data.builder
+package it.unibo.pps.ese.controller.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus
-import it.unibo.pps.ese.controller.loader.data.builder.AnimalBuilder.AnimalStatus._
+import it.unibo.pps.ese.controller.loader.data.builder.entities.AnimalBuilder.AnimalStatus
+import it.unibo.pps.ese.controller.loader.data.builder.entities.AnimalBuilder.AnimalStatus._
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 
@@ -21,7 +21,7 @@ trait AnimalBuilder[T <: AnimalStatus] {
   def addStructuralChromosome(structuralChromosome: Iterable[CustomGeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome]
   def addRegulationChromosome(regulationChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T with AnimalWithRegChromosome]
   def addSexualChromosome(sexualChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T with AnimalWithSexChromosome]
-  def tryBuildComplete(): Try[CompleteAnimalData]
+  def tryCompleteBuild(): Try[CompleteAnimalData]
   def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData
   def build(): PartialAnimalData
 }
@@ -75,7 +75,7 @@ object AnimalBuilder {
         sexualChromosome)
     }
 
-    def tryBuildComplete(): Try[CompleteAnimalData] = {
+    def tryCompleteBuild(): Try[CompleteAnimalData] = {
       status.tpe match {
         case t if t <:< typeOf[FullAnimal] =>
           val check = checkComplete()
@@ -93,7 +93,7 @@ object AnimalBuilder {
 
     def build(): PartialAnimalData = {
       //require(status.tpe <:< st.tpe)
-      tryBuildComplete() match {
+      tryCompleteBuild() match {
         case Success(value) =>
           value
         case Failure(_) =>
@@ -103,7 +103,7 @@ object AnimalBuilder {
     }
 
     def buildComplete(implicit ev: T =:= FullAnimal): CompleteAnimalData = {
-      tryBuildComplete() match {
+      tryCompleteBuild() match {
         case Success(value) =>
           value
         case Failure(exception) =>

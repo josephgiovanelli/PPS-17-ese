@@ -1,11 +1,8 @@
 package it.unibo.pps.ese.controller.loader.data.builder.gene
 
-import it.unibo.pps.ese.controller.loader.beans.PropertyInfo
-import it.unibo.pps.ese.controller.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
-import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.loader.data.GeneData.PartialGeneData
 import it.unibo.pps.ese.controller.loader.data._
-import it.unibo.pps.ese.controller.loader.data.builder.AlleleBuilder
+import it.unibo.pps.ese.controller.loader.data.builder.{AlleleBuilder, BuilderStatus, GenericBuilder}
 import it.unibo.pps.ese.controller.loader.data.builder.exception.CompleteBuildException
 import it.unibo.pps.ese.controller.loader.data.builder.gene.GeneStatus._
 
@@ -21,11 +18,8 @@ trait GenericGeneBuilder[S <: GeneStatus] { self =>
   def status: TypeTag[S]
 }
 
-trait BuildableGeneBuilder[S <: GeneStatus, CS <: GeneStatus, P <: PartialGeneData, C <: P] extends GenericGeneBuilder[S]{
-  def build(): P
-  def tryCompleteBuild(): Try[C]
-  def buildComplete(implicit ev: S =:= CS, st: TypeTag[S]): C
-}
+trait BuildableGeneBuilder[S <: GeneStatus, CS <: GeneStatus, P <: PartialGeneData, C <: P]
+  extends GenericGeneBuilder[S] with GenericBuilder[S, CS, P, C]
 
 abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                name: Option[String],
@@ -67,7 +61,7 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
   }
 }
 
-sealed trait GeneStatus
+sealed trait GeneStatus extends BuilderStatus
 object GeneStatus {
   sealed trait EmptyGene extends GeneStatus
   sealed trait GeneWithId extends GeneStatus

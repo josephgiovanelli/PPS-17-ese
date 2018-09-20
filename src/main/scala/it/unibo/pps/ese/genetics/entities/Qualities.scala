@@ -22,10 +22,9 @@ import enumeratum._
     case object Maturity extends QualityType
     case object Oldness extends QualityType
     case object Decline extends QualityType
-    case object Availability extends QualityType
     case object Hardness extends QualityType
     def maleSexualQualities:Seq[QualityType] = List(Fertility)
-    def plantQualities:Seq[QualityType] = List(Availability,Height,NutritionalValue,Hardness)
+    def plantQualities:Seq[QualityType] = List(Height,NutritionalValue,Hardness)
     def femaleSexualQualities:Seq[QualityType] = List(Fertility,Fecundity,PregnancyDuration)
   }
 

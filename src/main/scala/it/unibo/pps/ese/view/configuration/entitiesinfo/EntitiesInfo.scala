@@ -7,6 +7,7 @@ import it.unibo.pps.ese.controller.loader.data.DefaultGeneData.PartialDefaultGen
 import it.unibo.pps.ese.controller.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.loader.data._
 import it.unibo.pps.ese.controller.loader.data.builder._
+import it.unibo.pps.ese.controller.loader.data.builder.entities.{AnimalBuilder, PlantBuilder}
 import it.unibo.pps.ese.controller.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 import it.unibo.pps.ese.controller.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.utils.DefaultValue
