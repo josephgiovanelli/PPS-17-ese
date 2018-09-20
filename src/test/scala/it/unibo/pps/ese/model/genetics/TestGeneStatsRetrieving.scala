@@ -15,7 +15,7 @@ class TestGeneStatsRetrieving extends fixture.FunSuite {
   type FixtureParam = GeneticsSimulator
 
   def withFixture(test: OneArgTest):Outcome={
-    val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
+    val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/simulation/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
     val geneticsSimulator:GeneticsSimulator = GeneticsSimulator
     geneticsSimulator.beginSimulation(data)
     test(geneticsSimulator)
