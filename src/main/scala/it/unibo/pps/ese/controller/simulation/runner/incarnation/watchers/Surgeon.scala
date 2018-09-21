@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers
 
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.SexTypes
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityState, ReadOnlyEntityState}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.brain.ActionKind
@@ -38,7 +38,7 @@ case class Surgeon(realTimeState: ReadOnlyEntityState) {
         var animalInternalStatus: AnimalInternalStatus =
           MaleInternalStatus(brainStatus, eyesStatus, reproductiveApparatusStatus, digestiveSystemStatus)
 
-        if (state.gender == SexTypes.female)
+        if (state.gender == GenderTypes.female)
           animalInternalStatus =
             FemaleInternalStatus(brainStatus, eyesStatus, reproductiveApparatusStatus, digestiveSystemStatus, state.embryo)
 

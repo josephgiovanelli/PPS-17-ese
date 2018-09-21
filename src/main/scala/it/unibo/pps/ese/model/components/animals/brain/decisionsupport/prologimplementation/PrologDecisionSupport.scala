@@ -45,7 +45,7 @@ object PrologDecisionSupport {
 
     object PrologEntityAttributesImpl {
       def apply(newName: String, entityAttributesImpl: EntityAttributesImpl): EntityAttributesImpl =
-        EntityAttributesImpl(newName, entityAttributesImpl.kind, entityAttributesImpl.height, entityAttributesImpl.strength, entityAttributesImpl.defense, entityAttributesImpl.position, entityAttributesImpl.attractiveness, entityAttributesImpl.sex)
+        EntityAttributesImpl(newName, entityAttributesImpl.kind, entityAttributesImpl.height, entityAttributesImpl.strength, entityAttributesImpl.defense, entityAttributesImpl.position, entityAttributesImpl.attractiveness, entityAttributesImpl.gender)
     }
 
     override def createVisualField(entitiesAttributes: Seq[EntityAttributes]): Unit = {

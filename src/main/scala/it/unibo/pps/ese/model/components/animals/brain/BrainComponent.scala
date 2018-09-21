@@ -165,7 +165,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       val floorSpeed = speed.toInt
       val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id,
         EntityKinds(Symbol(data species)), data height, strength, data defense, (data.position.x, data.position.y),
-        attractiveness, SexTypes.withNameOpt(data gender).get)
+        attractiveness, GenderTypes.withNameOpt(data gender).get)
       decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
       val partners = decisionSupport.discoverPartners(me)
       val preys = decisionSupport.discoverPreys(me)

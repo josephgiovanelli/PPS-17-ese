@@ -4,7 +4,7 @@ import it.unibo.pps.ese.controller.simulation.runner.core.{EntityInfo, EntityUpd
 import it.unibo.pps.ese.model.components.animals.LifePhases
 import it.unibo.pps.ese.model.components.animals.brain.ActionKind
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityKinds.EntityKinds
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityKinds, SexTypes}
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityKinds, GenderTypes}
 import it.unibo.pps.ese.model.components.animals.trackers.EmbryoStatus
 import it.unibo.pps.ese.utils.Point
 
@@ -48,7 +48,7 @@ object EntityInfoConversion {
     def height : Double = obj.selectDynamic("height").asInstanceOf[Double]
     def nutritionalValue : Double = obj.selectDynamic("nutritionalValue").asInstanceOf[Double]
     def defense : Double = obj.selectDynamic("defense").asInstanceOf[Double]
-    def gender : SexTypes.Value = SexTypes.withNameOpt(obj.selectDynamic("gender").asInstanceOf[String]).get
+    def gender : GenderTypes.Value = GenderTypes.withNameOpt(obj.selectDynamic("gender").asInstanceOf[String]).get
     def baseEntityInfo : it.unibo.pps.ese.model.genetics.entities.EntityInfo = obj.selectDynamic("entityInfo").asInstanceOf[it.unibo.pps.ese.model.genetics.entities.EntityInfo]
   }
 

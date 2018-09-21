@@ -49,10 +49,10 @@ object DecisionSupport {
 
     private def basicFilter(entity: EntityAttributes): Stream[EntityAttributes] = {
 //      println()
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.male ))
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == SexTypes.female ))
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.male ))
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == SexTypes.female ))
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == GenderTypes.male ))
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == GenderTypes.female ))
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == GenderTypes.male ))
+//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == GenderTypes.female ))
       visualField filter (prey => prey != entity) filter (other => heightDiff(entity, other)) toStream
     }
 
@@ -70,7 +70,7 @@ object DecisionSupport {
     private def simulateAttack(hunter: EntityAttributes, prey: EntityAttributes): Boolean =
       (hunter.strength - prey.defense) > worldRules.attackThreshold
 
-    private def simulateCoupling(entity: EntityAttributes, partner: EntityAttributes): Boolean = entity.sex == SexTypes.male && partner.sex == SexTypes.female &&
+    private def simulateCoupling(entity: EntityAttributes, partner: EntityAttributes): Boolean = entity.gender == GenderTypes.male && partner.gender == GenderTypes.female &&
       partner.attractiveness > worldRules.couplingThreshold && (simulateAttack(entity, partner) || entity.attractiveness > worldRules.couplingThreshold)
 
     private def calculateLength(hunter: EntityAttributes, prey: EntityAttributes): EntityChoice =

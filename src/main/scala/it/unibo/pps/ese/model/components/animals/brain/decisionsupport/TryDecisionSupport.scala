@@ -15,12 +15,12 @@ object TryDecisionSupport extends App {
   StaticRules.instance().setRules(worldRules)
 
 
-  val prey0 = EntityAttributesImpl("0", EntityKinds('plant), 5, 2, 2, (5, 6), 5, SexTypes.male)
-  val prey1 = EntityAttributesImpl("1", EntityKinds('herbivore), 8, 6, 6, (6, 6), 5, SexTypes.male)
-  val prey2 = EntityAttributesImpl("2", EntityKinds('herbivore), 7, 7, 7, (2, 1), 5, SexTypes.female)
-  val prey3 = EntityAttributesImpl("3", EntityKinds('herbivore), 6, 6, 6, (3, 1), 5, SexTypes.male)
-  val prey4 = EntityAttributesImpl("4", EntityKinds('carnivorous), 10, 10, 10, (3, 3), 5, SexTypes.male)
-  val prey5 = EntityAttributesImpl("5", EntityKinds('carnivorous), 9, 9, 9, (4, 3), 5, SexTypes.male)
+  val prey0 = EntityAttributesImpl("0", EntityKinds('plant), 5, 2, 2, (5, 6), 5, GenderTypes.male)
+  val prey1 = EntityAttributesImpl("1", EntityKinds('herbivore), 8, 6, 6, (6, 6), 5, GenderTypes.male)
+  val prey2 = EntityAttributesImpl("2", EntityKinds('herbivore), 7, 7, 7, (2, 1), 5, GenderTypes.female)
+  val prey3 = EntityAttributesImpl("3", EntityKinds('herbivore), 6, 6, 6, (3, 1), 5, GenderTypes.male)
+  val prey4 = EntityAttributesImpl("4", EntityKinds('carnivorous), 10, 10, 10, (3, 3), 5, GenderTypes.male)
+  val prey5 = EntityAttributesImpl("5", EntityKinds('carnivorous), 9, 9, 9, (4, 3), 5, GenderTypes.male)
 
 
   val decisionSupport: DecisionSupport = DecisionSupport()

@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.support._
 import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.brain.{ActionKind, InteractionEntity}
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.SexTypes
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.model.genetics.dna.AnimalGenome
 import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
@@ -179,7 +179,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
   }
 
   private def copulate(partnerId: String, gender: String, species: String, partnerSpecies: String, myFertility: Double): Unit = {
-    if(SexTypes.withNameOpt(gender).get == SexTypes.female) {
+    if(GenderTypes.withNameOpt(gender).get == GenderTypes.female) {
       requireData[PartnerInfoRequest, PartnerInfoResponse](PartnerInfoRequest(partnerId, entitySpecifications.id))
       .onComplete {
         case Success(partner) =>
@@ -192,7 +192,7 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
   }
 
   private def copulate(partner: ReproductionInfo, gender: String, species: String, myFertility: Double): Unit = {
-    if (SexTypes.withNameOpt(gender).get == SexTypes.female) {
+    if (GenderTypes.withNameOpt(gender).get == GenderTypes.female) {
       createEmbryos(ReproductionInfo(animalGenome, myFertility, species), partner)
     }
   }
