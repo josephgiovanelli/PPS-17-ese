@@ -1,0 +1,5 @@
+animals:
+  ./Animal.yml: 200
+
+plants:
+  ./Plant.yml: 500

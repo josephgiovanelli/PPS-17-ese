@@ -1,8 +1,0 @@
-id: occ
-simpleName: occhi
-allelesPath: it/unibo/pps/ese/controller/loader/struct/oAll
-properties:
-  view:
-    conversionMap:
-      fieldofview: 1.0
-      Attractiveness : 5.0

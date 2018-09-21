@@ -1,0 +1,18 @@
+id: abb
+simpleName: gambe
+allelesPath: ./all
+properties:
+  lunghezza:
+    conversionMap:
+      speed: 0.2
+      height: 1.5
+  muscolatura:
+    conversionMap:
+      speed: 0.5
+      ResistenceToAttack: 4.0
+
+  tutte:
+    conversionMap:
+      rangeofaction: 5.0
+      NutritionalValue: 6.0
+      Strength: 1.0
