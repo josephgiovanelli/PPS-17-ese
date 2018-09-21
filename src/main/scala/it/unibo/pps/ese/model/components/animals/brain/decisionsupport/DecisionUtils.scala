@@ -14,7 +14,7 @@ trait WorldTypes {
   type AttackMeasure
   type PositionMeasure <: Int
   type AttractivenessMeasure
-  type Sex
+  type Gender
 
   type EntityAttributes <: {
     def name: Name
@@ -24,7 +24,7 @@ trait WorldTypes {
     def defense: AttackMeasure
     def position: GeneralPosition[PositionMeasure]
     def attractiveness: AttractivenessMeasure
-    def sex: Sex
+    def gender: Gender
   }
 
   type EntityChoice <: {
@@ -47,7 +47,7 @@ trait WorldTypesImpl extends WorldTypes {
   type AttackMeasure = Double
   type PositionMeasure = Int
   type AttractivenessMeasure = Double
-  type Sex = GenderTypes.Value
+  type Gender = GenderTypes.Value
 
   type EntityAttributes = EntityAttributesImpl
   type EntityChoice = EntityChoiceImpl
@@ -84,15 +84,15 @@ case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: Positi
 }
 
 object AnimalAttributes {
-  def apply(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strength, defense, position, attractiveness, sex)
+  def apply(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, gender: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strength, defense, position, attractiveness, gender)
 }
 
 object PlantAttributes {
-  def apply(name: String, kind: EntityKinds.Value, height: Double, defense: Double, position: GeneralPosition[Int], sex: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, 0, defense, position, 0, sex)
+  def apply(name: String, kind: EntityKinds.Value, height: Double, defense: Double, position: GeneralPosition[Int], gender: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, 0, defense, position, 0, gender)
 }
 
 object EntityAttributesImpl {
-  def apply(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, sex: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strength, defense, position, attractiveness, sex)
+  def apply(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, gender: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strength, defense, position, attractiveness, gender)
 
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
