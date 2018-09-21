@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.support.{BaseEvent, InteractionEvent}
 import it.unibo.pps.ese.model.components
 import it.unibo.pps.ese.model.components._
-import it.unibo.pps.ese.model.components.animals.brain.{ActionKind, DynamicParametersRequest, DynamicParametersResponse, InteractionEntity}
+import it.unibo.pps.ese.model.components.animals.brain.{DynamicParametersRequest, DynamicParametersResponse, Eat, InteractionEntity}
 import it.unibo.pps.ese.model.components.animals.reproduction.{PregnancyEnd, PregnancyRequirements, ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse}
 
 import scala.concurrent.ExecutionContext
@@ -102,28 +102,26 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
         publish(DynamicParametersResponse(r.id, currentSpeed, currentEnergy, currentFertility, satisfaction))
       case r: ReproductionPhysicalInformationRequest =>
         publish(ReproductionPhysicalInformationResponse(r id, currentFertility))
-      case InteractionEntity(entityId, action) =>
-        if (action == ActionKind.EAT) {
-          requireData[EntitiesStateRequest, EntitiesStateResponse](core.EntitiesStateRequest(x => x.entityId == entityId))
-            .onComplete {
-              case Success(result) =>
-                import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
-                val necessaryEnergy = MAX_ENERGY - currentEnergy
-                val eatenEnergy = if (result.state.head.state.nutritionalValue > necessaryEnergy)
-                  necessaryEnergy else result.state.head.state.nutritionalValue
-                this synchronized {
-                  currentEnergy += eatenEnergy
-                }
-                digestionTime = (((eatenEnergy / MAX_ENERGY) * MAX_DIGESTION_TIME) + MIN_DIGESTION_TIME).toInt
-                elapsedClocksSinceDigestion = 0
-                publish(dynamicInfo)
-                publish(MealInformation(entityId, eatenEnergy))
-              //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")
-              case Failure(error) => throw error
-            }
-        } else {
-          satisfaction = MAX_SATISFACTION
-        }
+      case InteractionEntity(entityId, action) => action match {
+        case Eat => requireData[EntitiesStateRequest, EntitiesStateResponse](core.EntitiesStateRequest(x => x.entityId == entityId))
+          .onComplete {
+            case Success(result) =>
+              import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
+              val necessaryEnergy = MAX_ENERGY - currentEnergy
+              val eatenEnergy = if (result.state.head.state.nutritionalValue > necessaryEnergy)
+                necessaryEnergy else result.state.head.state.nutritionalValue
+              this synchronized {
+                currentEnergy += eatenEnergy
+              }
+              digestionTime = (((eatenEnergy / MAX_ENERGY) * MAX_DIGESTION_TIME) + MIN_DIGESTION_TIME).toInt
+              elapsedClocksSinceDigestion = 0
+              publish(dynamicInfo)
+              publish(MealInformation(entityId, eatenEnergy))
+            //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")
+            case Failure(error) => throw error
+          }
+        case _ => satisfaction = MAX_SATISFACTION
+      }
       case MealInformation(_, _) =>
         //println("OMG!!1!!1! I've been killed! (Id : " + entitySpecifications.id +")")
         publish(Kill(entitySpecifications id))

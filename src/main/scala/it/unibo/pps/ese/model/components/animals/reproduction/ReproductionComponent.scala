@@ -5,7 +5,7 @@ import it.unibo.pps.ese.model.components.animals.reproduction.util.{EmbryosUtil,
 import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.support._
 import it.unibo.pps.ese.model.components._
-import it.unibo.pps.ese.model.components.animals.brain.{ActionKind, InteractionEntity}
+import it.unibo.pps.ese.model.components.animals.brain.{Couple, InteractionEntity}
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.model.genetics.dna.AnimalGenome
@@ -99,27 +99,30 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
           }
         }
         publish(new ComputeNextStateAck)
-      case InteractionEntity(partnerId, kind) if kind == ActionKind.COUPLE =>
-        //println("received")
-        checkPartnerExistence(partnerId, partnerBaseInfo => {
-          //println("partner exists")
-          obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
-            //println(partnerBaseInfo.state.head.state.status)
-            import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
-            if (partnerBaseInfo.state.head.state.status == EntityUpdateState.UPDATED) {
-              //force me and other animal to copulate at next move
-              //println("busy partner")
-              publish(AutoForceReproduction(partnerId))
-              publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
-            } else if(embryos.isEmpty) {
-              //println("free partner")
-              //force other animal to copulate
-              publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
-              copulate(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
-                myPhysicalInfo.fertility)
-            }
+      case InteractionEntity(partnerId, kind) => kind match {
+        case Couple =>
+          //println("received")
+          checkPartnerExistence(partnerId, partnerBaseInfo => {
+            //println("partner exists")
+            obtainPersonalData((myBaseInfo, myPhysicalInfo) => {
+              //println(partnerBaseInfo.state.head.state.status)
+              import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
+              if (partnerBaseInfo.state.head.state.status == EntityUpdateState.UPDATED) {
+                //force me and other animal to copulate at next move
+                //println("busy partner")
+                publish(AutoForceReproduction(partnerId))
+                publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
+              } else if(embryos.isEmpty) {
+                //println("free partner")
+                //force other animal to copulate
+                publish(PartnerForceReproduction(partnerId, animalGenome, myPhysicalInfo.fertility, partnerBaseInfo.state.head.state.species.toString))
+                copulate(partnerId, myBaseInfo.gender, myBaseInfo.species, partnerBaseInfo.state.head.state.species.toString,
+                  myPhysicalInfo.fertility)
+              }
+            })
           })
-        })
+        case _ =>
+      }
       case r: PartnerInfoRequest  /*if r.senderId != entitySpecifications.id*/=>
         //println("Received request by: ", entitySpecifications.id)
         requireData[ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse](ReproductionPhysicalInformationRequest())

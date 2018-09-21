@@ -6,7 +6,7 @@ import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.{CustomGenePane, DefaultGenePane}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.AnimalChromosomeInfo
-import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.{ChromosomeTypes, EntitiesInfo}
+import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.{ChromosomeTypes, EntitiesInfo, RegulationChromosome, SexualChromosome}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core._
 
 import scalafx.Includes._
@@ -57,7 +57,7 @@ case class ChromosomePane(mainDialog: MainDialog,
     items = regulationName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ModifyModality, ChromosomeTypes.REGULATION, animal, Some(value),
+        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ModifyModality, RegulationChromosome, animal, Some(value),
           RegulationDefaultGenes.elements -- getCurrentRegulationChromosome))
         Platform.runLater(selectionModel().clearSelection())
       }
@@ -69,7 +69,7 @@ case class ChromosomePane(mainDialog: MainDialog,
     items = sexualName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ModifyModality, ChromosomeTypes.SEXUAL, animal, Some(value),
+        mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), ModifyModality, SexualChromosome, animal, Some(value),
           SexualDefaultGenes.elements -- getCurrentSexualChromosome))
         Platform.runLater(selectionModel().clearSelection())
       }
@@ -85,13 +85,13 @@ case class ChromosomePane(mainDialog: MainDialog,
 
   val regulationButton = new Button("Add")
   regulationButton.onAction = _ => {
-    mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), AddModality, ChromosomeTypes.REGULATION, animal, None,
+    mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), AddModality, RegulationChromosome, animal, None,
       RegulationDefaultGenes.elements -- getCurrentRegulationChromosome))
   }
 
   val sexualButton = new Button("Add")
   sexualButton.onAction = _ => {
-    mainDialog.setContent(DefaultGenePane(mainDialog, Some(this), AddModality, ChromosomeTypes.SEXUAL, animal, None,
+    mainDialog.setContent(DefaultGenePane(mainDialog, Some(this), AddModality, SexualChromosome, animal, None,
       SexualDefaultGenes.elements -- getCurrentSexualChromosome))
   }
 

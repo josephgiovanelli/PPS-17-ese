@@ -29,7 +29,7 @@ case class AllelePane(mainDialog: MainDialog,
                       gene: String,
                       allele: Option[String],
                       properties: Set[String],
-                      chromosomeTypes: ChromosomeTypes.Value)
+                      chromosomeTypes: ChromosomeTypes)
   extends BackPane[AlleleInfo](mainDialog, previousContent, allele, title, headerText, previousContent.get.path + newLine(5) + title) {
 
   /*
@@ -61,9 +61,9 @@ case class AllelePane(mainDialog: MainDialog,
 
 
   val currentSpecificAnimalChromosome: Map[String, ChromosomeInfo] = chromosomeTypes match {
-    case ChromosomeTypes.STRUCTURAL => currentAnimalChromosome.structuralChromosome
-    case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
-    case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
+    case StructuralChromosome => currentAnimalChromosome.structuralChromosome
+    case RegulationChromosome => currentAnimalChromosome.regulationChromosome
+    case SexualChromosome => currentAnimalChromosome.sexualChromosome
   }
 
 

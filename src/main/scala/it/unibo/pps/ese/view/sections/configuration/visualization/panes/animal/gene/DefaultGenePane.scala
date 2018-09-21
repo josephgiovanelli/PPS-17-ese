@@ -39,7 +39,7 @@ import it.unibo.pps.ese.view.sections.configuration.visualization.core.PanePrope
 case class DefaultGenePane(mainDialog: MainDialog,
                            override val previousContent: Option[ChromosomePane],
                            modality: Modality,
-                           chromosomeTypes: ChromosomeTypes.Value,
+                           chromosomeTypes: ChromosomeTypes,
                            animal: String,
                            gene: Option[String],
                            propertiesSet: Set[_ <: DefaultGene])
@@ -60,8 +60,8 @@ case class DefaultGenePane(mainDialog: MainDialog,
 
 
   val currentDefaultChromosome: Map[String, DefaultChromosomeInfo] = chromosomeTypes match {
-    case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
-    case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
+    case RegulationChromosome => currentAnimalChromosome.regulationChromosome
+    case SexualChromosome => currentAnimalChromosome.sexualChromosome
   }
 
   val propertiesName: ObservableBuffer[String] = ObservableBuffer[String](propertiesSet.map(x => x.name) toSeq)
@@ -126,9 +126,9 @@ case class DefaultGenePane(mainDialog: MainDialog,
 
   override def confirmAlleles(gene: String): Unit = {
     chromosomeTypes match {
-      case ChromosomeTypes.REGULATION =>
+      case RegulationChromosome=>
         previousContent.get.confirmRegulationChromosome(modality, gene)
-      case ChromosomeTypes.SEXUAL =>
+      case SexualChromosome =>
         previousContent.get.confirmSexualChromosome(modality, gene)
     }
   }

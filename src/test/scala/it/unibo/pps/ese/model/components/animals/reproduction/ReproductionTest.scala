@@ -7,7 +7,7 @@ import it.unibo.pps.ese.controller.simulation.loader.io.File
 import it.unibo.pps.ese.controller.simulation.runner.core.UpdatableWorld.UpdatePolicy.Deterministic
 import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityUpdateState, _}
-import it.unibo.pps.ese.model.components.animals.brain.{ActionKind, InteractionEntity}
+import it.unibo.pps.ese.model.components.animals.brain.{ActionTypes, Couple, InteractionEntity}
 import it.unibo.pps.ese.model.components.{BaseInfoRequest, BaseInfoResponse}
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.model.genetics.entities.QualityType.{EnergyRequirements, Fecundity}
@@ -133,7 +133,7 @@ class ReproductionTest extends FunSuite {
     private def subscribeEvents(): Unit = subscribe {
       case ComputeNextState() =>
         if(partner.nonEmpty) {
-          publish(InteractionEntity(partner.get, ActionKind.COUPLE))
+          publish(InteractionEntity(partner.get, Couple))
           partner = None
         }
         publish(new ComputeNextStateAck)

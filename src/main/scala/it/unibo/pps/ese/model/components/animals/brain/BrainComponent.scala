@@ -12,7 +12,6 @@ import it.unibo.pps.ese.controller.simulation.runner.core.support.{BaseEvent, Re
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
-import it.unibo.pps.ese.model.components.animals.brain.ActionKind.ActionKind
 import it.unibo.pps.ese.model.components.animals.brain.Direction.Direction
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.model.components.animals.reproduction._
@@ -27,17 +26,18 @@ case class BrainInfo(strength: Double,
                      attractiveness: Double
                     ) extends BaseEvent
 
-object ActionKind extends Enumeration {
-  type ActionKind = Value
-  val EAT, COUPLE, NOTHING = Value
-}
+
+trait ActionTypes
+case object Eat extends ActionTypes
+case object Couple extends ActionTypes
+case object Nothing extends ActionTypes
 
 case class UseHippocampus() extends BaseEvent
 case class UseEyes() extends BaseEvent
-case class EntityWill(will: ActionKind.Value) extends BaseEvent
+case class EntityWill(will: ActionTypes) extends BaseEvent
 
 case class EntityPosition(position: Point) extends BaseEvent
-case class InteractionEntity(entityId: String, action: ActionKind.Value) extends BaseEvent
+case class InteractionEntity(entityId: String, action: ActionTypes) extends BaseEvent
 case class DynamicParametersRequest() extends RequestEvent
 case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double, satisfaction: Double) extends ResponseEvent
 
@@ -63,9 +63,9 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     Point(boundWidth(tuple2._1), boundHeight(tuple2._2))
   }
 
-  implicit def actionKindToMemoryType(actionKind: ActionKind): MemoryType = actionKind match {
-    case ActionKind.EAT => MemoryType.HUNTING
-    case ActionKind.COUPLE => MemoryType.COUPLE
+  implicit def actionKindToMemoryType(actionKind: ActionTypes): MemoryType = actionKind match {
+    case Eat => MemoryType.HUNTING
+    case Couple => MemoryType.COUPLE
   }
 
   implicit def pointToPosition(point: Point): Position = {
@@ -147,14 +147,14 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
 
   private def configureMappings(): Unit = {
     addMapping[EntityPosition]((classOf[EntityPosition], ev => Seq(EntityProperty("position", ev position))))
-    addMapping[ComputeNextState]((classOf[ComputeNextState], _ => Seq(EntityProperty("will", ActionKind.NOTHING))))
+    addMapping[ComputeNextState]((classOf[ComputeNextState], _ => Seq(EntityProperty("will", Nothing))))
     addMapping[EntityWill]((classOf[EntityWill], ev => Seq(EntityProperty("will", ev will))))
     addMapping[BrainInfo]((classOf[BrainInfo], ev => Seq(
       EntityProperty("strength", ev strength),
       EntityProperty("actionField", ev actionField),
       EntityProperty("visualField", ev visualField),
       EntityProperty("attractiveness", ev attractiveness),
-      EntityProperty("will", ActionKind.NOTHING)
+      EntityProperty("will", Nothing)
     )))
   }
 
@@ -170,15 +170,15 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
       val partners = decisionSupport.discoverPartners(me)
       val preys = decisionSupport.discoverPreys(me)
       var targets: Stream[EntityChoiceImpl] = preys
-      var action: ActionKind.Value = ActionKind.EAT
+      var action: ActionTypes = Eat
       if (energy > ENERGY_THRESHOLD
         && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0
         && fertility > FERTILITY_THRESHOLD
         && satisfaction < SATISFACTION_THRESHOLD
         && !pregnantState) {
-        targets = partners; action = ActionKind.COUPLE
+        targets = partners; action = Couple
       }
-      if (action.equals(ActionKind.COUPLE) || (action.equals(ActionKind.EAT) && !digestionState)) {
+      if (action.equals(Couple) || (action.equals(Eat) && !digestionState)) {
         publish(EntityWill(action))
         if (targets.nonEmpty) {
           publish(UseEyes())
@@ -189,7 +189,7 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             me.position = entityAttribute.position
             publish(InteractionEntity(entityAttribute name, action))
             hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
-            if (action.equals(ActionKind.EAT)) digestionState = true
+            if (action.equals(Eat)) digestionState = true
           } else {
             (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
           }

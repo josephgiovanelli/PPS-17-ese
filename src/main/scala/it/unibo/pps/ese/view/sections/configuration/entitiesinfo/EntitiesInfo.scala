@@ -34,11 +34,11 @@ sealed trait EntitiesInfo {
 
   def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit
 
-  def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, customGeneInfo: CustomGeneInfo): Unit
+  def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, customGeneInfo: CustomGeneInfo): Unit
 
-  def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, defaultGeneInfo: DefaultGeneInfo): Unit
+  def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, defaultGeneInfo: DefaultGeneInfo): Unit
 
-  def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes.Value, gene: String, alleles: Map[String, AlleleInfo]): Unit
+  def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes, gene: String, alleles: Map[String, AlleleInfo]): Unit
 
 
   /*
@@ -63,9 +63,10 @@ sealed trait EntitiesInfo {
   def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit
 }
 
-object ChromosomeTypes extends Enumeration {
-  val STRUCTURAL, REGULATION, SEXUAL = Value
-}
+trait ChromosomeTypes
+object StructuralChromosome extends ChromosomeTypes
+object RegulationChromosome extends ChromosomeTypes
+object SexualChromosome extends ChromosomeTypes
 
 object EntitiesInfo {
   private val _instance = new EntitiesInfoImpl()
@@ -107,41 +108,41 @@ object EntitiesInfo {
     def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit =
       animals += (id -> AnimalInfo(animals(id).animalBaseInfo, animalChromosomeInfo))
 
-    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, customGeneInfo: CustomGeneInfo): Unit = {
+    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, customGeneInfo: CustomGeneInfo): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(id)
       val currentStructuralChromosome = currentAnimalChromosome.structuralChromosome
       val alleles: Map[String, AlleleInfo] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name).alleles else Map()
       currentAnimalChromosome.structuralChromosome += (customGeneInfo.name -> CustomChromosomeInfo(customGeneInfo, alleles))
     }
 
-    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes.Value, defaultGeneInfo: DefaultGeneInfo): Unit = {
+    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, defaultGeneInfo: DefaultGeneInfo): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
         case Some(animalInfo) => animalInfo.animalChromosomeInfo
         case None => throw new IllegalStateException()
       }
       var currentDefaultChromosome = chromosomeTypes match {
-        case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome
-        case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome
+        case RegulationChromosome => currentAnimalChromosome.regulationChromosome
+        case SexualChromosome => currentAnimalChromosome.sexualChromosome
       }
       val alleles: Map[String, AlleleInfo] = if (currentDefaultChromosome.get(defaultGeneInfo.name).isDefined) currentDefaultChromosome(defaultGeneInfo.name).alleles else Map()
       currentDefaultChromosome += (defaultGeneInfo.name -> DefaultChromosomeInfo(defaultGeneInfo, alleles))
       chromosomeTypes match {
-        case ChromosomeTypes.REGULATION => currentAnimalChromosome.regulationChromosome = currentDefaultChromosome
-        case ChromosomeTypes.SEXUAL => currentAnimalChromosome.sexualChromosome = currentDefaultChromosome
+        case RegulationChromosome => currentAnimalChromosome.regulationChromosome = currentDefaultChromosome
+        case SexualChromosome => currentAnimalChromosome.sexualChromosome = currentDefaultChromosome
       }
     }
 
-    def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes.Value, gene: String, alleles: Map[String, AlleleInfo]): Unit = {
+    def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes, gene: String, alleles: Map[String, AlleleInfo]): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(id)
 
       chromosomeTypes match {
-        case ChromosomeTypes.STRUCTURAL =>
+        case StructuralChromosome =>
           val structuralGene = currentAnimalChromosome.structuralChromosome(gene)
           currentAnimalChromosome.structuralChromosome += (gene -> CustomChromosomeInfo(structuralGene.geneInfo, structuralGene.alleles ++ alleles))
-        case ChromosomeTypes.REGULATION =>
+        case RegulationChromosome =>
           val regulationGene = currentAnimalChromosome.regulationChromosome(gene)
           currentAnimalChromosome.regulationChromosome += (gene -> DefaultChromosomeInfo(regulationGene.geneInfo, regulationGene.alleles ++ alleles))
-        case ChromosomeTypes.SEXUAL =>
+        case RegulationChromosome =>
           val sexualGene = currentAnimalChromosome.sexualChromosome(gene)
           currentAnimalChromosome.sexualChromosome += (gene -> DefaultChromosomeInfo(sexualGene.geneInfo, sexualGene.alleles ++ alleles))
       }
@@ -222,10 +223,10 @@ object EntitiesInfo {
     }
 
     private def sexualChromosomeMapping(animal: String): Iterable[DefaultGeneBuilder[_]] =
-      defaultChromosomeMapping(ChromosomeTypes.SEXUAL, animal)
+      defaultChromosomeMapping(SexualChromosome, animal)
 
     private def regulationChromosomeMapping(animal: String): Iterable[DefaultGeneBuilder[_]] =
-      defaultChromosomeMapping(ChromosomeTypes.REGULATION, animal)
+      defaultChromosomeMapping(RegulationChromosome, animal)
 
     private def structuralChromosomeMapping(animal: String): Iterable[CustomGeneBuilder[_]] =
       getAnimalInfo(animal).get.animalChromosomeInfo.structuralChromosome.map(
@@ -240,13 +241,13 @@ object EntitiesInfo {
     private def propertiesMapping(properties: Map[String, Map[String, Double]]): Map[String, PropertyInfo] =
       properties.map(property => property._1 -> PropertyInfo(property._2))
 
-    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes.Value, animal: String): Iterable[DefaultGeneBuilder[_]] = {
+    private def defaultChromosomeMapping(chromosomeTypes: ChromosomeTypes, animal: String): Iterable[DefaultGeneBuilder[_]] = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(animal)
 
       var enumerationElements: Set[_ <: DefaultGene] = Set.empty
       val defaultChromosomeInfo: Map[String, DefaultChromosomeInfo] = chromosomeTypes match {
-        case ChromosomeTypes.REGULATION => enumerationElements = RegulationDefaultGenes.elements; currentAnimalChromosome.regulationChromosome
-        case ChromosomeTypes.SEXUAL => enumerationElements = SexualDefaultGenes.elements; currentAnimalChromosome.sexualChromosome
+        case RegulationChromosome => enumerationElements = RegulationDefaultGenes.elements; currentAnimalChromosome.regulationChromosome
+        case SexualChromosome => enumerationElements = SexualDefaultGenes.elements; currentAnimalChromosome.sexualChromosome
       }
       defaultChromosomeInfo.map(
         gene =>
@@ -296,23 +297,23 @@ object EntitiesInfo {
       AnimalChromosomeInfo(structuralChromosomeMapping(animal.getStructuralChromosome.getOrDefault), regulationChromosomeMapping(animal.getRegulationChromosome.getOrDefault), sexualChromosomeMapping(animal.getSexualChromosome.getOrDefault))
 
     private def sexualChromosomeMapping(sexualChromosome: Iterable[PartialDefaultGeneData]): Map[String, DefaultChromosomeInfo] =
-      sexualChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.SEXUAL)).toMap
+      sexualChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, SexualChromosome)).toMap
 
     private def regulationChromosomeMapping(regulationChromosome: Iterable[PartialDefaultGeneData]): Map[String, DefaultChromosomeInfo] =
-      regulationChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, ChromosomeTypes.REGULATION)).toMap
+      regulationChromosome.map(defaultGene => defaultGene.name -> defaultChromosomeMapping(defaultGene, RegulationChromosome)).toMap
 
     private def structuralChromosomeMapping(structuralChromosome: Iterable[PartialCustomGeneData]): Map[String, CustomChromosomeInfo] =
       structuralChromosome.map(customGene => customGene.name -> customChromosomeMapping(customGene)).toMap
 
-    private def defaultChromosomeMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultChromosomeInfo =
+    private def defaultChromosomeMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes): DefaultChromosomeInfo =
       DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))//TODO check set covariance
 
     private def customChromosomeMapping(customGene: PartialCustomGeneData): CustomChromosomeInfo =
       CustomChromosomeInfo(customGeneInfoMapping(customGene), allelesMapping(customGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))
 
-    private def defaultGeneInfoMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes.Value): DefaultGeneInfo = chromosomeTypes match {
-      case ChromosomeTypes.REGULATION => DefaultGeneInfo(RegulationDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.getId.getOrDefault)
-      case ChromosomeTypes.SEXUAL => DefaultGeneInfo(SexualDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.getId.getOrDefault)
+    private def defaultGeneInfoMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes): DefaultGeneInfo = chromosomeTypes match {
+      case RegulationChromosome => DefaultGeneInfo(RegulationDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.getId.getOrDefault)
+      case SexualChromosome => DefaultGeneInfo(SexualDefaultGenes.elements.filter(gene => gene.name.equals(defaultGene.name)).head, defaultGene.getId.getOrDefault)
     }
 
     private def customGeneInfoMapping(customGeneData: PartialCustomGeneData): CustomGeneInfo =

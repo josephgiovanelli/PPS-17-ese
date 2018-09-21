@@ -2,7 +2,7 @@ package it.unibo.pps.ese.model.components.animals.trackers
 
 import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
-import it.unibo.pps.ese.model.components.animals.brain.{ActionKind, InteractionEntity}
+import it.unibo.pps.ese.model.components.animals.brain.{Couple, Eat, InteractionEntity, Nothing}
 
 import scala.concurrent.ExecutionContext
 
@@ -35,14 +35,15 @@ class InteractionTrackerComponent(override val entitySpecifications: EntitySpeci
         create = Seq.empty
         publish(ClearInteraction())
         publish(new ComputeNextStateAck)
-      case InteractionEntity(id, action) =>
-        if (action == ActionKind.EAT) {
+      case InteractionEntity(id, action) => action match {
+        case Eat =>
           eat = Seq(id)
           publish(EatInteraction())
-        } else {
+        case Couple =>
           couple = Seq(id)
           publish(CoupleInteraction())
-        }
+        case _ =>
+      }
       case GiveBirth(sons) =>
         create = sons
         publish(CreateInteraction())

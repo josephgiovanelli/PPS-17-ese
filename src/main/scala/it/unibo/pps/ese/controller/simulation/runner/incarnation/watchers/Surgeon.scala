@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityState, ReadOnlyEntityState}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
-import it.unibo.pps.ese.model.components.animals.brain.ActionKind
+import it.unibo.pps.ese.model.components.animals.brain.{Couple, Eat, Nothing}
 import it.unibo.pps.ese.view._
 import it.unibo.pps.ese.view.sections.bodyviewer._
 import it.unibo.pps.ese.view.core.View
@@ -29,7 +29,11 @@ case class Surgeon(realTimeState: ReadOnlyEntityState) {
       }
       if (entity.isDefined && entity.get.state.reign == ReignType.ANIMAL) {
         val state = entity.get.state
-        val reason: Reason = if (state.will == ActionKind.EAT) Eating else if (state.will == ActionKind.COUPLE) Coupling else Evaluating
+        val reason: Reason = state.will match {
+          case Eat => Eating
+          case Couple => Coupling
+          case Nothing => Evaluating
+        }
         val brainStatus: BrainStatus = if (state.hippocampus) HippoCampusActive(reason) else HippoCampusDisabled(reason)
         val eyesStatus: EyesStatus = if (state.eyes) EyesActive(reason) else EyesDisabled(reason)
         val reproductiveApparatusStatus: ReproductiveApparatusStatus = if (state.reproductionOrgan) Reproducing else NotReproducing

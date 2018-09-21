@@ -3,7 +3,7 @@ package it.unibo.pps.ese.model.components.animals.trackers
 import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityProperty, _}
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
-import it.unibo.pps.ese.model.components.animals.brain.{ActionKind, InteractionEntity, UseEyes, UseHippocampus}
+import it.unibo.pps.ese.model.components.animals.brain._
 import it.unibo.pps.ese.model.components.animals.reproduction.{PregnancyEnd, PregnancyRequirements, Pregnant}
 
 import scala.concurrent.ExecutionContext
@@ -64,12 +64,14 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
       case InteractionEntity(_, action) =>
         eyes = false
         hippocampus = false
-        if (action == ActionKind.EAT) {
-          stomach = true
-          publish(ActivateStomach())
-        } else {
-          reproductionOrgan = true
-          publish(ActivateReproductionOrgan())
+        action match {
+          case Eat =>
+            stomach = true
+            publish(ActivateStomach())
+          case Couple =>
+            reproductionOrgan = true
+            publish(ActivateReproductionOrgan())
+          case _ =>
         }
       case DigestionEnd() =>
         stomach = false

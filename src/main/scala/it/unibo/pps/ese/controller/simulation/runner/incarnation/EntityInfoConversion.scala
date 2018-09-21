@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.simulation.runner.incarnation
 
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityInfo, EntityUpdateState}
 import it.unibo.pps.ese.model.components.animals.LifePhases
-import it.unibo.pps.ese.model.components.animals.brain.ActionKind
+import it.unibo.pps.ese.model.components.animals.brain.ActionTypes
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityKinds.EntityKinds
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityKinds, GenderTypes}
 import it.unibo.pps.ese.model.components.animals.trackers.EmbryoStatus
@@ -23,7 +23,7 @@ object EntityInfoConversion {
     def actionField : Double = obj.selectDynamic("actionField").asInstanceOf[Double]
     def visualField : Double = obj.selectDynamic("visualField").asInstanceOf[Double]
     def attractiveness : Double = obj.selectDynamic("attractiveness").asInstanceOf[Double]
-    def will: ActionKind.Value = obj.selectDynamic("will").asInstanceOf[ActionKind.Value]
+    def will: ActionTypes = obj.selectDynamic("will").asInstanceOf[ActionTypes]
   }
 
   implicit class PhysicalStatusComponentConversions(obj: EntityInfo) {

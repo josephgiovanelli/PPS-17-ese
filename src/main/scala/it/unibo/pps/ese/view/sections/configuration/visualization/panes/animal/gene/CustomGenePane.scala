@@ -133,9 +133,9 @@ case class CustomGenePane(mainDialog: MainDialog,
    */
 
   okButton.onAction = _ => {
-    EntitiesInfo.instance().setChromosomeBaseInfo(animal, ChromosomeTypes.STRUCTURAL,
+    EntitiesInfo.instance().setChromosomeBaseInfo(animal, StructuralChromosome,
       CustomGeneInfo(idGene.text.value, nameGene.text.value, properties, conversionMap))
-    mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, nameGene.text.value, ChromosomeTypes.STRUCTURAL))
+    mainDialog.setContent(AllelesPane(mainDialog, Some(this), animal, nameGene.text.value, StructuralChromosome))
   }
 
 
