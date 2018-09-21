@@ -2,7 +2,7 @@ package it.unibo.pps.ese.view.main
 
 import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
-import it.unibo.pps.ese.model.components.animals.LifePhases
+import it.unibo.pps.ese.model.components.animals.{Adult, Child, Eldery, LifePhases}
 import it.unibo.pps.ese.model.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male, PlantInfo}
 import it.unibo.pps.ese.view.core.MainComponent
 import it.unibo.pps.ese.view.sections.speciesdetails.NonNumericQualityViewerBox
@@ -79,11 +79,11 @@ class DetailsPaneImpl(mainComponent: MainComponent) extends DetailsPane {
       }
 
       val lifePhaseBox = e.state.lifePhase match {
-        case LifePhases.CHILD =>
+        case Child =>
           new NonNumericQualityViewerBox("Child","-fx-accent: lightGreen;")
-        case LifePhases.ADULT =>
+        case Adult =>
           new NonNumericQualityViewerBox("Adult","-fx-accent: red;")
-        case LifePhases.ELDERLY =>
+        case Eldery =>
           new NonNumericQualityViewerBox("Elderly","-fx-accent: grey;")
       }
       val reignBox = new NonNumericQualityViewerBox("Animal","-fx-accent: orange;")

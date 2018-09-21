@@ -22,6 +22,6 @@ case class AnimalFiltersValues(
                                 species:Option[String],
                                 gender:Option[Gender],
                                 diet: Option[DietType],
-                                lifePhase: Option[LifePhases.Value],
+                                lifePhase: Option[LifePhases],
                                 numericQualities:Map[String,Range]
                               ) extends EntityFiltersValues
