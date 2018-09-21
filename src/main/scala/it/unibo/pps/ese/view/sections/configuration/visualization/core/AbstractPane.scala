@@ -6,6 +6,7 @@ import scalafx.collections.ObservableBuffer
 import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.control._
+import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{BorderPane, GridPane, HBox}
 import scalafx.scene.paint.Color
 
@@ -35,11 +36,10 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
 
   if (previousContent.isDefined) {
     val backButton = new Button("Back")
-    val info = new Button("Info")
+    val info = new ImageView("it/unibo/pps/ese/view/sections/configuration/info.png")
+    info.margin = Insets(4, 0, 0, 15)
 
     val tooltip = new Tooltip()
-
-    info.tooltip = tooltip
 
     info.onMouseMoved = _ => {
       tooltip.text = path
