@@ -2,7 +2,7 @@ package it.unibo.pps.ese.view.sections.filters
 
 import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
-import it.unibo.pps.ese.model.components.animals.{Adult, Child, Eldery, LifePhases}
+import it.unibo.pps.ese.model.components.animals.LifePhases
 import it.unibo.pps.ese.model.genetics.entities._
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.sections.filters.FiltersComponentsFactory.FiltersHBoxes._
@@ -67,11 +67,11 @@ object AnimalFiltersPane {
       }
     }
 
-    implicit class RichLifePhase(lifePhases: LifePhases) {
+    implicit class RichLifePhase(lifePhases: LifePhases.Value) {
       def visualRepresentation: String = lifePhases match {
-        case Child=> childRepresentation
-        case Adult => adultRepresentation
-        case Eldery => elderlyRepresentation
+        case LifePhases.CHILD => childRepresentation
+        case LifePhases.ADULT => adultRepresentation
+        case LifePhases.ELDERLY => elderlyRepresentation
       }
     }
 
@@ -94,10 +94,10 @@ object AnimalFiltersPane {
       case `emptyItem` => None
     }
 
-    implicit def stringToLifePhases(string: String): Option[LifePhases] = string match {
-      case `childRepresentation` => Some(Child)
-      case `adultRepresentation` => Some(Adult)
-      case `elderlyRepresentation` => Some(Eldery)
+    implicit def stringToLifePhases(string: String): Option[LifePhases.Value] = string match {
+      case `childRepresentation` => Some(LifePhases.CHILD)
+      case `adultRepresentation` => Some(LifePhases.ADULT)
+      case `elderlyRepresentation` => Some(LifePhases.ELDERLY)
       case `emptyItem` => None
     }
 

@@ -36,7 +36,7 @@ object EntityInfoConversion {
     def fertility: Double = obj.selectDynamic("fertility").asInstanceOf[Double]
     def age: Integer = obj.selectDynamic("age").asInstanceOf[Integer]
     def energy: Double = obj.selectDynamic("energy").asInstanceOf[Double]
-    def lifePhase: LifePhases = obj.selectDynamic("lifePhase").asInstanceOf[LifePhases]
+    def lifePhase: LifePhases.Value = obj.selectDynamic("lifePhase").asInstanceOf[LifePhases.Value]
     def actualSpeed: Double = obj.selectDynamic("actualSpeed").asInstanceOf[Double]
     def actualFertility: Double = obj.selectDynamic("actualFertility").asInstanceOf[Double]
   }

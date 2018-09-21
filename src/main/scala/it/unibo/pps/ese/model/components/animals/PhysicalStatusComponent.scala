@@ -12,10 +12,9 @@ import scala.concurrent.ExecutionContext
 import scala.math.floor
 import scala.util.{Failure, Success}
 
-trait LifePhases
-case object Child extends LifePhases
-case object Adult extends LifePhases
-case object Eldery extends LifePhases
+object LifePhases extends Enumeration {
+  val CHILD, ADULT, ELDERLY = Value
+}
 
 case class DigestionEnd() extends BaseEvent
 case class MealInformation(override val receiverId: String, eatenEnergy: Double) extends InteractionEvent
@@ -29,7 +28,7 @@ case class PhysicalStatusInfo(averageLife: Double,
 
 case class DynamicPhysicalStatusInfo(age: Int,
                                      energy: Double,
-                                     lifePhase: LifePhases,
+                                     lifePhase: LifePhases.Value,
                                      actualSpeed: Double,
                                      actualFertility: Double) extends BaseEvent
 
@@ -51,7 +50,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
 
   var currentYear: Int = 0
   var currentEnergy: Double = MAX_ENERGY
-  var currentPhase: LifePhases = Child
+  var currentPhase: LifePhases.Value = LifePhases.CHILD
   var currentSpeed: Double = speed
   var currentFertility: Double = 0
   var elapsedClocksSinceLastYear: Int = 0
@@ -156,15 +155,16 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   private def yearCallback(): Unit = this synchronized {
     elapsedClocksSinceLastYear = 0
     currentYear += 1
-    currentPhase match {
-      case Child if (currentYear * percentageDecay) > endChildPhase =>
-          currentPhase = Adult
-          currentFertility = fertility
-      case Adult if (currentYear * percentageDecay) > endAdultPhase =>
-          currentPhase = Eldery
-          currentFertility = 0
-      case Eldery =>
-        currentSpeed = speed - (currentSpeed * percentageDecay)
+    if (currentPhase == LifePhases.CHILD && (currentYear * percentageDecay) > endChildPhase) {
+      currentPhase = LifePhases.ADULT
+      currentFertility = fertility
+    }
+    else if (currentPhase == LifePhases.ADULT && (currentYear * percentageDecay) > endAdultPhase) {
+      currentPhase = LifePhases.ELDERLY
+      currentFertility = 0
+    }
+    else if (currentPhase == LifePhases.ELDERLY) {
+      currentSpeed = speed - (currentSpeed * percentageDecay)
     }
     if (currentYear == floor(averageLife * percentageDecay)) publish(Kill(entitySpecifications id))
     publish(dynamicInfo)
