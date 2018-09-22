@@ -3,12 +3,12 @@ package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.loader.io.File
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityInfo, EntityState}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityInfo, EntityState}
 import it.unibo.pps.ese.utils.{Point, Position}
 import it.unibo.pps.ese.view.sections.statistics.ChartsData
 import it.unibo.pps.ese.view.utilities.Entity
-
 import scalafx.scene.paint.Color
+
 import scala.util.Try
 import scala.concurrent.Future
 

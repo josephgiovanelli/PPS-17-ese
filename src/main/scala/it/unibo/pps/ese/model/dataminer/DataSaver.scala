@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.model.dataminer
 
-import scala.util.control.Exception
+import it.unibo.pps.ese.model.dataminer.datamodel.{EntityLog, EntityLogImpl}
 
 sealed trait DataSaver {
   def saveData(path: String, data: Seq[EntityLog]): String

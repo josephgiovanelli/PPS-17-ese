@@ -1,8 +1,8 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers
 
-import it.unibo.pps.ese.model.dataminer._
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
+import it.unibo.pps.ese.model.dataminer.DataModelSupport.Era
+import it.unibo.pps.ese.model.dataminer.datamodel._
 import it.unibo.pps.ese.utils.Point
 
 /**

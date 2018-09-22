@@ -15,9 +15,9 @@ sealed trait DataRepository[A, B] {
 
 object DataRepository {
 
-  def apply[A, B]: DataRepository[A, B] =  InMemoryRepository[A, B]()
+  def apply[A, B]: DataRepository[A, B] =  new InMemoryRepository[A, B]()
 
-  private case class InMemoryRepository[A, B]() extends DataRepository[A, B] {
+  private class InMemoryRepository[A, B]() extends DataRepository[A, B] {
 
     private val _data : mutable.HashMap[A, B] = new mutable.HashMap[A, B]()
 

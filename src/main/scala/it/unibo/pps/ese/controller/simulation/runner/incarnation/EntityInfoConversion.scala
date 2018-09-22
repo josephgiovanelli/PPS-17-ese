@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation
 
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityInfo, EntityUpdateState}
+import it.unibo.pps.ese.controller.simulation.runner.core.EntityUpdateState
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityInfo
 import it.unibo.pps.ese.model.components.animals.LifePhases
 import it.unibo.pps.ese.model.components.animals.brain.ActionTypes
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityKinds.EntityKinds

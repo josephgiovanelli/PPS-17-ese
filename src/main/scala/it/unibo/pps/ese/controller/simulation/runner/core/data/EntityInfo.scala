@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.controller.simulation.runner.core
+package it.unibo.pps.ese.controller.simulation.runner.core.data
 
 import scala.language.dynamics
 

@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.runner.core
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.controller.simulation.runner.core.support._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,13 +19,16 @@ trait NervousSystemComponent extends Component {
 }
 
 trait BusWriter extends NervousSystemComponent {
-  def publish(event : Event): Unit = nervousSystem publish IdentifiedEvent(entitySpecifications.id + "#" + getClass.getSimpleName, event)
+  def publish(event : Event): Unit =
+    nervousSystem publish IdentifiedEvent(entitySpecifications.id + "#" + getClass.getSimpleName, event)
   def addMapping[A <: Event](mapper: (Class[A] ,A => Seq[EntityProperty])): Unit = nervousSystem addMapping mapper
 }
 
 trait BusReader extends NervousSystemComponent {
-  def subscribe(consumer : Event => Unit) : Unit = nervousSystem subscribe IdentifiedConsumer(entitySpecifications.id + "#" + getClass.getSimpleName, consumer)
-  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SupervisedFuture[B] = nervousSystem requireData[A, B] (entitySpecifications.id + "#" + getClass.getSimpleName, request)
+  def subscribe(consumer : Event => Unit) : Unit =
+    nervousSystem subscribe IdentifiedConsumer(entitySpecifications.id + "#" + getClass.getSimpleName, consumer)
+  def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](request: A): SupervisedFuture[B] =
+    nervousSystem requireData[A, B] (entitySpecifications.id + "#" + getClass.getSimpleName, request)
   def notifyOnTasksEnd(): Future[Done] = nervousSystem notifyOnTasksEnd()
 }
 

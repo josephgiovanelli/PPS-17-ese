@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 
-import it.unibo.pps.ese.model.dataminer.ReadOnlyEntityRepository
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers.Stalker
+import it.unibo.pps.ese.model.dataminer.datamodel.ReadOnlyEntityRepository
 import it.unibo.pps.ese.view.sections.statistics.ReplayView
 
 trait ReplayController {

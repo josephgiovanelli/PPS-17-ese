@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.controller.simulation.runner.core
+package it.unibo.pps.ese.controller.simulation.runner.core.data
 
 import it.unibo.pps.ese.controller.simulation.runner.core.support.DataRepository
 
@@ -18,15 +18,15 @@ sealed trait EntitiesStateCache extends ReadOnlyEntityState {
 
 object EntitiesStateCache {
 
-  def apply: EntitiesStateCache = DynamicEntitiesStateCache()
+  def apply: EntitiesStateCache = new DynamicEntitiesStateCache()
 
-  private case class DynamicEntitiesStateCache() extends EntitiesStateCache {
+  private class DynamicEntitiesStateCache() extends EntitiesStateCache {
 
     private val _entitiesRepository : DataRepository[String, EntityInfo] =
       DataRepository[String, EntityInfo]
 
     override def publishEntityState(entityId: String): Unit = this synchronized {
-      (_entitiesRepository getById entityId getOrElse(throw new IllegalStateException("No item publish"))).public = true
+      (_entitiesRepository getById entityId getOrElse(throw new IllegalStateException("No item to publish"))).public = true
     }
 
     override def hideEntityState(entityId: String): Unit = this synchronized {

@@ -1,6 +1,7 @@
-package it.unibo.pps.ese.model.dataminer
+package it.unibo.pps.ese.model.dataminer.datamodel
 
 import it.unibo.pps.ese.controller.simulation.runner.core.support.DataRepository
+import it.unibo.pps.ese.model.dataminer.DataModelSupport.{EntityId, Era}
 
 sealed trait ReadOnlyEntityRepository {
   protected var _newDataListeners: Seq[Era => Unit] = Seq empty
@@ -15,7 +16,9 @@ sealed trait ReadOnlyEntityRepository {
 sealed trait EntityDataRepository extends ReadOnlyEntityRepository {
   def saveStaticEntityData(data: EntityStaticRecord): Unit
   def saveDynamicEntityData(era: Era, data: EntityDynamicRecord): Unit
-  def generateNewDataNotification(era: Era): Unit = _newDataListeners foreach(_(era))
+  def generateNewDataNotification(era: Era): Unit = _newDataListeners foreach( e => {
+    e(era)
+  })
 }
 
 object EntityDataRepository {

@@ -1,8 +1,9 @@
 package it.unibo.pps.ese.model.components.animals
 
 import it.unibo.pps.ese.controller.simulation.runner.core
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{BaseEvent, InteractionEvent}
 import it.unibo.pps.ese.controller.simulation.runner.core._
-import it.unibo.pps.ese.controller.simulation.runner.core.support.{BaseEvent, InteractionEvent}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.model.components
 import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.brain.{DynamicParametersRequest, DynamicParametersResponse, Eat, InteractionEntity}

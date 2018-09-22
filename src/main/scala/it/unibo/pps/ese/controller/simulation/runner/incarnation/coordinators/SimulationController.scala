@@ -1,13 +1,18 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 
-import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
+import java.util.concurrent.atomic.AtomicInteger
 
+import it.unibo.pps.ese.controller.simulation.StaticRules
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
-import it.unibo.pps.ese.model.dataminer.{DataMiner, DataSaver, ReadOnlyEntityRepository}
+import it.unibo.pps.ese.model.dataminer.DataMiner
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers.{StoryTeller, Surgeon}
 import it.unibo.pps.ese.controller.simulation.runner.core._
-import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityState, ReadOnlyEntityState}
+import it.unibo.pps.ese.controller.simulation.runner.incarnation.{EntityBuilderHelpers, ReignType}
+import it.unibo.pps.ese.model.dataminer.datamodel.ReadOnlyEntityRepository
+import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
+import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.core.View
 import it.unibo.pps.ese.view.sections.statistics.ChartsData
 
@@ -39,6 +44,8 @@ trait QueryableController {
 
 trait BaseManageableController extends ManageableController {
 
+  implicit val executionContext: ExecutionContext
+
   private[this] var _stop = false
   private[this] var _paused = true
 
@@ -46,7 +53,13 @@ trait BaseManageableController extends ManageableController {
 
   def add(animals: Map[String, Int], plants: Map[String, Int],
                    newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit = {
-    simulation.addEntities(animals, plants, newAnimals, newPlants)
+    val worldInfo = simulation worldInfo()
+    def animalCreationFunction: (AnimalInfo, Point) => Entity =
+      (a, p) => EntityBuilderHelpers.initializeEntity(a, p, worldInfo.width, worldInfo.height, animalCreationFunction)
+    val entities: Seq[Entity] = EntityBuilderHelpers.initializeEntities(animals, plants, newAnimals, newPlants,
+      worldInfo.width, worldInfo.height, animalCreationFunction)
+    StaticRules.instance().updateRules()
+    simulation addEntities entities
   }
 
   def play(): Unit = this synchronized {
@@ -77,7 +90,7 @@ trait BaseQueryableController extends QueryableController {
 
   def realTimeState: ReadOnlyEntityState
   def consolidatedState: ReadOnlyEntityRepository
-
+  val miner: DataMiner = DataMiner(consolidatedState)
 
   def entityData(id: String): Option[EntityState] =
     realTimeState getFilteredState(x => x.entityId == id) match {
@@ -87,28 +100,24 @@ trait BaseQueryableController extends QueryableController {
 
   def historicalData(): Future[ChartsData] = {
     Future {
-      val miner = DataMiner(consolidatedState)
-      val populationTrend = miner populationTrend()
-      val startEra = miner startEra
-      val lastEra = miner lastEra
-      val populationDistribution = (miner aliveSpecies lastEra) map (x => (x, miner aliveCount(x, lastEra)))
-      val births = (miner aliveSpecies lastEra) map (x =>
-        (x, (startEra to lastEra) map (y => (y, miner bornCount(x, y)))))
-      val mutations = (miner aliveSpecies lastEra) map (x =>
-        (x toString, (startEra to lastEra) map (y => (y, (miner mutantAlleles(x, y) size) toLong))))
+      val startEra = miner.startEra
+      val lastEra = miner.lastEra
       ChartsData(
-        Seq[(String, Seq[(Long, Long)])](("global", populationTrend.map(x => (x._1, x._2)))),
-        populationDistribution,
-        births,
-        mutations)
+        Seq[(String, Seq[(Long, Long)])](("Global", miner populationTrend() map(x => (x._1, x._2)))),
+        (miner aliveSpecies lastEra) map (x => (x, miner aliveCount(x, lastEra))),
+        (miner aliveSpecies lastEra) map (x => (x, (startEra to lastEra) map (y => (y, miner bornCount(x, y))))),
+        (miner aliveSpecies lastEra) map (x => (x toString, (startEra to lastEra) map (y =>
+          (y, (miner mutantAlleles(x, y) size) toLong))))
+      )
     }
   }
 
   def simulationEras(): Future[Seq[Long]] =
-    Future {(DataMiner(consolidatedState) startEra) to (DataMiner(consolidatedState) lastEra)}
+    Future {(miner startEra) to (miner lastEra)}
 
   def entitiesInEra(era: Long): Future[Seq[String]] =
-    Future {consolidatedState entitiesInEra era filter (x => x.structuralData.reign == ReignType.ANIMAL.toString) map(x => x.id)}
+    Future {consolidatedState entitiesInEra era filter (x => x.structuralData.reign ==
+      ReignType.ANIMAL.toString) map(x => x.id)}
 
   def replay: ReplayController = ReplayController(consolidatedState)
 }
@@ -116,7 +125,7 @@ trait BaseQueryableController extends QueryableController {
 trait SingleViewController extends SimulationController with BaseManageableController with BaseQueryableController {
 
   private[this] val surgeon = Surgeon(realTimeState)
-  private[this] val storyTeller = StoryTeller(consolidatedState)
+  private[this] val storyTeller = StoryTeller(miner)
   private[this] val _era: AtomicInteger = new AtomicInteger(1)
 
   simulation attachEraListener(era => _era set era.toInt)
@@ -128,7 +137,7 @@ trait SingleViewController extends SimulationController with BaseManageableContr
 
   def attachView(view: View, frameRate: Int): Unit = {
     storyTeller attachView view
-    import ViewHelpers.{ManageableObserver, toViewData}
+    import ViewHelpers.ManageableObserver
     view addObserver this
     new Thread (() => {
       while(!isStopped) {
