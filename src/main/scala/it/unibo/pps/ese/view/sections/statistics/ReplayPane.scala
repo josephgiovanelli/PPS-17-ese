@@ -1,10 +1,11 @@
 package it.unibo.pps.ese.view.sections.statistics
 
 import scalafx.Includes._
-import scalafx.beans.property.{DoubleProperty, IntegerProperty}
-import scalafx.scene.control.{Alert, ScrollPane, SplitPane, Tooltip}
+import scalafx.beans.property.DoubleProperty
+import scalafx.scene.control.{ScrollPane, SplitPane}
 import javafx.application.Platform
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers.ResultEra
+import it.unibo.pps.ese.model.dataminer.datamodel.AnimalDynamicDataImpl
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.utils.Point
@@ -67,12 +68,17 @@ private class ReplayPaneImpl() extends ReplayPane {
     }
 
     def logActions(): Unit = {
-      if (world.actions.contains("eat"))
-        world.actions("eat").foreach(x => detailsPane logInteraction("eats", x, era))
-      if (world.actions.contains("couple"))
-        world.actions("couple").foreach(x => detailsPane logInteraction("mates", x, era))
-      if (world.actions.contains("give birth"))
-        world.actions("give birth").foreach(x => detailsPane logInteraction("gives birth to", x, era))
+      val actions: Map[String, Seq[String]] = world.me.dynamicData match {
+        case impl: AnimalDynamicDataImpl =>
+          Map("eat" -> impl.eating, "couple" -> impl.coupling, "give birth" -> impl.givingBirth)
+        case _ => Map()
+      }
+      if (actions.contains("eat"))
+        actions("eat").foreach(x => detailsPane logInteraction("eats", x, era))
+      if (actions.contains("couple"))
+        actions("couple").foreach(x => detailsPane logInteraction("mates", x, era))
+      if (actions.contains("give birth"))
+        actions("give birth").foreach(x => detailsPane logInteraction("gives birth to", x, era))
     }
 
     Platform.runLater {
@@ -94,6 +100,10 @@ private class ReplayPaneImpl() extends ReplayPane {
     position.x >= 0 && position.x <= width && position.y >= 0 && position.y <= height
 
   private def normalizePosition(target: Point, center: Point, width: Int, height: Int): Point = {
-    Point(((width / 2) * target.x) / center.x, ((height / 2) * target.y) / center.y)
+
+    def toNaturalNumber(x: Int): Int = if (x <= 0) 1 else x
+
+    Point(((width / 2) * toNaturalNumber(target.x)) / toNaturalNumber(center.x),
+      ((height / 2) * toNaturalNumber(target.y)) / toNaturalNumber(center.y))
   }
 }
