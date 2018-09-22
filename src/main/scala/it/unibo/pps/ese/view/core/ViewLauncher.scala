@@ -55,7 +55,7 @@ object ViewLauncher {
           Success(Unit)
         case Failure(exception: CompleteSimulationBuildException) =>
           Platform.runLater({
-            NoCompleteSimulationAlert(currentWindow, exception.buildException).showAndWait()
+            NoCompleteSimulationAlert(currentWindow, exception).showAndWait()
             launchSetup(currentWindow, Some(exception.partialSimulationData))
           })
           Success(Unit)

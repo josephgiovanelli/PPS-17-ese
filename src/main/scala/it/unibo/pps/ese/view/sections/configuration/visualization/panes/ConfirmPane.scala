@@ -133,7 +133,7 @@ case class ConfirmPane(mainDialog: MainDialog,
         mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
       }
       case Failure(exception: CompleteSimulationBuildException) =>
-        NoCompleteSimulationAlert(mainDialog.window, exception.buildException).showAndWait()
+        NoCompleteSimulationAlert(mainDialog.window, exception).showAndWait()
         null
       case Failure(exception) =>
         UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()

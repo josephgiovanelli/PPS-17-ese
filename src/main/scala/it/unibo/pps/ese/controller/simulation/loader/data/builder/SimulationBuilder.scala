@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder
 
-import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.SimulationBuilder.SimulationStatus
@@ -41,13 +40,12 @@ object SimulationBuilder {
           if(check._1.isEmpty)
             Success(new SimulationDataImpl(check._2, check._3) with CompleteSimulationData)
           else
-            Failure(CompleteSimulationBuildException(new SimulationDataImpl[PartialAnimalData, PartialPlantData](
-              animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2))),
-              check._1.get))
+            Failure(new CompleteSimulationBuildException(check._1.get, new SimulationDataImpl[PartialAnimalData, PartialPlantData](
+              animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2)))))
         case _ =>
-          Failure(CompleteSimulationBuildException(new SimulationDataImpl[PartialAnimalData, PartialPlantData](
-            animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2))),
-            new CompleteBuildException("Simulation: animals and plants must be set")))
+          Failure(new CompleteSimulationBuildException("Simulation: animals and plants must be set",
+            new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals.map(t => (t._1.build(), t._2)),
+              plants.map(t => (t._1.build(), t._2)))))
       }
     }
 
