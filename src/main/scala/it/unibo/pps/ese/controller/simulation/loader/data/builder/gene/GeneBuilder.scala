@@ -10,7 +10,7 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
 trait GenericGeneBuilder[S <: GeneStatus] { self =>
-  type RET[A <: GeneStatus]
+  type RET[A <: S] <: GenericGeneBuilder[A]
   def setId(id: String): RET[S with GeneWithId]
   def setName(name: String): RET[S with GeneWithName]
   def addProperties(properties: Map[String, Class[_]]): RET[S with GeneWithProperties]
@@ -29,18 +29,18 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                extends GenericGeneBuilder[T] { self =>
 
   def setId(id: String): RET[T with GeneWithId] =
-    newInstance[T with GeneWithId](Some(id), name, properties, alleles)
+    newInstance(Some(id), name, properties, alleles)
 
   def setName(name: String): RET[T with GeneWithName] =
-    newInstance[T with GeneWithName](id, Some(name), properties, alleles)
+    newInstance(id, Some(name), properties, alleles)
 
   def addProperties(properties: Map[String, Class[_]]): RET[T with GeneWithProperties] =
-    newInstance[T with GeneWithProperties](id, name, properties, alleles)
+    newInstance(id, name, properties, alleles)
 
   override def addAlleles(alleles: Iterable[AlleleBuilder[_]]): RET[T with GeneWithAlleles] =
-    newInstance[T with GeneWithAlleles](id, name, properties, alleles)
+    newInstance(id, name, properties, alleles)
 
-  def newInstance[NT <: GeneStatus](id: Option[String], name: Option[String], properties: Map[String, Class[_]],
+  def newInstance[NT <: T](id: Option[String], name: Option[String], properties: Map[String, Class[_]],
                            alleles: Iterable[AlleleBuilder[_]])(implicit tt: TypeTag[NT]): RET[NT]
 
   protected def completeGeneRequirements: (Option[Exception], Iterable[CompleteAlleleData]) = {

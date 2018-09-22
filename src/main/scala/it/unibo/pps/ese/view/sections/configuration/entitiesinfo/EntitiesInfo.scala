@@ -217,8 +217,6 @@ object EntitiesInfo {
             .addSexualChromosome(sexualChromosomeMapping(animal._1))
         }
       })
-      //TODO required if CompleteAnimalData is a type
-      //.asInstanceOf[Map[String, CompleteAnimalData]]
       mappedAnimals.map(mappedAnimal => mappedAnimal._2 -> animalsEntities(mappedAnimal._1))
     }
 

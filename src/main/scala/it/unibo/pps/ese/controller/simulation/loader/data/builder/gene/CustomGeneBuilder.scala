@@ -12,7 +12,7 @@ import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
 
 trait CustomGeneBuilder[S <: GeneStatus] extends BuildableGeneBuilder[S, CustomGene, PartialCustomGeneData, CompleteCustomGeneData] {
-  type RET[A <: GeneStatus] = CustomGeneBuilder[A]
+  type RET[A <: S] = CustomGeneBuilder[A]
   def setCustomProperties(properties: Map[String, PropertyInfo]): CustomGeneBuilder[S with GeneWithProperties with GeneWithConversionMap]
   def addConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[S with GeneWithConversionMap]
 }

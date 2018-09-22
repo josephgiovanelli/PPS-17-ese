@@ -8,7 +8,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.Comp
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
-trait AlleleBuilder[T <: AlleleStatus] {
+sealed trait AbsAlleleBuilder[T <: AlleleStatus] {
   def gene: Option[String]
   def setGene(gene: String): AlleleBuilder[T with AlleleWithGene]
   def setId(id: String): AlleleBuilder[T with AlleleWithId]
@@ -16,10 +16,9 @@ trait AlleleBuilder[T <: AlleleStatus] {
   def setConsume(consume: Double): AlleleBuilder[T with AlleleWithConsume]
   def setProbability(probability: Double): AlleleBuilder[T with AlleleWithProbability]
   def setEffect(effect: Map[String, Double]): AlleleBuilder[T with AlleleWithEffect]
-  def buildComplete(implicit ev: T =:= FullAllele): CompleteAlleleData
-  def build(): PartialAlleleData
-  def tryCompleteBuild(): Try[CompleteAlleleData]
 }
+
+trait AlleleBuilder[T <: AlleleStatus] extends AbsAlleleBuilder[T] with GenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData]
 
 object AlleleBuilder {
 
@@ -51,7 +50,7 @@ object AlleleBuilder {
     def setEffect(effect: Map[String, Double]): AlleleBuilder[T with AlleleWithEffect] =
       new AlleleBuilderImpl(gene, id, dominance, consume, probability, effect)
 
-    def buildComplete(implicit ev: T =:= FullAllele): CompleteAlleleData = {
+    def buildComplete(implicit ev: T =:= FullAllele, st: TypeTag[T]): CompleteAlleleData = {
       new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData
     }
 
@@ -75,7 +74,7 @@ object AlleleBuilder {
     }
   }
 
-  sealed trait AlleleStatus
+  sealed trait AlleleStatus extends BuilderStatus
   object AlleleStatus {
     sealed trait EmptyAllele extends AlleleStatus
     sealed trait AlleleWithId extends AlleleStatus

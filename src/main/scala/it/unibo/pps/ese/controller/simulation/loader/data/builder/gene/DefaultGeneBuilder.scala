@@ -11,7 +11,7 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
 trait DefaultGeneBuilder[S <: GeneStatus] extends BuildableGeneBuilder[S, DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData] {
-  type RET[A <: GeneStatus] = DefaultGeneBuilder[A]
+  type RET[A <: S] = DefaultGeneBuilder[A]
   def setDefaultInfo(defaultGene: it.unibo.pps.ese.controller.simulation.loader.DefaultGene): DefaultGeneBuilder[S with DefaultGeneTemplate]
 }
 

@@ -51,23 +51,23 @@ object YamlLoader extends Loader {
     if(simulation.animals.isDefined) {
       val animals = simulation.animals.get.map({
         case (animalConfigPath, v) =>
-          (normalizeConfigPath(animalConfigPath, currentFolder) match {case f: File => loadAnimal(f).asInstanceOf[AnimalBuilder[_ <: EntityStatus]]}, v)
+          (normalizeConfigPath(animalConfigPath, currentFolder) match {case f: File => loadAnimal(f)}, v)
       })
       builder = builder.addAnimals(animals)
     }
     if(simulation.plants.isDefined) {
       val plants = simulation.plants.get.map({
         case (plantConfigPath, v) =>
-          (normalizeConfigPath(plantConfigPath, currentFolder) match {case f: File => loadPlant(f).asInstanceOf[PlantBuilder[_ <: EntityStatus]]}, v)
+          (normalizeConfigPath(plantConfigPath, currentFolder) match {case f: File => loadPlant(f)}, v)
       })
       builder = builder.addPlants(plants)
     }
     builder
   }
 
-  private def loadPlant(config: File): PlantBuilder[_] = {
+  private def loadPlant(config: File): PlantBuilder[_ <: EntityStatus] = {
     val loadedPlant = loadFileContent(config).parseYaml.convertTo[Plant]
-    var builder: PlantBuilder[_] = PlantBuilder().setName(loadedPlant.name)
+    var builder: PlantBuilder[_ <: EntityStatus] = PlantBuilder().setName(loadedPlant.name)
     if(loadedPlant.reign.isDefined)
       builder = builder.setReign(loadedPlant.reign.get)
     if(loadedPlant.alleleLength.isDefined)
@@ -83,7 +83,7 @@ object YamlLoader extends Loader {
     builder
   }
 
-  private def loadAnimal(config: File): AnimalBuilder[_] = {
+  private def loadAnimal(config: File): AnimalBuilder[_ <: EntityStatus] = {
     val loadedAnimal = loadFileContent(config).parseYaml.convertTo[Animal]
     var structuralChromosome: Seq[CustomGeneBuilder[_]] = Seq()
     var regulationChromosome: Seq[DefaultGeneBuilder[_]] = Seq()
@@ -97,7 +97,7 @@ object YamlLoader extends Loader {
       regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome.get, config.getParentFolder().get)
     if(loadedAnimal.sexualChromosome.isDefined)
       sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome.get, config.getParentFolder().get)
-    var builder: AnimalBuilder[_] = AnimalBuilder().setName(loadedAnimal.name)
+    var builder: AnimalBuilder[_ <: EntityStatus] = AnimalBuilder().setName(loadedAnimal.name)
     if(loadedAnimal.typology.isDefined)
       builder = builder.setTypology(loadedAnimal.typology.get)
     if(loadedAnimal.reign.isDefined)

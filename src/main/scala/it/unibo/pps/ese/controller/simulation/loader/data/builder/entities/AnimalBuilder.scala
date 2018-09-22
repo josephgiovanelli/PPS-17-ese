@@ -14,7 +14,7 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
 trait AnimalBuilder[T <: EntityStatus] extends EntityBuilder[T] with GenericBuilder[T, FullAnimal, PartialAnimalData, CompleteAnimalData]{
-  override type RET[A <: EntityStatus] = AnimalBuilder[A]
+  override type RET[A <: T] = AnimalBuilder[A]
   def setTypology(typology: String): AnimalBuilder[T with AnimalWithTypology]
   def addStructuralChromosome(structuralChromosome: Iterable[CustomGeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome]
   def addRegulationChromosome(regulationChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T with AnimalWithRegChromosome]

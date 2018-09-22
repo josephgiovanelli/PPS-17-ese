@@ -10,7 +10,7 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
 trait PlantBuilder [T <: EntityStatus] extends EntityBuilder[T] with GenericBuilder[T, FullPlant, PartialPlantData, CompletePlantData] {
-  override type RET[A <: EntityStatus] = PlantBuilder[A]
+  override type RET[A <: T] = PlantBuilder[A]
   def setHeight(height: Double): PlantBuilder[T with PlantWithHeight]
   def setNutritionalValue(nutritionalValue: Double): PlantBuilder[T with PlantWithNutritionalValue]
   def setHardness(hardness: Double): PlantBuilder[T with PlantWithHardness]

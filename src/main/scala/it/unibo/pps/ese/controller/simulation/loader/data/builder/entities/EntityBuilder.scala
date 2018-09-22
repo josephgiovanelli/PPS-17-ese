@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.Entit
 import scala.reflect.runtime.universe._
 
 trait EntityBuilder[S <: EntityStatus] { self =>
-  type RET[A <: EntityStatus]
+  type RET[A <: S] <: EntityBuilder[A]
   def setName(name: String): RET[S with EntityWithName]
   def setGeneLength(geneLength: Int): RET[S with EntityWithGeneLength]
   def setAlleleLength(alleleLength: Int): RET[S with EntityWithAlleleLength]
@@ -31,7 +31,7 @@ abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
   def setReign(reign: String): RET[S with EntityWithReign] =
     newInstance(name, geneLength, alleleLength, Some(reign))
 
-  def newInstance[NT <: EntityStatus](name: Option[String], geneLength: Option[Int], alleleLength: Option[Int],
+  def newInstance[NT <: S](name: Option[String], geneLength: Option[Int], alleleLength: Option[Int],
                                       reign: Option[String])(implicit tt: TypeTag[NT]): RET[NT]
 }
 
