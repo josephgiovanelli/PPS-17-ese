@@ -16,9 +16,7 @@ sealed trait ReadOnlyEntityRepository {
 sealed trait EntityDataRepository extends ReadOnlyEntityRepository {
   def saveStaticEntityData(data: EntityStaticRecord): Unit
   def saveDynamicEntityData(era: Era, data: EntityDynamicRecord): Unit
-  def generateNewDataNotification(era: Era): Unit = _newDataListeners foreach( e => {
-    e(era)
-  })
+  def generateNewDataNotification(era: Era): Unit = _newDataListeners foreach (_(era))
 }
 
 object EntityDataRepository {
@@ -30,7 +28,7 @@ object EntityDataRepository {
     private[this] val _dynamicLog: DataRepository[EntityId, EntityLog] =
       DataRepository[EntityId, EntityLog]
 
-    override def saveStaticEntityData(data: EntityStaticRecord): Unit = {
+    override def saveStaticEntityData(data: EntityStaticRecord): Unit = this synchronized {
 
       def _prepareData: EntityLog = {
         val oldData = entityDynamicLog(data id)
@@ -41,20 +39,24 @@ object EntityDataRepository {
       _dynamicLog addOrUpdate (data id, _prepareData)
     }
 
-    override def exists(entityId: EntityId): Boolean = _dynamicLog exists entityId
+    override def exists(entityId: EntityId): Boolean = this synchronized { _dynamicLog exists entityId }
 
-    override def saveDynamicEntityData(era: Era, data: EntityDynamicRecord): Unit =
+    override def saveDynamicEntityData(era: Era, data: EntityDynamicRecord): Unit = this synchronized {
       _dynamicLog getById (data id) map(x =>
         EntityLogImpl(x id, x structuralData, x.dynamicData :+ (era, data.data))) foreach(x =>
         _dynamicLog addOrUpdate (data id, x))
+    }
 
-    override def entitiesInEra(era: Era): Seq[EntityTimedRecord] =
+    override def entitiesInEra(era: Era): Seq[EntityTimedRecord] = this synchronized {
       (_dynamicLog getAll) filter (x => x._2.dynamicData.exists(y => y._1 == era)) map (x => x._2) map (x =>
         EntityTimedRecordImpl(x id, era, x structuralData, x.dynamicData.find(y => y._1 == era).map(y => y._2).get))
+    }
 
-    override def entityDynamicLog(entityId: EntityId): Option[EntityLog] = _dynamicLog getById entityId
+    override def entityDynamicLog(entityId: EntityId): Option[EntityLog] =
+      this synchronized { _dynamicLog getById entityId }
 
-    override def getAllDynamicLogs(): Seq[EntityLog] = (_dynamicLog getAll) map (x => x._2)
+    override def getAllDynamicLogs(): Seq[EntityLog] =
+      this synchronized { (_dynamicLog getAll) map (x => x._2) }
   }
 }
 
