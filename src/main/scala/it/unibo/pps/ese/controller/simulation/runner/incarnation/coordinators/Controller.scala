@@ -10,12 +10,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 trait Controller {
-  //Partenza simulazione
   def startSimulation(file: File): Future[Try[(SimulationController, CompleteSimulationData)]]
   def startSimulation(data: CompleteSimulationData): Future[Try[SimulationController]]
-  //Editing simulazione
-  def loadSimulation(file: File): Try[PartialSimulationData]
-  //Cachare saver e target
+  def loadSimulation(file: File): Future[Try[PartialSimulationData]]
   def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]]
   def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]]
 }
@@ -46,8 +43,8 @@ object Controller {
       })
     }
 
-    override def loadSimulation(file: File): Try[PartialSimulationData] = {
-      Try(YamlLoader.loadSimulation(file))
+    override def loadSimulation(file: File): Future[Try[PartialSimulationData]] = {
+      Future(Try(YamlLoader.loadSimulation(file)))
     }
 
     override def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]] = {

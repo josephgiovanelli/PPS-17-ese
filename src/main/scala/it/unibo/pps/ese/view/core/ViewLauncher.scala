@@ -20,8 +20,8 @@ trait ViewLauncher
 
 trait StartViewBridge {
   def startSimulation(file: File, currentWindow: Window): Future[Try[Unit]]
-  def loadSimulation(file: File, currentWindow: Window): Try[Unit]
-  def launchSetup(currentWindow: Window): Unit
+  def loadSimulation(file: File, currentWindow: Window): Future[Try[Unit]]
+  def launchSetup(currentWindow: Window, simulationData: Option[PartialSimulationData] = None): Unit
 }
 
 trait SetupViewBridge {
@@ -42,44 +42,33 @@ object ViewLauncher {
     val simulationController: Option[SimulationController] = None
     this.scene = StartMenuView(this)
 
-    def launchSetup(currentWindow: Window): Unit = {
-//      ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
+    def launchSetup(currentWindow: Window, simulationData: Option[PartialSimulationData] = None): Unit = {
+      simulationData.foreach(populateEntitiesInfo)
       MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
     }
 
     def startSimulation(file: File, currentWindow: Window): Future[Try[Unit]] = {
       controller.startSimulation(file).map({
         case Success((contr, data)) =>
-          Platform.runLater({
-            EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
-              data.getPlants.getOrElse(Iterable()).map(_._1))
-            val mainView = View(geneticsSimulator, contr)
-            contr.attachView(mainView, 30)
-            this.hide()
-          })
-          Success()
+          populateEntitiesInfo(data)
+          launchMainView(contr)
+          Success(Unit)
         case Failure(exception: CompleteSimulationBuildException) =>
           Platform.runLater({
             NoCompleteSimulationAlert(currentWindow, exception.buildException).showAndWait()
-            EntitiesInfo.instance().loadSimulationData(exception.partialSimulationData.getAnimals.getOrElse(Iterable()).map(_._1),
-              exception.partialSimulationData.getPlants.getOrElse(Iterable()).map(_._1))
-            //          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
-            MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
+            launchSetup(currentWindow, Some(exception.partialSimulationData))
           })
-          Success()
+          Success(Unit)
         case Failure(exception) =>
           Failure(exception)
       })
     }
-    //Editing simulazione
-    def loadSimulation(file: File, currentWindow: Window): Try[Unit] = {
-      controller.loadSimulation(file) match {
+
+    def loadSimulation(file: File, currentWindow: Window): Future[Try[Unit]] = {
+      controller.loadSimulation(file) map {
         case Success(data) =>
-          EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
-            data.getPlants.getOrElse(Iterable()).map(_._1))
-//          ConfigurationDialog(currentWindow, Option(this), None, setUp = true).showAndWait()
-          MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
-          Success()
+          Platform.runLater(launchSetup(currentWindow, Some(data)))
+          Success(Unit)
         case Failure(exception) =>
           Failure(exception)
       }
@@ -93,10 +82,23 @@ object ViewLauncher {
             value.attachView(mainView, 30)
             this.hide()
           })
-          Success()
+          Success(Unit)
         case _ =>
           throw new IllegalStateException()
       }
+    }
+
+    private def launchMainView(controller: SimulationController): Unit = {
+      Platform.runLater({
+        val mainView = View(geneticsSimulator, controller)
+        controller.attachView(mainView, 30)
+        this.hide()
+      })
+    }
+
+    private def populateEntitiesInfo(data: PartialSimulationData): Unit = {
+      EntitiesInfo.instance().loadSimulationData(data.getAnimals.getOrElse(Iterable()).map(_._1),
+        data.getPlants.getOrElse(Iterable()).map(_._1))
     }
 
     def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]] = {
