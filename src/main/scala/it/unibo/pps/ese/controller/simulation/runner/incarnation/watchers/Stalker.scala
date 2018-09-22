@@ -7,12 +7,9 @@ import it.unibo.pps.ese.utils.Point
 /**
   * Inform about what happend in the current era
   * @param me position of the stalked
-  * @param actions the key is the action (eat, couple, give birth) and the value is the entities the stalked interacted with
-  *                to do the key action
   * @param others all the entities with whom the stalked interacted, who are alive in this era
   */
-case class ResultEra(me: EntityTimedRecord, actions: Map[String, Seq[String]], others: Seq[ResultOther])
-
+case class ResultEra(me: EntityTimedRecord, others: Seq[ResultOther])
 case class ResultOther(label: String, var entities: Map[String, Point])
 
 object MemoHelper {
@@ -33,8 +30,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
   lazy val memo: Long => ResultEra = memoize(x => {
     println(s"Calling memo with input $x")
 
-    var actions: Map[String, Seq[String]] = Map.empty
-    var others:  Seq[ResultOther] = Seq(
+    val others:  Seq[ResultOther] = Seq(
       ResultOther("prey", Map.empty),
       ResultOther("partner", Map.empty),
       ResultOther("child", Map.empty),
@@ -62,14 +58,8 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
     val target = consolidatedState.entitiesInEra(currentEra).filter(x => x.id == stalked.get) head
 
-    target.dynamicData match {
-      case impl: AnimalDynamicDataImpl =>
-        actions += ("eat" -> impl.eating)
-        actions += ("couple" -> impl.coupling)
-        actions += ("give birth" -> impl.givingBirth)
-    }
 
-    ResultEra(target, actions, others)
+    ResultEra(target, others)
   })
 
   def stalk(entityId: String): Unit = {
@@ -104,7 +94,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
   def report: ResultEra = {
 
-    var resultEra = ResultEra(null, null, null)
+    var resultEra = ResultEra(null, null)
 
     if (stalked.isDefined) {
 

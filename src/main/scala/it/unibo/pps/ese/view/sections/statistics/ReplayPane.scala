@@ -5,6 +5,7 @@ import scalafx.beans.property.{DoubleProperty, IntegerProperty}
 import scalafx.scene.control.{Alert, ScrollPane, SplitPane, Tooltip}
 import javafx.application.Platform
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers.ResultEra
+import it.unibo.pps.ese.model.dataminer.AnimalDynamicDataImpl
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.paint.Color
 import it.unibo.pps.ese.utils.Point
@@ -67,12 +68,17 @@ private class ReplayPaneImpl() extends ReplayPane {
     }
 
     def logActions(): Unit = {
-      if (world.actions.contains("eat"))
-        world.actions("eat").foreach(x => detailsPane logInteraction("eats", x, era))
-      if (world.actions.contains("couple"))
-        world.actions("couple").foreach(x => detailsPane logInteraction("mates", x, era))
-      if (world.actions.contains("give birth"))
-        world.actions("give birth").foreach(x => detailsPane logInteraction("gives birth to", x, era))
+      val actions: Map[String, Seq[String]] = world.me.dynamicData match {
+        case impl: AnimalDynamicDataImpl =>
+          Map("eat" -> impl.eating, "couple" -> impl.coupling, "give birth" -> impl.givingBirth)
+        case _ => Map()
+      }
+      if (actions.contains("eat"))
+        actions("eat").foreach(x => detailsPane logInteraction("eats", x, era))
+      if (actions.contains("couple"))
+        actions("couple").foreach(x => detailsPane logInteraction("mates", x, era))
+      if (actions.contains("give birth"))
+        actions("give birth").foreach(x => detailsPane logInteraction("gives birth to", x, era))
     }
 
     Platform.runLater {
