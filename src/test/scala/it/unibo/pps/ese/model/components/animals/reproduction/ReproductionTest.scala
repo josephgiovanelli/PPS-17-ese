@@ -7,6 +7,7 @@ import it.unibo.pps.ese.controller.simulation.loader.io.File
 import it.unibo.pps.ese.controller.simulation.runner.core.UpdatableWorld.UpdatePolicy.Deterministic
 import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityUpdateState, _}
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl
 import it.unibo.pps.ese.model.components.animals.brain.{ActionTypes, Couple, InteractionEntity}
 import it.unibo.pps.ese.model.components.{BaseInfoRequest, BaseInfoResponse}
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
@@ -24,7 +25,7 @@ class ReproductionTest extends FunSuite {
 
   private val i = (9 to 1 by -1).iterator
 
-  import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl._
+  import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRules._
   StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
   private val worldRules: WorldRulesImpl = WorldRulesImpl(Integer.MIN_VALUE, Integer.MAX_VALUE, 0,
     Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),

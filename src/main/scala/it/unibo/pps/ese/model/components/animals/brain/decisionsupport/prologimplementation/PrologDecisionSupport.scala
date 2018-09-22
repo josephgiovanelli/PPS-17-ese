@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation
 
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport._
 
 import scala.io.Source

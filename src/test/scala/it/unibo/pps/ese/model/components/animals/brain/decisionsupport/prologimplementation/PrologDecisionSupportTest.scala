@@ -1,9 +1,9 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation
 
 import it.unibo.pps.ese.controller.simulation.StaticRules
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImpl._
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{DecisionSupport, EntityChoiceImpl, EntityKinds, GenderTypes}
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImplUtils._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRules._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport._
 import org.scalatest.FunSuite
 
 class PrologDecisionSupportTest extends FunSuite {

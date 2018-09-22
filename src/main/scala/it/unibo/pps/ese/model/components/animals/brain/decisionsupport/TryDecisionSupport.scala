@@ -1,8 +1,8 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport
 
 import it.unibo.pps.ese.controller.simulation.StaticRules
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImpl._
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImplUtils._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRules._
 
 
 

@@ -13,7 +13,7 @@ import it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.{S
 import it.unibo.pps.ese.model.components.BaseInfoComponent
 import it.unibo.pps.ese.model.components.animals.PhysicalStatusComponent
 import it.unibo.pps.ese.model.components.animals.brain.BrainComponent
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl.WorldRulesImpl
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl
 import it.unibo.pps.ese.model.components.animals.reproduction.ReproductionComponent
 import it.unibo.pps.ese.model.components.animals.trackers.{InteractionTrackerComponent, OrgansTrackerComponent}
 import it.unibo.pps.ese.model.components.plant.{PlantPhysicalComponent, PlantReproductionComponent}

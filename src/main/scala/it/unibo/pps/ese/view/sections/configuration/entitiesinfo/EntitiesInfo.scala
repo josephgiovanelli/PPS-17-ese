@@ -142,7 +142,7 @@ object EntitiesInfo {
         case RegulationChromosome =>
           val regulationGene = currentAnimalChromosome.regulationChromosome(gene)
           currentAnimalChromosome.regulationChromosome += (gene -> DefaultChromosomeInfo(regulationGene.geneInfo, regulationGene.alleles ++ alleles))
-        case RegulationChromosome =>
+        case SexualChromosome =>
           val sexualGene = currentAnimalChromosome.sexualChromosome(gene)
           currentAnimalChromosome.sexualChromosome += (gene -> DefaultChromosomeInfo(sexualGene.geneInfo, sexualGene.alleles ++ alleles))
       }

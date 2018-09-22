@@ -1,10 +1,7 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport
 
 import it.unibo.pps.ese.controller.simulation.StaticRules
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityKinds.entityKinds
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl.WorldRulesImpl
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation.{PrologDecisionSupport, WorldRulesListener}
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation.WorldRulesListener
 
 
 trait WorldTypes {
@@ -91,56 +88,46 @@ object PlantAttributes {
   def apply(name: String, kind: EntityKinds.Value, height: Double, defense: Double, position: GeneralPosition[Int], gender: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, 0, defense, position, 0, gender)
 }
 
-object EntityAttributesImpl {
-  def apply(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, position: GeneralPosition[Int], attractiveness: Double, gender: GenderTypes.Value): EntityAttributesImpl = EntityAttributesImpl(name, kind, height, strength, defense, position, attractiveness, gender)
-
+object EntityAttributesImplUtils {
   implicit def generalPositionToTuple(generalPosition: GeneralPosition[Int]): (Int, Int) = (generalPosition.x, generalPosition.y)
   implicit def tupleToGeneralPosition(tuple: (Int, Int)): GeneralPosition[Int] = GeneralPosition(tuple._1, tuple._2)
+}
 
-  case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, var position: GeneralPosition[Int], attractiveness: Double, gender: GenderTypes.Value){
-    override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strength + ", " + defense + ", [" + position.x + ", " + position.y + "], " + attractiveness + ", " + gender + ")"
-  }
-
+case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: Double, strength: Double, defense: Double, var position: GeneralPosition[Int], attractiveness: Double, gender: GenderTypes.Value){
+  override def toString: String = "Entity(" + name + ", " + kind + ", " + height + ", " + strength + ", " + defense + ", [" + position.x + ", " + position.y + "], " + attractiveness + ", " + gender + ")"
 }
 
 case class EntityChoiceImpl(name: String, distance: Int)
 
-object WorldRulesImpl {
-  /**
-    *
-    * @param attackThreshold
-    * @param heightThresholds
-    * @param couplingThreshold
-    * @param compatibleHuntingKinds
-    * @param compatibleCouplingKinds
-    * @return
-    */
-  def apply(attackThreshold: Double, heightThresholds: Double, couplingThreshold: Double, compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)], compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)]): WorldRulesImpl =  WorldRulesImpl(attackThreshold, heightThresholds, couplingThreshold, compatibleHuntingKinds, compatibleCouplingKinds)
+object WorldRules {
+
   implicit def stringToEntityKinds(string: String): EntityKinds.Value = EntityKinds(Symbol(string))
   implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
   implicit def setTupleStringToSetTupleEntityKinds(set: Set[(String, String)]): Set[(EntityKinds.Value, EntityKinds.Value)] = set map tupleStringToEntityKinds
 
-  /**
-    *
-    * @param attackThreshold
-    * @param heightThresholds
-    * @param couplingThreshold
-    * @param compatibleHuntingKinds
-    * @param compatibleCouplingKinds
-    */
-  case class WorldRulesImpl(attackThreshold: Double, heightThresholds: Double, couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
-    private var listeners: Seq[WorldRulesListener] = Seq.empty
+}
 
-    def addListener(impl: WorldRulesListener) = listeners = listeners :+ impl
+/**
+  *
+  * @param attackThreshold
+  * @param heightThresholds
+  * @param couplingThreshold
+  * @param compatibleHuntingKinds
+  * @param compatibleCouplingKinds
+  */
+case class WorldRulesImpl(attackThreshold: Double, heightThresholds: Double, couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
+  import WorldRules._
+  private var listeners: Seq[WorldRulesListener] = Seq.empty
 
-    def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = {
-      compatibleHuntingKinds = set
-      listeners.foreach(_.updateHuntingKind(set))
-    }
-    def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = {
-      compatibleCouplingKinds = set
-      listeners.foreach(_.updateCouplingKind(set))
-    }
+  def addListener(impl: WorldRulesListener) = listeners = listeners :+ impl
+
+  def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = {
+    compatibleHuntingKinds = set
+    listeners.foreach(_.updateHuntingKind(set))
+  }
+  def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = {
+    compatibleCouplingKinds = set
+    listeners.foreach(_.updateCouplingKind(set))
   }
 }
 
