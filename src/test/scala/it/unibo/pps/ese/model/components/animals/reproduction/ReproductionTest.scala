@@ -4,8 +4,9 @@ import it.unibo.pps.ese.controller.simulation.StaticRules
 import it.unibo.pps.ese.controller.simulation.loader.YamlLoader
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.simulation.loader.io.File
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.BaseEvent
 import it.unibo.pps.ese.controller.simulation.runner.core.UpdatableWorld.UpdatePolicy.Deterministic
-import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityUpdateState, _}
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl
 import it.unibo.pps.ese.model.components.animals.brain.{ActionTypes, Couple, InteractionEntity}
@@ -88,7 +89,7 @@ class ReproductionTest extends FunSuite {
   }
 
   def baseEntityInit(animalInfo: AnimalInfo) : Entity = {
-    val entity = Entity("improved", i.next().toString)
+    val entity = Entity(i.next().toString)
     entity addComponent initializeReproductionComponent(entity, animalInfo)
     entity
   }

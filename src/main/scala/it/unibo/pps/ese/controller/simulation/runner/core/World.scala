@@ -1,8 +1,9 @@
 package it.unibo.pps.ese.controller.simulation.runner.core
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{Done, InteractionEnvelope, InteractionEvent}
 import it.unibo.pps.ese.controller.simulation.runner.core.UpdatableWorld.UpdatePolicy
 import it.unibo.pps.ese.controller.simulation.runner.core.UpdatableWorld.UpdatePolicy.{Deterministic, Stochastic}
-import it.unibo.pps.ese.controller.simulation.runner.core.support.{Done, InteractionEnvelope, InteractionEvent}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntitiesStateCache, EntityProperty, EntityState, ReadOnlyEntityState}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -14,8 +15,7 @@ object EntityUpdateState extends Enumeration {
 }
 
 sealed trait World {
-  def width: Long
-  def height: Long
+  def info(): WorldInfo
   def entities : Seq[Entity]
   def addEntity(entity: Entity)(implicit context: ExecutionContext): Unit
   def removeEntity(id: String): Unit
@@ -152,7 +152,7 @@ object World {
     case e if e =:= typeOf[Deterministic] => new BaseInteractiveWorld(width, height) with Deterministic
   }
 
-  private class BaseInteractiveWorld(val width: Long, val height: Long) extends World
+  private class BaseInteractiveWorld(width: Long, height: Long) extends World
     with InteractiveWorld with UpdatableWorld {
 
     self: UpdatePolicy =>

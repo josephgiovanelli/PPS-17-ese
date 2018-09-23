@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.simulation.runner.core
 
 import java.util.UUID.randomUUID
 
-package object support {
+package object EventBusSupport {
 
   trait BaseEvent
   trait HighPriorityEvent

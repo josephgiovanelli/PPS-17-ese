@@ -1,13 +1,10 @@
 package it.unibo.pps.ese.view.sections.statistics
 
-import it.unibo.pps.ese.model.dataminer.{AnimalDynamicData, EntityTimedRecord}
-import it.unibo.pps.ese.model.components.animals.LifePhases
+import it.unibo.pps.ese.model.dataminer.datamodel.{AnimalDynamicData, EntityTimedRecord}
 import it.unibo.pps.ese.view.sections.speciesdetails.NonNumericQualityViewerBox
-
 import scalafx.scene.control.{Label, ScrollPane, TextArea}
 import scalafx.scene.layout.{BorderPane, VBox}
 import it.unibo.pps.ese.view.sections.speciesdetails.QualityBoxUtilities._
-
 import scalafx.geometry.Insets
 
 class DetailsReplayPane() extends ScrollPane {

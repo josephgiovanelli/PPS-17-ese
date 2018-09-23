@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.model.genetics
 
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityInfo
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityInfo
 import it.unibo.pps.ese.view.sections.filters.{EntityFiltersValues, PlantFiltersValues}
 import org.scalatest.FunSuite
 import it.unibo.pps.ese.view.utilities.EntityConversions._

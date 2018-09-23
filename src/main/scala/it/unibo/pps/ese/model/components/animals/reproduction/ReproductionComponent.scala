@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.model.components.animals.reproduction
 
 import it.unibo.pps.ese.controller.simulation.runner.core
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{BaseEvent, InteractionEvent, RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.model.components.animals.reproduction.util.{EmbryosUtil, GeneticsEngine, ReproductionInfo}
 import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.support._

@@ -1,6 +1,8 @@
 package it.unibo.pps.ese.controller.simulation.runner.core.support
 
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong}
+import java.util.concurrent.atomic.AtomicLong
+
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success}
@@ -15,9 +17,9 @@ sealed trait EventBus {
 }
 
 object EventBus {
-  def apply()(implicit executionContext: ExecutionContext): EventBus = new BaseEventBus()
+  def apply()(implicit executionContext: ExecutionContext): EventBus = new PriorityEventBus()
 
-  private class BaseEventBus()(implicit executionContext: ExecutionContext) extends EventBus {
+  private class PriorityEventBus()(implicit executionContext: ExecutionContext) extends EventBus {
 
     case class EventInfo(event: Event, f: Event => Unit) {
       def execute: Future[Any] = Future{f(event)}

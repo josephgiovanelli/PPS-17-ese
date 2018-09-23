@@ -2,7 +2,8 @@ package it.unibo.pps.ese.controller.simulation.runner.core
 
 import java.util.concurrent.atomic.AtomicLong
 
-import it.unibo.pps.ese.controller.simulation.runner.core.support._
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityProperty, EntityState}
 import it.unibo.pps.ese.model.genetics.dna.MGene
 
 import scala.concurrent.{ExecutionContext, Future, Promise}

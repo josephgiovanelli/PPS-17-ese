@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.model.components.plant
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.BaseEvent
 import it.unibo.pps.ese.controller.simulation.runner.core._
-import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
 import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.MealInformation
 

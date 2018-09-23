@@ -1,7 +1,8 @@
 package it.unibo.pps.ese.model.components
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.controller.simulation.runner.core._
-import it.unibo.pps.ese.controller.simulation.runner.core.support.{RequestEvent, ResponseEvent}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.brain.EntityPosition
 import it.unibo.pps.ese.model.components.animals.reproduction.{ReproductionBaseInformationRequest, ReproductionBaseInformationResponse}

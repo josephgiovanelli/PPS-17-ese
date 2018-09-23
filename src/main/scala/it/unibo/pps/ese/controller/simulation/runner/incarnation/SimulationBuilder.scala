@@ -119,7 +119,8 @@ object EntityBuilderHelpers {
 
     val animalEntities: Seq[Entity] = animals.flatMap(entity => Seq.fill(entity._2)(entity._1))
       .zip(distinctRandomPoints(animals.values.sum, worldHeight.toInt, worldWidth.toInt))
-      .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2, worldHeight, worldWidth, animalCreationFunction)).toSeq
+      .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2,
+        worldHeight, worldWidth, animalCreationFunction)).toSeq
 
     val plantEntities: Seq[Entity] = plants.flatMap(entity => Seq.fill(entity._2)(entity._1))
         .zip(distinctRandomPoints(plants.values.sum, worldHeight.toInt, worldWidth.toInt))
@@ -139,7 +140,7 @@ object EntityBuilderHelpers {
 
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long, animalCreationFunction: (AnimalInfo, Point) => Entity)
                       (implicit executionContext: ExecutionContext): Entity = {
-    val entity = Entity("improved", randomUUID().toString)
+    val entity = Entity(randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, animalInfo, position)
     entity addComponent initializeBrainComponent(entity, animalInfo, worldHeight, worldWidth)
     entity addComponent initializeAnimalPhysicalComponent(entity, animalInfo)
@@ -151,7 +152,7 @@ object EntityBuilderHelpers {
 
   def initializeEntity(plantInfo: PlantInfo, position: Point)
                       (implicit executionContext: ExecutionContext): Entity = {
-    val entity = Entity("improved", randomUUID().toString)
+    val entity = Entity(randomUUID().toString)
     entity addComponent initializeBaseInfoComponent(entity, plantInfo, position)
     entity addComponent initializePlantPhysicalComponent(entity, plantInfo)
     entity addComponent initializePlantReproductionComponent(entity)

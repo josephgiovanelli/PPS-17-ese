@@ -1,9 +1,9 @@
 package it.unibo.pps.ese.view.main
 
 import java.awt.MouseInfo
-import javafx.application.Platform
 
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityState
+import javafx.application.Platform
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers
 
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityState, ReadOnlyEntityState}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityState, ReadOnlyEntityState}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.brain.{Couple, Eat, Nothing}
 import it.unibo.pps.ese.view._

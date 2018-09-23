@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.runner.core
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.controller.simulation.runner.core.support._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}

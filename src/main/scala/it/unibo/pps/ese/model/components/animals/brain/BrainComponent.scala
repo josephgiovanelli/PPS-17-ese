@@ -2,12 +2,14 @@ package it.unibo.pps.ese.model.components.animals.brain
 
 import java.util.Random
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{BaseEvent, RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType.MemoryType
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus.SearchingState
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType
 import it.unibo.pps.ese.controller.simulation.runner.core._
-import it.unibo.pps.ese.controller.simulation.runner.core.support.{BaseEvent, RequestEvent, ResponseEvent, SupervisedFuture}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityProperty, EntityState}
+import it.unibo.pps.ese.controller.simulation.runner.core.support.SupervisedFuture
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
