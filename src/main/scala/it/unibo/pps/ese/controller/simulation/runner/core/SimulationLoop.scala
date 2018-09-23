@@ -1,9 +1,7 @@
-package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
+package it.unibo.pps.ese.controller.simulation.runner.core
 
-import it.unibo.pps.ese.controller.simulation.runner.core.{Entity, World, WorldInfo}
-
-import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext}
 
 sealed trait SimulationLoop {
   def play(): Unit

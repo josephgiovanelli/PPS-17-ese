@@ -8,8 +8,8 @@ import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.model.dataminer.DataAggregator
 import it.unibo.pps.ese.controller.simulation.runner.core.UpdatableWorld.UpdatePolicy.Stochastic
-import it.unibo.pps.ese.controller.simulation.runner.core.{Component, Entity, World}
-import it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.{SimulationController, SimulationLoop}
+import it.unibo.pps.ese.controller.simulation.runner.core.{Component, Entity, SimulationLoop, World}
+import it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.SimulationController
 import it.unibo.pps.ese.model.components.BaseInfoComponent
 import it.unibo.pps.ese.model.components.animals.PhysicalStatusComponent
 import it.unibo.pps.ese.model.components.animals.brain.BrainComponent
@@ -54,10 +54,12 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
   def build(implicit ev: Simulation =:= ReadySimulation): SimulationController = controller
 
-  val attackThreshold = 10
-  val heighThreshold = 7
-  val couplingThreshold = 6
   private lazy val controller: SimulationController = {
+
+    val attackThreshold = 10
+    val heightThreshold = 7
+    val couplingThreshold = 6
+    val updatePeriod = 250 millis
 
     import EntityBuilderHelpers._
 
@@ -69,7 +71,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
       (a, p) => EntityBuilderHelpers.initializeEntity(a, p, width, height, animalCreationFunction)
 
     StaticRules.instance().addSpecies((geneticsSimulator.speciesList ++ geneticsSimulator.plantSpeciesList) toSet)
-    val worldRules: WorldRulesImpl = WorldRulesImpl(attackThreshold,heighThreshold,couplingThreshold)
+    val worldRules: WorldRulesImpl = WorldRulesImpl(attackThreshold,heightThreshold,couplingThreshold)
     StaticRules.instance().setRules(worldRules)
 
     geneticsSimulator.speciesList
@@ -86,7 +88,7 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
 
     Await.result(world.requireInfoUpdate, Duration.Inf)
-    val simulation = SimulationLoop(world, 250 millis)
+    val simulation = SimulationLoop(world, updatePeriod)
     val aggregator = new DataAggregator(world entitiesState)
     simulation attachEraListener (era => {
       aggregator ingestData era
