@@ -97,7 +97,7 @@ case class AllelePane(mainDialog: MainDialog,
 
   mandatoryFields = fields.keySet
   doubleFields = mandatoryFields - idAllele
-  listFields = Seq(effectsName)
+  listFields = Seq((effectsName, 1))
   uniqueFields = Map(idAllele -> allelesId)
   lengthFields = Map(idAllele -> EntitiesInfo.instance().getAnimalBaseInfo(animal).alleleLength)
   probabilityFields = Set(probability)

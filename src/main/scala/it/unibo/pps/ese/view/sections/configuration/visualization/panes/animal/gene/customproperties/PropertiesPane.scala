@@ -91,7 +91,7 @@ case class PropertiesPane(mainDialog: MainDialog,
    */
 
   mandatoryFields = fields.keySet
-  listFields = Seq(conversionMapName)
+  listFields = Seq((conversionMapName, 1))
   uniqueFields = Map(propertyName -> properties.toSet)
 
  createChecks()

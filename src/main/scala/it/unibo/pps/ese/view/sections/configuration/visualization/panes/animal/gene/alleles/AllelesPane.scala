@@ -80,7 +80,7 @@ case class AllelesPane(mainDialog: MainDialog,
   Checks
    */
 
-  listFields = Seq(allelesName)
+  listFields = Seq((allelesName, 1))
   createChecks()
 
   def confirmAddAlleleInfo(a: AlleleInfo): Unit = {

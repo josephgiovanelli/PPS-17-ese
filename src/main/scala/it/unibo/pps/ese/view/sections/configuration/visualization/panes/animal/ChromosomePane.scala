@@ -112,7 +112,9 @@ case class ChromosomePane(mainDialog: MainDialog,
   Checks
    */
 
-  listFields = Seq(structuralName, regulationName, sexualName)
+  listFields = Seq((structuralName, 1),
+    (regulationName, RegulationDefaultGenes.elements.size),
+    (sexualName, SexualDefaultGenes.elements.size))
 
   createChecks()
 

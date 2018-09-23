@@ -87,7 +87,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
   var intFields: Set[TextField] = Set.empty
   var doubleFields: Set[TextField] = Set.empty
   var uniqueFields: Map[TextField, Set[String]] = Map.empty
-  var listFields: Seq[ObservableBuffer[String]] = Seq.empty
+  var listFields: Seq[(ObservableBuffer[String], Int)] = Seq.empty
   var lengthFields: Map[TextField, Int] = Map.empty
   var probabilityFields: Set[TextField] = Set.empty
 
@@ -128,7 +128,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
         okButton.disable = checkFields(subject, newValue)))
 
     listFields.foreach(subject =>
-      subject.onChange ((_, _) =>
+      subject._1.onChange ((_, _) =>
         okButton.disable = checkFields))
 
     okButton.disable = checkFields
@@ -189,7 +189,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
       (uniqueFields.keySet.exists(field => uniqueCheck(field)) && uniqueFields.nonEmpty) ||
       (lengthFields.keySet.exists(field => lengthCheck(field)) && lengthFields.nonEmpty) ||
       (probabilityFields.exists(field => probabilityCheck(field)) && probabilityFields.nonEmpty) ||
-      listFields.exists(x => x.isEmpty)
+      listFields.exists(x => x._1.lengthCompare(x._2) < 0)
   }
 
 }

@@ -150,7 +150,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
   Checks
    */
 
-  listFields = Seq(plantsName)
+  listFields = Seq((plantsName, 1))
   createChecks()
 
   /*

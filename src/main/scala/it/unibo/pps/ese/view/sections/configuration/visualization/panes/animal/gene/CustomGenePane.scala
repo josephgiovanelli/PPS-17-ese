@@ -97,7 +97,7 @@ case class CustomGenePane(mainDialog: MainDialog,
     (RegulationDefaultGenes.elements ++ SexualDefaultGenes.elements).map(x => x.name)
 
   mandatoryFields = fields.keySet
-  listFields = Seq(propertiesName)
+  listFields = Seq((propertiesName, 1))
   uniqueFields = Map(
     nameGene -> genesName,
     idGene -> genes.values.map(x => x.geneInfo.id).toSet
