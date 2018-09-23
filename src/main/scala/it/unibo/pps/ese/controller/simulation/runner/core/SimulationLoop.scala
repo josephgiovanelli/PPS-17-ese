@@ -3,17 +3,53 @@ package it.unibo.pps.ese.controller.simulation.runner.core
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 
+/**
+  *  Controls the simulation lifecycle
+  */
 sealed trait SimulationLoop {
+
+  /**
+    * Play the target simulation
+    */
   def play(): Unit
+
+  /**
+    * Pause the target simulation
+    */
   def pause(): Unit
+
+  /**
+    * Dispose the target simulation, freeing used resources
+    */
   def dispose(): Unit
+
+  /**
+    * Add entities dynamically to the running simulation
+    * @param entities Entities to add
+    */
   def addEntities(entities: Seq[Entity]): Unit
+
+  /**
+    * Obtain info about the target simulation
+    * @return Simulation's info
+    */
   def worldInfo(): WorldInfo
+
+  /**
+    * Register a callback in order to be notified at every completed loop of the simulation's update cycle
+    * @param listener The callback to register
+    */
   def attachEraListener(listener: Long => Unit): Unit
 }
 
 object SimulationLoop {
 
+  /**
+    * @param model The simulation's model
+    * @param period The update period
+    * @param executionContext An execution context, required for async tasks
+    * @return A SimulationLoop's instance
+    */
   def apply(model: World, period: FiniteDuration)
            (implicit executionContext: ExecutionContext): SimulationLoop = new BaseSimulationLoop(model, period)
 
