@@ -50,7 +50,7 @@ object PlantBuilder {
           Success(new PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength,
             alleleLength, reign) with CompletePlantData)
         case _ =>
-          Failure(new CompleteBuildException("Plant: " + name + " | All properties must be set"))
+          Failure(CompleteBuildException("Plant: " + name + " | All properties must be set"))
       }
     }
 

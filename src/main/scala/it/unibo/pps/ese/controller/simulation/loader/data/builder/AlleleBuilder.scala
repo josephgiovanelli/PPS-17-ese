@@ -59,7 +59,7 @@ object AlleleBuilder {
         case t if t <:< typeOf[FullAllele] =>
           Success(new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData)
         case _ =>
-          Failure(new CompleteBuildException("Allele " + id + " must have all fields"))
+          Failure(CompleteBuildException("Allele " + id + " must have all fields"))
       }
     }
 

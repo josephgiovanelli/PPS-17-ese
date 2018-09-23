@@ -76,7 +76,7 @@ object SimulationBuilder {
           (value, i)
       })
       if(animals.size != a.size) {
-        exception = exception ++: new CompleteBuildException("Simulation: All animals must be complete",
+        exception = exception ++: CompleteBuildException("Simulation: All animals must be complete",
           aTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
       }
       val pTries: Iterable[(Try[CompletePlantData], Int)] = plants.map(t => (t._1.tryCompleteBuild, t._2))
@@ -85,7 +85,7 @@ object SimulationBuilder {
           (value, i)
       })
       if(plants.size != p.size) {
-        exception = exception ++: new CompleteBuildException("Simulation: All plants must be complete",
+        exception = exception ++: CompleteBuildException("Simulation: All plants must be complete",
           pTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
       }
       (exception, a, p)

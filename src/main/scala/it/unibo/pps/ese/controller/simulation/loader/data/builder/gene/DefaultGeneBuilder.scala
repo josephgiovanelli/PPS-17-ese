@@ -57,7 +57,7 @@ object DefaultGeneBuilder {
             Failure(check._1.get)
           }
         case _ =>
-          Failure(new CompleteBuildException(""))
+          Failure(CompleteBuildException(""))
       }
     }
 

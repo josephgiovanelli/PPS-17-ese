@@ -304,7 +304,7 @@ object EntitiesInfo {
       structuralChromosome.map(customGene => customGene.name -> customChromosomeMapping(customGene)).toMap
 
     private def defaultChromosomeMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes): DefaultChromosomeInfo =
-      DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))//TODO check set covariance
+      DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.getAlleles.getOrDefault))
 
     private def customChromosomeMapping(customGene: PartialCustomGeneData): CustomChromosomeInfo =
       CustomChromosomeInfo(customGeneInfoMapping(customGene), allelesMapping(customGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))
@@ -318,7 +318,7 @@ object EntitiesInfo {
       CustomGeneInfo(customGeneData.getId.getOrDefault, customGeneData.name,
         customGeneData.getProperties.getOrDefault, customGeneData.getConversionMap.getOrDefault)
 
-    private def allelesMapping(alleles: Set[PartialAlleleData]): Map[String, AlleleInfo] =
+    private def allelesMapping[X <: PartialAlleleData](alleles: Set[X]): Map[String, AlleleInfo] =
       alleles.map(allele => allele.id -> alleleMapping(allele)).toMap
 
     private def alleleMapping(allele: PartialAlleleData): AlleleInfo =

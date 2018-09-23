@@ -15,6 +15,9 @@ object ValidableImplicits {
     implicit class ValidableByDisequality[X](elem: X) {
       def isValid(implicit defaultValue: DefaultValue[X]): Boolean = elem != defaultValue.get
     }
+    implicit class ValidableOptByDisequality[X](elem: Option[X]) {
+      def isValid(implicit defaultValue: DefaultValue[X]): Boolean = !elem.contains(defaultValue.get)
+    }
   }
 }
 

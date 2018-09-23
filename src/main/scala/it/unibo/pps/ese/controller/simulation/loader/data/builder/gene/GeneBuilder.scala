@@ -48,15 +48,15 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
     val tries: Iterable[Try[CompleteAlleleData]] = alleles.map(_.tryCompleteBuild())
     val all: Iterable[CompleteAlleleData] = tries.collect({case Success(value) => value})
     if(all.size != alleles.size) {
-      exception = exception ++: new CompleteBuildException("Gene: " + name.get + " | all alleles must be complete",
+      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | all alleles must be complete",
         tries.collect({case Failure(value: CompleteBuildException) => value}))
     }
     if(!(all.map(_.probability).sum == 1.0))
-      exception = exception ++: new CompleteBuildException("Gene: " + name.get + " | sum of alleles' probabilities must be 1")
+      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | sum of alleles' probabilities must be 1")
     if(!all.forall(_.effect.keySet.subsetOf(properties.keySet)))
-      exception = exception ++: new CompleteBuildException("Gene: " + name.get + " | alleles problem")
+      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | alleles problem")
     if(!all.forall(a => id.contains(a.gene)))
-      exception = exception ++: new CompleteBuildException("Gene: " + name.get + " | alleles problem")
+      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | alleles problem")
     (exception, all)
   }
 }
