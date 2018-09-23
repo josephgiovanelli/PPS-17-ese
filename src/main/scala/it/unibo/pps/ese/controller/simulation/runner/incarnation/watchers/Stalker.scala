@@ -23,7 +23,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
   import MemoHelper._
 
   private var stalked: Option[String] = None
-  private var currentEra: Long = 0
+  var currentEra: Long = 0
   private var birthEra: Long = 0
   private var deadEra: Option[Long] = None
   private var trueEra: Option[Long] = None
