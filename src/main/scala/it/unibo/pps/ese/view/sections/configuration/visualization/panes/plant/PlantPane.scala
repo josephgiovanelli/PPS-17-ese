@@ -7,11 +7,8 @@ import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.plants.
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog, Modality}
 
 import scala.collection.immutable.ListMap
-import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, Pane}
-import scalafx.stage.Window
 
 object PlantProperties {
   val title = "Plant Pane"
@@ -28,12 +25,6 @@ case class PlantPane(mainDialog: MainDialog,
   extends BackPane(mainDialog, previousContent, key, title, headerText, previousContent.get.path + newLine(1) + title) {
 
   /*
-  Header
-   */
-
-  println(uniqueFields)
-
-  /*
   Fields
    */
 
@@ -47,7 +38,6 @@ case class PlantPane(mainDialog: MainDialog,
     heightPlant -> (new WhiteLabel("Height"), new Label("")),
     nutritionalValue -> (new WhiteLabel("Availability"), new Label("")),
     hardness -> (new WhiteLabel("Hardness"), new Label("")))
-
 
 
   center = createGrid(0)

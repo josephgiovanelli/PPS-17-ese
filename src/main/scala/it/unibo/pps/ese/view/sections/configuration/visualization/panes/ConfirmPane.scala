@@ -35,18 +35,13 @@ case class ConfirmPane(mainDialog: MainDialog,
   extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
 
   /*
-  Header
+  Fields
    */
 
-
-
-
-  val animalsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
-      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
-  val plantsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
-      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+  val animalsEntities: Map[TextField, (WhiteLabel, ErrorLabel)] =
+    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).toMap
+  val plantsEntities: Map[TextField, (WhiteLabel, ErrorLabel)] =
+    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).toMap
 
   fields = animalsEntities ++ plantsEntities
 
@@ -129,15 +124,12 @@ case class ConfirmPane(mainDialog: MainDialog,
         val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
         val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
         val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
-        println((newPlants.map(x => x._1.name), oldPlants.keySet))
         mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
       }
       case Failure(exception: CompleteSimulationBuildException) =>
         NoCompleteSimulationAlert(mainDialog.window, exception.buildException).showAndWait()
-        null
       case Failure(exception) =>
         UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
-        null
     }
     mainDialog.closeDialog()
   }

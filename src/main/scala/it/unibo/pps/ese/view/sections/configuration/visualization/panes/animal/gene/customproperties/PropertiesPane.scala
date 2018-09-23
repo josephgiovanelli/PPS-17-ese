@@ -2,7 +2,6 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.
 
 
 import it.unibo.pps.ese.model.genetics.entities.QualityType
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.CustomGenePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
@@ -16,8 +15,7 @@ import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 
 object PropertiesProperties {
   val title = "Properties Pane"
@@ -36,11 +34,6 @@ case class PropertiesPane(mainDialog: MainDialog,
                           currentConversionMap: Option[Map[String, Double]],
                           properties: Iterable[String])
   extends BackPane[ConversionMap](mainDialog, previousContent, property, title, headerText, previousContent.get.path + newLine(4) + title) {
-
-  /*
-  Header
-   */
-
 
   /*
   Fields

@@ -6,7 +6,7 @@ import scalafx.collections.ObservableBuffer
 import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.image.ImageView
 import scalafx.scene.layout.{BorderPane, GridPane, HBox}
 import scalafx.scene.paint.Color
 
@@ -17,7 +17,7 @@ case object ModifyModality extends Modality
 object PaneProperties {
   def newLine(level: Int): String = {
     var n: String = "\n"
-    for (i <- 0 to level) {
+    for (_ <- 0 to level) {
       n += "\t"
     }
     n + "|_"
@@ -95,7 +95,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
   OkButton
    */
 
-  val okButton = new Button{
+  val okButton: Button = new Button{
     margin = Insets(10,0,0,0)
     text = "Confirm"
   }

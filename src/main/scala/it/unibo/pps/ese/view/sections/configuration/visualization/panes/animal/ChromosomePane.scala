@@ -2,11 +2,10 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal
 
 
 import it.unibo.pps.ese.controller.simulation.loader._
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.{CustomGenePane, DefaultGenePane}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.AnimalChromosomeInfo
-import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.{ChromosomeTypes, EntitiesInfo, RegulationChromosome, SexualChromosome}
+import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.{EntitiesInfo, RegulationChromosome, SexualChromosome}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core._
 
 import scalafx.Includes._
@@ -14,8 +13,7 @@ import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{BorderPane, VBox}
 
 object ChromosomeProperties {
   val title = "Chromosome Pane"
@@ -31,9 +29,6 @@ case class ChromosomePane(mainDialog: MainDialog,
                           animal: String)
   extends BackPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(2) + title) {
 
-  /*
-  Header
-   */
 
   /*
   Fields
@@ -75,10 +70,6 @@ case class ChromosomePane(mainDialog: MainDialog,
       }
     })
   }
-
-//  structuralChromosomeListView.prefHeight = MIN_ELEM * ROW_HEIGHT
-//  regulationChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
-//  sexualChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
 
   val structuralButton = new Button("Add")
   structuralButton.onAction = _ => mainDialog.setContent(CustomGenePane(mainDialog, Some(ChromosomePane.this), AddModality, animal, None))

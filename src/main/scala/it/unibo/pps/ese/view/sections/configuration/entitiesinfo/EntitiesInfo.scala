@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.view.sections.configuration.entitiesinfo
 
-import it.unibo.pps.ese.controller.simulation.loader.beans.{Allele, Gene, Plant, PropertyInfo}
-import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
+import it.unibo.pps.ese.controller.simulation.loader.beans.PropertyInfo
+import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.PartialCustomGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.PartialDefaultGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}

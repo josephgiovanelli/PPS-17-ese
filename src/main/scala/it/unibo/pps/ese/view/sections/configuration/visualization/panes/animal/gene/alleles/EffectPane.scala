@@ -22,13 +22,6 @@ case class EffectPane(mainDialog: MainDialog,
   extends BackPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(6) + title) {
 
   /*
-  Header
-   */
-
-//  title = "Effect Dialog"
-//  headerText = "Define an allele effect"
-
-  /*
   Fields
    */
 
@@ -67,10 +60,10 @@ case class EffectPane(mainDialog: MainDialog,
   Result
    */
 
-
   okButton.onAction = _ => {
     previousContent.get.confirmAddEffect(propertyName.text.value, effectValue.text.value.toDouble)
   }
+
 }
 
 

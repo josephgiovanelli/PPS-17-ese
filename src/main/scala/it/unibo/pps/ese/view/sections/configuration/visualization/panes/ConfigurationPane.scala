@@ -39,10 +39,6 @@ case class ConfigurationPane(mainDialog: MainDialog,
                             (implicit executionContext: ExecutionContext)
   extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
 
-  /*
-  Header
-   */
-
   val errorLabel = new ErrorLabel("")
 
   /*
@@ -95,7 +91,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
   /*
    * FILE SAVING
    */
-  val fileChooser = new FileChooser() {
+  val fileChooser: FileChooser = new FileChooser() {
     title = "Save simulation YAML"
   }
 
@@ -121,7 +117,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
     saveButton.disable = true
   }
 
-  def handleSaveResult(saveResult: Future[Try[Unit]], saver: SetupViewBridge, target: Folder) = saveResult onComplete  {
+  def handleSaveResult(saveResult: Future[Try[Unit]], saver: SetupViewBridge, target: Folder): Unit = saveResult onComplete  {
     case Success(result) =>
       result match {
         case Success(_) =>
@@ -138,7 +134,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
       case Some(Buttons.Override) =>
         handleSaveResult(saver.retrySave(target, Some(exception.existingResource)), saver, target)
       case Some(Buttons.OverrideAll) =>
-        handleSaveResult(saver.retrySave(target, None, true), saver, target)
+        handleSaveResult(saver.retrySave(target, None, overrideAll = true), saver, target)
       case _ =>
     }
   }

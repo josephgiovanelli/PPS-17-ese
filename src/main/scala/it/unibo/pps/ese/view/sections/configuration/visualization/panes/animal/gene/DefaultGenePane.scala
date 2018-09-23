@@ -1,20 +1,17 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene
 
 import it.unibo.pps.ese.controller.simulation.loader._
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.ChromosomePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles.AllelesPane
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.WhiteLabel
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
-import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
+import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog, Modality}
 
 import scala.collection.immutable.ListMap
-import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, Pane}
-import scalafx.stage.Window
+import scalafx.scene.layout.GridPane
 
 abstract class GenePane(mainDialog: MainDialog,
                         override val previousContent: Option[ChromosomePane],
@@ -44,13 +41,6 @@ case class DefaultGenePane(mainDialog: MainDialog,
                            gene: Option[String],
                            propertiesSet: Set[_ <: DefaultGene])
   extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3)) {
-
-  /*
-  Header
-   */
-
-//  title = "Default Gene Dialog"
-//  headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
 
   /*
   Fields

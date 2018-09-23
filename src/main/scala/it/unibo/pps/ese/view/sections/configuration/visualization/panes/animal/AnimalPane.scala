@@ -7,12 +7,10 @@ import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals
 import it.unibo.pps.ese.view.sections.configuration.visualization.core._
 
 import scala.collection.immutable.ListMap
-import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, Pane}
-import scalafx.stage.Window
+import scalafx.scene.layout.GridPane
 
 object AnimalProperties {
   val title = "Animal Pane"
@@ -27,12 +25,6 @@ case class AnimalPane(mainDialog: MainDialog,
                       modality: Modality,
                       animal: Option[String] = None)
   extends BackPane[String](mainDialog, previousContent, animal, title, headerText, previousContent.get.path + newLine(1) + title) {
-
-  /*
-  Header
-   */
-
-
 
   /*
   Fields
@@ -97,6 +89,4 @@ case class AnimalPane(mainDialog: MainDialog,
   def confirmChromosome(name: String): Unit = {
     previousContent.get.confirmAnimalSpecies(modality, name)
   }
-
-
 }

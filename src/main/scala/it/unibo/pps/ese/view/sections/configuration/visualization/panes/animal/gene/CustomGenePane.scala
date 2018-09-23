@@ -2,8 +2,7 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.
 
 
 
-import it.unibo.pps.ese.controller.simulation.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
+import it.unibo.pps.ese.controller.simulation.loader.{RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.ChromosomePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles.AllelesPane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.customproperties.PropertiesPane
@@ -18,8 +17,7 @@ import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 
 object CustomGeneProperties {
   val title = "Custom Gene Pane"
@@ -35,13 +33,6 @@ case class CustomGenePane(mainDialog: MainDialog,
                           animal: String,
                           gene: Option[String] = None)
   extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3) + title) {
-
-  /*
-  Header
-   */
-
-//  title = "Custom Gene Dialog"
-//  headerText = "Define structural chromosome"
 
   /*
   Fields
@@ -156,7 +147,6 @@ case class CustomGenePane(mainDialog: MainDialog,
         conversionMap += (c.property -> c.map)
     }
     mainDialog.setContent(this)
-
   }
 
 }

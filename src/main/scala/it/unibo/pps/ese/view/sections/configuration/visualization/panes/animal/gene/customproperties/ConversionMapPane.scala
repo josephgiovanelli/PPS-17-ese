@@ -1,6 +1,5 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.customproperties
 
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog, Modality}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{ErrorLabel, WhiteLabel}
 
@@ -8,8 +7,7 @@ import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{GridPane, VBox}
 
 object ConversionMapProperties {
     val title = "Conversion Map Pane"
@@ -25,10 +23,6 @@ case class ConversionMapPane(mainDialog: MainDialog,
                              currentConversion: Option[(String, Double)],
                              qualities: Set[String])
   extends BackPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(5) + title) {
-
-  /*
-  Header
-  */
 
   /*
   Fields
@@ -80,8 +74,6 @@ case class ConversionMapPane(mainDialog: MainDialog,
   /*
   Result
   */
-
-
 
   okButton.onAction = _ => {
     previousContent.get.confirmConversionMap(modality, conversionName.value.value, conversionValue.text.value.toDouble)
