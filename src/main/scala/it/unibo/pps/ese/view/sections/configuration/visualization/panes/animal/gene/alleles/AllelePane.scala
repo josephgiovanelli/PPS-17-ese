@@ -4,7 +4,7 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
@@ -28,7 +28,7 @@ case class AllelePane(mainDialog: MainDialog,
                       allele: Option[String],
                       properties: Set[String],
                       chromosomeTypes: ChromosomeTypes)
-  extends BackPane[AlleleInfo](mainDialog, previousContent, allele, title, headerText, previousContent.get.path + newLine(5) + title) {
+  extends AbstractPane[AlleleInfo](mainDialog, previousContent, allele, title, headerText, previousContent.get.path + newLine(5) + title, 5) {
 
   /*
   Fields

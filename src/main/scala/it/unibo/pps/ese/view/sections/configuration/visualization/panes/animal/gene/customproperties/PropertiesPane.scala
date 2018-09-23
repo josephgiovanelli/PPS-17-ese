@@ -33,7 +33,7 @@ case class PropertiesPane(mainDialog: MainDialog,
                           property: Option[String],
                           currentConversionMap: Option[Map[String, Double]],
                           properties: Iterable[String])
-  extends BackPane[ConversionMap](mainDialog, previousContent, property, title, headerText, previousContent.get.path + newLine(4) + title) {
+  extends AbstractPane[ConversionMap](mainDialog, previousContent, property, title, headerText, previousContent.get.path + newLine(4) + title, 4) {
 
   /*
   Fields

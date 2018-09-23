@@ -24,18 +24,18 @@ object PaneProperties {
   }
 }
 
-abstract class DialogPane(val title: String, val headerText: String, val path: String) extends BorderPane
+abstract class DialogPane(val title: String, val headerText: String, val path: String, val depth: Int) extends BorderPane
 
-abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String],
-                           title: String, headerText: String, path: String)
-  extends DialogPane(title, headerText, path) {
+abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String],
+                               title: String, headerText: String, path: String, depth: Int)
+  extends DialogPane(title, headerText, path, depth) {
 
   prefWidth = 500
   prefHeight = 600
 
+  val backButton = new Button("Back")
 
   if (previousContent.isDefined) {
-    val backButton = new Button("Back")
     val info = new ImageView("it/unibo/pps/ese/view/sections/configuration/info.png")
     info.margin = Insets(4, 0, 0, 15)
 

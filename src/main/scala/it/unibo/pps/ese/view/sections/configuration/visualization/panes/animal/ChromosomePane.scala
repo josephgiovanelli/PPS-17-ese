@@ -27,8 +27,9 @@ case class ChromosomePane(mainDialog: MainDialog,
                           override val previousContent: Option[AnimalPane],
                           modality: Modality,
                           animal: String)
-  extends BackPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(2) + title) {
+  extends AbstractPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(2) + title, 2) {
 
+  backButton.disable = true
 
   /*
   Fields

@@ -6,7 +6,7 @@ import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.g
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.WhiteLabel
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog, Modality}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog, Modality}
 
 import scala.collection.immutable.ListMap
 import scalafx.collections.ObservableBuffer
@@ -19,7 +19,7 @@ abstract class GenePane(mainDialog: MainDialog,
                         title: String,
                         headerText: String,
                         path: String)
-  extends BackPane[String](mainDialog, previousContent, gene, title, headerText, path) {
+  extends AbstractPane[String](mainDialog, previousContent, gene, title, headerText, path, 3) {
 
 
   def confirmAlleles(gene: String)

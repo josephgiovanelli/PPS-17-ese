@@ -41,6 +41,10 @@ sealed trait EntitiesInfo {
   def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes, gene: String, alleles: Map[String, AlleleInfo]): Unit
 
 
+  def deletePlant(id: String): Unit
+
+  def deleteAnimal(id: String): Unit
+
   /*
   Plants
    */
@@ -147,6 +151,11 @@ object EntitiesInfo {
           currentAnimalChromosome.sexualChromosome += (gene -> DefaultChromosomeInfo(sexualGene.geneInfo, sexualGene.alleles ++ alleles))
       }
     }
+
+
+    override def deletePlant(id: String): Unit = plants -= id
+
+    override def deleteAnimal(id: String): Unit = animals -= id
 
     /*
     Plants

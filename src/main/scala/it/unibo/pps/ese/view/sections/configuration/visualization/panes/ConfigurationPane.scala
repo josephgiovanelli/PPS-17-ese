@@ -37,7 +37,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
                              previousAnimalsCount: Map[String, Int] = Map.empty,
                              previousPlantsCount: Map[String, Int] = Map.empty)
                             (implicit executionContext: ExecutionContext)
-  extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
+  extends AbstractPane[Unit](mainDialog, previousContent, None, title, headerText, title, 0) {
 
   val errorLabel = new ErrorLabel("")
 

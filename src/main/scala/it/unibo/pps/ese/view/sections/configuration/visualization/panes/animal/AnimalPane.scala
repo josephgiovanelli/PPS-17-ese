@@ -24,7 +24,7 @@ case class AnimalPane(mainDialog: MainDialog,
                       override val previousContent: Option[ConfigurationPane],
                       modality: Modality,
                       animal: Option[String] = None)
-  extends BackPane[String](mainDialog, previousContent, animal, title, headerText, previousContent.get.path + newLine(1) + title) {
+  extends AbstractPane[String](mainDialog, previousContent, animal, title, headerText, previousContent.get.path + newLine(1) + title, 1) {
 
   /*
   Fields
@@ -84,7 +84,9 @@ case class AnimalPane(mainDialog: MainDialog,
     EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt,
       alleleLength.text.value.toInt, typology.value.value))
     mainDialog.setContent(ChromosomePane(mainDialog, Some(this), AddModality, if (animal.isEmpty) name.text.value else animal.get))
+    mainDialog.setCurrentAnimal(name.text.value)
   }
+
 
   def confirmChromosome(name: String): Unit = {
     previousContent.get.confirmAnimalSpecies(modality, name)

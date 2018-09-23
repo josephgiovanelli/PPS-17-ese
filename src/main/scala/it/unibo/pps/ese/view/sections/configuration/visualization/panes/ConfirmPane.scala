@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{ErrorLabel, WhiteLabel}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, DialogPane, MainDialog}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, DialogPane, MainDialog}
 import it.unibo.pps.ese.view.core.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, UnexpectedExceptionAlert}
 
@@ -32,7 +32,7 @@ case class ConfirmPane(mainDialog: MainDialog,
                        newPlantSpecies: Seq[String] = Seq.empty,
                        previousAnimalsCount: Map[String, Int] = Map.empty,
                        previousPlantsCount: Map[String, Int] = Map.empty)
-  extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
+  extends AbstractPane[Unit](mainDialog, previousContent, None, title, headerText, title, 0) {
 
   /*
   Fields
