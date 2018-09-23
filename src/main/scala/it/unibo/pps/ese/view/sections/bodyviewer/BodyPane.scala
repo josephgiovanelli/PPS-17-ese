@@ -4,9 +4,12 @@ import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.scene._
 import scalafx.geometry.Insets
+import scalafx.scene.canvas.Canvas
 import scalafx.scene.control.ScrollPane
 import scalafx.scene.image.Image
 import scalafx.scene.layout._
+
+import scala.collection.mutable
 
 /**
   * A [[ScrollPane]] with the visual representation of the internal dynamics of an animal
@@ -70,26 +73,16 @@ object BodyPane {
 
     override def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus): Unit = {
       AnimalStatusUtilities.isAOldState(animalInternalStatus) match {
-        case false =>{
+        case false =>
           updateBoxes(animalInternalStatus)
           val newCanvas = animalInternalStatus match {
             case FemaleInternalStatus(brain, eyes, reproductive, digestive, fetus) =>
               val female: FemaleAnimalRepresentation = FemaleAnimalRepresentation()
               if (fetus.isDefined) female.setEmbryoStatus(fetus.get)
-              female.setBrainStatus(brain)
-              female.setEyesStatus(eyes)
-              reproductive match {
-                case Reproducing => female.setReproductiveSystemStatus(reproductive)
-                case NotReproducing => female.setDigestiveSystemStatus(digestive)
-              }
+              updateAnimalRepresentation(female)(animalInternalStatus)
             case MaleInternalStatus(brain, eyes, reproductive, digestive) =>
               val male: MaleAnimalRepresentation = MaleAnimalRepresentation()
-              male.setBrainStatus(brain)
-              male.setEyesStatus(eyes)
-              reproductive match {
-                case Reproducing => male.setReproductiveSystemStatus(reproductive)
-                case NotReproducing => male.setDigestiveSystemStatus(digestive)
-              }
+              updateAnimalRepresentation(male)(animalInternalStatus)
           }
           Platform.runLater {
             () -> {
@@ -98,18 +91,31 @@ object BodyPane {
                             newCanvas.translateX = 300
             }
           }
-        }
         case true=>
       }
 
     }
-
+    private def updateAnimalRepresentation(aR: AnimalRepresentation)(aS: AnimalInternalStatus):Canvas = {
+      var updatedRepresentation = aR.setBrainStatus(aS.brainStatus)
+                                    .setEyesStatus(aS.eyesStatus)
+      val rS= aS.reproductiveApparatusStatus
+      updatedRepresentation = rS match {
+        case Reproducing => updatedRepresentation.setReproductiveSystemStatus(rS)
+        case NotReproducing => updatedRepresentation.setDigestiveSystemStatus(aS.digestiveSystemStatus)
+      }
+      updatedRepresentation.drawRepresentation
+    }
     override def clearStatus(): Unit = {
       canvasGroup.children.clear()
       AnimalStatusUtilities.oldAnimalStatus = None
       List(headBox,digestiveBox,reproductionBox).foreach(_.clearText())
     }
   }
+//  object AnimalStatusMemoHelper{
+//    def memoize[I,O](f: I=> O):I=>O = new collection.mutable.HashMap[I,O](){
+//      override def apply(key:I) = getOrElseUpdate(key,f(key))
+//    }
+//  }
 
   /**
     * Utility object that maintain the previous status of the animal, in order to avoid the drawing of the same status
