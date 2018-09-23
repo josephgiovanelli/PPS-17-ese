@@ -15,20 +15,20 @@ case class ResultOther(label: String, var entities: Map[String, Point])
 
 object MemoHelper {
   def memoize[I, O](f: I => O): I => O = new collection.mutable.HashMap[I, O]() {
-    override def apply(key: I) = getOrElseUpdate(key, f(key))
+    override def apply(key: I): O = getOrElseUpdate(key, f(key))
   }
 }
 
 case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
   import MemoHelper._
 
-  var stalked: Option[String] = None
-  var currentEra: Long = 0
-  var birthEra: Long = 0
-  var deadEra: Option[Long] = None
-  var trueEra: Option[Long] = None
-  var killer: Option[String] = None
-  lazy val memo: Long => ResultEra = memoize(x => {
+  private var stalked: Option[String] = None
+  private var currentEra: Long = 0
+  private var birthEra: Long = 0
+  private var deadEra: Option[Long] = None
+  private var trueEra: Option[Long] = None
+  private var killer: Option[String] = None
+  private lazy val memo: Long => ResultEra = memoize(x => {
     println(s"Calling memo with input $x")
 
     val others:  Seq[ResultOther] = Seq(
@@ -89,7 +89,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
     }
   }
 
-  def unstalk: Unit = this synchronized {
+  def unstalk(): Unit = this synchronized {
     stalked = None
   }
 

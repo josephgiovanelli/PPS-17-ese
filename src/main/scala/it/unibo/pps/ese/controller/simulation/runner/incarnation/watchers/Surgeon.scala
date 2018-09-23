@@ -4,7 +4,6 @@ import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTyp
 import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityState, ReadOnlyEntityState}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.brain.{Couple, Eat, Nothing}
-import it.unibo.pps.ese.view._
 import it.unibo.pps.ese.view.sections.bodyviewer._
 import it.unibo.pps.ese.view.core.View
 
