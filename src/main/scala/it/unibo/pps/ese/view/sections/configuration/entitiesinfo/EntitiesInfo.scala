@@ -273,7 +273,7 @@ object EntitiesInfo {
      */
 
 
-    import it.unibo.pps.ese.utils.DefaultGetImplicits._
+    import it.unibo.pps.ese.utils.DefaultGet._
 
     implicit val int: DefaultValue[Int] = DefaultValue(Integer.MIN_VALUE)
     implicit val double: DefaultValue[Double] = DefaultValue(Double.MinValue)

@@ -30,7 +30,7 @@ object YamlSaver {
     private val toWrite: ListBuffer[(IOResource, Option[String])] = new ListBuffer()
 
     implicit val string: DefaultValue[String] = DefaultValue("")
-    import it.unibo.pps.ese.utils.DefaultGetImplicits._
+    import it.unibo.pps.ese.utils.DefaultGet._
 
     def writeFiles(): Try[Unit] = {
       Try(toWrite.foreach({

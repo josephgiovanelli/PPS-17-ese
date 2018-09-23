@@ -11,12 +11,9 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{Com
 import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
 
-trait SimulationBuilder[T <: SimulationStatus] {
+trait SimulationBuilder[T <: SimulationStatus] extends GenericBuilder[T, FullSimulation, PartialSimulationData, CompleteSimulationData] {
   def addAnimals(animals: Iterable[(AnimalBuilder[_], Int)]): SimulationBuilder[T with SimulationWithAnimals]
   def addPlants(plants: Iterable[(PlantBuilder[_], Int)]): SimulationBuilder[T with SimulationWithPlants]
-  def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData
-  def tryCompleteBuild: Try[CompleteSimulationData]
-  def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData]
 }
 
 object SimulationBuilder {
@@ -49,7 +46,7 @@ object SimulationBuilder {
       }
     }
 
-    def buildComplete(implicit ev: T =:= FullSimulation): CompleteSimulationData = {
+    def buildComplete(implicit ev: T =:= FullSimulation, st: TypeTag[T]): CompleteSimulationData = {
       tryCompleteBuild match {
         case Success(value) =>
           value
@@ -92,7 +89,7 @@ object SimulationBuilder {
     }
   }
 
-  sealed trait SimulationStatus
+  sealed trait SimulationStatus extends BuilderStatus
   object SimulationStatus {
     sealed trait EmptySimulation extends SimulationStatus
     sealed trait SimulationWithPlants extends SimulationStatus

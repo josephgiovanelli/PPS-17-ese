@@ -22,7 +22,7 @@ trait AnimalBuilder[T <: EntityStatus] extends EntityBuilder[T] with GenericBuil
 
 object AnimalBuilder {
 
-  import it.unibo.pps.ese.utils.ValidableImplicits.ValidableByDisequality._
+  import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
   def apply(): AnimalBuilder[EmptyEntity] = new AnimalBuilderImpl[EmptyEntity](None, None, None, None, None, Seq(), Seq(), Seq())
 

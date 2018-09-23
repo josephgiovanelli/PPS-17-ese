@@ -21,7 +21,7 @@ object YamlLoader extends Loader {
 
 
   import BeansYamlProtocol._
-  import it.unibo.pps.ese.utils.ValidableImplicits.ValidableByDisequality._
+  import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
   implicit val int: DefaultValue[Int] = DefaultValue(Integer.MIN_VALUE)
   implicit val double: DefaultValue[Double] = DefaultValue(Double.MinValue)

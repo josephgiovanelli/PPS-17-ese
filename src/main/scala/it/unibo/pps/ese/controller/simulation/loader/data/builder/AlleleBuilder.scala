@@ -8,7 +8,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.Comp
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
-sealed trait AbsAlleleBuilder[T <: AlleleStatus] {
+sealed trait AlleleBuilder[T <: AlleleStatus] extends GenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData] {
   def gene: Option[String]
   def setGene(gene: String): AlleleBuilder[T with AlleleWithGene]
   def setId(id: String): AlleleBuilder[T with AlleleWithId]
@@ -17,8 +17,6 @@ sealed trait AbsAlleleBuilder[T <: AlleleStatus] {
   def setProbability(probability: Double): AlleleBuilder[T with AlleleWithProbability]
   def setEffect(effect: Map[String, Double]): AlleleBuilder[T with AlleleWithEffect]
 }
-
-trait AlleleBuilder[T <: AlleleStatus] extends AbsAlleleBuilder[T] with GenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData]
 
 object AlleleBuilder {
 

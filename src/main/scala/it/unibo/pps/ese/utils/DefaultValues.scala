@@ -2,29 +2,29 @@ package it.unibo.pps.ese.utils
 
 case class DefaultValue[T](get: T)
 
-trait Validable[T] {
-  def isValid(implicit defaultValue: DefaultValue[T]): Boolean
-}
-
-trait DefaultGet[T] {
-  def getOrDefault(implicit defaultValue: DefaultValue[T]): T
-}
-
-object ValidableImplicits {
+object DefaultValidable {
   object ValidableByDisequality {
-    implicit class ValidableByDisequality[X](elem: X) {
-      def isValid(implicit defaultValue: DefaultValue[X]): Boolean = elem != defaultValue.get
+
+    def checkValidity[A: DefaultValue](a: A): Boolean = implicitly[DefaultValue[A]].get != a
+
+    def checkValidity[A: DefaultValue](option: Option[A]): Boolean = !option.contains(implicitly[DefaultValue[A]].get)
+
+    implicit class ValidableByDisequality[X: DefaultValue](elem: X) {
+      def isValid: Boolean = checkValidity(elem)
     }
-    implicit class ValidableOptByDisequality[X](elem: Option[X]) {
-      def isValid(implicit defaultValue: DefaultValue[X]): Boolean = !elem.contains(defaultValue.get)
+    implicit class ValidableOptByDisequality[X: DefaultValue](elem: Option[X]) {
+      def isValid: Boolean = checkValidity(elem)
     }
   }
 }
 
-object DefaultGetImplicits {
-  implicit class DefaultGetOptional[T](option: Option[T]) extends DefaultGet[T] {
-    override def getOrDefault(implicit defaultValue: DefaultValue[T]): T = {
-      option.getOrElse(defaultValue.get)
+object DefaultGet {
+
+  def getContentOrDefault[A: DefaultValue](option: Option[A]): A = option.getOrElse(implicitly[DefaultValue[A]].get)
+
+  implicit class DefaultGetOptional[T: DefaultValue](option: Option[T]) {
+    def getOrDefault: T = {
+      getContentOrDefault(option)
     }
   }
 }
