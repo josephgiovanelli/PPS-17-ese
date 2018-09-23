@@ -33,9 +33,9 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
   prefWidth = 500
   prefHeight = 600
 
-  val backButton = new Button("Back")
 
   if (previousContent.isDefined) {
+    val backButton = new Button("Back")
     val info = new ImageView("it/unibo/pps/ese/view/sections/configuration/info.png")
     info.margin = Insets(4, 0, 0, 15)
 

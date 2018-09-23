@@ -29,8 +29,6 @@ case class ChromosomePane(mainDialog: MainDialog,
                           animal: String)
   extends AbstractPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(2) + title, 2) {
 
-  backButton.disable = true
-
   /*
   Fields
    */
@@ -105,7 +103,7 @@ case class ChromosomePane(mainDialog: MainDialog,
 
   center = new VBox() {
     children ++= Seq(structuralPane, structuralChromosomeListView, regulationPane, regulationChromosomeListView,
-      sexualPane, sexualChromosomeListView, new WhiteLabel("At least one element per chromosome"))
+      sexualPane, sexualChromosomeListView, new WhiteLabel("At least one element per  structural chromosome and"), new WhiteLabel("all regulation and life chromosomes must be present"))
     styleClass += "sample-page"
   }
 
@@ -131,6 +129,8 @@ case class ChromosomePane(mainDialog: MainDialog,
 
   okButton.onAction = _ => {
     previousContent.get.confirmChromosome(animal)
+    mainDialog.deleteFromPendingAnimals(animal)
+    mainDialog.cleanPendingAnimals()
   }
 
 

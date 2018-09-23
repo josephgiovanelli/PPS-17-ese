@@ -84,7 +84,7 @@ case class AnimalPane(mainDialog: MainDialog,
     EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt,
       alleleLength.text.value.toInt, typology.value.value))
     mainDialog.setContent(ChromosomePane(mainDialog, Some(this), AddModality, if (animal.isEmpty) name.text.value else animal.get))
-    mainDialog.setCurrentAnimal(name.text.value)
+    mainDialog.addToPendingAnimals(name.text.value)
   }
 
 
