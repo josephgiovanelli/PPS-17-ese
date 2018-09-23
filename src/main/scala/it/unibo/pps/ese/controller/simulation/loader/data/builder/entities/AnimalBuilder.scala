@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.{Compl
 import it.unibo.pps.ese.controller.simulation.loader.data._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.GenericBuilder
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 
 import scala.reflect.runtime.universe._
@@ -100,8 +100,8 @@ object AnimalBuilder {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All structural chromosome's genes must be complete",
           structTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
-      if(!sexualChromosome.isValid) {
-        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" |  structural chromosome is necessary")
+      if(!structuralChromosome.isValid) {
+        exception = exception ++: InvalidParamValueBuildException("Structural Chromosome", structuralChromosome)
       }
       val regTries: Iterable[Try[CompleteDefaultGeneData]] = regulationChromosome.map(_.tryCompleteBuild())
       val reg: Iterable[CompleteDefaultGeneData] = regTries.collect({case Success(value) => value})
@@ -109,8 +109,8 @@ object AnimalBuilder {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All regulation chromosome's genes must be complete",
           regTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
-      if(!sexualChromosome.isValid) {
-        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" |  regulation chromosome is necessary")
+      if(!regulationChromosome.isValid) {
+        exception = exception ++: InvalidParamValueBuildException("Regulation Chromosome", regulationChromosome)
       }
       val sexTries: Iterable[Try[CompleteDefaultGeneData]] = sexualChromosome.map(_.tryCompleteBuild())
       val sex: Iterable[CompleteDefaultGeneData] = sexTries.collect({case Success(value) => value})
@@ -119,7 +119,7 @@ object AnimalBuilder {
           sexTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       if(!sexualChromosome.isValid) {
-        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" |  sexual chromosome is necessary")
+        exception = exception ++: InvalidParamValueBuildException("Sexual Chromosome", sexualChromosome)
       }
       (exception, struct, reg, sex)
     }
