@@ -63,7 +63,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
     ResultEra(target, others)
   })
 
-  def stalk(entityId: String): Unit = {
+  def stalk(entityId: String): Unit = this synchronized {
     val entity: Option[EntityLog] = consolidatedState.entityDynamicLog(entityId)
     if (entity.isDefined && entity.get.structuralData.reign == ReignType.ANIMAL.toString) {
       stalked = Some(entityId)
@@ -73,7 +73,7 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
     }
   }
 
-  def informAboutTrueEra(era: Long): Unit = {
+  def informAboutTrueEra(era: Long): Unit = this synchronized {
     trueEra = Some(era)
     if (stalked.nonEmpty && killer.isEmpty) {
       consolidatedState.getAllDynamicLogs()
@@ -89,11 +89,11 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
     }
   }
 
-  def unstalk: Unit = {
+  def unstalk: Unit = this synchronized {
     stalked = None
   }
 
-  def report: ResultEra = {
+  def report: ResultEra = this synchronized {
 
     var resultEra = ResultEra(null, null)
 
@@ -120,19 +120,19 @@ case class Stalker(consolidatedState: ReadOnlyEntityRepository) {
 
   }
 
-  def getBirthEra: Era = {
+  private def getBirthEra: Era = {
     consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._1).min
   }
 
-  def isStalkedDeadInThisEra: Boolean = {
+  private def isStalkedDeadInThisEra: Boolean = {
     !consolidatedState.entitiesInEra(currentEra).map(entity => entity.id).contains(stalked.get)
   }
 
-  def getAllStalkedActions: Seq[DynamicData] = {
+  private def getAllStalkedActions: Seq[DynamicData] = {
     consolidatedState.getAllDynamicLogs().filter(x => x.id == stalked.get).flatMap(x => x.dynamicData).map(x => x._2)
   }
 
-  def getPositionInThisEra(entity: String): Point = {
+  private def getPositionInThisEra(entity: String): Point = {
     consolidatedState.entitiesInEra(currentEra).filter(x => x.id == entity).head.dynamicData.position
   }
 }
