@@ -4,26 +4,26 @@ import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityKi
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 
 sealed trait StaticRules extends WorldTypesImpl {
-  def getSpecies(): Set[String]
+  def getSpecies: Set[String]
   def addSpecies(kinds: Set[String]): Unit
 
   def updateRules(): Unit
 
   def setRules(rules: WorldRules): Unit
-  def getRules(): WorldRules
+  def getRules: WorldRules
 }
 
 
 object StaticRules {
   private val _instance = new StaticRulesImpl()
-  def instance() =
+  def instance(): StaticRulesImpl =
     _instance
 
   class StaticRulesImpl() extends StaticRules {
     private var entityKinds: Set[String] = Set.empty
     private var worldRules: Option[WorldRules] = None
 
-    override def getSpecies(): Set[String] = entityKinds
+    override def getSpecies: Set[String] = entityKinds
     override def addSpecies(kinds: Set[String]): Unit = entityKinds ++= kinds
 
     override def updateRules(): Unit = {
@@ -42,9 +42,9 @@ object StaticRules {
       if(worldRules.get.compatibleCouplingKinds.isEmpty || worldRules.get.compatibleHuntingKinds.isEmpty) {
         updateRules()
       }
-
     }
-    override def getRules(): WorldRules = worldRules.get
+
+    override def getRules: WorldRules = worldRules.get
   }
 }
 

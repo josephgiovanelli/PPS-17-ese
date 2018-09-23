@@ -11,7 +11,7 @@ object Scala2P {
 
   val engine = new Prolog
 
-  def mkPrologTheory(clauses: String*) =
+  def mkPrologTheory(clauses: String*): Unit =
     engine.setTheory(new Theory(clauses mkString " "))
 
   def modifyDynamicKnowledge(clause: String): SolveInfo =
@@ -20,13 +20,13 @@ object Scala2P {
   def createEngine: Term => Stream[Term] = {
     goal => {
       new Iterable[Term] {
-        override def iterator = new Iterator[Term] {
-          var solution = engine.solve(goal);
+        override def iterator: Iterator[Term] = new Iterator[Term] {
+          var solution: SolveInfo = engine.solve(goal)
 
-          override def hasNext = solution.isSuccess ||
+          override def hasNext: Boolean = solution.isSuccess ||
             solution.hasOpenAlternatives
 
-          override def next() =
+          override def next(): Term =
             try solution.getSolution finally solution = engine.solveNext()
         }
       }.toStream

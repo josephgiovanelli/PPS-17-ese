@@ -26,7 +26,7 @@ class ReproductionTest extends FunSuite {
 
   private val i = (9 to 1 by -1).iterator
 
-  import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRules._
+  import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImplUtils._
   StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
   private val worldRules: WorldRulesImpl = WorldRulesImpl(Integer.MIN_VALUE, Integer.MAX_VALUE, 0,
     Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),

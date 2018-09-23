@@ -55,7 +55,7 @@ object PrologDecisionSupport {
     }
 
     override def clearVisualField(): Unit = {
-      supportMap.foreach(x => engine(new Struct("deleteEntity", new Var())))
+      supportMap.foreach(_ => engine(new Struct("deleteEntity", new Var())))
       supportMap = Map.empty
     }
 

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport
 
 import it.unibo.pps.ese.controller.simulation.StaticRules
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRules._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImplUtils._
 import org.scalatest.FunSuite
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImplUtils._
 

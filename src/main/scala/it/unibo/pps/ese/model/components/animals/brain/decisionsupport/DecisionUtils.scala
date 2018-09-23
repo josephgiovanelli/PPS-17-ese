@@ -62,12 +62,12 @@ object GenderTypes extends Enumeration {
 
 object EntityKinds extends Enumeration {
   type EntityKinds = Value
-  var entityKinds: Set[String] = StaticRules.instance().getSpecies()
+  var entityKinds: Set[String] = StaticRules.instance().getSpecies
   entityKinds.foreach(Value)
   private var constants: Map[Symbol, EntityKinds.Value] = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
 
   def updateSpecies(): Unit = {
-    entityKinds = StaticRules.instance().getSpecies()
+    entityKinds = StaticRules.instance().getSpecies
     entityKinds.foreach(Value)
     constants = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
   }
@@ -99,7 +99,7 @@ case class EntityAttributesImpl(name: String, kind: EntityKinds.Value, height: D
 
 case class EntityChoiceImpl(name: String, distance: Int)
 
-object WorldRules {
+object WorldRulesImplUtils {
 
   implicit def stringToEntityKinds(string: String): EntityKinds.Value = EntityKinds(Symbol(string))
   implicit def tupleStringToEntityKinds(tuple: (String, String)): (EntityKinds.Value, EntityKinds.Value) = (tuple._1, tuple._2)
@@ -107,24 +107,18 @@ object WorldRules {
 
 }
 
-/**
-  *
-  * @param attackThreshold
-  * @param heightThresholds
-  * @param couplingThreshold
-  * @param compatibleHuntingKinds
-  * @param compatibleCouplingKinds
-  */
 case class WorldRulesImpl(attackThreshold: Double, heightThresholds: Double, couplingThreshold: Double, var compatibleHuntingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty, var compatibleCouplingKinds: Set[(EntityKinds.Value, EntityKinds.Value)] = Set.empty) {
-  import WorldRules._
+  import WorldRulesImplUtils._
+
   private var listeners: Seq[WorldRulesListener] = Seq.empty
 
-  def addListener(impl: WorldRulesListener) = listeners = listeners :+ impl
+  def addListener(impl: WorldRulesListener): Unit = listeners = listeners :+ impl
 
   def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = {
     compatibleHuntingKinds = set
     listeners.foreach(_.updateHuntingKind(set))
   }
+
   def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = {
     compatibleCouplingKinds = set
     listeners.foreach(_.updateCouplingKind(set))

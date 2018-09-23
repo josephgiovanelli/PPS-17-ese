@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.StaticRules
 import scala.math._
 
 trait DecisionSupport extends WorldTypesImpl {
-  val worldRules: WorldRules = StaticRules.instance().getRules()
+  val worldRules: WorldRules = StaticRules.instance().getRules
 
   implicit def tupleToEntityChoice(tuple: (Name, Int)): EntityChoice = new EntityChoice(tuple._1, tuple._2)
   implicit def streamTupleToStreamEntityChoice(tuples: Stream[(Name, Int)]): Stream[EntityChoice] = tuples map tupleToEntityChoice
@@ -48,11 +48,6 @@ object DecisionSupport {
     }
 
     private def basicFilter(entity: EntityAttributes): Stream[EntityAttributes] = {
-//      println()
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == GenderTypes.male ))
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Gatto"))).forall(e => e.sex == GenderTypes.female ))
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == GenderTypes.male ))
-//      println(visualField.filter(e => e.kind == EntityKinds(Symbol("Giraffa"))).forall(e => e.sex == GenderTypes.female ))
       visualField filter (prey => prey != entity) filter (other => heightDiff(entity, other)) toStream
     }
 

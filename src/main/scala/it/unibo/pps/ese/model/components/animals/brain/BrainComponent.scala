@@ -25,8 +25,7 @@ import scala.util.{Failure, Success}
 case class BrainInfo(strength: Double,
                      actionField: Double,
                      visualField: Double,
-                     attractiveness: Double
-                    ) extends BaseEvent
+                     attractiveness: Double) extends BaseEvent
 
 
 trait ActionTypes
@@ -136,9 +135,9 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         forceReproduction = Some(r)
       case DigestionEnd() =>
         digestionState = false
-      case p: Pregnant =>
+      case _: Pregnant =>
         pregnantState = true
-      case p: PregnancyEnd =>
+      case _: PregnancyEnd =>
         pregnantState = false
       case GetInfo() =>
         publish(BrainInfo(strength, actionField, visualField, attractiveness))
