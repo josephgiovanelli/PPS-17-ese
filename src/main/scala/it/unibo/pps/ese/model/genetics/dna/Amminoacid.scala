@@ -1,5 +1,8 @@
 package it.unibo.pps.ese.model.genetics.dna
 
+/**
+  * An enumeration with all the possible proteinogenic amminoacid that can compose a gene
+  */
 object ProteinoGenicAmminoacid extends Enumeration {
     type ProteinoGenicAmminoacid = Value
     protected case class Val(shortName: Char, name: String) extends super.Val{

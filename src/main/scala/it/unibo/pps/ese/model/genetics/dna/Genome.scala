@@ -2,27 +2,36 @@ package it.unibo.pps.ese.model.genetics.dna
 
 import it.unibo.pps.ese.model.genetics.dna.ChromosomeType.ChromosomeType
 
+/**
+  * The common abstraction for genome
+  */
 sealed trait Genome{
-  def requiredChromosomes:Seq[ChromosomeType]
+  /**
+    * @return The required chromosome for this Genome
+    */
+  private[genetics] def requiredChromosomes:Seq[ChromosomeType]
+
+  /**
+    *
+    * @return The map of autosome chromosome couple with [[ChromosomeType]] as key and [[ChromosomeCouple]] as value
+    */
   def autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple]
+
+  /**
+    * @return The map of the first chromosomes of each couple in the genome
+    */
   def firstGenomeSequence:Map[ChromosomeType,Chromosome]
+
+  /**
+    * @return The map of the first chromosomes of each couple in the genome
+    */
   def secondGenomeSequence:Map[ChromosomeType,Chromosome]
 }
-sealed trait AnimalGenome extends Genome{
-  def sexualChromosomeCouple:SexualChromosomeCouple
-  def firstSexualChromosome:SexualChromosome
-  def secondSexualChromosome:SexualChromosome
-  override val requiredChromosomes:Seq[ChromosomeType] = List(ChromosomeType.COMMON,
-                                                            ChromosomeType.STRUCTURAL_ANIMAL,
-                                                            ChromosomeType.LIFE_CYCLE,
-                                                            ChromosomeType.FEEDING)
-}
-sealed trait PlantGenome extends Genome{
-  override val requiredChromosomes:Seq[ChromosomeType] = List(ChromosomeType.COMMON,
-                                                              ChromosomeType.STRUCTURAL_PLANT)
-}
 
-
+/**
+  * Abstract implementation of Genome
+  * @param autosomeChromosomeCouples
+  */
 abstract class CommonGenome(override val autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple]) extends Genome{
 
   override def firstGenomeSequence: Map[ChromosomeType, Chromosome] = autosomeChromosomeCouples.mapValues(_coupleToUnit(_,1))
@@ -33,6 +42,40 @@ abstract class CommonGenome(override val autosomeChromosomeCouples:Map[Chromosom
     case 2 => new BasicChromosomeImpl(c.secondChromosome.chromosomeType,c.secondChromosome.geneList)
   }
 }
+
+/**
+  * The genome of an Animal
+  */
+sealed trait AnimalGenome extends Genome{
+  /**
+    * @return The [[SexualChromosomeCouple]] of this Animal
+    */
+  def sexualChromosomeCouple:SexualChromosomeCouple
+
+  /**
+    * @return The first [[SexualChromosome]]
+    */
+  def firstSexualChromosome:SexualChromosome
+
+  /**
+    * @return The second [[SexualChromosome]]
+    */
+  def secondSexualChromosome:SexualChromosome
+  override val requiredChromosomes:Seq[ChromosomeType] = List(ChromosomeType.COMMON,
+                                                            ChromosomeType.STRUCTURAL_ANIMAL,
+                                                            ChromosomeType.LIFE_CYCLE,
+                                                            ChromosomeType.FEEDING)
+}
+/**
+  * The genome of a Plant
+  */
+sealed trait PlantGenome extends Genome{
+  override val requiredChromosomes:Seq[ChromosomeType] = List(ChromosomeType.COMMON,
+                                                              ChromosomeType.STRUCTURAL_PLANT)
+}
+/**
+  * Companion object for PlantGenome
+  */
 object PlantGenome{
   def apply(autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple]): Genome = new PlantGenomeImpl(autosomeChromosomeCouples)
   private class PlantGenomeImpl(
@@ -40,6 +83,10 @@ object PlantGenome{
                                ) extends CommonGenome(autosomeChromosomeCouples) with PlantGenome
 }
 
+
+/**
+  * Companion object for AnimalGenome
+  */
 object AnimalGenome{
   def apply(
              autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple],
