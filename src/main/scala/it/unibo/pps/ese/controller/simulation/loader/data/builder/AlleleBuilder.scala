@@ -3,10 +3,12 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder
 import it.unibo.pps.ese.controller.simulation.loader.data.{CompleteAlleleData, PartialAlleleData}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.AlleleBuilder.AlleleStatus
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.AlleleBuilder.AlleleStatus._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
+import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
+import it.unibo.pps.ese.utils.DefaultValidable.ValidableInsideRange._
 
 sealed trait AlleleBuilder[T <: AlleleStatus] extends GenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData] {
   def gene: Option[String]
@@ -20,7 +22,12 @@ sealed trait AlleleBuilder[T <: AlleleStatus] extends GenericBuilder[T, FullAlle
 
 object AlleleBuilder {
 
-  def apply(): AlleleBuilder[EmptyAllele] = new AlleleBuilderImpl[EmptyAllele](None, None, None, None, None, Map())
+  def apply(): AlleleBuilder[EmptyAllele] = AlleleBuilder[EmptyAllele](None, None, None, None, None, Map())
+
+  private def apply[T <: AlleleStatus: TypeTag](gene: Option[String], id: Option[String], dominance: Option[Double], consume: Option[Double], probability: Option[Double],
+    effect: Map[String, Double]): AlleleBuilder[T] =
+      new AlleleBuilderImpl[T](gene, id, dominance, consume, probability, effect)
+        with ValidStatusGenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData, ValidAllele]
 
   private class AlleleBuilderImpl[T <: AlleleStatus](val gene: Option[String],
                                   id: Option[String],
@@ -28,47 +35,64 @@ object AlleleBuilder {
                                   consume: Option[Double],
                                   probability: Option[Double],
                                   effect: Map[String, Double])
-                                  (implicit val status: TypeTag[T]) extends AlleleBuilder[T]{
+                                  (implicit val status: TypeTag[T], val validStatus: TypeTag[ValidAllele]) extends AlleleBuilder[T] {
 
     def setGene(gene: String): AlleleBuilder[T with AlleleWithGene] =
-      new AlleleBuilderImpl(Some(gene), id, dominance, consume, probability, effect)
+      AlleleBuilder(Some(gene), id, dominance, consume, probability, effect)
 
     def setId(id: String): AlleleBuilder[T with AlleleWithId] =
-      new AlleleBuilderImpl(gene, Some(id), dominance, consume, probability, effect)
+      AlleleBuilder(gene, Some(id), dominance, consume, probability, effect)
 
     def setDominance(dominance: Double): AlleleBuilder[T with AlleleWithDominance] =
-      new AlleleBuilderImpl(gene, id, Some(dominance), consume, probability, effect)
+      AlleleBuilder(gene, id, Some(dominance), consume, probability, effect)
 
     def setConsume(consume: Double): AlleleBuilder[T with AlleleWithConsume] =
-      new AlleleBuilderImpl(gene, id, dominance, Some(consume), probability, effect)
+      AlleleBuilder(gene, id, dominance, Some(consume), probability, effect)
 
     def setProbability(probability: Double): AlleleBuilder[T with AlleleWithProbability] =
-      new AlleleBuilderImpl(gene, id, dominance, consume, Some(probability), effect)
+      AlleleBuilder(gene, id, dominance, consume, Some(probability), effect)
 
     def setEffect(effect: Map[String, Double]): AlleleBuilder[T with AlleleWithEffect] =
-      new AlleleBuilderImpl(gene, id, dominance, consume, probability, effect)
-
-    def buildComplete(implicit ev: T =:= FullAllele, st: TypeTag[T]): CompleteAlleleData = {
-      new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData
-    }
+      AlleleBuilder(gene, id, dominance, consume, probability, effect)
 
     def tryCompleteBuild(): Try[CompleteAlleleData] = {
       status.tpe match {
         case t if t <:< typeOf[FullAllele] =>
-          Success(new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData)
+          val check = checkProperties()
+          if(check.isEmpty) {
+            Success(new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect) with CompleteAlleleData)
+          } else {
+            Failure(check.get)
+          }
         case _ =>
           Failure(CompleteBuildException("Allele " + id + " must have all fields"))
       }
     }
 
     def build(): PartialAlleleData = {
-      require(status.tpe <:< typeOf[ValidAllele])
       tryCompleteBuild() match {
         case Success(value) =>
           value
         case Failure(_) =>
           new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect)
       }
+    }
+
+    def checkProperties(): Option[CompleteBuildException] = {
+      var exception: Option[CompleteBuildException] = None
+      if(!gene.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "gene", gene)
+      if(!id.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "id", id)
+      if(!dominance.inValidRange)
+        exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "dominance", dominance)
+      if(!consume.inValidRange)
+        exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "consume", consume)
+      if(!probability.inValidRange)
+        exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "probability", probability)
+      if(!effect.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "effect", effect)
+      exception
     }
   }
 

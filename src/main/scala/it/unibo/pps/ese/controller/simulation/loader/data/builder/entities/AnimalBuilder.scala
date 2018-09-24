@@ -83,15 +83,6 @@ object AnimalBuilder {
       }
     }
 
-    def buildComplete(implicit ev: T =:= FullAnimal, st: TypeTag[T]): CompleteAnimalData = {
-      tryCompleteBuild() match {
-        case Success(value) =>
-          value
-        case Failure(exception) =>
-          throw exception
-      }
-    }
-
     private def checkComplete(): (Option[CompleteBuildException], Iterable[CompleteCustomGeneData], Iterable[CompleteDefaultGeneData], Iterable[CompleteDefaultGeneData]) ={
       var exception: Option[CompleteBuildException] = None
       val structTries: Iterable[Try[CompleteCustomGeneData]] = structuralChromosome.map(_.tryCompleteBuild())
@@ -101,7 +92,7 @@ object AnimalBuilder {
           structTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       if(!structuralChromosome.isValid) {
-        exception = exception ++: InvalidParamValueBuildException("Structural Chromosome", structuralChromosome)
+        exception = exception ++: InvalidParamValueBuildException("Animal " + name ,"structural Chromosome", structuralChromosome)
       }
       val regTries: Iterable[Try[CompleteDefaultGeneData]] = regulationChromosome.map(_.tryCompleteBuild())
       val reg: Iterable[CompleteDefaultGeneData] = regTries.collect({case Success(value) => value})
@@ -110,7 +101,7 @@ object AnimalBuilder {
           regTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       if(!regulationChromosome.isValid) {
-        exception = exception ++: InvalidParamValueBuildException("Regulation Chromosome", regulationChromosome)
+        exception = exception ++: InvalidParamValueBuildException("Animal " + name ,"Regulation Chromosome", regulationChromosome)
       }
       val sexTries: Iterable[Try[CompleteDefaultGeneData]] = sexualChromosome.map(_.tryCompleteBuild())
       val sex: Iterable[CompleteDefaultGeneData] = sexTries.collect({case Success(value) => value})
@@ -119,7 +110,7 @@ object AnimalBuilder {
           sexTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       if(!sexualChromosome.isValid) {
-        exception = exception ++: InvalidParamValueBuildException("Sexual Chromosome", sexualChromosome)
+        exception = exception ++: InvalidParamValueBuildException("Animal " + name ,"Sexual Chromosome", sexualChromosome)
       }
       (exception, struct, reg, sex)
     }

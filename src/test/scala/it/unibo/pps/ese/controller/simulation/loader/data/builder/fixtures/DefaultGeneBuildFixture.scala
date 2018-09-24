@@ -5,29 +5,6 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.DefaultGe
 
 trait DefaultGeneBuildFixture extends AlleleBuildFixture {
   def defaultGBFixture = new {
-    private val all1 = AlleleBuilder()
-      .setId("")
-      .setGene("iddc")
-      .setConsume(0)
-      .setDominance(0)
-      .setEffect(Map("test" -> 1))
-      .setProbability(1.0)
-
-    private val all2 = AlleleBuilder()
-      .setId("")
-      .setGene("iddsi")
-      .setConsume(0)
-      .setDominance(0)
-      .setEffect(Map("test" -> 1))
-      .setProbability(1.0)
-
-    private val all3 = AlleleBuilder()
-      .setId("")
-      .setGene("idddi")
-      .setConsume(0)
-      .setDominance(0)
-      .setEffect(Map("test" -> 1))
-      .setProbability(0.5)
 
     val complete = DefaultGeneBuilder()
       .setId("iddc")
@@ -35,7 +12,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
       .addProperties(Map("test" -> Double.getClass))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-        .setId("")
+        .setId("a")
         .setGene("iddc")
           .setEffect(Map("test" -> 1))
       ))
@@ -44,7 +21,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
       .setName("namedsi")
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-          .setId("")
+          .setId("a")
           .setGene("iddc")
           .setEffect(Map("iddsi" -> 1))
       ))
@@ -55,7 +32,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
       .setName("nameddi")
       .addAlleles(Set(
         alleleBFixture.templateHalfProb
-          .setId("")
+          .setId("a")
           .setGene("idddi")
           .setEffect(Map("test" -> 1))
       ))

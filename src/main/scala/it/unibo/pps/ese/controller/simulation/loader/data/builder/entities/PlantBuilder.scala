@@ -54,11 +54,6 @@ object PlantBuilder {
       }
     }
 
-    def buildComplete(implicit ev: T =:= FullPlant, st: TypeTag[T]): CompletePlantData = {
-      new PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength,
-        alleleLength, reign) with CompletePlantData
-    }
-
     def build(): PartialPlantData = {
       //require(status.tpe <:< st.tpe)
       require(status.tpe <:< typeOf[ValidEntity])

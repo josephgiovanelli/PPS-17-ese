@@ -2,6 +2,7 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuilderStatus
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus.{EntityWithAlleleLength, EntityWithGeneLength, EntityWithReign, PlantWithHardness, PlantWithNutritionalValue, _}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException
 
 import scala.reflect.runtime.universe._
 

@@ -6,10 +6,11 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.SimulationBuil
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.SimulationBuilder.SimulationStatus.{EmptySimulation, FullSimulation, SimulationWithAnimals, SimulationWithPlants}
 import it.unibo.pps.ese.controller.simulation.loader.data._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.{AnimalBuilder, PlantBuilder}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException, InvalidParamValueBuildException}
 
 import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
+import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
 trait SimulationBuilder[T <: SimulationStatus] extends GenericBuilder[T, FullSimulation, PartialSimulationData, CompleteSimulationData] {
   def addAnimals(animals: Iterable[(AnimalBuilder[_], Int)]): SimulationBuilder[T with SimulationWithAnimals]
@@ -34,10 +35,11 @@ object SimulationBuilder {
       status.tpe match {
         case t if t <:< typeOf[FullSimulation] =>
           val check = checkComplete()
-          if(check._1.isEmpty)
+          val exc: Option[CompleteBuildException] = check._1 ++: checkProperties()
+          if(exc.isEmpty)
             Success(new SimulationDataImpl(check._2, check._3) with CompleteSimulationData)
           else
-            Failure(new CompleteSimulationBuildException(check._1.get, new SimulationDataImpl[PartialAnimalData, PartialPlantData](
+            Failure(new CompleteSimulationBuildException(exc.get, new SimulationDataImpl[PartialAnimalData, PartialPlantData](
               animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2)))))
         case _ =>
           Failure(new CompleteSimulationBuildException("Simulation: animals and plants must be set",
@@ -46,17 +48,7 @@ object SimulationBuilder {
       }
     }
 
-    def buildComplete(implicit ev: T =:= FullSimulation, st: TypeTag[T]): CompleteSimulationData = {
-      tryCompleteBuild match {
-        case Success(value) =>
-          value
-        case Failure(exception) =>
-          throw exception
-      }
-    }
-
     def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData] = {
-      //require(status.tpe <:< st.tpe)
       tryCompleteBuild match {
         case Success(value) =>
           value
@@ -65,7 +57,7 @@ object SimulationBuilder {
       }
     }
 
-    private def checkComplete(): (Option[CompleteBuildException], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) ={
+    private def checkComplete(): (Option[CompleteBuildException], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) = {
       var exception: Option[CompleteBuildException] = None
       val aTries: Iterable[(Try[CompleteAnimalData], Int)] = animals.map(t => (t._1.tryCompleteBuild(), t._2))
       val a: Iterable[(CompleteAnimalData, Int)] = aTries.collect({
@@ -86,6 +78,15 @@ object SimulationBuilder {
           pTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
       }
       (exception, a, p)
+    }
+
+    private def checkProperties(): Option[CompleteBuildException] = {
+      var exception: Option[CompleteBuildException] = None
+      if(!animals.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Simulation" ,"animals", animals)
+      if(!plants.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Simulation" ,"plants", plants)
+      exception
     }
   }
 

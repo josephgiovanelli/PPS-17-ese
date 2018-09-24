@@ -11,34 +11,34 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
       .setName("namecc")
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-        .setId("")
+        .setId("a")
         .setGene("idcc")
         .setEffect(Map("test" -> 1))
       ))
       .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map())
+      .addConversionMap(Map("test" -> Map("height" -> 1)))
 
     val staticIncomplete = CustomGeneBuilder()
       .setName("namecsi")
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-          .setId("")
+          .setId("a")
           .setGene("idcsi")
           .setEffect(Map("test" -> 1))
       ))
       .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map())
+      .addConversionMap(Map("test" -> Map("height" -> 1)))
 
     val dynamicIncomplete = CustomGeneBuilder()
       .setId("iddi")
       .setName("namecdi")
       .addAlleles(Set(
         alleleBFixture.templateHalfProb
-          .setId("")
+          .setId("a")
           .setGene("iddi")
           .setEffect(Map("test" -> 1))
       ))
       .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map())
+      .addConversionMap(Map("test" -> Map("height" -> 1)))
   }
 }

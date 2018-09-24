@@ -2,14 +2,15 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.gene
 
 import it.unibo.pps.ese.controller.simulation.loader.data.GeneData.PartialGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BuilderStatus, GenericBuilder}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BuilderStatus, GenericBuilder, NotBuildableBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.GeneStatus._
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
+import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
-trait GenericGeneBuilder[S <: GeneStatus] { self =>
+trait GenericGeneBuilder[S <: GeneStatus] extends NotBuildableBuilder[S] { self =>
   type RET[A <: S] <: GenericGeneBuilder[A]
   def setId(id: String): RET[S with GeneWithId]
   def setName(name: String): RET[S with GeneWithName]
@@ -25,7 +26,7 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                name: Option[String],
                                                properties: Map[String, Class[_]],
                                                alleles: Iterable[AlleleBuilder[_]])
-                                                      (implicit private val test: TypeTag[T])
+                                                      (implicit private val test: TypeTag[T], val validStatus: TypeTag[ValidGene])
                                                extends GenericGeneBuilder[T] { self =>
 
   def setId(id: String): RET[T with GeneWithId] =
@@ -43,7 +44,7 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
   def newInstance[NT <: T](id: Option[String], name: Option[String], properties: Map[String, Class[_]],
                            alleles: Iterable[AlleleBuilder[_]])(implicit tt: TypeTag[NT]): RET[NT]
 
-  protected def completeGeneRequirements: (Option[Exception], Iterable[CompleteAlleleData]) = {
+  protected def completeGeneRequirements: (Option[CompleteBuildException], Iterable[CompleteAlleleData]) = {
     var exception: Option[CompleteBuildException] = None
     val tries: Iterable[Try[CompleteAlleleData]] = alleles.map(_.tryCompleteBuild())
     val all: Iterable[CompleteAlleleData] = tries.collect({case Success(value) => value})
@@ -58,6 +59,19 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
     if(!all.forall(a => id.contains(a.gene)))
       exception = exception ++: CompleteBuildException("Gene: " + name.get + " | alleles problem")
     (exception, all)
+  }
+
+  protected def checkProperties: Option[CompleteBuildException] = {
+    var exception: Option[CompleteBuildException] = None
+    if(!id.isValid)
+      exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "id", id)
+    if(!name.isValid)
+      exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "name", name)
+    if(!properties.isValid)
+      exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "properties", properties)
+    if(!alleles.isValid)
+      exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "alleles", alleles)
+    exception
   }
 }
 
