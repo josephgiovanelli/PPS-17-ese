@@ -21,9 +21,20 @@ import scalafx.scene.control._
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 
-
+/**
+  * A pane to choose the values of the filters
+  */
 trait FiltersPane extends ScrollPane {
+
+  /**
+    *
+    * @return if the filters are active
+    */
   def filtersOn: BooleanProperty
+
+  /**
+    * Updates the filters
+    */
   def updateFilters()
 }
 
@@ -128,8 +139,19 @@ object FiltersPane {
 
 }
 
+/**
+  * A pane that with mechanism to disable internal components
+  */
 trait DisablePane {
+
+  /**
+    * Disables its internal components
+    */
   def disableComponents()
+
+  /**
+    * enables its internal components
+    */
   def enableComponents()
 }
 

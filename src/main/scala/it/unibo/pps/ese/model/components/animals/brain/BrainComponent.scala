@@ -2,8 +2,7 @@ package it.unibo.pps.ese.model.components.animals.brain
 
 import java.util.Random
 
-import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType.MemoryType
-import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus
+import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.{Hunting, MemoryType}
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus.SearchingState
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImpl._
@@ -13,6 +12,8 @@ import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
 import it.unibo.pps.ese.model.components.animals.brain.Direction.Direction
+import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus
+import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus._
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.model.components.animals.reproduction._
 import it.unibo.pps.ese.utils.{Point, Position}
@@ -64,8 +65,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   }
 
   implicit def actionKindToMemoryType(actionKind: ActionTypes): MemoryType = actionKind match {
-    case Eat => MemoryType.HUNTING
-    case Couple => MemoryType.COUPLE
+    case Eat => cerebralcortex.Hunting
+    case Couple => cerebralcortex.Couple
   }
 
   implicit def pointToPosition(point: Point): Position = {
@@ -198,16 +199,16 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         }
         else {
           position = hippocampus.searchingState match {
-            case SearchingState.INACTIVE =>
+            case Inactive =>
               hippocampus.startNewSearch(action)
               publish(UseHippocampus())
               checkNewMemory
-            case SearchingState.ACTIVE =>
+            case Active =>
               publish(UseHippocampus())
               val d = hippocampus.computeDirection(position)
               val p = getPosition(d)
               p
-            case SearchingState.ENDED => getPosition(randomDirection)
+            case Ended => getPosition(randomDirection)
           }
 
           def checkNewMemory: Point = {

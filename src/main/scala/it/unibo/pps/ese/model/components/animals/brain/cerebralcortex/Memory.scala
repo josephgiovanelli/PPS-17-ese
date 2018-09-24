@@ -1,21 +1,58 @@
 package it.unibo.pps.ese.model.components.animals.brain.cerebralcortex
 
-import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType.MemoryType
+import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType
 
 object Memory {
   type Score = Double
 
+  /**
+    * The common interface of the memories
+    */
   sealed trait Memory {
+    /**
+      *
+      * @return the `MemoryType` of this memory
+      */
     def memoryType: MemoryType
+
+    /**
+      *
+      * @return the `LocationalField` of this memory
+      */
     def locationalField: LocationalField
+
+    /**
+      *
+      * @return the `Score` of this memory
+      */
     def score: Score
+
+    /**
+      * Sets the `Score` of this memory
+      *
+      * @param score the new `Score`
+      */
     def score_=(score: Score): Unit
+
+    /**
+      * Updates the time of the memories, checking also if they will survive or not
+      */
     def updateTime()
   }
 
+  /**
+    * A memory that lives for long time
+    */
   trait LongTermMemory extends Memory
 
+  /**
+    * A memory that lives for short time
+    */
   trait ShortTermMemory extends Memory {
+    /**
+      *
+      * @return the age of this memory
+      */
     def elapsedTime: Int
   }
 
