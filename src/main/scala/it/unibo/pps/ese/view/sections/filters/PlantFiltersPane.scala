@@ -26,8 +26,20 @@ import it.unibo.pps.ese.view.utilities.EntityConversions._
 import it.unibo.pps.ese.view.sections.filters.PlantFiltersValues
 import it.unibo.pps.ese.view.main.WorldPane
 
+/**
+  * A pane to choose the values of the plant filters section
+  */
 trait PlantFiltersPane extends FiltersVBox with DisablePane {
+
+  /**
+    *
+    * @return a `EntityFiltersValues` with the values of the plant filters
+    */
   def entityFiltersValues: EntityFiltersValues
+
+  /**
+    * Updates the filters
+    */
   def updateFilters()
 }
 

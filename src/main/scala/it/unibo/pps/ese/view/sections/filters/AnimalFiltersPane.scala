@@ -10,8 +10,20 @@ import it.unibo.pps.ese.view.sections.filters.FiltersComponentsFactory.FiltersVB
 import it.unibo.pps.ese.view.utilities.EntityConversions
 import it.unibo.pps.ese.view.utilities.EntityConversions._
 
+/**
+  * A pane to choose the values of the animal filters section
+  */
 trait AnimalFiltersPane extends FiltersVBox with DisablePane {
+
+  /**
+    *
+    * @return a `EntityFiltersValues` with the values of the animal filters
+    */
   def entityFiltersValues: EntityFiltersValues
+
+  /**
+    * Updates the filters
+    */
   def updateFilters()
 }
 

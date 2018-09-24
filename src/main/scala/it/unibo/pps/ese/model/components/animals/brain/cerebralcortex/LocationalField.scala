@@ -2,10 +2,35 @@ package it.unibo.pps.ese.model.components.animals.brain.cerebralcortex
 
 import it.unibo.pps.ese.utils.{Point, Position}
 
+/**
+  * The world's area associated to a memory
+  */
 trait LocationalField {
+
+  /**
+    *
+    * @return the top left `Position`
+    */
   def topLeftPosition: Position
+
+  /**
+    *
+    * @return the bottom right `Position`
+    */
   def bottomRightPosition: Position
+
+  /**
+    *
+    * @return the middle `Position` of this locational field
+    */
   def centerPosition: Position
+
+  /**
+    * Returns the geometric distance from the center position of this locational field and a given `Position`
+    *
+    * @param position the given position
+    * @return the geometric distance
+    */
   def distanceFromPosition(position: Position): Double
 }
 

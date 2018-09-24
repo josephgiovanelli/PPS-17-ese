@@ -14,23 +14,80 @@ import scala.concurrent.{ExecutionContext, Future}
 import scalafx.Includes._
 import scalafx.stage.{Stage, WindowEvent}
 
+/**
+  * Represents the main graphical component and contains all the methods visible from external non-view components
+  */
 trait View extends Stage with WorldView {
+  /**
+    * Adds an `Observer` to the current observers
+    *
+    * @param observer the observer to be added
+    */
   def addObserver(observer: Observer): Unit
+
+  /**
+    * Updates the animal internal status
+    *
+    * @param animalInternalStatus
+    */
   def updateAnimalInternalStatus(animalInternalStatus: AnimalInternalStatus):Unit
+
+  /**
+    * Updates the history log
+    *
+    * @param newLog
+    */
   def updateHistoryLog(newLog:HistoryLog):Unit
 }
 
+/**
+  * Allows the communication between the internal components of the view
+  */
 trait MainComponent {
+
+  /**
+    * Sets the current scene
+    *
+    * @param sceneType the `Scene` to be shown
+    */
   def setScene(sceneType: ViewType.Value): Unit
+
+  /**
+    * Returns the entity details given the id
+    *
+    * @param id the entity id
+    * @return the `entityDetails`
+    */
   def getEntityDetails(id: String): Option[EntityInfo]
+
+  /**
+    * Sets the `Entity` to be watched
+    *
+    * @param id the id of the entity to be watched
+    */
   def watchEntity(id:String):Unit
+
+  /**
+    * Stops to watch the given `Entity`
+    *
+    * @param id the id of the entity
+    */
   def unwatchEntity(id:String):Unit
+
   def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
   def historicalData(): Future[ChartsData]
   def simulationEras(): Future[Seq[Long]]
   def entitiesInEra(era: Long): Future[Seq[String]]
   def replay: ReplayController
+
+  /**
+    * Pauses the simulation
+    */
   def pause()
+
+  /**
+    * Restarts the simulation
+    */
   def play()
 }
 trait BodyViewer {

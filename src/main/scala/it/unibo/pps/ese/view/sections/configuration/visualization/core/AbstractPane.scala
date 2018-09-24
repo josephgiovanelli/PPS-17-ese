@@ -10,8 +10,19 @@ import scalafx.scene.image.ImageView
 import scalafx.scene.layout.{BorderPane, GridPane, HBox}
 import scalafx.scene.paint.Color
 
+/**
+  * The modality of creation of a pane
+  */
 trait Modality
+
+/**
+  * Add modality
+  */
 case object AddModality extends Modality
+
+/**
+  * MOdify modality
+  */
 case object ModifyModality extends Modality
 
 object PaneProperties {
@@ -24,8 +35,28 @@ object PaneProperties {
   }
 }
 
+/**
+  * The basic class for a content pane of the configuration dialog
+  *
+  * @param title
+  * @param headerText
+  * @param path
+  * @param depth
+  */
 abstract class DialogPane(val title: String, val headerText: String, val path: String, val depth: Int) extends BorderPane
 
+/**
+  * A common pane for checkable and backable panes
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param key the key of the entity
+  * @param title the title of the pane
+  * @param headerText the header text of the pane
+  * @param path the path from the starting pane to this one
+  * @param depth the depth of the path
+  * @tparam A the type of the pane
+  */
 abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String],
                                title: String, headerText: String, path: String, depth: Int)
   extends DialogPane(title, headerText, path, depth) {
