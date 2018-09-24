@@ -3,9 +3,6 @@ package it.unibo.pps.ese.model.components.animals.brain
 import java.util.Random
 
 import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{BaseEvent, RequestEvent, ResponseEvent}
-import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus
-import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.{Hunting, MemoryType}
-import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus.SearchingState
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType
 import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityProperty, EntityState}
@@ -18,38 +15,96 @@ import it.unibo.pps.ese.model.components.animals.brain.decisionsupport._
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImplUtils._
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus._
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityAttributesImpl => _, _}
 import it.unibo.pps.ese.model.components.animals.reproduction._
 import it.unibo.pps.ese.utils.{Point, Position}
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
+/**
+  * Event with which inform the rest of the world of BrainComponent state.
+  * @param strength the strength quality of the entity in subject
+  * @param actionField the action field of the entity in subject
+  * @param visualField the visual field of the entity in subject
+  * @param attractiveness the attractiveness quality of the entity in subject
+  */
 case class BrainInfo(strength: Double,
                      actionField: Double,
                      visualField: Double,
                      attractiveness: Double) extends BaseEvent
 
-
+/**
+  * The enumeration that describes the type of possible actions.
+  */
 trait ActionTypes
 case object Eat extends ActionTypes
 case object Couple extends ActionTypes
 case object Nothing extends ActionTypes
 
+/**
+  * It informs that the entity is using the hippocampus.
+  */
 case class UseHippocampus() extends BaseEvent
+
+/**
+  * It informs that the entity saw something that interests him.
+  */
 case class UseEyes() extends BaseEvent
+
+/**
+  * It informs about why the entity are moving.
+  * (move because is searching for [[Eat]] or [[Couple]])
+  * @param will the reason
+  */
 case class EntityWill(will: ActionTypes) extends BaseEvent
 
+/**
+  * It informs about the entity position.
+  * @param position the entity position
+  */
 case class EntityPosition(position: Point) extends BaseEvent
+
+/**
+  * It informs that the entity is doing an action.
+  * @param entityId the entity identifier
+  * @param action the action
+  */
 case class InteractionEntity(entityId: String, action: ActionTypes) extends BaseEvent
+
+/**
+  * It informs that the brain requires its dynamic parameters.
+  */
 case class DynamicParametersRequest() extends RequestEvent
+
+/**
+  * This is the response of [[DynamicParametersRequest]] with the dynamic parameters.
+  * @param id entity identifier
+  * @param speed current speed
+  * @param energy current energy
+  * @param fertility current fertility
+  * @param satisfaction current satisfaction
+  */
 case class DynamicParametersResponse(override val id: String, speed: Double, energy: Double, fertility: Double, satisfaction: Double) extends ResponseEvent
 
+/**
+  * Enumeration that defines the direction that the entity can take.
+  */
 object Direction extends Enumeration {
   type Direction = Value
   val RIGHT, LEFT, UP, DOWN, NONE = Value
 }
 
+/**
+  * The component that is responsible for the decisions made (movements, hunting and finding partners)
+  * @param entitySpecifications the base information of the entity
+  * @param heightWorld the height of the world
+  * @param widthWorld the width of the world
+  * @param strength the strenght of the entity
+  * @param actionField the action field of the entity
+  * @param visualField the visual field of the entity
+  * @param attractiveness the attractiveness of the entity
+  * @param executionContext the execution context
+  */
 case class BrainComponent(override val entitySpecifications: EntitySpecifications,
                           heightWorld: Int,
                           widthWorld: Int,
@@ -59,7 +114,12 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
                           attractiveness: Double)
                          (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
-
+  /**
+    * This function makes sure that any position that circulates in the world is within its limits.
+    * The control is done automatically, implicitly, and in this way also converts a tuple to a point, so as to write a point in a simpler way.
+    * @param tuple2 the tuple to convert and check
+    * @return the point in the bounds
+    */
   implicit def toPoint(tuple2: (Int, Int)): Point = {
     def bound(i: Int, bound: Int): Int = if (i < 0) 0 else if (i > bound) bound else i
     def boundWidth(x: Int): Int = bound(x, widthWorld)
@@ -76,29 +136,61 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     Position(point.x, point.y)
   }
 
+  /**
+    * Minimum threshold of energy to ensure that an entity can go in search of partners instead of worrying about hunting a prey.
+    */
+  private val ENERGY_THRESHOLD = 60
 
-  val ENERGY_THRESHOLD = 60
-  val MIN_PREYS_FOR_COUPLING = 2
-  val FERTILITY_THRESHOLD = 0.4
-  val SATISFACTION_THRESHOLD = 40
+  /**
+    * Minimum of prey that must have an entity around it for can go in search of partners instead of worrying about hunting a prey.
+    */
+  private val MIN_PREYS_FOR_COUPLING = 2
 
-  var digestionState: Boolean = false
+  /**
+    * Minimum threshold that must have an entity to be able to mate
+    */
+  private val FERTILITY_THRESHOLD = 0.4
 
-  var pregnantState: Boolean = false
+  /**
+    * Maximum threshold that must have an entity to be able to mate, otherwise it is satisfied.
+    */
+  private val SATISFACTION_THRESHOLD = 40
 
-  var forceReproduction: Option[ForceReproduction] = None
+  /**
+    * It takes into account whether it is in digestion or not.
+    */
+  private var digestionState: Boolean = false
 
-  val decisionSupport: DecisionSupport = DecisionSupport()
+  /**
+    * It takes into account whether it is in pregnant state or not.
+    */
+  private var pregnantState: Boolean = false
 
-  val hippocampus: Hippocampus = Hippocampus(widthWorld, heightWorld, visualField)
+  /**
+    * A message to make sure that once the partner has been reached, the reproduction takes place.
+    */
+  private var forceReproduction: Option[ForceReproduction] = None
 
-  var entityInVisualField: Map[String, EntityAttributesImpl] = Map.empty
+  /**
+    * The element that allows to catalog the entities in radius and find out if there are prey or partners.
+    */
+  private val decisionSupport: DecisionSupport = DecisionSupport()
+
+  private val hippocampus: Hippocampus = Hippocampus(widthWorld, heightWorld, visualField)
+
+  /**
+    * It stores the entities in its radius of vision.
+    */
+  private var entityInVisualField: Map[String, EntityAttributesImpl] = Map.empty
 
   override def initialize(): Unit = {
     subscribeEvents()
     configureMappings()
   }
 
+  /**
+    * Method by which events are received and reacted.
+    */
   private def subscribeEvents(): Unit = {
     import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
     subscribe {
