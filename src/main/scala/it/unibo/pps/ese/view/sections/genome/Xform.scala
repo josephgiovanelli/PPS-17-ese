@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.view.sections.speciesdetails
+package it.unibo.pps.ese.view.sections.genome
 
  import it.unibo.pps.ese.model.genetics.dnaexpression.GeneStats
  import scalafx.Includes._
@@ -171,15 +171,15 @@ class Xform extends javafx.scene.Group {
   }
 }
 sealed trait ModifiableSphereCouple{
-  def setGeneStats(chromosomeWithGeneCouple: GeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene):Unit
+  def setGeneStats(chromosomeWithGeneCouple: GeneInformationCoupled, lS:GeneDetailsSubScene, rS:GeneDetailsSubScene):Unit
   def clearGeneStats():Unit
 }
 class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinder) extends Xform() with ModifiableSphereCouple {
-  override def setGeneStats(chromosomeWithGeneCouple: GeneCouple,lS:GeneDetailsSubScene,rS:GeneDetailsSubScene): Unit = {
+  override def setGeneStats(chromosomeWithGeneCouple: GeneInformationCoupled, lS:GeneDetailsSubScene, rS:GeneDetailsSubScene): Unit = {
     setMaterialsOfShapes(Materials.blueMaterial,s1,c2)
     setMaterialsOfShapes(Materials.greyMaterial,s2,c1)
     val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
-              val gCouple:GeneCouple = chromosomeWithGeneCouple
+              val gCouple:GeneInformationCoupled = chromosomeWithGeneCouple
               val geneStats1:GeneStats = gCouple.gene1.geneStats
               val geneStats2:GeneStats = gCouple.gene2.geneStats
               val cType1 = chromosomeWithGeneCouple.gene1.chromosomeType

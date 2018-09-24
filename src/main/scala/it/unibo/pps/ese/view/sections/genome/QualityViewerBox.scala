@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.view.sections.speciesdetails
+package it.unibo.pps.ese.view.sections.genome
 
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Label, ProgressBar}

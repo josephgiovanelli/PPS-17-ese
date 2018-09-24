@@ -5,8 +5,8 @@ import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConve
 import it.unibo.pps.ese.model.components.animals.LifePhases
 import it.unibo.pps.ese.model.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male, PlantInfo}
 import it.unibo.pps.ese.view.core.MainComponent
-import it.unibo.pps.ese.view.sections.speciesdetails.NonNumericQualityViewerBox
-import it.unibo.pps.ese.view.sections.speciesdetails.QualityBoxUtilities._
+import it.unibo.pps.ese.view.sections.genome.NonNumericQualityViewerBox
+import it.unibo.pps.ese.view.sections.genome.QualityBoxUtilities._
 import it.unibo.pps.ese.view.sections.statistics.ReplayStage
 import it.unibo.pps.ese.view.utilities.EntityConversions._
 import it.unibo.pps.ese.view.utilities.TextUtilities._

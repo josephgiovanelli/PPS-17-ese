@@ -111,11 +111,6 @@ object BodyPane {
       List(headBox,digestiveBox,reproductionBox).foreach(_.clearText())
     }
   }
-//  object AnimalStatusMemoHelper{
-//    def memoize[I,O](f: I=> O):I=>O = new collection.mutable.HashMap[I,O](){
-//      override def apply(key:I) = getOrElseUpdate(key,f(key))
-//    }
-//  }
 
   /**
     * Utility object that maintain the previous status of the animal, in order to avoid the drawing of the same status

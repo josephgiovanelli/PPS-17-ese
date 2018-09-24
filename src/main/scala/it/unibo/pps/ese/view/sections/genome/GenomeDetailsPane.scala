@@ -1,4 +1,4 @@
-package it.unibo.pps.ese.view.sections.speciesdetails
+package it.unibo.pps.ese.view.sections.genome
 
 import javafx.scene.text.{Font, Text}
 import scalafx.Includes._
@@ -13,12 +13,12 @@ import scalafx.scene.layout._
 import scalafx.scene.text.TextAlignment
 import it.unibo.pps.ese.view.utilities.TextUtilities._
 sealed trait GenomeDetailsPane extends Pane{
-  def setGenomeStats(genomeStats:List[GeneCouple]):Unit
+  def setGenomeStats(genomeStats:List[GeneInformationCoupled]):Unit
   def clearGenomeStats():Unit
 }
 object GenomeDetailsPane {
-  def apply(genomeStats: Option[List[GeneCouple]]):GenomeDetailsPane= new SpeciesDetailsPane(genomeStats)
-  private[this] class SpeciesDetailsPane(genomeStats:Option[List[GeneCouple]]) extends GenomeDetailsPane {
+  def apply(genomeStats: Option[List[GeneInformationCoupled]]):GenomeDetailsPane= new SpeciesDetailsPane(genomeStats)
+  private[this] class SpeciesDetailsPane(genomeStats:Option[List[GeneInformationCoupled]]) extends GenomeDetailsPane {
     prefWidth = 1000
     prefHeight = 800
 
@@ -76,7 +76,7 @@ object GenomeDetailsPane {
     root.getChildren.addAll(tbox,hbox, slider)
     if(genomeStats.nonEmpty) setGenomeStats(genomeStats.get)
 
-    override def setGenomeStats(genomeStats: List[GeneCouple]): Unit = {
+    override def setGenomeStats(genomeStats: List[GeneInformationCoupled]): Unit = {
 
       for(i<-genomeStats.indices) molecules(i).setGeneStats(genomeStats(i),lS,rS)
 
