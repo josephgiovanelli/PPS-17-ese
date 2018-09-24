@@ -2,18 +2,19 @@ package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
-import it.unibo.pps.ese.controller.simulation.loader.io.File
 import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityInfo, EntityState}
 import it.unibo.pps.ese.utils.{Point, Position}
 import it.unibo.pps.ese.view.sections.statistics.ChartsData
 import it.unibo.pps.ese.view.utilities.Entity
 import scalafx.scene.paint.Color
 
-import scala.util.Try
 import scala.concurrent.Future
 
 case class EntityDetails(id: String, species: String, position: Position)
 
+/**
+  * Communication interface between View and Controller
+  */
 trait Observer {
   def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
   def getEntityDetails(id: String): Option[EntityInfo]
@@ -27,19 +28,9 @@ trait Observer {
   def play()
 }
 
-//class View {
-//
-//  var frame : Int = 0
-//
-//  def addObserver(observer: Observer): Unit = Unit
-//
-//  def render(viewData: ViewData): Unit = {
-//    (viewData entities) take 1 foreach(e => println("Frame: " + frame + ", Id: " + e.id
-//      + ", Species: " + e.species + ", Position: " + e.position + ", Color: " + e.color))
-//    frame += 1
-//  }
-//}
-
+/**
+  * Utilities required for the adaptation of SimulationController interface to Observer one
+  */
 object ViewHelpers {
   import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
 

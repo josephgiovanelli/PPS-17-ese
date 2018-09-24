@@ -21,37 +21,84 @@ import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.model.genetics.entities.QualityType.{Attractiveness, _}
 import it.unibo.pps.ese.model.genetics.entities.{AnimalInfo, DietType, PlantInfo, Quality, Reign}
 import it.unibo.pps.ese.utils.Point
+import it.unibo.pps.ese.controller.simulation.runner.core.support.RandomHelper._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
+import scala.util.Random
 
 object ReignType extends Enumeration {
   val ANIMAL, PLANT = Value
 }
 
+/**
+  * Companion object of the simulation builder
+  */
 object SimulationBuilder {
 
+  /**
+    * Base Simulation trait
+    */
   sealed trait Simulation
   object Simulation {
+
+    /**
+      * Simulation not ready for building
+      */
     sealed trait EmptySimulation extends Simulation
+
+    /**
+      * Simulation with world's dimension. Not ready for building
+      */
     sealed trait Dimension extends Simulation
+
+    /**
+      * Simulation with population data. Not ready for building
+      */
     sealed trait Data extends Simulation
 
+    /**
+      * Simulation ready for building
+      */
     type ReadySimulation = EmptySimulation with Dimension with Data
   }
 }
 
+/**
+  * Playable simulation builder
+  * @param width World width
+  * @param height World height
+  * @param data World population data
+  * @param executionContext An execution context, required for async tasks
+  * @tparam Simulation The state of the simulation
+  */
 class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 (width: Int = 0, height: Int = 0, data: CompleteSimulationData = null)(implicit executionContext: ExecutionContext) {
 
   import SimulationBuilder.Simulation._
 
+  /**
+    * Add world dimension info
+    * @param width World width
+    * @param height World height
+    * @return The updated SimulationBuilder
+    */
   def dimension(width: Int, height: Int): SimulationBuilder[Simulation with Dimension] =
     new SimulationBuilder(width, height, data)
 
+  /**
+    * Add world population data
+    * @param data Population data
+    * @return The updated SimulationBuilder
+    */
   def data(data: CompleteSimulationData): SimulationBuilder[Simulation with Data] =
     new SimulationBuilder(width, height, data)
 
+  /**
+    * Build the simulation if ready
+    * @param ev Check on the status of the simulation
+    * @return A SimulationController instance, usable to control built Simulation lifecycle
+    */
   def build(implicit ev: Simulation =:= ReadySimulation): SimulationController = controller
 
   private lazy val controller: SimulationController = {
@@ -76,13 +123,13 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
 
     geneticsSimulator.speciesList
       .flatMap(x => initializedSimulation.getAllAnimals(x))
-      .zip(distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
+      .zip(Random.distinctRandomPoints(initializedSimulation.getAllAnimals.map(z => z._2.size).sum, width, height))
       .map(x => initializeEntity(x._1, x._2, height, width, animalCreationFunction))
       .foreach(world addEntity)
 
     geneticsSimulator.plantSpeciesList
       .flatMap(x => initializedSimulation.getAllPlant(x))
-      .zip(distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
+      .zip(Random.distinctRandomPoints(initializedSimulation.getAllPlant.map(z => z._2.size).sum, width, height))
       .map(x => initializeEntity(x._1, x._2))
       .foreach(world addEntity)
 
@@ -97,18 +144,13 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
   }
 }
 
+/**
+  * This object contains the utility methods used to build the simulation entities
+  */
 object EntityBuilderHelpers {
 
   private val yearToClock = 10
   private val mutationProb = 0.05
-
-  def distinctRandomPoints(n:Int, x:Int, y:Int):Set[Point] = {
-    import scala.util.Random
-    require(n < x * y)
-    Stream.continually((Random.nextInt(x), Random.nextInt(y))).scanLeft(Set[Point]()) {
-      (accumulator, el) => accumulator + Point(el._1, el._2)
-    }.dropWhile(_.size < n).head
-  }
 
   def initializeEntities(animals: Map[String, Int],
                          plants: Map[String, Int],
@@ -120,26 +162,36 @@ object EntityBuilderHelpers {
                         (implicit executionContext: ExecutionContext): Seq[Entity] = {
 
     val animalEntities: Seq[Entity] = animals.flatMap(entity => Seq.fill(entity._2)(entity._1))
-      .zip(distinctRandomPoints(animals.values.sum, worldHeight.toInt, worldWidth.toInt))
+      .zip(Random.distinctRandomPoints(animals.values.sum, worldHeight.toInt, worldWidth.toInt))
       .map(entity => initializeEntity(GeneticsSimulator.newAnimal(entity._1), entity._2,
         worldHeight, worldWidth, animalCreationFunction)).toSeq
 
     val plantEntities: Seq[Entity] = plants.flatMap(entity => Seq.fill(entity._2)(entity._1))
-        .zip(distinctRandomPoints(plants.values.sum, worldHeight.toInt, worldWidth.toInt))
+        .zip(Random.distinctRandomPoints(plants.values.sum, worldHeight.toInt, worldWidth.toInt))
         .map(entity => initializeEntity(GeneticsSimulator.newPlant(entity._1), entity._2)).toSeq
 
     val newAnimalEntities: Seq[Entity] = newAnimals.flatMap(entity => GeneticsSimulator.addNewAnimalSpecies(entity._1, entity._2))
-      .zip(distinctRandomPoints(newAnimals.values.sum, worldHeight.toInt, worldWidth.toInt))
+      .zip(Random.distinctRandomPoints(newAnimals.values.sum, worldHeight.toInt, worldWidth.toInt))
       .map(entity => initializeEntity(entity._1, entity._2, worldHeight, worldWidth, animalCreationFunction)).toSeq
 
     val newPlantEntities: Seq[Entity] = newPlants.flatMap(entity => GeneticsSimulator.addNewPlantSpecies(entity._1, entity._2))
-      .zip(distinctRandomPoints(newPlants.values.sum, worldHeight.toInt, worldWidth.toInt))
+      .zip(Random.distinctRandomPoints(newPlants.values.sum, worldHeight.toInt, worldWidth.toInt))
       .map(entity => initializeEntity(entity._1, entity._2)).toSeq
 
 
     animalEntities ++ plantEntities ++ newAnimalEntities ++ newPlantEntities
   }
 
+  /**
+    * Initialize an animal entity
+    * @param animalInfo Info about the animal
+    * @param position Entity start position
+    * @param worldHeight World height
+    * @param worldWidth World width
+    * @param animalCreationFunction Strategy for the spawn process
+    * @param executionContext Execution context
+    * @return The built entity
+    */
   def initializeEntity(animalInfo: AnimalInfo, position: Point, worldHeight: Long , worldWidth: Long, animalCreationFunction: (AnimalInfo, Point) => Entity)
                       (implicit executionContext: ExecutionContext): Entity = {
     val entity = Entity(randomUUID().toString)
@@ -152,6 +204,13 @@ object EntityBuilderHelpers {
     entity
   }
 
+  /**
+    * Initialize a plant entity
+    * @param plantInfo Info about the plant
+    * @param position Entity start position
+    * @param executionContext Execution context
+    * @return The built entity
+    */
   def initializeEntity(plantInfo: PlantInfo, position: Point)
                       (implicit executionContext: ExecutionContext): Entity = {
     val entity = Entity(randomUUID().toString)
@@ -160,6 +219,10 @@ object EntityBuilderHelpers {
     entity addComponent initializePlantReproductionComponent(entity)
     entity
   }
+
+  /**
+    * Custom components initialization
+    */
 
   private def initializeBaseInfoComponent(entity: Entity, entityInfo: it.unibo.pps.ese.model.genetics.entities.EntityInfo, position: Point)
                                          (implicit executionContext: ExecutionContext): Component = {
