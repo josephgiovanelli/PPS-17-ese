@@ -4,9 +4,11 @@ import it.unibo.pps.ese.controller.simulation.StaticRules
 import it.unibo.pps.ese.controller.simulation.loader.YamlLoader
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.CompleteSimulationData
 import it.unibo.pps.ese.controller.simulation.loader.io.File
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.BaseEvent
 import it.unibo.pps.ese.controller.simulation.runner.core.UpdatableWorld.UpdatePolicy.Deterministic
-import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.controller.simulation.runner.core.{EntityUpdateState, _}
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl
 import it.unibo.pps.ese.model.components.animals.brain.{ActionTypes, Couple, InteractionEntity}
 import it.unibo.pps.ese.model.components.{BaseInfoRequest, BaseInfoResponse}
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
@@ -24,7 +26,7 @@ class ReproductionTest extends FunSuite {
 
   private val i = (9 to 1 by -1).iterator
 
-  import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl._
+  import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImplUtils._
   StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
   private val worldRules: WorldRulesImpl = WorldRulesImpl(Integer.MIN_VALUE, Integer.MAX_VALUE, 0,
     Set(("Gatto", "Giraffa"), ("Giraffa", "ErbaGatta")),
@@ -87,7 +89,7 @@ class ReproductionTest extends FunSuite {
   }
 
   def baseEntityInit(animalInfo: AnimalInfo) : Entity = {
-    val entity = Entity("improved", i.next().toString)
+    val entity = Entity(i.next().toString)
     entity addComponent initializeReproductionComponent(entity, animalInfo)
     entity
   }

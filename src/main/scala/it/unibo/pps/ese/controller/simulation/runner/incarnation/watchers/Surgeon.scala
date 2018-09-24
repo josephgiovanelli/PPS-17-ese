@@ -1,10 +1,9 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers
 
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityState, ReadOnlyEntityState}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityState, ReadOnlyEntityState}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.brain.{Couple, Eat, Nothing}
-import it.unibo.pps.ese.view._
 import it.unibo.pps.ese.view.sections.bodyviewer._
 import it.unibo.pps.ese.view.core.View
 
@@ -12,15 +11,15 @@ case class Surgeon(realTimeState: ReadOnlyEntityState) {
 
   var inspected: Option[String] = None
 
-  def inspects(entityId: String): Unit = synchronized {
+  def inspects(entityId: String): Unit = this synchronized {
     inspected = Some(entityId)
   }
 
-  def leaves(): Unit = synchronized {
+  def leaves(): Unit = this synchronized {
     inspected = None
   }
 
-  def informAboutOrgansStatus(view: View): Unit = synchronized {
+  def informAboutOrgansStatus(view: View): Unit = this synchronized {
     if(inspected.isDefined) {
       import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
       val entity: Option[EntityState] = realTimeState getFilteredState(x => x.entityId == inspected.get) match {

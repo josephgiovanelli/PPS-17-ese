@@ -1,6 +1,6 @@
-package it.unibo.pps.ese.model
+package it.unibo.pps.ese.model.dataminer
 
-package object dataminer {
+package object DataModelSupport {
   type EntityId = String
   type Era = Long
   type Species = String

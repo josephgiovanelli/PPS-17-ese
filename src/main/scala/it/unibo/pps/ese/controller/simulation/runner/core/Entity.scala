@@ -23,10 +23,8 @@ sealed trait NervousSystemExtension {
 
 object Entity {
 
-  def apply(instance: String, id: String)(implicit executionContext: ExecutionContext): Entity = instance match {
-    case "base" => new BaseEntity(id)
-    case "improved" => new ImprovedEntity(id) with NervousSystemExtension
-  }
+  def apply(id: String)(implicit executionContext: ExecutionContext): Entity =
+    new ImprovedEntity(id) with NervousSystemExtension
 
   private class BaseEntity(entityId: String) extends Entity with EntitySpecifications {
     private[this] var components : Seq[Component] = Seq.empty

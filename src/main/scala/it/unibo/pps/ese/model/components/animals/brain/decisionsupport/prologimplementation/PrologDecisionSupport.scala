@@ -1,14 +1,8 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation
 
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImpl.EntityAttributesImpl
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport._
 
 import scala.io.Source
-
-trait WorldRulesListener {
-  def updateCouplingKind(set: Set[(String, String)]): Unit
-  def updateHuntingKind(set: Set[(String, String)]): Unit
-}
 
 object PrologDecisionSupport {
   def apply(): DecisionSupport = new PrologDecisionSupportImpl()
@@ -56,7 +50,7 @@ object PrologDecisionSupport {
     }
 
     override def clearVisualField(): Unit = {
-      supportMap.foreach(x => engine(new Struct("deleteEntity", new Var())))
+      supportMap.foreach(_ => engine(new Struct("deleteEntity", new Var())))
       supportMap = Map.empty
     }
 

@@ -25,14 +25,16 @@ sealed trait StatisticsDetailsPane extends BorderPane {
 object StatisticsDetailsPane {
 
   def apply(mainComponent: MainComponent)
-           (implicit executionContext: ExecutionContext):StatisticsDetailsPane = new WebBasedStatisticsDetailsPane(mainComponent)
+           (implicit executionContext: ExecutionContext):StatisticsDetailsPane =
+    new WebBasedStatisticsDetailsPane(mainComponent)
 
   private[this] class WebBasedStatisticsDetailsPane(mainComponent: MainComponent)
             (implicit executionContext: ExecutionContext) extends StatisticsDetailsPane {
 
     prefWidth <== 1000
     prefHeight <== 800
-    background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+    background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0),
+      CornerRadii.Empty, Insets.Empty)))
 
     val eraCombo: ComboBox[String] = new ComboBox[String] {
       maxWidth = 200

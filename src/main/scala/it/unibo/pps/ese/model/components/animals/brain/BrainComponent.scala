@@ -2,16 +2,20 @@ package it.unibo.pps.ese.model.components.animals.brain
 
 import java.util.Random
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{BaseEvent, RequestEvent, ResponseEvent}
+import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.{Hunting, MemoryType}
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus.SearchingState
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImpl._
 import it.unibo.pps.ese.controller.simulation.runner.core._
-import it.unibo.pps.ese.controller.simulation.runner.core.support.{BaseEvent, RequestEvent, ResponseEvent, SupervisedFuture}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityProperty, EntityState}
+import it.unibo.pps.ese.controller.simulation.runner.core.support.SupervisedFuture
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
 import it.unibo.pps.ese.model.components.animals.brain.Direction.Direction
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImplUtils._
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus
 import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.hippocampus.Hippocampus._
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityAttributesImpl => _, _}
@@ -24,8 +28,7 @@ import scala.util.{Failure, Success}
 case class BrainInfo(strength: Double,
                      actionField: Double,
                      visualField: Double,
-                     attractiveness: Double
-                    ) extends BaseEvent
+                     attractiveness: Double) extends BaseEvent
 
 
 trait ActionTypes
@@ -135,9 +138,9 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         forceReproduction = Some(r)
       case DigestionEnd() =>
         digestionState = false
-      case p: Pregnant =>
+      case _: Pregnant =>
         pregnantState = true
-      case p: PregnancyEnd =>
+      case _: PregnancyEnd =>
         pregnantState = false
       case GetInfo() =>
         publish(BrainInfo(strength, actionField, visualField, attractiveness))

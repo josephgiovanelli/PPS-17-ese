@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.sections.filters
 
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityState
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.LifePhases
 import it.unibo.pps.ese.model.genetics.entities._

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.view.sections.configuration.entitiesinfo
 
-import it.unibo.pps.ese.controller.simulation.loader.beans.{Allele, Gene, Plant, PropertyInfo}
-import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
+import it.unibo.pps.ese.controller.simulation.loader.beans.PropertyInfo
+import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.PartialAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.PartialCustomGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.PartialDefaultGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
@@ -40,6 +40,10 @@ sealed trait EntitiesInfo {
 
   def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes, gene: String, alleles: Map[String, AlleleInfo]): Unit
 
+
+  def deletePlant(id: String): Unit
+
+  def deleteAnimal(id: String): Unit
 
   /*
   Plants
@@ -142,11 +146,16 @@ object EntitiesInfo {
         case RegulationChromosome =>
           val regulationGene = currentAnimalChromosome.regulationChromosome(gene)
           currentAnimalChromosome.regulationChromosome += (gene -> DefaultChromosomeInfo(regulationGene.geneInfo, regulationGene.alleles ++ alleles))
-        case RegulationChromosome =>
+        case SexualChromosome =>
           val sexualGene = currentAnimalChromosome.sexualChromosome(gene)
           currentAnimalChromosome.sexualChromosome += (gene -> DefaultChromosomeInfo(sexualGene.geneInfo, sexualGene.alleles ++ alleles))
       }
     }
+
+
+    override def deletePlant(id: String): Unit = plants -= id
+
+    override def deleteAnimal(id: String): Unit = animals -= id
 
     /*
     Plants

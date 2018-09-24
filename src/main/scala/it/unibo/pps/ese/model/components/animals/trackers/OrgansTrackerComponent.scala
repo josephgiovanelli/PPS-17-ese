@@ -1,7 +1,8 @@
 package it.unibo.pps.ese.model.components.animals.trackers
 
-import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityProperty, _}
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.BaseEvent
+import it.unibo.pps.ese.controller.simulation.runner.core._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
 import it.unibo.pps.ese.model.components.animals.brain._
 import it.unibo.pps.ese.model.components.animals.reproduction.{PregnancyEnd, PregnancyRequirements, Pregnant}

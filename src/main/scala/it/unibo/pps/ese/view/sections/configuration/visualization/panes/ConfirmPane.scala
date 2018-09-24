@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{ErrorLabel, WhiteLabel}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, DialogPane, MainDialog}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, DialogPane, MainDialog}
 import it.unibo.pps.ese.view.core.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, UnexpectedExceptionAlert}
 
@@ -32,21 +32,16 @@ case class ConfirmPane(mainDialog: MainDialog,
                        newPlantSpecies: Seq[String] = Seq.empty,
                        previousAnimalsCount: Map[String, Int] = Map.empty,
                        previousPlantsCount: Map[String, Int] = Map.empty)
-  extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
+  extends AbstractPane[Unit](mainDialog, previousContent, None, title, headerText, title, 0) {
 
   /*
-  Header
+  Fields
    */
 
-
-
-
-  val animalsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
-      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
-  val plantsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
-      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+  val animalsEntities: Map[TextField, (WhiteLabel, ErrorLabel)] =
+    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).toMap
+  val plantsEntities: Map[TextField, (WhiteLabel, ErrorLabel)] =
+    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).toMap
 
   fields = animalsEntities ++ plantsEntities
 
@@ -129,15 +124,12 @@ case class ConfirmPane(mainDialog: MainDialog,
         val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
         val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
         val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
-        println((newPlants.map(x => x._1.name), oldPlants.keySet))
         mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
       }
       case Failure(exception: CompleteSimulationBuildException) =>
         NoCompleteSimulationAlert(mainDialog.window, exception.buildException).showAndWait()
-        null
       case Failure(exception) =>
         UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
-        null
     }
     mainDialog.closeDialog()
   }

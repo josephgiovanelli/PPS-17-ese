@@ -8,6 +8,7 @@ entity(john, herbivore, 7, 6, 6, [3, 1], 3, female).
 entity(smith, carnivorous, 10, 10, 10, [3, 3], 1, male).
 entity(jack, herbivore, 4, 4, 4, [5, 5], 1, female).
 */
+
 /*
 Example of dynamic contents.
 */
@@ -22,6 +23,9 @@ kind(partner, carnivorous, carnivorous).
 kind(partner, herbivore, herbivore).
 */
 
+/*
+API to add theory dynamically (thresholds and relationships between entities).
+*/
 setAttackThreshold(Threshold) :-
 	assert(threshold(attack, Threshold)).
 
@@ -30,7 +34,6 @@ setAttractivenessThreshold(Threshold) :-
 
 setHeightThresholds(Threshold) :-
 	assert(threshold(height, Threshold)).
-
 
 addCompatibleHuntingKinds(HunterKind, PreyKind) :-
 	assert(kind(prey, HunterKind, PreyKind)).
@@ -46,18 +49,18 @@ deleteCompatibleCouplingKinds(HunterKind, PartnerKind) :-
 
 
 /*
-addEntity(+Name, +Kind, +Height, +strength, +Defense, +Pos)
-add entity in the world.
+addEntity(+Name, +Kind, +Height, +strength, +Defense, +Pos, +Attractiveness, +Gender)
+Add entity in the world.
 */
-addEntity(Name, Kind, Height, strength, Defense, Pos, Attractiveness, Sex) :-
-	assert(entity(Name, Kind, Height, strength, Defense, Pos, Attractiveness, Sex)).
+addEntity(Name, Kind, Height, Strength, Defense, Pos, Attractiveness, Gender) :-
+	assert(entity(Name, Kind, Height, Strength, Defense, Pos, Attractiveness, Gender)).
 
 /*
 deleteEntity(+Name)
-delete entity from the world.
+Delete entity from the world.
 */
 deleteEntity(Name) :-
-	retract(entity(Name, Kind, Height, strength, Defense, Pos, Attractiveness, Sex)).
+	retract(entity(Name, Kind, Height, Strength, Defense, Pos, Attractiveness, Gender)).
 
 /*
 simulateAttack(+strengthX, +DefenseY)
@@ -69,14 +72,14 @@ simulateAttack(strengthX, DefenseY) :-
 	Z > T.
 
 /*
-simulateCoupling(+AttractivenessY, +SexX, +SexY, +strengthX, +DefenseY)
+simulateCoupling(+AttractivenessY, +GenderX, +GenderY, +strengthX, +DefenseY)
 Check if the partner Y is suitable for the hunter X.
 */
-simulateCoupling(AttractivenessX, AttractivenessY, SexX, SexY, strengthX, DefenseY) :-
+simulateCoupling(AttractivenessX, AttractivenessY, GenderX, GenderY, strengthX, DefenseY) :-
 	threshold(attractiveness, T),
 	AttractivenessY > T,
-	SexX == male,
-	SexY == female,
+	GenderX == male,
+	GenderY == female,
 	(simulateAttack(strengthX, DefenseY); AttractivenessX > T).
 
 /*
@@ -95,7 +98,7 @@ compatiblePartnersKind(KindX, KindY) :-
 
 /*
 heightDiff(+HeightX, +HeightY)
-Check if the height of the prey Y is suitable for the hunter X.
+Check if the height of the prey/partner Y is suitable for the hunter/entity X.
 */
 heightDiff(HeightX, HeightY) :-
 	Z is HeightX - HeightY,
@@ -107,8 +110,8 @@ discoverPreys(+X, -Y, -Lenght)
 Giving as input x simulates, through a set of rules, the behavior of a binary tree, finding all the preys Y and calculating for each the lenght of the best route to get there.
 */
 discoverPreys(X, Y, Lenght) :-
-	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, SexX),
-	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, SexY),
+	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, GenderX),
+	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, GenderY),
 	Y \== X,
 	heightDiff(HeightX, HeightY),
 	compatiblePreysKind(KindX, KindY),
@@ -118,20 +121,19 @@ discoverPreys(X, Y, Lenght) :-
 /*
 discoverPartners(+X, -Y, -Lenght)
 Giving as input x simulates, through a set of rules, the behavior of a binary tree, finding all the partners Y and calculating for each the lenght of the best route to get there.
-Da completare e poi fattorizzare.
 */
 discoverPartners(X, Y, Lenght) :-
-	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, SexX),
-	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, SexY),
+	entity(X, KindX, HeightX, StrengthX, DefenseX, PosX, AttractivenessX, GenderX),
+	entity(Y, KindY, HeightY, StrengthY, DefenseY, PosY, AttractivenessY, GenderY),
 	Y \== X,
 	heightDiff(HeightX, HeightY),
 	compatiblePartnersKind(KindX, KindY),
-	simulateCoupling(AttractivenessX, AttractivenessY, SexX, SexY, strengthX, DefenseY),
+	simulateCoupling(AttractivenessX, AttractivenessY, GenderX, GenderY, StrengthX, DefenseY),
 	lenght(PosX, PosY, Lenght).
 
 /*
 lenght(+PosX, +PosY, -Lenght)
-return the lenght of path from PosX to PosY.
+Return the lenght of path from PosX to PosY.
 */
 lenght(PosX, PosY, Lenght) :-
 	decision(PosX, PosY, NewPosX, Direction),
@@ -142,16 +144,16 @@ lenght(PosX, PosY, Lenght) :-
 
 /*
 nextMove(+X, +Y, -Move) :-
-return the next move of the path from PosX to PosY.
+Return the next move of the path from PosX to PosY.
 */
 nextMove(X, Y, NewX, NewY) :-
-	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, SexX),
-	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, SexY),
+	entity(X, KindX, HeightX, strengthX, DefenseX, PosX, AttractivenessX, GenderX),
+	entity(Y, KindY, HeightY, strengthY, DefenseY, PosY, AttractivenessY, GenderY),
 	path(PosX, PosY, PathDirection, [[NewX, NewY] | OtherMoves]).
 
 /*
 path(+PosX, +PosY, -Path)
-return the best path from PosX to PosY.
+Return the best path from PosX to PosY.
 */
 path(PosX, PosY, PathDirection, PathPosition) :-
 	 decision(PosX, PosY, NewPosX, Direction),
@@ -163,7 +165,7 @@ path(PosX, PosY, PathDirection, PathPosition) :-
 
 /*
 decision(+PosX, +PosY, -NewPosX, -Direction)
-compares PosX with PosY and return the Direction to take and the resulting PosX modified for the next iteration.
+Compares PosX with PosY and return the Direction to take and the resulting PosX modified for the next iteration.
 */
 decision([XX, YX], [XY, YY], [NewXX, NewYX], Direction):-
 	XX > XY, !, NewXX is XX - 1, NewYX is YX, Direction = up.

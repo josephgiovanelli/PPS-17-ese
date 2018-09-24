@@ -1,8 +1,10 @@
 package it.unibo.pps.ese.model.dataminer
 
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityInfo, EntityState, ReadOnlyEntityState}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityInfo, EntityState, ReadOnlyEntityState}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
+import it.unibo.pps.ese.model.dataminer.DataModelSupport.Era
+import it.unibo.pps.ese.model.dataminer.datamodel._
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}

@@ -1,10 +1,10 @@
 package it.unibo.pps.ese.model.components.animals
 
 import it.unibo.pps.ese.controller.simulation.runner.core
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{BaseEvent, InteractionEvent}
 import it.unibo.pps.ese.controller.simulation.runner.core._
-import it.unibo.pps.ese.controller.simulation.runner.core.support.{BaseEvent, InteractionEvent}
-import it.unibo.pps.ese.model.components
-import it.unibo.pps.ese.model.components._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
+import it.unibo.pps.ese.model.components.animals.LifePhases.LifePhases
 import it.unibo.pps.ese.model.components.animals.brain.{DynamicParametersRequest, DynamicParametersResponse, Eat, InteractionEntity}
 import it.unibo.pps.ese.model.components.animals.reproduction.{PregnancyEnd, PregnancyRequirements, ReproductionPhysicalInformationRequest, ReproductionPhysicalInformationResponse}
 
@@ -13,6 +13,7 @@ import scala.math.floor
 import scala.util.{Failure, Success}
 
 object LifePhases extends Enumeration {
+  type LifePhases = Value
   val CHILD, ADULT, ELDERLY = Value
 }
 
@@ -28,7 +29,7 @@ case class PhysicalStatusInfo(averageLife: Double,
 
 case class DynamicPhysicalStatusInfo(age: Int,
                                      energy: Double,
-                                     lifePhase: LifePhases.Value,
+                                     lifePhase: LifePhases,
                                      actualSpeed: Double,
                                      actualFertility: Double) extends BaseEvent
 
@@ -50,7 +51,7 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
 
   var currentYear: Int = 0
   var currentEnergy: Double = MAX_ENERGY
-  var currentPhase: LifePhases.Value = LifePhases.CHILD
+  var currentPhase: LifePhases = LifePhases.CHILD
   var currentSpeed: Double = speed
   var currentFertility: Double = 0
   var elapsedClocksSinceLastYear: Int = 0
@@ -117,13 +118,11 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
               elapsedClocksSinceDigestion = 0
               publish(dynamicInfo)
               publish(MealInformation(entityId, eatenEnergy))
-            //println("Tasty! (Prey : " + entityId + ", Energy : " + eatenEnergy +  ", Predator : " + entitySpecifications.id + ")")
             case Failure(error) => throw error
           }
         case _ => satisfaction = MAX_SATISFACTION
       }
       case MealInformation(_, _) =>
-        //println("OMG!!1!!1! I've been killed! (Id : " + entitySpecifications.id +")")
         publish(Kill(entitySpecifications id))
       case GetInfo() =>
         publish(dynamicInfo)
@@ -155,17 +154,20 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
   private def yearCallback(): Unit = this synchronized {
     elapsedClocksSinceLastYear = 0
     currentYear += 1
-    if (currentPhase == LifePhases.CHILD && (currentYear * percentageDecay) > endChildPhase) {
-      currentPhase = LifePhases.ADULT
-      currentFertility = fertility
+    val myThreshold: Double = currentYear * percentageDecay
+
+    currentPhase match {
+      case LifePhases.CHILD if myThreshold > endChildPhase =>
+        currentPhase = LifePhases.ADULT
+        currentFertility = fertility
+      case LifePhases.ADULT if myThreshold > endAdultPhase =>
+        currentPhase = LifePhases.ELDERLY
+        currentFertility = 0
+      case LifePhases.ELDERLY =>
+        currentSpeed = speed - (currentSpeed * percentageDecay)
+      case _ =>
     }
-    else if (currentPhase == LifePhases.ADULT && (currentYear * percentageDecay) > endAdultPhase) {
-      currentPhase = LifePhases.ELDERLY
-      currentFertility = 0
-    }
-    else if (currentPhase == LifePhases.ELDERLY) {
-      currentSpeed = speed - (currentSpeed * percentageDecay)
-    }
+
     if (currentYear == floor(averageLife * percentageDecay)) publish(Kill(entitySpecifications id))
     publish(dynamicInfo)
   }
