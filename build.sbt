@@ -29,11 +29,7 @@ libraryDependencies += "it.unibo.alice.tuprolog" % "tuprolog" % "3.2"
 libraryDependencies += "com.github.wookietreiber" %% "scala-chart" % "latest.integration"
 libraryDependencies += "org.json4s" %% "json4s-native" % "3.6.0"
 libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.6.0"
-//libraryDependencies += "de.jensd" % "fontawesomefx-commons" % "9.1.2"
-//libraryDependencies += "de.jensd" % "fontawesomefx-fontawesome" % "4.7.0-9.1.2"
-//libraryDependencies += "de.jensd" % "fontawesomefx-commons" % "8.15"
 
-// https://mvnrepository.com/artifact/de.jensd/fontawesomefx
 libraryDependencies += "de.jensd" % "fontawesomefx-commons" % "8.15"
 libraryDependencies += "de.jensd" % "fontawesomefx-emojione" % "2.2.7-2"
 libraryDependencies += "de.jensd" % "fontawesomefx-materialdesignfont" % "1.7.22-4"

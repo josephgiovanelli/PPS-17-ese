@@ -9,6 +9,9 @@ import scalafx.scene.layout.HBox
 import scalaz._
 import Scalaz._
 
+/**
+  * Custom [[ListCell]] to visualize the logs
+  */
 class LogListViewCell extends ListCell[Log]{
 
   prefHeight = 30

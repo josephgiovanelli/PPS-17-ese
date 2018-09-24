@@ -12,8 +12,20 @@ import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 import scalafx.scene.text.TextAlignment
 import it.unibo.pps.ese.view.utilities.TextUtilities._
+
+/**
+  * A [[Pane]] to visualize the animal's dna with 3d shapes
+  */
 sealed trait GenomeDetailsPane extends Pane{
+  /**
+    * To set the coupled gene informations about a animal
+    * @param genomeStats
+    */
   def setGenomeStats(genomeStats:List[GeneInformationCoupled]):Unit
+
+  /**
+    * To clear the visualization
+    */
   def clearGenomeStats():Unit
 }
 object GenomeDetailsPane {

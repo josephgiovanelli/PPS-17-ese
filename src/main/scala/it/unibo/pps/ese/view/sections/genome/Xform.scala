@@ -3,9 +3,90 @@ package it.unibo.pps.ese.view.sections.genome
  import it.unibo.pps.ese.model.genetics.dnaexpression.GeneStats
  import scalafx.Includes._
  import scalafx.scene.input.MouseEvent
- import scalafx.scene.paint.{Color, PhongMaterial}
+ import scalafx.scene.paint.PhongMaterial
  import scalafx.scene.shape.{Cylinder, Shape3D, Sphere}
  import scalafx.scene.transform.{Rotate, Scale, Translate}
+
+/**
+  * A pair of spheres to which  assign information on genes
+  */
+sealed trait ModifiableSphereCouple{
+  /**
+    * To assign information about gene couple
+    *
+    * @param geneInformationCoupled
+    *   The information to assign
+    * @param lS
+    *   The left [[GeneDetailsSubScene]] used to show the informations
+    * @param rS
+    *   The right [[GeneDetailsSubScene]] used to show the informations
+    */
+  def setGeneStats(geneInformationCoupled: GeneInformationCoupled, lS:GeneDetailsSubScene, rS:GeneDetailsSubScene):Unit
+
+  /**
+    * To clear the information assigned to the sphere couple
+    */
+  def clearGeneStats():Unit
+}
+
+/**
+  * A [[ModifiableSphereCouple]] that extend [[Xform]], it consist in a group of two [[Sphere]] with two [[Cylinder]]
+  *
+  * @param s1
+  *           Left [[Sphere]]
+  * @param s2
+  *           Right [[Sphere]]
+  * @param c1
+  *           Left [[Cylinder]]
+  * @param c2
+  *           Right [[Cylinder]]
+  */
+class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinder) extends Xform() with ModifiableSphereCouple {
+  override def setGeneStats(geneInformationCoupled: GeneInformationCoupled, lS:GeneDetailsSubScene, rS:GeneDetailsSubScene): Unit = {
+    setMaterialsOfShapes(Materials.blueMaterial,s1,c2)
+    setMaterialsOfShapes(Materials.greyMaterial,s2,c1)
+    val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
+      val gCouple:GeneInformationCoupled = geneInformationCoupled
+      val geneStats1:GeneStats = gCouple.gene1.geneStats
+      val geneStats2:GeneStats = gCouple.gene2.geneStats
+      val cType1 = geneInformationCoupled.gene1.chromosomeType
+      val cType2 = geneInformationCoupled.gene2.chromosomeType
+      val cName1:String = if (cType1==cType2) cType1.toString+" 1" else cType1.toString
+      val cName2:String = if (cType1==cType2) cType2.toString+" 2" else cType2.toString
+
+      lS.visualizeGeneStats(
+        cName = cName1,
+        geneStats = geneStats1
+      )
+
+      rS.visualizeGeneStats(
+        cName = cName2,
+        geneStats = geneStats2
+      )
+    }
+    setListeners(s1,s2)(clickListener)
+  }
+
+  override def clearGeneStats(): Unit = {
+    setMaterialsOfShapes(Materials.whiteMaterial,s1,s2)
+    setMaterialsOfShapes(Materials.greyMaterial,c1,c2)
+    val listener:MouseEvent => Unit = (me:MouseEvent)=> {}
+    setListeners(s1,s2)(listener)
+  }
+
+  private def setPropertyOfShapes(shapes:Shape3D*)(f:Shape3D=>Unit):Unit ={
+    shapes.foreach(f(_))
+  }
+  private def setMaterialsOfShapes(material:PhongMaterial,shapes:Shape3D*):Unit={
+    setPropertyOfShapes(shapes:_*)(s =>s.material = material)
+  }
+  private def setListeners(shapes:Shape3D*)(listener:MouseEvent => Unit):Unit = {
+    setPropertyOfShapes(shapes:_*)(s=>{
+      s.onMouseClicked = listener
+      s.onMouseEntered = listener
+    })
+  }
+}
 
 object Xform {
   object RotateOrder {
@@ -21,6 +102,14 @@ object Xform {
 
 }
 
+/**
+  * Custom [[javafx.scene.Group]] credits to
+  * * ScalaFX implementation of `MoleculeSampleApp` from tutorial
+  * * [[http://docs.oracle.com/javafx/8/3d_graphics/jfxpub-3d_graphics.htm Getting Started with JavaFX 3D Graphics]]
+  * * by Cindy Castillo and John Yoon.
+  * *
+  * * @author Jarek Sacha
+  */
 class Xform extends javafx.scene.Group {
   private val _t = new Translate()
   private val p = new Translate()
@@ -53,7 +142,7 @@ class Xform extends javafx.scene.Group {
   }
 
   def children = getChildren
-  
+
   def transforms = getTransforms
 
   def setTranslate(x: Double, y: Double, z: Double) {
@@ -170,53 +259,4 @@ class Xform extends javafx.scene.Group {
     ip.z = 0.0
   }
 }
-sealed trait ModifiableSphereCouple{
-  def setGeneStats(chromosomeWithGeneCouple: GeneInformationCoupled, lS:GeneDetailsSubScene, rS:GeneDetailsSubScene):Unit
-  def clearGeneStats():Unit
-}
-class GeneCoupleXForm(val s1:Sphere,val s2:Sphere,val c1:Cylinder,val c2:Cylinder) extends Xform() with ModifiableSphereCouple {
-  override def setGeneStats(chromosomeWithGeneCouple: GeneInformationCoupled, lS:GeneDetailsSubScene, rS:GeneDetailsSubScene): Unit = {
-    setMaterialsOfShapes(Materials.blueMaterial,s1,c2)
-    setMaterialsOfShapes(Materials.greyMaterial,s2,c1)
-    val clickListener: MouseEvent => Unit = (me: MouseEvent) => {
-              val gCouple:GeneInformationCoupled = chromosomeWithGeneCouple
-              val geneStats1:GeneStats = gCouple.gene1.geneStats
-              val geneStats2:GeneStats = gCouple.gene2.geneStats
-              val cType1 = chromosomeWithGeneCouple.gene1.chromosomeType
-              val cType2 = chromosomeWithGeneCouple.gene2.chromosomeType
-              val cName1:String = if (cType1==cType2) cType1.toString+" 1" else cType1.toString
-              val cName2:String = if (cType1==cType2) cType2.toString+" 2" else cType2.toString
 
-              lS.visualizeGeneStats(
-                        cName = cName1,
-                        geneStats = geneStats1
-                      )
-
-                      rS.visualizeGeneStats(
-                        cName = cName2,
-                        geneStats = geneStats2
-                      )
-    }
-    setListeners(s1,s2)(clickListener)
-  }
-
-  override def clearGeneStats(): Unit = {
-    setMaterialsOfShapes(Materials.whiteMaterial,s1,s2)
-    setMaterialsOfShapes(Materials.greyMaterial,c1,c2)
-    val listener:MouseEvent => Unit = (me:MouseEvent)=> {}
-    setListeners(s1,s2)(listener)
-  }
-
-  private def setPropertyOfShapes(shapes:Shape3D*)(f:Shape3D=>Unit):Unit ={
-    shapes.foreach(f(_))
-  }
-  private def setMaterialsOfShapes(material:PhongMaterial,shapes:Shape3D*):Unit={
-    setPropertyOfShapes(shapes:_*)(s =>s.material = material)
-  }
-  private def setListeners(shapes:Shape3D*)(listener:MouseEvent => Unit):Unit = {
-    setPropertyOfShapes(shapes:_*)(s=>{
-      s.onMouseClicked = listener
-      s.onMouseEntered = listener
-    })
-  }
-}

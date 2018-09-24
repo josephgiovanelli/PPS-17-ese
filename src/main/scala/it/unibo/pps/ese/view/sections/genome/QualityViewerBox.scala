@@ -4,7 +4,10 @@ import scalafx.geometry.Pos
 import scalafx.scene.control.{Label, ProgressBar}
 import scalafx.scene.layout.HBox
 
-sealed trait QualityViewer{
+/**
+  * A [[HBox]] to visualize a quality and its value
+  */
+sealed trait QualityViewer extends HBox{
   def setQualityValue(value:Double)
 }
 object QualityBoxUtilities{
@@ -14,7 +17,14 @@ object QualityBoxUtilities{
     }
   }
 }
-class QualityViewerBox(val quality:String,val qualityValue:Double,style:String) extends HBox with QualityViewer {
+
+/**
+  * A [[QualityViewer]] for qualities with numeric values
+  * @param quality
+  * @param qualityValue
+  * @param style
+  */
+class QualityViewerBox(val quality:String,val qualityValue:Double,style:String) extends QualityViewer {
   override def setQualityValue(value: Double): Unit = {
     bar.progress = value / 100.0
     valueLabel.setText(value.toString)
@@ -37,6 +47,12 @@ class QualityViewerBox(val quality:String,val qualityValue:Double,style:String) 
   valueLabel.setText(qualityValue.toString)
   children = List(qualityLabel, bar, valueLabel)
 }
+
+/**
+  * A [[QualityViewer]] for qualities with non numeric values
+  * @param value
+  * @param style
+  */
 class NonNumericQualityViewerBox(val value:String,style:String) extends HBox{
   val bar: ProgressBar = new ProgressBar {
     maxWidth = 100
