@@ -5,12 +5,21 @@ import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAtt
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImplUtils._
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation.PrologDecisionSupport
 
+/**
+  * Enumeration that catalog the decision support implementation.
+  */
 trait DecisionSupportImplementations
 case object PrologImplementation extends DecisionSupportImplementations
 case object ScalaImplementation extends DecisionSupportImplementations
 
+/**
+  * App that calculates the performance of each decision support implementation.
+  */
 object PerformanceTest extends App {
 
+  /*
+  Definition of the world rules.
+   */
   StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
   val worldRules: WorldRulesImpl = WorldRulesImpl(3,  5, 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
@@ -18,6 +27,9 @@ object PerformanceTest extends App {
   StaticRules.instance().setRules(worldRules)
 
 
+  /*
+  Definition of the entity attributes.
+   */
   val prey0 = EntityAttributesImpl("a", EntityKinds('plant), 5, 2, 2, (5, 6), 5, GenderTypes.male)
   val prey1 = EntityAttributesImpl("b", EntityKinds('herbivore), 8, 6, 6, (6, 6), 5, GenderTypes.male)
   val prey2 = EntityAttributesImpl("c", EntityKinds('herbivore), 7, 7, 7, (2, 1), 5, GenderTypes.female)
@@ -28,6 +40,9 @@ object PerformanceTest extends App {
 
   var decisionSupport: DecisionSupport = _
 
+  /*
+  Iterations for the performance test.
+   */
   List(ScalaImplementation, PrologImplementation).foreach(impl => {
     decisionSupport = implement(impl)
 
@@ -43,8 +58,12 @@ object PerformanceTest extends App {
     println(impl + " " + estimatedTime)
   })
 
-
-  def implement(implementation: DecisionSupportImplementations): DecisionSupport = implementation match {
+  /**
+    * It allows to switch the decision support implementation.
+    * @param implementation the enumeration that allows to catalog the decision support implementation
+    * @return the decision support instance
+    */
+  private def implement(implementation: DecisionSupportImplementations): DecisionSupport = implementation match {
     case PrologImplementation => PrologDecisionSupport()
     case ScalaImplementation => DecisionSupport()
   }
