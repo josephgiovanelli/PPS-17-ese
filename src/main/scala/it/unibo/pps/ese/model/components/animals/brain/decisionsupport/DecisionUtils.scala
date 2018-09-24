@@ -101,7 +101,7 @@ object EntityKinds extends Enumeration {
   updateSpecies()
 
   /**
-    * Whenever other species appear in the world, through the singleton Static Rules, these are updated.
+    * Whenever other species appear in the world, through the singleton [[StaticRules]], these are updated.
     */
   def updateSpecies(): Unit = {
     entityKinds = StaticRules.instance().getSpecies
@@ -121,14 +121,14 @@ object EntityKinds extends Enumeration {
   */
 case class GeneralPosition[PositionMeasure <: Int](x: PositionMeasure, y: PositionMeasure) {
   /**
-    * Allows to know the position of the point in question in relation to the point taken as a parameter, comparing the abscissas.
+    * It allows to know the position of the point in question in relation to the point taken as a parameter, comparing the abscissas.
     * @param generalPosition the point to compare
     * @return 0 if they have the same abscissa, 1 if this has abscissa greater, -1 otherwise
     */
   def sameAbscissa(generalPosition: GeneralPosition[PositionMeasure]): Int = if (x == generalPosition.x) 0 else if (x > generalPosition.x) 1 else -1
 
   /**
-    * Allows to know the position of the point in question in relation to the point taken as a parameter, comparing the ordinates.
+    * It allows to know the position of the point in question in relation to the point taken as a parameter, comparing the ordinates.
     * @param generalPosition the point to compare
     * @return 0 if they have the same ordinate, 1 if this has ordinate greater, -1 otherwise
     */
@@ -185,13 +185,13 @@ case class EntityChoiceImpl(name: String, distance: Int)
   */
 trait WorldRulesListener {
   /**
-    * Allows notification of modification of hunting rules.
+    * It allows notification of modification of hunting rules.
     * @param set the pair of species for hunting
     */
   def updateCouplingKind(set: Set[(String, String)]): Unit
 
   /**
-    * Allows notification of modification of coupling rules.
+    * It allows notification of modification of coupling rules.
     * @param set the pair of species for hunting
     */
   def updateHuntingKind(set: Set[(String, String)]): Unit
@@ -215,13 +215,13 @@ case class WorldRulesImpl(attackThreshold: Double,
   private var listeners: Seq[WorldRulesListener] = Seq.empty
 
   /**
-    * Allow the listeners to be register.
+    * It allows the listeners to be register.
     * @param impl the listener reference
     */
   def addListener(impl: WorldRulesListener): Unit = listeners = listeners :+ impl
 
   /**
-    * Allows the modification of hunting rules.
+    * It allows the modification of hunting rules.
     * @param set the pair of species for hunting
     */
   def setCompatibleHuntingKinds(set: Set[(String, String)]): Unit = {
@@ -230,7 +230,7 @@ case class WorldRulesImpl(attackThreshold: Double,
   }
 
   /**
-    * Allows the modification of coupling rules.
+    * It allows the modification of coupling rules.
     * @param set the pair of species for coupling
     */
   def setCompatibleCouplingKinds(set: Set[(String, String)]): Unit = {
