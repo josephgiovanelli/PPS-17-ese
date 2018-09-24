@@ -34,6 +34,8 @@ sealed trait StaticRules extends WorldTypesImpl {
 
   /**
     * On the basis of all the species set up, if the species are present also in the [[GeneticsSimulator]], it generates the relations between them.
+    * More specifically any carnivorous animals hunt any herbivore animals and any herbivore animals hunt plants.
+    * In the case of coupling, only individuals of the same species are mated
     */
   def updateRules(): Unit
 }
