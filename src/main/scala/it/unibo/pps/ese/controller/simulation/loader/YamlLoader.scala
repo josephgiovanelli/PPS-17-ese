@@ -2,12 +2,10 @@ package it.unibo.pps.ese.controller.simulation.loader
 
 import java.io.InputStream
 
-import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.simulation.loader.beans._
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.{AnimalBuilder, EntityStatus, PlantBuilder}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.io.File.FileFormats
 import it.unibo.pps.ese.controller.simulation.loader.io.{ExistingResource, File, Folder, IOResource}
@@ -18,7 +16,6 @@ import scala.util.{Failure, Success, Try}
 
 
 object YamlLoader extends Loader {
-
 
   import BeansYamlProtocol._
   import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._

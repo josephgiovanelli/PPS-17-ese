@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.Complet
 import it.unibo.pps.ese.controller.simulation.loader.io.File
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.model.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
-import it.unibo.pps.ese.model.genetics.dna.{AnimalGenome, BasicGene, Chromosome, ChromosomeCouple, ChromosomeType, MGene, ProteinoGenicAmminoacid, RegulatorGene, SexualChromosomeCouple, StructuralGene, X, Y}
+import it.unibo.pps.ese.model.genetics.dna.{AnimalGenome, BasicGene, Chromosome, ChromosomeCouple, ChromosomeType, MGene, RegulatorGene, SexualChromosomeCouple, StructuralGene, X}
 import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
 import org.kaikikm.threadresloader.ResourceLoader
 import org.scalatest.FunSuite
@@ -37,11 +37,9 @@ class TestChromosomeMixing extends FunSuite {
     assert(sonCouple._2.secondChromosome == c2)
 
     val sg1 = BasicGene(Seq('A'), RegulatorGene)
-    val sg2 = BasicGene(Seq('B'), RegulatorGene)
     val sg3 = BasicGene(Seq('C'), RegulatorGene)
     val sg4 = BasicGene(Seq('D'), RegulatorGene)
     val sc1 = Chromosome(ChromosomeType.SEXUAL_X, X, sg1, sg3, sg4)
-    val sc2 = Chromosome(ChromosomeType.SEXUAL_Y, Y)
 
     val sexualCouple1 = SexualChromosomeCouple(sc1, sc1)
     val sexualCouple2 = SexualChromosomeCouple(sc1, sc1)

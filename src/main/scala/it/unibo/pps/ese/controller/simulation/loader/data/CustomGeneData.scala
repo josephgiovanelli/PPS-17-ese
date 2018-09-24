@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.loader.data
 
-trait CustomGeneData[T <: PartialAlleleData] extends GeneData[T] {
+trait CustomGeneData[T <: PartialAlleleData] extends DefaultGeneData[T] {
   def getConversionMap: Option[Map[String, Map[String, Double]]]
 }
 trait FullCustomGeneData[T <: PartialAlleleData] extends CustomGeneData[T] with FullDefaultGeneData[T] {
