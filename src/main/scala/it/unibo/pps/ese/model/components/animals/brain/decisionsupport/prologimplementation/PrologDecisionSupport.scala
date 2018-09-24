@@ -4,11 +4,6 @@ import it.unibo.pps.ese.model.components.animals.brain.decisionsupport._
 
 import scala.io.Source
 
-trait WorldRulesListener {
-  def updateCouplingKind(set: Set[(String, String)]): Unit
-  def updateHuntingKind(set: Set[(String, String)]): Unit
-}
-
 object PrologDecisionSupport {
   def apply(): DecisionSupport = new PrologDecisionSupportImpl()
 
