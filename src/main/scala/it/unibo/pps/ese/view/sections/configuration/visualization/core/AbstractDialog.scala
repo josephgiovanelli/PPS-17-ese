@@ -9,6 +9,13 @@ import scalafx.scene.layout.{Background, BackgroundFill, CornerRadii}
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
+/**
+  * An abstract dialog
+  *
+  * @param window
+  * @param key
+  * @tparam A
+  */
 abstract class AbstractDialog[A](window: Window, key: Option[String] = None) extends Dialog[A] {
 
   initOwner(window)
