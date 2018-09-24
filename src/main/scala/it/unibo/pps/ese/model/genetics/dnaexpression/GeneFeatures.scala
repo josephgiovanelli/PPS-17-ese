@@ -3,31 +3,65 @@ package it.unibo.pps.ese.model.genetics.dnaexpression
 import it.unibo.pps.ese.model.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.model.genetics.entities.QualityType
 
-sealed trait GeneFeatures{
+sealed trait GeneInfo{
+  /**
+    *
+    * @return the [[ProteinoGenicAmminoacid]] that identify the gene
+    */
   def geneSeq:Seq[ProteinoGenicAmminoacid]
+
+  /**
+    *
+    * @return the name of the gene
+    */
   def name:String
+
+  /**
+    *
+    * @return A sequence of [[Feature]] that affect some [[it.unibo.pps.ese.model.genetics.entities.Quality]]
+    */
   def geneFeatures:Seq[Feature]
+}
+/**
+  * Contains the sequence of [[ProteinoGenicAmminoacid]] that identify the gene,
+  * the name of the gene,
+  * the seq of [[Feature]] and the [[AllelicBehaviour]] that can be exist
+  */
+sealed trait GeneFeatures extends GeneInfo{
+  /**
+    *
+    * @return the list [[AllelicBehaviour]] that can exist
+    */
   def allelicForm:Seq[AllelicBehaviour]
 }
 
-sealed trait GeneData{
-  def geneSeq:Seq[ProteinoGenicAmminoacid]
-  def name:String
-  def geneFeatures:Seq[Feature]
+sealed trait GeneData extends GeneInfo{
+  /**
+    *
+    * @return the [[AlleleInfo]] of the Gene
+    */
   def allelicForm:Seq[AlleleInfo]
 }
 
+/**
+  * Every features has a name and a conversion map
+  */
 trait Feature {
   def name:String
   def conversionMaps:Seq[ConversionMap]
 }
 
+/**
+  * Indicate the affect quality and the ratio of effect
+  */
 trait ConversionMap{
   def qualityAffected:QualityType
   def effectRatio:Double
 }
 
-
+/**
+  * Contains the behaviour of the Allele in Dna Translation
+  */
 sealed trait AllelicBehaviour{
   def geneSeq:Seq[ProteinoGenicAmminoacid]
   def allelicSeq:Seq[ProteinoGenicAmminoacid]

@@ -38,7 +38,6 @@ private[genetics] object InputDataAdapter {
 
         override def getConversionMap: Option[Map[String, Map[String, Double]]] = None
 
-        //TODO can't extend my interface
         override def getId: Option[String] = None
 
         override def getProperties: Option[Map[String, Class[_]]] = None

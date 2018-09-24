@@ -6,7 +6,23 @@ import it.unibo.pps.ese.model.genetics.dna.{ChromosomeType, GeneType, RegulatorG
 import it.unibo.pps.ese.model.genetics.dnaexpression.AllelicBehaviour.getDominant
 import it.unibo.pps.ese.model.genetics.entities.QualityType
 
+/**
+  * Contains the expression logic for the translation of a gene
+  */
 sealed trait ExpressionLogic{
+  /**
+    * To express the behaviour of a couple of alleles
+    * @param allConversionMap
+    *                         The list of [[ConversionMap]] that affect the qualities
+    * @param a1
+    *           The first [[AllelicBehaviour]]
+    * @param a2
+    *           The second [[AllelicBehaviour]]
+    * @param animalFeature
+    *                      The [[AnimalFeature]] to update
+    * @return
+    *         The updated  [[AnimalFeature]]
+    */
   def expressBehavior(
                        allConversionMap:Seq[ConversionMap],
                        a1:AllelicBehaviour,
@@ -14,8 +30,10 @@ sealed trait ExpressionLogic{
                        animalFeature:AnimalFeature):AnimalFeature
 }
 
+/**
+  * Companin object of [[ExpressionLogic]] to obtain the right ExpressionLogic
+  */
 object ExpressionLogic{
-
   def apply(geneType: GeneType): ExpressionLogic = geneType match {
     case StructuralGene => StructuralGeneExpressionLogic
     case RegulatorGene => RegulatorGeneExpressionLogic
