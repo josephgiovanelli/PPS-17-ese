@@ -2,6 +2,9 @@ package it.unibo.pps.ese.model.genetics.entities
 
 import it.unibo.pps.ese.model.genetics.dna.{BasicGene, IdentifierGene}
 
+/**
+  * A identifiable things
+  */
 trait Identified
 
 sealed trait DietType extends Identified{

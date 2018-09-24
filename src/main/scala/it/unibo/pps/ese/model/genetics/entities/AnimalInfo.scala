@@ -2,15 +2,45 @@ package it.unibo.pps.ese.model.genetics.entities
 
 import it.unibo.pps.ese.model.genetics.dna.AnimalGenome
 import it.unibo.pps.ese.model.genetics.dnaexpression.{AllelicBehaviour, AnimalFeature}
+
+/**
+  * Basic common informations of an Entity
+  */
 trait EntityInfo {
+  /**
+    * @return a [[Species]] that is [[Reign]] + Species Name
+    */
   def species:Species
+
+  /**
+    * @return The [[Gender]] of the entity
+    */
   def gender:Gender
   def qualities:Map[QualityType,Quality]
 }
+
+/**
+  * Informations about Animal
+  */
 trait AnimalInfo extends EntityInfo{
+  /**
+    * @return [[Carnivorous]] or [[Herbivore]]
+    */
   def dietType:DietType
+
+  /**
+    * @return The genome of an Animal
+    */
   def genome:AnimalGenome
+
+  /**
+    * @return The Map with all the qualities of the animal
+    */
   def qualities:Map[QualityType,Quality]
+
+  /**
+    * @return The alleles that express theme behaviour
+    */
   def activeAlleles:Seq[AllelicBehaviour]
 }
 
@@ -34,7 +64,6 @@ object AnimalInfo{
        arg.activeAlleles
      )
   }
-  //Anche altro apply
   case class AnimalInfoImpl(
                              species: Species,
                              gender: Gender,

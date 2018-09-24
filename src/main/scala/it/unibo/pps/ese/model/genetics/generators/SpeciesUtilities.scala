@@ -5,12 +5,47 @@ import it.unibo.pps.ese.model.genetics.dnaexpression._
 import it.unibo.pps.ese.model.genetics.entities.{AnimalInfo, QualityType, Species}
 import it.unibo.pps.ese.model.genetics.generators.data.TranslatedAnimalData
 
+/**
+  * Utilities for a species of animal
+  */
 sealed trait SpeciesUtilities{
+  /**
+    * @return a generated [[AnimalInfo]] of a new animal
+    */
   def generateAnimal:AnimalInfo = translateGenome(generateAnimalGenome)
+
+  /**
+    *
+    * @return a generated Genome
+    */
   def generateAnimalGenome:AnimalGenome
-  def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal)
+
+  /**
+    * Create a certain number of animal
+    * @param n
+    * @return
+    */
+  def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal
+
+  /**
+    * Translate the genome of an Animal
+    * @param genome
+    * @return
+    */
   def translateGenome(genome:AnimalGenome):AnimalInfo
+
+  /**
+    * To obtain alle the possible mutan allels
+    * @param gene
+    * @return
+    */
   def obtainMutantAlleles(gene:MGene):Seq[MGene]
+
+  /**
+    * Check if the just appeared genes are new mutant alleles
+    * @param genes
+    * @return
+    */
   def checkNewApparitions(genes:Seq[MGene]):Seq[MGene]
   def obtainNotAppearedMutation:Seq[AlleleInfo]
   private[genetics] def restoreOldNotAppearedAlleles(oldNotAppearedAlleles:Seq[AlleleInfo]):Unit

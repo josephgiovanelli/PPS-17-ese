@@ -4,12 +4,17 @@ import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.model.genetics.Utilities.seqOfElement
 import it.unibo.pps.ese.model.genetics.dna._
 import it.unibo.pps.ese.model.genetics.entities.PlantInfo
-
+/**
+  To generate some plants
+ */
 sealed trait PlantGenerator{
+  /**
+    * Create a single plant starting from [[CompletePlantData]]
+    * @param plantData
+    * @return
+    */
   def createPlantInfoByPlantData(plantData: CompletePlantData):PlantInfo
-  def createNumberOfPlants(num:Int,plantData: CompletePlantData):Seq[PlantInfo] ={
-    seqOfElement(num,createPlantInfoByPlantData(plantData))
-  }
+  def createNumberOfPlants(num:Int,plantData: CompletePlantData):Seq[PlantInfo] =List.range(0,num).map(_=>createPlantInfoByPlantData(plantData))
 }
 
 object PlantGenerator extends PlantGenerator {

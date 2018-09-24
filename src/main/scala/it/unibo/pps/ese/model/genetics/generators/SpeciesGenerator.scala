@@ -11,9 +11,26 @@ import scala.annotation.tailrec
 case class GeneWithPossibleAlleles(baseGeneSeq:Seq[ProteinoGenicAmminoacid],alleles:Seq[AlleleWithProbability])
 case class AlleleWithProbability(allelicSeq:Seq[ProteinoGenicAmminoacid],probability:Double)
 
+/**
+  * To generate new genome for animals
+  */
 sealed trait AnimalGenomeSupplier{
   def generateAnimalGenome:AnimalGenome
 }
+
+/**
+  * A utility to generate a Genome
+  * @param commonChromosomeGenes
+  *                              All the genes of common chromosome
+  * @param structuralChromosomeGenes
+  *                                  All the genes of structural chromosome with their probability to appear
+  * @param lifeCycleChromosomeGenes
+  *                                  All the genes of life cycle chromosome with their probability to appear
+  * @param feedingChromosomeGenes
+  *                                  All the genes of feeding chromosome
+  * @param sexualChromosomeGenes
+  *                                  All the genes of sexual chromosome with their probability to appear
+  */
 class SpeciesGenerator(
                         commonChromosomeGenes:Seq[BasicGene],
                         structuralChromosomeGenes:Seq[GeneWithPossibleAlleles],

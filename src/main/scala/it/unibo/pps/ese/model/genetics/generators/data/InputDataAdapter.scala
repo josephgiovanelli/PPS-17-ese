@@ -10,6 +10,10 @@ import it.unibo.pps.ese.model.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenic
 import it.unibo.pps.ese.model.genetics.entities.QualityType
 import it.unibo.pps.ese.model.genetics.dnaexpression.{AlleleInfo, ConversionMap, Feature}
 import it.unibo.pps.ese.model.genetics.dna.amminoAcidSeqFromString
+
+/**
+  * Helper object to convert the simulation data loaded in useful [[TranslatedAnimalData]]
+  */
 private[genetics] object InputDataAdapter {
   implicit def translateAnimalData(aD:CompleteAnimalData):TranslatedAnimalData = {
     import ConversionUtilities._
