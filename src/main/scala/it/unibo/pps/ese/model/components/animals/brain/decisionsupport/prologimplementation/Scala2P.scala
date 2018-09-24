@@ -1,5 +1,8 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation
 
+/**
+  * It allows the loading of the theory, the interrogation of the prolog engine and the dynamic addition of knowledge.
+  */
 object Scala2P {
   import alice.tuprolog._
 
