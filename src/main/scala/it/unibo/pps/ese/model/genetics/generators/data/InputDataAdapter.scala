@@ -5,11 +5,11 @@ import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.Complet
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.CompleteDefaultGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data._
 import it.unibo.pps.ese.model.genetics.dnaexpression.GeneData
-import it.unibo.pps.ese.model.genetics.dnaexpression.AllelicData.AllelicInfoImpl
 import it.unibo.pps.ese.model.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.model.genetics.entities.QualityType
 import it.unibo.pps.ese.model.genetics.dnaexpression.{AlleleInfo, ConversionMap, Feature}
 import it.unibo.pps.ese.model.genetics.dna.amminoAcidSeqFromString
+import it.unibo.pps.ese.model.genetics.dnaexpression.AlleleInfo.AllelicInfoImpl
 
 /**
   * Helper object to convert the simulation data loaded in useful [[TranslatedAnimalData]]

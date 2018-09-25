@@ -61,7 +61,7 @@ object SpeciesUtilities{
     var restored: Boolean = false
     val geneFeatures: Seq[GeneFeatures] = allGeneData.map(geneData => {
       val allelicBehaviours: Seq[AllelicBehaviour] = geneData
-        .allelicForm
+        .allelicFormWithProbability
         .map(ad => AllelicBehaviour(
           ad.geneSeq,
           ad.allelicSeq,
@@ -97,7 +97,7 @@ object SpeciesUtilities{
 
     override private[genetics] def getProbabilityOfGene(gene: GeneWithAllelicForms):Double = {
       allGeneData
-        .flatMap(_.allelicForm)
+        .flatMap(_.allelicFormWithProbability)
         .find(a=>a.geneSeq==gene.geneId && a.allelicSeq==gene.alleleCode)
         .getOrElse(throw new IllegalStateException())
         .probability
@@ -127,12 +127,12 @@ object SpeciesUtilities{
         feedingChromosomeGenes = List(stringToDiet(animalData.typology)),
         sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
       )
-      val mutantAllele: Seq[AlleleInfo] = allGeneData.flatMap(_.allelicForm).filter(_.probability == 0)
+      val mutantAllele: Seq[AlleleInfo] = allGeneData.flatMap(_.allelicFormWithProbability).filter(_.probability == 0)
       var notAppearedMutation: Seq[AlleleInfo] = mutantAllele
       def allGenes(genes: Seq[GeneData]): Seq[GeneWithPossibleAlleles] = {
         genes.map(geneData => {
           val alleles: Seq[AlleleWithProbability] = geneData
-            .allelicForm
+            .allelicFormWithProbability
             .filter(_.probability > 0)
             .map(allele =>
               AlleleWithProbability(allele.allelicSeq, allele.probability))

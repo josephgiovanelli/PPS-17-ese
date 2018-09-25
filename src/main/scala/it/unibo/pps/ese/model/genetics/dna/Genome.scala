@@ -32,7 +32,7 @@ sealed trait Genome{
   * Abstract implementation of Genome
   * @param autosomeChromosomeCouples
   */
-abstract class CommonGenome(override val autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple]) extends Genome{
+private[genetics] abstract class CommonGenome(override val autosomeChromosomeCouples:Map[ChromosomeType,ChromosomeCouple]) extends Genome{
 
   override def firstGenomeSequence: Map[ChromosomeType, Chromosome] = autosomeChromosomeCouples.mapValues(_coupleToUnit(_,1))
   override def secondGenomeSequence: Map[ChromosomeType, Chromosome] = autosomeChromosomeCouples.mapValues(_coupleToUnit(_,2))

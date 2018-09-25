@@ -40,7 +40,7 @@ sealed trait GeneData extends GeneInfo{
     *
     * @return the [[AlleleInfo]] of the Gene
     */
-  def allelicForm:Seq[AlleleInfo]
+  def allelicFormWithProbability:Seq[AlleleInfo]
 }
 
 /**
@@ -102,7 +102,7 @@ case class AllelicBehaviourImpl(
                                  energyConsumption:Double
                                )extends AllelicBehaviour
 
-object AllelicData {
+object AlleleInfo {
   def apply(
              geneSeq: Seq[ProteinoGenicAmminoacid],
              allelicSeq: Seq[ProteinoGenicAmminoacid],
@@ -180,7 +180,7 @@ object GeneData{
                            override val geneSeq:Seq[ProteinoGenicAmminoacid],
                            override val name:String,
                            override val geneFeatures:Seq[Feature],
-                           override val allelicForm:Seq[AlleleInfo]
+                           override val allelicFormWithProbability:Seq[AlleleInfo]
                          )extends GeneData
 }
 

@@ -33,7 +33,7 @@ object ChromosomeCouple{
   }
 }
 
-abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
+private [genetics] abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
   private var couple:Map[Int,ChromosomeUnit] = Map()
   override def addChromosomeCouple(c1: ChromosomeUnit, c2: ChromosomeUnit): Unit = {
     _assignCouple(c1,c2)

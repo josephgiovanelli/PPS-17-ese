@@ -34,11 +34,6 @@ trait AnimalInfo extends EntityInfo{
   def genome:AnimalGenome
 
   /**
-    * @return The Map with all the qualities of the animal
-    */
-  def qualities:Map[QualityType,Quality]
-
-  /**
     * @return The alleles that express theme behaviour
     */
   def activeAlleles:Seq[AllelicBehaviour]
