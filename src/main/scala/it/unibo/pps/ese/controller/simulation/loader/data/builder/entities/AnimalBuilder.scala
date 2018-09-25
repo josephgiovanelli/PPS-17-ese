@@ -125,13 +125,13 @@ object AnimalBuilder {
 
     override def checkProperties: Option[CompleteBuildException] = {
       var exception = super.checkProperties
-      if(!typology.isValid)
+      if(!typology.isValid())
         exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "typology", typology)
-      if(!structuralChromosome.isValid)
+      if(!structuralChromosome.isValid())
         exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "structuralChromosome", structuralChromosome)
-      if(!regulationChromosome.isValid)
+      if(!regulationChromosome.isValid())
         exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "regulationChromosome", regulationChromosome)
-      if(!sexualChromosome.isValid)
+      if(!sexualChromosome.isValid())
         exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "sexualChromosome", sexualChromosome)
       exception
     }

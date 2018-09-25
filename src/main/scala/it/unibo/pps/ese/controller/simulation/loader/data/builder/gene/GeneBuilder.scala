@@ -62,7 +62,7 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
   }
 
   protected def checkMandatoryProperties: Option[CompleteBuildException] = {
-    if(!name.isValid)
+    if(!name.isValid())
       Some(InvalidParamValueBuildException("Gene: " + name.get, "name", name))
     else
       None
@@ -70,11 +70,11 @@ abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
 
   protected def checkProperties: Option[CompleteBuildException] = {
     var exception: Option[CompleteBuildException] = checkMandatoryProperties
-    if(!id.isValid)
+    if(!id.isValid())
       exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "id", id)
-    if(!properties.isValid)
+    if(!properties.isValid())
       exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "properties", properties)
-    if(!alleles.isValid)
+    if(!alleles.isValid())
       exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "alleles", alleles)
     exception
   }

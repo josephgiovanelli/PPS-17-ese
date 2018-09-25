@@ -82,9 +82,9 @@ object SimulationBuilder {
 
     private def checkProperties(): Option[CompleteBuildException] = {
       var exception: Option[CompleteBuildException] = None
-      if(!animals.isValid)
+      if(!animals.isValid())
         exception = exception ++: InvalidParamValueBuildException("Simulation" ,"animals", animals)
-      if(!plants.isValid)
+      if(!plants.isValid())
         exception = exception ++: InvalidParamValueBuildException("Simulation" ,"plants", plants)
       exception
     }

@@ -103,11 +103,11 @@ object YamlLoader extends Loader {
       builder = builder.setAlleleLength(loadedAnimal.alleleLength.get)
     if(loadedAnimal.geneLength.isDefined)
       builder = builder.setGeneLength(loadedAnimal.geneLength.get)
-    if(structuralChromosome.isValid)
+    if(structuralChromosome.isValid())
       builder = builder.addStructuralChromosome(structuralChromosome)
-    if(regulationChromosome.isValid)
+    if(regulationChromosome.isValid())
       builder = builder.addRegulationChromosome(regulationChromosome)
-    if(sexualChromosome.isValid)
+    if(sexualChromosome.isValid())
       builder = builder.addSexualChromosome(sexualChromosome)
     builder
   }
@@ -128,9 +128,9 @@ object YamlLoader extends Loader {
       case (k, v) =>
         var builder: DefaultGeneBuilder[_] = DefaultGeneBuilder()
           .setDefaultInfo(genesSet.find(e => e.name == k).get)
-        if(v.isValid)
+        if(v.isValid())
           builder = builder.setId(v)
-        if(chromosomeData.allelesPath.isDefined && v.isValid)
+        if(chromosomeData.allelesPath.isDefined && v.isValid())
           builder = builder.addAlleles(alleles.filter(a => a.gene.getOrElse("") == v))
         builder
     })

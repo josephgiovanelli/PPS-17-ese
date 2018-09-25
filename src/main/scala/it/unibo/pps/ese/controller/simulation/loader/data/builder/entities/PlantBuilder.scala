@@ -87,11 +87,11 @@ object PlantBuilder {
 
     override def checkProperties: Option[CompleteBuildException] = {
       var exception = super.checkProperties
-      if(!height.inValidRange)
+      if(!height.inValidRange())
         exception = exception ++: InvalidParamValueBuildException("Plant " + name.getOrElse(""), "height", height)
-      if(!nutritionalValue.inValidRange)
+      if(!nutritionalValue.inValidRange())
         exception = exception ++: InvalidParamValueBuildException("Plant " + name.getOrElse(""), "nutritionalValue", nutritionalValue)
-      if(!hardness.inValidRange)
+      if(!hardness.inValidRange())
         exception = exception ++: InvalidParamValueBuildException("Plant " + name.getOrElse(""), "hardness", hardness)
       exception
     }

@@ -38,7 +38,7 @@ abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
                                       reign: Option[String])(implicit tt: TypeTag[NT]): RET[NT]
 
   protected def checkMandatoryProperties: Option[CompleteBuildException] = {
-    if(!name.isValid)
+    if(!name.isValid())
       Some(InvalidParamValueBuildException("Entity " + name.getOrElse(""), "name", name))
     else
       None
@@ -46,11 +46,11 @@ abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
 
   protected def checkProperties: Option[CompleteBuildException] = {
     var exception: Option[CompleteBuildException] = checkMandatoryProperties
-    if(!geneLength.inValidRange)
+    if(!geneLength.inValidRange())
       exception = exception ++: InvalidParamValueBuildException("Entity " + name.getOrElse(""), "geneLength", geneLength)
-    if(!alleleLength.inValidRange)
+    if(!alleleLength.inValidRange())
       exception = exception ++: InvalidParamValueBuildException("Entity " + name.getOrElse(""), "alleleLength", alleleLength)
-    if(!reign.isValid)
+    if(!reign.isValid())
       exception = exception ++: InvalidParamValueBuildException("Entity " + name.getOrElse(""), "reign", reign)
     exception
   }

@@ -76,7 +76,7 @@ object CustomGeneBuilder {
 
     override def checkProperties: Option[CompleteBuildException] = {
       var exception = super.checkProperties
-      if(!conversionMap.isValid)
+      if(!conversionMap.isValid())
         exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "conversion map", conversionMap)
       exception
     }
