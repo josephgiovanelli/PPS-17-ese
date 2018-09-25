@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
 import it.unibo.pps.ese.model.components.animals.brain._
-import it.unibo.pps.ese.model.components.animals.reproduction.{PregnancyEnd, PregnancyRequirements, Pregnant}
+import it.unibo.pps.ese.model.components.animals.reproduction.{NewMutantAlleles, PregnancyEnd, PregnancyRequirements, Pregnant}
 
 import scala.concurrent.ExecutionContext
 
