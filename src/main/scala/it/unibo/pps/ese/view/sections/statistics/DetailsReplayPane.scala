@@ -2,12 +2,10 @@ package it.unibo.pps.ese.view.sections.statistics
 
 import it.unibo.pps.ese.model.dataminer.{AnimalDynamicData, EntityTimedRecord}
 import it.unibo.pps.ese.model.components.animals.LifePhases
-import it.unibo.pps.ese.view.sections.genome.NonNumericQualityViewerBox
-
+import it.unibo.pps.ese.view.main.NonNumericQualityViewerBox
 import scalafx.scene.control.{Label, ScrollPane, TextArea}
 import scalafx.scene.layout.{BorderPane, VBox}
-import it.unibo.pps.ese.view.sections.genome.QualityBoxUtilities._
-
+import it.unibo.pps.ese.view.main.QualityBoxUtilities._
 import scalafx.geometry.Insets
 
 class DetailsReplayPane() extends ScrollPane {
@@ -16,6 +14,7 @@ class DetailsReplayPane() extends ScrollPane {
   val positionLabel = Label("")
   val eraLabel = Label("")
   val actions = new TextArea()
+  actions.editable = false
   actions prefWidth = 350
   actions.setWrapText(true)
   val mainPane = new BorderPane()
