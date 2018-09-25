@@ -67,9 +67,10 @@ object FiltersPane {
     reignRadioBox.children = plantRadio :: animalRadio :: List()
 
     val valuesContainerPane: FiltersBorderPane = defaultBorderPane
-    val plantVBox: PlantFiltersPane = PlantFiltersPane(geneticsSimulator)
-    val animalVBox: AnimalFiltersPane = AnimalFiltersPane(geneticsSimulator)
-    valuesContainerPane.center = plantVBox
+    val plantVBox: EntityFiltersPane = PlantFiltersPane(geneticsSimulator)
+    val animalVBox: EntityFiltersPane = AnimalFiltersPane(geneticsSimulator)
+    var currentContent: EntityFiltersPane = plantVBox
+    valuesContainerPane.center = currentContent
 
     val buttonsHBox: FiltersHBox = defaultHBox
     buttonsHBox.margin = Insets(30, 0, 0, 0)
@@ -81,10 +82,12 @@ object FiltersPane {
     buttonsHBox.children = applyButton :: clearButton :: List()
 
     plantRadio.onAction = (e: ActionEvent) => {
-      valuesContainerPane.center = plantVBox
+      currentContent = plantVBox
+      valuesContainerPane.center = currentContent
     }
     animalRadio.onAction = (e: ActionEvent) => {
-      valuesContainerPane.center = animalVBox
+      currentContent = animalVBox
+      valuesContainerPane.center = currentContent
     }
 
     mainBox.children =
@@ -109,13 +112,8 @@ object FiltersPane {
       clearButton.disable = false
       plantRadio.disable = true
       animalRadio.disable = true
-      if (plantRadio.isSelected) {
-        plantVBox.disableComponents()
-        worldPane.applyFilters(plantVBox.entityFiltersValues)
-      } else {
-        animalVBox.disableComponents()
-        worldPane.applyFilters(animalVBox.entityFiltersValues)
-      }
+      worldPane.applyFilters(currentContent.entityFiltersValues)
+      currentContent.disableComponents()
     }
 
     clearButton.onAction = (e: ActionEvent) => {
@@ -123,17 +121,12 @@ object FiltersPane {
       clearButton.disable = true
       plantRadio.disable = false
       animalRadio.disable = false
-      if (plantRadio.isSelected) {
-        plantVBox.enableComponents()
-      } else {
-        animalVBox.enableComponents()
-      }
+      currentContent.disableComponents()
       worldPane.clearFilters()
     }
 
     override def updateFilters(): Unit = {
-      animalVBox.updateFilters()
-      plantVBox.updateFilters()
+      currentContent.updateFilters()
     }
   }
 
@@ -153,5 +146,21 @@ trait DisablePane {
     * enables its internal components
     */
   def enableComponents()
+}
+
+/**
+  * A pane to choose the values of the entity filters
+  */
+trait EntityFiltersPane extends FiltersVBox with DisablePane {
+  /**
+    *
+    * @return a `EntityFiltersValues` with the values of the plant filters
+    */
+  def entityFiltersValues: EntityFiltersValues
+
+  /**
+    * Updates the filters
+    */
+  def updateFilters()
 }
 

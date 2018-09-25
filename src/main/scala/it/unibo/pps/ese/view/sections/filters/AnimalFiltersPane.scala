@@ -10,29 +10,12 @@ import it.unibo.pps.ese.view.sections.filters.FiltersComponentsFactory.FiltersVB
 import it.unibo.pps.ese.view.utilities.EntityConversions
 import it.unibo.pps.ese.view.utilities.EntityConversions._
 
-/**
-  * A pane to choose the values of the animal filters section
-  */
-trait AnimalFiltersPane extends FiltersVBox with DisablePane {
-
-  /**
-    *
-    * @return a `EntityFiltersValues` with the values of the animal filters
-    */
-  def entityFiltersValues: EntityFiltersValues
-
-  /**
-    * Updates the filters
-    */
-  def updateFilters()
-}
-
 object AnimalFiltersPane {
 
-  def apply(geneticsSimulator: GeneticsSimulator): AnimalFiltersPane =
+  def apply(geneticsSimulator: GeneticsSimulator): EntityFiltersPane =
     new AnimalFiltersPaneImpl(geneticsSimulator)
 
-  class AnimalFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends AnimalFiltersPane {
+  class AnimalFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends EntityFiltersPane {
 
     val maleRepresentation: String = "Male"
     val femaleRepresentation: String = "Female"
