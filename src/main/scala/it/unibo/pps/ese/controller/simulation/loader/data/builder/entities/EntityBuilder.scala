@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
+import it.unibo.pps.ese.controller.simulation.loader.data.EntityData
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BuilderStatus, NotBuildableBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus.{EntityWithAlleleLength, EntityWithGeneLength, EntityWithReign, PlantWithHardness, PlantWithNutritionalValue, _}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
@@ -76,4 +77,15 @@ object EntityStatus {
   type FullPlant = FullEntity  with PlantWithHeight with PlantWithNutritionalValue with PlantWithHardness
   type FullAnimal = FullEntity with AnimalWithTypology with AnimalWithStructChromosome with AnimalWithRegChromosome
     with AnimalWithSexChromosome
+}
+
+private class EntityDataImpl(val name: String,
+                             _getGeneLength: Option[Int],
+                             _getAlleleLength: Option[Int],
+                             _getReign: Option[String]) extends EntityData {
+  import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuildersValidationImplicits._
+
+  override def getGeneLength: Option[Int] = _getGeneLength.normalize()
+  override def getAlleleLength: Option[Int] = _getAlleleLength.normalize()
+  override def getReign: Option[String] = _getReign.normalize()
 }

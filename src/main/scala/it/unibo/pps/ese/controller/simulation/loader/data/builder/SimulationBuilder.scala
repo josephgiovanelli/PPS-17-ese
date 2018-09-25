@@ -98,7 +98,8 @@ object SimulationBuilder {
   private class SimulationDataImpl[A <: PartialAnimalData, P <: PartialPlantData](_animals: Iterable[(A, Int)],
                                                                                   _plants: Iterable[(P, Int)]
                                                                                  ) extends SimulationData[A, P] {
-    override val getAnimals: Option[Iterable[(A, Int)]] = if(_animals.isEmpty) None else Some(_animals)
-    override val getPlants: Option[Iterable[(P, Int)]] = if(_plants.isEmpty) None else Some(_plants)
+    import BuildersValidationImplicits._
+    override val getAnimals: Option[Iterable[(A, Int)]] = _animals.boxToValidOption()
+    override val getPlants: Option[Iterable[(P, Int)]] = _plants.boxToValidOption()
   }
 }

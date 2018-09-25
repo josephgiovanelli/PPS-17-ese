@@ -107,12 +107,18 @@ object AlleleBuilder {
       with AlleleWithProbability with AlleleWithEffect
   }
 
-  private[this] class AlleleDataImpl(val getGene: Option[String],
-                               val id: String,
-                               val getDominance: Option[Double],
-                               val getConsume: Option[Double],
-                               val getProbability: Option[Double],
-                               _getEffect: Map[String, Double]) extends PartialAlleleData {
-    override def getEffect: Option[Map[String, Double]] = if(_getEffect.nonEmpty) Some(_getEffect) else None
+  private[this] class AlleleDataImpl(_getGene: Option[String],
+                                     val id: String,
+                                     _getDominance: Option[Double],
+                                     _getConsume: Option[Double],
+                                     _getProbability: Option[Double],
+                                     _getEffect: Map[String, Double]) extends PartialAlleleData {
+    import BuildersValidationImplicits._
+
+    override def getEffect: Option[Map[String, Double]] = _getEffect.boxToValidOption()
+    override def getGene: Option[String] = _getGene.normalize()
+    override def getDominance: Option[Double] = _getDominance.normalize()
+    override def getConsume: Option[Double] = _getConsume.normalize()
+    override def getProbability: Option[Double] = _getProbability.normalize()
   }
 }

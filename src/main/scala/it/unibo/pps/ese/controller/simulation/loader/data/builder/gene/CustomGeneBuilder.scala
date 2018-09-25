@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.gene
 import it.unibo.pps.ese.controller.simulation.loader.beans.PropertyInfo
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.{CustomGeneData, PartialAlleleData}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BaseBuildableGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.DefaultGeneBuilder.DefaultGeneDataImpl
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.GeneStatus._
@@ -78,7 +78,8 @@ object CustomGeneBuilder {
                                                            _conversionMap: Map[String, Map[String, Double]])
     extends DefaultGeneDataImpl(_id, _name, _properties, _alleleData) with CustomGeneData[A] {
 
-    override val getConversionMap: Option[Map[String, Map[String, Double]]] = if(_conversionMap.isEmpty) None else Some(_conversionMap)
-    //TODO check conversion map with base qualities
+    import BuildersValidationImplicits._
+
+    override val getConversionMap: Option[Map[String, Map[String, Double]]] = _conversionMap.boxToValidOption()
   }
 }

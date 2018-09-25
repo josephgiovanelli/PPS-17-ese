@@ -79,13 +79,22 @@ object PlantBuilder {
     }
 
     override protected def buildPartialInstance(): PartialPlantData =
-      PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength, alleleLength, reign)
+      new PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength, alleleLength, reign)
   }
-  private[this] case class PlantDataImpl(getHeight: Option[Double],
-                                   getNutritionalValue: Option[Double],
-                                   getHardness: Option[Double],
-                                   name: String,
-                                   getGeneLength: Option[Int],
-                                   getAlleleLength: Option[Int],
-                                   getReign: Option[String]) extends PartialPlantData
+
+  private[this] class PlantDataImpl(_getHeight: Option[Double],
+                                    _getNutritionalValue: Option[Double],
+                                    _getHardness: Option[Double],
+                                    _name: String,
+                                    _getGeneLength: Option[Int],
+                                    _getAlleleLength: Option[Int],
+                                    _getReign: Option[String])
+    extends EntityDataImpl(_name, _getGeneLength, _getAlleleLength, _getReign) with PartialPlantData {
+
+    import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuildersValidationImplicits._
+
+    override def getHeight: Option[Double] = _getHeight.normalize()
+    override def getNutritionalValue: Option[Double] = _getNutritionalValue.normalize()
+    override def getHardness: Option[Double] = _getHardness.normalize()
+  }
 }

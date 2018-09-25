@@ -123,16 +123,20 @@ object AnimalBuilder {
         regulationChromosome.map(_.build()), sexualChromosome.map(_.build()))
   }
 
-  private class AnimalDataImpl[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](val name: String,
-                                                                                    val getGeneLength: Option[Int],
-                                                                                    val getAlleleLength: Option[Int],
-                                                                                    val getReign: Option[String],
-                                                                                    val getTypology: Option[String],
+  private class AnimalDataImpl[C<:PartialCustomGeneData, D<:PartialDefaultGeneData](_name: String,
+                                                                                    _getGeneLength: Option[Int],
+                                                                                    _getAlleleLength: Option[Int],
+                                                                                    _getReign: Option[String],
+                                                                                    _getTypology: Option[String],
                                                                                     _getStructuralChromosome: Iterable[C],
                                                                                     _getRegulationChromosome: Iterable[D],
-                                                                                    _getSexualChromosome: Iterable[D]) extends AnimalData[C, D] {
-    val getStructuralChromosome: Option[Iterable[C]] = if(_getStructuralChromosome.isEmpty) None else Some(_getStructuralChromosome)
-    val getRegulationChromosome: Option[Iterable[D]] = if(_getRegulationChromosome.isEmpty) None else Some(_getRegulationChromosome)
-    val getSexualChromosome: Option[Iterable[D]] = if(_getSexualChromosome.isEmpty) None else Some(_getSexualChromosome)
+                                                                                    _getSexualChromosome: Iterable[D])
+    extends EntityDataImpl(_name, _getGeneLength, _getAlleleLength, _getReign) with AnimalData[C, D] {
+    import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuildersValidationImplicits._
+
+    def getTypology: Option[String] = _getTypology.normalize()
+    val getStructuralChromosome: Option[Iterable[C]] = _getStructuralChromosome.boxToValidOption()
+    val getRegulationChromosome: Option[Iterable[D]] = _getRegulationChromosome.boxToValidOption()
+    val getSexualChromosome: Option[Iterable[D]] = _getSexualChromosome.boxToValidOption()
   }
 }

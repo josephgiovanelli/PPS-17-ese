@@ -19,11 +19,25 @@ object DefaultValidable {
     implicit class ValidableByDisequality[X: DefaultValue](elem: X) {
       def isValid(extraRequirements: Iterable[X => Boolean] = Iterable()): Boolean =
         checkValidity(elem, extraRequirements)
+
+      def boxToValidOption(extraRequirements: Iterable[X => Boolean] = Iterable()): Option[X] = {
+        if(!isValid(extraRequirements))
+          None
+        else
+          Some(elem)
+      }
     }
 
     implicit class ValidableOptByDisequality[X: DefaultValue](elem: Option[X]) {
       def isValid(extraRequirements: Iterable[X => Boolean] = Iterable()): Boolean =
         checkValidityOpt(elem, extraRequirements)
+
+      def normalize(extraRequirements: Iterable[X => Boolean] = Iterable()): Option[X] = {
+        if(!isValid(extraRequirements))
+          None
+        else
+          elem
+      }
     }
   }
 
@@ -45,9 +59,23 @@ object DefaultValidable {
 
     implicit class ValidableByRange[X: Ordering: DefaultRange](elem: X) {
       def inValidRange(extraRequirements: Iterable[X => Boolean] = Iterable()): Boolean = checkValidity(elem, extraRequirements)
+
+      def boxToValidOption(extraRequirements: Iterable[X => Boolean] = Iterable()): Option[X] = {
+        if(!inValidRange(extraRequirements))
+          None
+        else
+          Some(elem)
+      }
     }
     implicit class ValidableOptByRange[X: Ordering: DefaultRange](elem: Option[X]) {
       def inValidRange(extraRequirements: Iterable[X => Boolean] = Iterable()): Boolean = checkValidityOpt(elem, extraRequirements)
+
+      def normalize(extraRequirements: Iterable[X => Boolean] = Iterable()): Option[X] = {
+        if(!inValidRange(extraRequirements))
+          None
+        else
+          elem
+      }
     }
   }
 }
