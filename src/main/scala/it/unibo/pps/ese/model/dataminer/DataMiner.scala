@@ -6,46 +6,186 @@ import it.unibo.pps.ese.model.dataminer.DataModelSupport.{EntityId, Era, Species
 import it.unibo.pps.ese.model.dataminer.datamodel.{AnimalDynamicData, EntityLog, EntityTimedRecord, ReadOnlyEntityRepository}
 import it.unibo.pps.ese.model.dataminer.utils.Memoizer
 
+/**
+  * This is a collection of function used to analyze the simulation consolidated data and produce statistics
+  * from them
+  */
 sealed trait DataMiner {
 
+  /**
+    * Get the first era to which data refer
+    * @return The era
+    */
   def startEra: Era
+
+  /**
+    * Get the last era to which data refer
+    * @return The era
+    */
   def lastEra: Era
 
+  /**
+    * Get the simulation's population trend
+    * @return The population trend
+    */
   def populationTrend(): Seq[(Long, Long)]
+
+  /**
+    * Get a list of the species contained in the Simulation world, including the extinct ones
+    * @return The species list
+    */
   def simulationSpecies(): Seq[Species]
+
+  /**
+    * Get a list of the species alive in the selected Era in the Simulation world
+    * @return The species list
+    */
   def aliveSpecies(era: Era): Seq[Species]
 
+  /**
+    * Get a list of the extinct species
+    * @return The species list
+    */
   def extinctSpecies(): Seq[Species]
+
+  /**
+    * Get a list of extinct species in the selected era
+    * @return The species list
+    */
   def extinctSpecies(era: Era): Seq[Species]
 
+  /**
+    * Get the total number of living entities in the Simulation world
+    * @return The entities count
+    */
   def aliveCount: Long
+
+  /**
+    * Get the total number of living entities in the Simulation world in the selected era
+    * @return The entities count
+    */
   def aliveCount(era: Era): Long
+
+  /**
+    * Get the total number of living entities in the Simulation world of the selected Species
+    * @return The entities count
+    */
   def aliveCount(species: Species): Long
+
+  /**
+    * Get the total number of living entities in the Simulation world of the selected Species in the selected Era
+    * @return The entities count
+    */
   def aliveCount(species: Species, era: Era): Long
 
+  /**
+    * Get the total number of entities died in the Simulation world
+    * @return The entities count
+    */
   def deadCount: Long
+
+  /**
+    * Get the total number of entities died in the Simulation world in the selected era
+    * @return The entities count
+    */
   def deadCount(era: Era): Long
+
+  /**
+    * Get the total number of entities died in the Simulation world of the selected Species
+    * @return The entities count
+    */
   def deadCount(species: Species): Long
+
+  /**
+    * Get the total number of entities died in the Simulation world of the selected Species in the selected Era
+    * @return The entities count
+    */
   def deadCount(species: Species, era: Era): Long
 
+  /**
+    * Get the total number of entities born in the Simulation world
+    * @return The entities count
+    */
   def bornCount: Long
+
+  /**
+    * Get the total number of entities born in the Simulation world in the selected era
+    * @return The entities count
+    */
   def bornCount(era: Era): Long
+
+  /**
+    * Get the total number of entities born in the Simulation world of the selected Species
+    * @return The entities count
+    */
   def bornCount(species: Species): Long
+
+  /**
+    * Get the total number of entities born in the Simulation world of the selected Species in the selected Era
+    * @return The entities count
+    */
   def bornCount(species: Species, era: Era): Long
 
+  /**
+    * Get the total number of couplings in the Simulation world
+    * @return The couplings count
+    */
   def couplingCount: Long
+
+  /**
+    * Get the total number of couplings in the Simulation world in the selected era
+    * @return The couplings count
+    */
   def couplingCount(era: Era): Long
+
+  /**
+    * Get the total number of couplings in the Simulation world of the selected Species
+    * @return The couplings count
+    */
   def couplingCount(species: Species): Long
+
+  /**
+    * Get the total number of couplings in the Simulation world of the selected Species in the selected Era
+    * @return The couplings count
+    */
   def couplingCount(species: Species, era: Era): Long
 
+  /**
+    * Get the total number of manifested mutant alleles in the Simulation world
+    * @return The mutations count
+    */
   def mutantAlleles: Seq[String]
+
+  /**
+    * Get the total number of manifested mutant alleles in the Simulation world in the selected Era
+    * @return The mutations count
+    */
   def mutantAlleles(era: Era): Seq[String]
+
+  /**
+    * Get the total number of manifested mutant alleles in the Simulation world of the selected Species
+    * @return The mutations count
+    */
   def mutantAlleles(species: Species): Seq[String]
+
+  /**
+    * Get the total number of manifested mutant alleles in the Simulation world of the selected Species
+    * in the selected Era
+    * @return The mutations count
+    */
   def mutantAlleles(species: Species, era: Era): Seq[String]
 }
 object DataMiner {
+
+  /**
+    * @param repository The data source
+    * @return A DataMiner instance
+    */
   def apply(repository: ReadOnlyEntityRepository): DataMiner = new MemoizedDataMiner(repository)
 
+  /**
+    * Data miner implementation based on the use of memoization to optimize queries response time
+    */
   private class MemoizedDataMiner(repository: ReadOnlyEntityRepository) extends DataMiner with Memoizer {
 
     private[this] val _dataRepository = repository

@@ -9,9 +9,44 @@ import it.unibo.pps.ese.model.dataminer.datamodel._
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * This utility class offers methods for ingest and historicise data from the simulation state
+  * @param realTimeState The simulation data source
+  */
 class DataAggregator(realTimeState: ReadOnlyEntityState) {
 
   private val _entityDataRepository = EntityDataRepository()
+
+  /**
+    * Update the consolidated state using the data from real time state
+    * @param era The era to which the data refers
+    * @param executionContext An execution context, required for async tasks
+    */
+  def ingestData(era: Era)(implicit executionContext: ExecutionContext): Unit = {
+
+    @tailrec
+    def _ingestData(era: Era, data: Seq[EntityState]): Unit = {
+      if (data isEmpty) return
+      if (!(_entityDataRepository exists ((data head) entityId))) _entityDataRepository saveStaticEntityData (data head)
+      _entityDataRepository saveDynamicEntityData (era, data head)
+      _ingestData(era, data tail)
+    }
+
+    _ingestData(era, realTimeState getFilteredState(_ => true))
+    Future {
+      _entityDataRepository generateNewDataNotification era
+    }
+  }
+
+  /**
+    * Get the ingested data repository
+    * @return A read-only copy of the consolidated data repository
+    */
+  def ingestedData: ReadOnlyEntityRepository = _entityDataRepository
+
+  /**
+    * Methods used to give a structured form to the unstructured real time data
+    */
 
   private def mapToAnimalStructuralData(state: EntityInfo): StructuralData =
     AnimalStructuralDataImpl(
@@ -82,21 +117,4 @@ class DataAggregator(realTimeState: ReadOnlyEntityState) {
   private implicit def mapToDynamicRecord(state: EntityState): EntityDynamicRecord = {
     EntityDynamicRecordImpl(state entityId, mapToDynamicData(state state))
   }
-
-  @tailrec
-  private def ingestData(era: Era, data: Seq[EntityState]): Unit = {
-    if (data isEmpty) return
-    if (!(_entityDataRepository exists ((data head) entityId))) _entityDataRepository saveStaticEntityData (data head)
-    _entityDataRepository saveDynamicEntityData (era, data head)
-    ingestData(era, data tail)
-  }
-
-  def ingestData(era: Era)(implicit executionContext: ExecutionContext): Unit = {
-    ingestData(era, realTimeState getFilteredState(_ => true))
-    Future {
-      _entityDataRepository generateNewDataNotification era
-    }
-  }
-
-  def ingestedData: ReadOnlyEntityRepository = _entityDataRepository
 }

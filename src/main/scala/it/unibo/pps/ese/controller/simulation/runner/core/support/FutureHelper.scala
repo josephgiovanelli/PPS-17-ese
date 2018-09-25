@@ -11,7 +11,7 @@ object FutureHelper {
 
     /**
       * Serialize the execution of a a Future task list
-      * @param l The input iterable from wich futures are generated
+      * @param l The input iterable from which futures are generated
       * @param fn The mapping function from input to Future
       * @param context The execution context
       * @tparam A The input type
