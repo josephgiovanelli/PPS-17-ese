@@ -62,7 +62,13 @@ trait ManageableController {
     */
   def exit(): Unit
 
-
+  /**
+    * This method generates the entities to be added to the world.
+    * @param animals existing species of animals and corresponding number of individuals to be added for each species
+    * @param plants existing species of plants and corresponding number of individuals to be added for each species
+    * @param newAnimals new species of animals and corresponding number of individuals to be added for each species
+    * @param newPlants new species of plants and corresponding number of individuals to be added for each species
+    */
   def add(animals: Map[String, Int], plants: Map[String, Int],
           newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
 
@@ -91,8 +97,15 @@ trait QueryableController {
     */
   def entityData(id: String): Option[EntityState]
 
+  /**
+    * It tells to the surgeon the entity to inspect.
+    * @param entity the identifier of the entity to inspect
+    */
   def watch(entity: String): Unit
 
+  /**
+    * It tells to the surgeon that can leaves the entity.
+    */
   def unwatch(): Unit
 
   /**

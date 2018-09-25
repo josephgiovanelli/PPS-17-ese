@@ -152,11 +152,23 @@ object EntityBuilderHelpers {
   private val yearToClock = 10
   private val mutationProb = 0.05
 
+  /**
+    * This method generates the entities to be added to the world.
+    * @param animals existing species of animals and corresponding number of individuals to be added for each species
+    * @param plants existing species of plants and corresponding number of individuals to be added for each species
+    * @param newAnimals new species of animals and corresponding number of individuals to be added for each species
+    * @param newPlants new species of plants and corresponding number of individuals to be added for each species
+    * @param worldHeight the height of the world
+    * @param worldWidth the width of the world
+    * @param animalCreationFunction the function that generates through the dimensions of the world and the entity, each position of each entity
+    * @param executionContext Execution context
+    * @return the entities
+    */
   def initializeEntities(animals: Map[String, Int],
                          plants: Map[String, Int],
                          newAnimals: Map[CompleteAnimalData, Int],
                          newPlants: Map[CompletePlantData, Int],
-                         worldHeight: Long ,
+                         worldHeight: Long,
                          worldWidth: Long,
                          animalCreationFunction: (AnimalInfo, Point) => Entity)
                         (implicit executionContext: ExecutionContext): Seq[Entity] = {
