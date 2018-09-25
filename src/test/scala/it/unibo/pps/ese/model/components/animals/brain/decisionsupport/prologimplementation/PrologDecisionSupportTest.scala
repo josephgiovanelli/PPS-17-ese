@@ -8,15 +8,24 @@ import org.scalatest.FunSuite
 
 class PrologDecisionSupportTest extends FunSuite {
 
+  /*
+  Definition of the world rules.
+  */
   StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
   val worldRules: WorldRulesImpl = WorldRulesImpl(3, 5, 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
   StaticRules.instance().setRules(worldRules)
 
+  /*
+  Definition of the entity attributes.
+   */
   val prey1 = EntityAttributesImpl("a", EntityKinds('herbivore), 6, 6, 6, (6, 6), 5, GenderTypes.male)
   val prey2 = EntityAttributesImpl("b", EntityKinds('herbivore), 6, 6, 6, (2, 1), 5, GenderTypes.female)
   val hunter = EntityAttributesImpl("c", EntityKinds('carnivorous), 10, 10, 10, (3, 3), 5, GenderTypes.male)
 
+  /*
+  Tests.
+   */
   val decisionSupport: DecisionSupport = PrologDecisionSupport()
   decisionSupport.createVisualField(Seq(prey2, hunter))
   val firstTest: Stream[EntityChoiceImpl] = decisionSupport.discoverPreys(hunter)
@@ -25,7 +34,7 @@ class PrologDecisionSupportTest extends FunSuite {
     assert(firstTest.isEmpty)
   }
 
-  val newHunterPosition = decisionSupport.nextMove(hunter, prey2)
+  val newHunterPosition: GeneralPosition[Int] = decisionSupport.nextMove(hunter, prey2)
 
   test("The new calculated position must be closer than the original.") {
     val originalDistance = (hunter.position._1 - prey2.position._1) + (hunter.position._2 - prey2.position._2)

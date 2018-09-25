@@ -4,6 +4,16 @@ import it.unibo.pps.ese.model.components.animals.brain.ActionTypes
 import it.unibo.pps.ese.model.dataminer.DataModelSupport._
 import it.unibo.pps.ese.utils.Point
 
+
+/**
+  * These traits define how the simulation data are historicised.
+  * Data is aggregated on entities rather than eras. So the main entity in model are EntityLogs, containing
+  * all the info on a Simulation's entity. The data is categorized in:
+  * Structural: containing static info
+  * Dynamic: containing dynamic info. These info are structured in collections of samples of the Entities' dynamic
+  *          properties associated to the sampling era
+  */
+
 trait EntityLog {
   val id: EntityId
   val structuralData: StructuralData

@@ -4,41 +4,103 @@ import java.util.concurrent.atomic.AtomicLong
 
 import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport._
 import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityProperty, EntityState}
-import it.unibo.pps.ese.model.genetics.dna.MGene
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.util.{Failure, Success}
 
+
+/**
+  * This trait contains the APIs used to communicate with an entity and control it
+  */
+sealed trait WorldBridge {
+
+  /**
+    * Require the initialization of the entity's public state
+    * @return A future that will be completed at the end of the initialization process
+    */
+  def initializeInfo(): Future[Done]
+
+  /**
+    * Require the update of entities' internal status
+    * @return A future that will be completed at the end of the update process
+    */
+  def computeNewState(): Future[Done]
+
+  /**
+    * Require the update of entities' public status
+    * @return A future that will be completed at the end of the update process
+    */
+  def requireInfo(): Future[Done]
+
+  /**
+    * Send a message to the entity from outside
+    * @param envelope The message to be delivered
+    * @tparam A The message type
+    * @return A future that will be completed when after message reception
+    */
+  def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Future[Done]
+
+  /**
+    * Dispose entity's resources
+    */
+  def dispose(): Unit
+}
+
+/**
+  * The WorldBridge is implemented as a normal component, so to interact with others components
+  * and propagate world decisions the NervousSystem communication medium must be used.
+  * These classes represent also the main functionalities that the WorldBridgeComponent offers to custom
+  * ones.
+  */
+
+/**
+  * Update the public entities's state cache
+  * @param properties The properties to update
+  */
 case class UpdateEntityState(properties: Seq[EntityProperty]) extends BaseEvent
 
+/**
+  * Require info about the simulation world
+  */
 case class WorldInfoRequest() extends RequestEvent
 case class WorldInfoResponse(override val id: String, width: Long, height: Long) extends ResponseEvent
 
+/**
+  * Require info about other simulation entities
+  * @param filter The filter to be applied to entities' state cache while fetching the info
+  */
 case class EntitiesStateRequest(filter: EntityState => Boolean = _ => true) extends RequestEvent
 case class EntitiesStateResponse(override val id: String, state: Seq[EntityState]) extends ResponseEvent
 
-case class EntityExecutionRequest(entityId: String) extends RequestEvent
-case class EntityExecutionResponse(override val id: String, status: Boolean) extends ResponseEvent
-
+/**
+  * Require the update of entities' internal status
+  */
 case class ComputeNextState() extends BaseEvent with HighPriorityEvent
 case class ComputeNextStateAck() extends BaseEvent with HighPriorityEvent
 
-case class Kill(entityId: String) extends BaseEvent
-case class Create(entities: Iterable[Entity]) extends BaseEvent
-
-
+/**
+  * Require the update of entities' public status
+  */
 case class GetInfo() extends BaseEvent with HighPriorityEvent
 case class GetInfoAck() extends BaseEvent with HighPriorityEvent
 
-case class GiveBirth(ids: Seq[String]) extends BaseEvent
+/**
+  * Require the removal of an entity from the simulation world
+  * @param entityId The target entity identifier
+  */
+case class Kill(entityId: String) extends BaseEvent
 
-case class NewMutantAlleles(mutantGenes:Seq[MGene]) extends BaseEvent
-sealed trait WorldBridge {
-  def initializeInfo(): Future[Done]
-  def computeNewState(): Future[Done]
-  def requireInfo(): Future[Done]
-  def deliverMessage[A <: InteractionEvent](envelope: InteractionEnvelope[A]): Future[Done]
-  def dispose(): Unit
-}
+/**
+  * Require the addition of an entity to the simulation world
+  * @param entities The entities to be added
+  */
+case class Create(entities: Iterable[Entity]) extends BaseEvent
+
+/**
+  * Notify the addition of entities to the simulation world
+  * @param ids The added entities
+  */
+case class GiveBirth(ids: Seq[String]) extends BaseEvent
 
 class WorldBridgeComponent(override val entitySpecifications: EntitySpecifications,
                            world: InteractiveWorld)
@@ -85,6 +147,11 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     interactionPromise future
   }
 
+  override def initializeInfo(): Future[Done] = requireInfo() andThen {
+    case Success(_) => world.publishState(entitySpecifications id)
+    case Failure(e) => throw e
+  }
+
   override def dispose(): Unit = disposed = true
 
   private def startNewJob(event: Event): Future[Done] = {
@@ -117,9 +184,4 @@ class WorldBridgeComponent(override val entitySpecifications: EntitySpecificatio
     result failure new RuntimeException("Pending request")
     result future
   }
-
-  override def initializeInfo(): Future[Done] = requireInfo().map(result => {
-    world.publishState(entitySpecifications id)
-    result
-  })
 }

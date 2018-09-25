@@ -3,12 +3,11 @@ package it.unibo.pps.ese.view.core
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityInfo, EntityState}
-import it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.{Observer, ReplayController, SimulationController}
+import it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.{ChartsData, Observer, ReplayController, SimulationController}
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.sections.bodyviewer.AnimalInternalStatus
 import it.unibo.pps.ese.view.sections.history.HistoryLog
 import it.unibo.pps.ese.view.main.WorldView
-import it.unibo.pps.ese.view.sections.statistics.ChartsData
 
 import scala.concurrent.{ExecutionContext, Future}
 import scalafx.Includes._

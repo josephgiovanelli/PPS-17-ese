@@ -9,6 +9,10 @@ import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityKi
 import it.unibo.pps.ese.model.components.animals.trackers.EmbryoStatus
 import it.unibo.pps.ese.utils.Point
 
+/**
+  * This implicit classes are used to enrich the EntityInfo class and obtain strong typed data from it.
+  * This is necessary because on dynamic objects data is stored under Object interface.
+  */
 object EntityInfoConversion {
 
   implicit class ExampleComponentConversions(obj: EntityInfo) {
@@ -60,13 +64,12 @@ object EntityInfoConversion {
     def pregnant: Boolean = obj.selectDynamic("pregnant").asInstanceOf[Boolean]
     def embryo : Option[EmbryoStatus.Value] = obj.selectDynamic("embryo").asInstanceOf[Option[EmbryoStatus.Value]]
     def reproductionOrgan: Boolean = obj.selectDynamic("reproductionOrgan").asInstanceOf[Boolean]
-    //da levare
-    def genes: Seq[String] = obj.selectDynamic("genes").asInstanceOf[Seq[String]]
   }
 
   implicit class InteractionTrackerComponentConversion(obj: EntityInfo) {
     def eat: Seq[String] = obj.selectDynamic("eat").asInstanceOf[Seq[String]]
     def couple: Seq[String] = obj.selectDynamic("couple").asInstanceOf[Seq[String]]
     def create: Seq[String] = obj.selectDynamic("create").asInstanceOf[Seq[String]]
+    def genes: Seq[String] = obj.selectDynamic("genes").asInstanceOf[Seq[String]]
   }
 }
