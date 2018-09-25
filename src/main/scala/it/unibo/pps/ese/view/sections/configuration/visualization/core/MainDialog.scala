@@ -9,7 +9,9 @@ import scala.concurrent.ExecutionContext
 import scalafx.Includes._
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
-import scalafx.scene.control.Label
+import scalafx.scene.Node
+import scalafx.scene.control.ButtonBar.ButtonData
+import scalafx.scene.control.{ButtonType, Dialog, Label}
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
@@ -56,7 +58,18 @@ object MainDialog {
                        newPlantSpecies: Seq[String] = Seq.empty,
                        previousAnimalsCount: Map[String, Int] = Map.empty,
                        previousPlantsCount: Map[String, Int] = Map.empty)
-                      (implicit executionContext: ExecutionContext) extends AbstractDialog[Unit](window, None) with MainDialog {
+                      (implicit executionContext: ExecutionContext) extends Dialog[Unit] with MainDialog {
+
+
+    initOwner(window)
+
+    val cancelCloseButtonType: ButtonType = new ButtonType("Exit", ButtonData.CancelClose)
+    dialogPane().buttonTypes = Seq(cancelCloseButtonType)
+    val cancelCloseButton: Node = dialogPane().lookupButton(cancelCloseButtonType)
+    cancelCloseButton.visible = false
+
+    dialogPane().background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+
 
     var pendingAnimals: ListBuffer[String] =  ListBuffer.empty
     private var currentContent: Option[DialogPane] = None

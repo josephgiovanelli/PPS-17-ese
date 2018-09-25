@@ -56,14 +56,14 @@ object Memory {
     def elapsedTime: Int
   }
 
-  private abstract class MemoryImpl(val memoryType: MemoryType, val locationalField: LocationalField, score: Score) extends Memory
+  private abstract class AbstractMemory(val memoryType: MemoryType, val locationalField: LocationalField, score: Score) extends Memory
 
   object LongTermMemory {
     def apply(memoryType: MemoryType, locationalField: LocationalField, score: Score): LongTermMemory =
       new LongTermMemoryImpl(memoryType, locationalField, score)
 
     private class LongTermMemoryImpl(memoryType: MemoryType, locationalField: LocationalField, var score: Score) extends
-      MemoryImpl(memoryType, locationalField, score) with LongTermMemory {
+      AbstractMemory(memoryType, locationalField, score) with LongTermMemory {
 
       val longTermMemoryDecadeValue = 1
 
@@ -82,7 +82,7 @@ object Memory {
       new ShortTermMemoryImpl(memoryType, locationalField, score)
 
     private class ShortTermMemoryImpl(memoryType: MemoryType, locationalField: LocationalField, var score: Score) extends
-      MemoryImpl(memoryType, locationalField, score) with ShortTermMemory {
+      AbstractMemory(memoryType, locationalField, score) with ShortTermMemory {
 
       var elapsedTime: Int = 0
 

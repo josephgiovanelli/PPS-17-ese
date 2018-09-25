@@ -352,18 +352,30 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         //If I don't see anything related of my will
         else {
           position = hippocampus.searchingState match {
+            /*
+            No search has been started
+             */
             case Inactive =>
               hippocampus.startNewSearch(action)
               publish(UseHippocampus())
               checkNewMemory
+            /*
+            A search has been started and not already ended
+             */
             case Active =>
               publish(UseHippocampus())
               val d = hippocampus.computeDirection(position)
               val p = getPosition(d)
               p
+            /*
+            A search has been started and ended, no other memory is available
+             */
             case Ended => getPosition(randomDirection)
           }
 
+          /*
+          Looks for a new memory, if present returns the next position towards it, else a new random position
+           */
           def checkNewMemory: Point = {
             if (hippocampus.hasNewMemory) {
               hippocampus.chooseNewMemory(position)
@@ -373,6 +385,9 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             } else getPosition(randomDirection)
           }
 
+          /*
+          Returns a random direction
+           */
           def randomDirection: Direction = {
             Direction(new Random().nextInt(Direction.values.size-1))
           }
