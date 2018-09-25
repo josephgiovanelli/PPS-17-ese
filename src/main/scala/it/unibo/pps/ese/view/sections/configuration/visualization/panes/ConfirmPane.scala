@@ -115,21 +115,21 @@ case class ConfirmPane(mainDialog: MainDialog,
   okButton.onAction = _ => {
       val animals: Map[String, Int] = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
       val plants: Map[String, Int] = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
-    EntitiesInfo.instance().getSimulationData(animals, plants) match {
-      case Success(simulationData) =>
-      if (setUp) {
-        setupViewBridge.getOrElse(throw new IllegalStateException()).startSimulation(simulationData)
-      } else {
-        val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
-        val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
-        val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
-        val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
-        mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
-      }
-      case Failure(exception: CompleteSimulationBuildException) =>
-        NoCompleteSimulationAlert(mainDialog.window, exception.buildException).showAndWait()
-      case Failure(exception) =>
-        UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
+      EntitiesInfo.instance().getSimulationData(animals, plants) match {
+        case Success(simulationData) =>
+          if (setUp) {
+            setupViewBridge.getOrElse(throw new IllegalStateException()).startSimulation(simulationData)
+          } else {
+            val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
+            val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
+            val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
+            val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
+            mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
+          }
+        case Failure(exception: CompleteSimulationBuildException) =>
+          NoCompleteSimulationAlert(mainDialog.window, exception.buildException).showAndWait()
+        case Failure(exception) =>
+          UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
     }
     mainDialog.closeDialog()
   }

@@ -189,17 +189,23 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
   }
 
   /**
-    * Method by which events are received and reacted.
+    * Method by which events are received and the brain specifies the reaction to them.
     */
   private def subscribeEvents(): Unit = {
     import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
     subscribe {
+      /*
+      It means that an era has passed and the next move must be calculated.
+       */
       case ComputeNextState() =>
+        //If in the past era a shift occurred with the accomplished achievement of the partner, the next move is the coupling.
         if(forceReproduction.isDefined) {
           publish(ForceReproductionForward(forceReproduction.get))
           forceReproduction = None
           publish(new ComputeNextStateAck)
-        } else {
+        }
+        //Otherwise the dynamic parameters and the entities in your visual range are required in order to calculate the next best move.
+        else {
           hippocampus.updateTime()
 
           val data = for {
@@ -211,8 +217,9 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
           data onComplete{
             case Success((extData, dynData)) =>
               entityInVisualField = Map.empty
+              //convert the representation of the entity of the world in the representation of the entity in decision support.
               extData.state map (x => convertToEntityAttributes(x)) foreach (x => entityInVisualField += (x.name -> x))
-
+              //calculate the next move and communicate it.
               nextMove(dynData speed, dynData energy, dynData fertility, dynData satisfaction) onComplete (r => {
                 publish(EntityPosition(r.get))
                 publish(new ComputeNextStateAck)
@@ -220,20 +227,43 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             case Failure(error) => throw error
           }
 
+          /**
+            * Convert an [[EntityState]] into [[EntityAttributesImpl]]
+            * @param x the entity state
+            * @return the entity attributes
+            */
           def convertToEntityAttributes(x: EntityState): EntityAttributesImpl = if (x.state.reign == ReignType.ANIMAL) AnimalAttributes(x.entityId, x.state.species, x.state.height,
-            x.state.strength, x.state.defense, (x.state.position.x, x.state.position.y),
-            x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
+              x.state.strength, x.state.defense, (x.state.position.x, x.state.position.y),
+              x.state.attractiveness, x.state.gender) else PlantAttributes(x.entityId, x.state.species, x.state.height, x.state.defense, (x.state.position.x, x.state.position.y), x.state.gender)
         }
+      /*
+      It tells the brain that in the next iteration he must mate because in the past era he has reached the partner.
+      */
       case r: AutoForceReproduction =>
         forceReproduction = Some(r)
+      /*
+      It tells the brain that in the next iteration he must mate because in the past era someone has reached him.
+      */
       case r: PartnerForceReproduction if r.receiverId == entitySpecifications.id =>
         forceReproduction = Some(r)
+      /*
+      It tells that the digestion phase ends.
+      */
       case DigestionEnd() =>
         digestionState = false
+      /*
+      It tells that the pregnant phase starts.
+      */
       case _: Pregnant =>
         pregnantState = true
+      /*
+      It tells that the pregnant phase ends.
+      */
       case _: PregnancyEnd =>
         pregnantState = false
+      /*
+      If this message is received the brain has to communicate his information.
+       */
       case GetInfo() =>
         publish(BrainInfo(strength, actionField, visualField, attractiveness))
         publish(new GetInfoAck)
@@ -241,6 +271,11 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     }
   }
 
+  /**
+    * The exterior can see the component as a set of attributes.
+    * These are modified by the published events.
+    * This method defines how events change attributes.
+    */
   private def configureMappings(): Unit = {
     addMapping[EntityPosition]((classOf[EntityPosition], ev => Seq(EntityProperty("position", ev position))))
     addMapping[ComputeNextState]((classOf[ComputeNextState], _ => Seq(EntityProperty("will", Nothing))))
@@ -254,19 +289,33 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
     )))
   }
 
+  /**
+    * In this method the dynamic parameters are learned and based on these the brain decides what to do and where to move.
+    * @param speed the current speed of the entity
+    * @param energy the current energy of the entity
+    * @param fertility the current fertility of the entity
+    * @param satisfaction the current satisfaction of the entity
+    * @return the new point
+    */
   private def nextMove(speed: Double, energy: Double, fertility: Double, satisfaction: Double): SupervisedFuture[Point] = {
-
     requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest) map (data => {
+      //The current position is requested.
       var position = data position
       val floorSpeed = speed.toInt
+      //The current field of vision is communicated to the decision support.
       val me: EntityAttributesImpl = AnimalAttributes(entitySpecifications id,
         EntityKinds(Symbol(data species)), data height, strength, data defense, (data.position.x, data.position.y),
         attractiveness, GenderTypes.withNameOpt(data gender).get)
       decisionSupport.createVisualField(entityInVisualField.values.toSeq :+ me)
+      //The list of possible prey and partners is required for the decision support.
       val partners = decisionSupport.discoverPartners(me)
       val preys = decisionSupport.discoverPreys(me)
       var targets: Stream[EntityChoiceImpl] = preys
       var action: ActionTypes = Eat
+      //if I have enough prey around and enough energy to not worry about eating in this iteration,
+      // I have enough fertility to mate,
+      // I do not have enough sexual satisfaction and I'm not pregnant
+      // then I can mate
       if (energy > ENERGY_THRESHOLD
         && preys.lengthCompare(MIN_PREYS_FOR_COUPLING) > 0
         && fertility > FERTILITY_THRESHOLD
@@ -274,24 +323,33 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
         && !pregnantState) {
         targets = partners; action = Couple
       }
+      //If I am in a state of digestion, I do not move except to couple myself.
       if (action.equals(Couple) || (action.equals(Eat) && !digestionState)) {
+        //I communicate my will.
         publish(EntityWill(action))
+        //If I see something related of my will
         if (targets.nonEmpty) {
+          //I communicate that
           publish(UseEyes())
+          //and ask to the decision support the near prey/partner.
           val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
           val entityAttribute = entityInVisualField(entityChoice.name)
-
+          //If the target entity is inside my action field
           if (entityChoice.distance < actionField) {
+            //I do the action,
             me.position = entityAttribute.position
             publish(InteractionEntity(entityAttribute name, action))
             hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
             if (action.equals(Eat)) digestionState = true
-          } else {
+          }
+          //otherwise I move towards the target,
+          else {
             (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
           }
-
+          //and update my position.
           position = Point(me.position.x, me.position.y)
         }
+        //If I don't see anything related of my will
         else {
           position = hippocampus.searchingState match {
             case Inactive =>
@@ -319,7 +377,11 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             Direction(new Random().nextInt(Direction.values.size-1))
           }
 
-
+          /**
+            * It applies the direction to the current position.
+            * @param direction direction to take
+            * @return the updated position
+            */
           def getPosition(direction: Direction): Point = direction match {
             case Direction.UP => (position.x, position.y - floorSpeed)
             case Direction.DOWN => (position.x, position.y + floorSpeed)
@@ -329,11 +391,19 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
           }
         }
       }
+      //In all cases I clean the visual field of the decision support and return the updated position.
       decisionSupport.clearVisualField()
       position
     })
   }
 
-  private def distanceBetween(from: Point, to: Point) : Int = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
+  /**
+    * Calculate the distance between two points.
+    * @param from source point
+    * @param to destination point
+    * @return distance
+    */
+  private def distanceBetween(from: Point, to: Point) : Int =
+    Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2)).toInt
 
 }
