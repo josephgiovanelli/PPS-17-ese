@@ -78,12 +78,17 @@ object AlleleBuilder {
       }
     }
 
+    def checkMandatoryProperties(): Option[CompleteBuildException] = {
+      if(!id.isValid)
+        Some(InvalidParamValueBuildException("Allele: " + id.get, "id", id))
+      else
+        None
+    }
+
     def checkProperties(): Option[CompleteBuildException] = {
-      var exception: Option[CompleteBuildException] = None
+      var exception: Option[CompleteBuildException] = checkMandatoryProperties()
       if(!gene.isValid)
         exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "gene", gene)
-      if(!id.isValid)
-        exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "id", id)
       if(!dominance.inValidRange)
         exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "dominance", dominance)
       if(!consume.inValidRange)

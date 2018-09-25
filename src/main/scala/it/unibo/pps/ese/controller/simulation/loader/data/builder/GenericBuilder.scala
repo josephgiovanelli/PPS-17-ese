@@ -29,13 +29,13 @@ trait GenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends
 }
 
 trait ValidStatusGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P, VS] extends GenericBuilder[S, CS, P, C] {
-  protected def checkProperties(): Option[CompleteBuildException]
+  protected def checkMandatoryProperties(): Option[CompleteBuildException]
   protected def status: TypeTag[S]
   protected def validStatus: TypeTag[VS]
 
   abstract override def build(): P = {
-    if(!(status.tpe <:< validStatus.tpe)) {
-      throw checkProperties().get
+    if(!(status.tpe <:< validStatus.tpe && checkMandatoryProperties().isEmpty)) {
+      throw checkMandatoryProperties().get
     }
     super.build()
   }
