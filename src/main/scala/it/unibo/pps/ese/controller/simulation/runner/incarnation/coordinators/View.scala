@@ -4,13 +4,16 @@ import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAni
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityInfo, EntityState}
 import it.unibo.pps.ese.utils.{Point, Position}
-import it.unibo.pps.ese.view.sections.statistics.ChartsData
 import it.unibo.pps.ese.view.utilities.Entity
 import scalafx.scene.paint.Color
 
 import scala.concurrent.Future
 
 case class EntityDetails(id: String, species: String, position: Position)
+case class ChartsData(populationTrend: Seq[(String, Seq[(Long, Long)])],
+                      populationDistribution: Seq[(String, Long)],
+                      births: Seq[(String, Seq[(Long, Long)])],
+                      mutations: Seq[(String, Seq[(Long, Long)])])
 
 /**
   * Communication interface between View and Controller

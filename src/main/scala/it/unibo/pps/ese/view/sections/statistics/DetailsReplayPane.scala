@@ -7,6 +7,9 @@ import scalafx.scene.layout.{BorderPane, VBox}
 import it.unibo.pps.ese.view.sections.speciesdetails.QualityBoxUtilities._
 import scalafx.geometry.Insets
 
+/**
+  * Pane used to visualize info about the chosen entity's state and actions in the replay section
+  */
 class DetailsReplayPane() extends ScrollPane {
 
   val nameLabel = Label("")

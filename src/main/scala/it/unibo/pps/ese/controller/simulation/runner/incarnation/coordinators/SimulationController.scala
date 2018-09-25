@@ -14,7 +14,6 @@ import it.unibo.pps.ese.model.dataminer.datamodel.ReadOnlyEntityRepository
 import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.core.View
-import it.unibo.pps.ese.view.sections.statistics.ChartsData
 
 import scala.concurrent.{ExecutionContext, Future}
 
