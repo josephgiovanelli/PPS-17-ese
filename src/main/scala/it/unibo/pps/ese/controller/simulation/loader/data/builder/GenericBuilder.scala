@@ -34,7 +34,6 @@ trait ValidStatusGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <:
   protected def validStatus: TypeTag[VS]
 
   abstract override def build(): P = {
-    println("check")
     if(!(status.tpe <:< validStatus.tpe)) {
       throw checkProperties().get
     }

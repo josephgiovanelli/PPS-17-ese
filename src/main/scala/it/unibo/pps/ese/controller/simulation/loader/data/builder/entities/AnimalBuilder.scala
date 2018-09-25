@@ -4,13 +4,14 @@ import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAn
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.GenericBuilder
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{GenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
+import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
 trait AnimalBuilder[T <: EntityStatus] extends EntityBuilder[T] with GenericBuilder[T, FullAnimal, PartialAnimalData, CompleteAnimalData]{
   override type RET[A <: T] = AnimalBuilder[A]
@@ -22,9 +23,18 @@ trait AnimalBuilder[T <: EntityStatus] extends EntityBuilder[T] with GenericBuil
 
 object AnimalBuilder {
 
-  import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
+  def apply(): AnimalBuilder[EmptyEntity] = AnimalBuilder[EmptyEntity](None, None, None, None, None, Seq(), Seq(), Seq())
 
-  def apply(): AnimalBuilder[EmptyEntity] = new AnimalBuilderImpl[EmptyEntity](None, None, None, None, None, Seq(), Seq(), Seq())
+  private def apply[T <: EntityStatus: TypeTag](name: Option[String],
+                                       geneLength: Option[Int],
+                                       alleleLength: Option[Int],
+                                       reign: Option[String],
+                                       typology: Option[String],
+                                       structuralChromosome: Iterable[CustomGeneBuilder[_]],
+                                       regulationChromosome: Iterable[DefaultGeneBuilder[_]],
+                                       sexualChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T] =
+    new AnimalBuilderImpl[T](name, geneLength, alleleLength, reign, typology, structuralChromosome,
+      regulationChromosome, sexualChromosome) with ValidStatusGenericBuilder[T , FullAnimal, PartialAnimalData, CompleteAnimalData, ValidEntity]
 
   private class AnimalBuilderImpl[T <: EntityStatus](name: Option[String],
                                              geneLength: Option[Int],
@@ -38,21 +48,28 @@ object AnimalBuilder {
 
 
     def setTypology(typology: String): AnimalBuilder[T with AnimalWithTypology] =
-      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, Some(typology), structuralChromosome, regulationChromosome,
+      AnimalBuilder(name, geneLength, alleleLength, reign, Some(typology), structuralChromosome, regulationChromosome,
         sexualChromosome)
 
     def addStructuralChromosome(structuralChromosome: Iterable[CustomGeneBuilder[_]]): AnimalBuilder[T with AnimalWithStructChromosome] = {
-      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
+      AnimalBuilder(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
         sexualChromosome)
     }
 
     def addRegulationChromosome(regulationChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T with AnimalWithRegChromosome] = {
-      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
+      AnimalBuilder(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
         sexualChromosome)
     }
 
     def addSexualChromosome(sexualChromosome: Iterable[DefaultGeneBuilder[_]]): AnimalBuilder[T with AnimalWithSexChromosome] = {
-      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
+      AnimalBuilder(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
+        sexualChromosome)
+    }
+
+    override def newInstance[NT <: EntityStatus](name: Option[String], geneLength: Option[Int],
+                                                 alleleLength: Option[Int], reign: Option[String])
+                                                (implicit tt: TypeTag[NT]): AnimalBuilder[NT] = {
+      AnimalBuilder(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
         sexualChromosome)
     }
 
@@ -60,12 +77,13 @@ object AnimalBuilder {
       status.tpe match {
         case t if t <:< typeOf[FullAnimal] =>
           val check = checkComplete()
-          if(check._1.isEmpty) {
+          val exception = checkProperties ++: check._1
+          if(exception.isEmpty) {
             val ret: CompleteAnimalData = new AnimalDataImpl[CompleteCustomGeneData, CompleteDefaultGeneData](name.get, geneLength, alleleLength,
               reign, typology, check._2, check._3, check._4) with CompleteAnimalData
             Success(ret)
           } else {
-            Failure(check._1.get)
+            Failure(exception.get)
           }
         case t if t <:< typeOf[ValidEntity] =>
           Failure(CompleteBuildException("Animal: " + name + "must have all fields set"))
@@ -73,7 +91,6 @@ object AnimalBuilder {
     }
 
     def build(): PartialAnimalData = {
-      //require(status.tpe <:< st.tpe)
       tryCompleteBuild() match {
         case Success(value) =>
           value
@@ -91,17 +108,11 @@ object AnimalBuilder {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All structural chromosome's genes must be complete",
           structTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
-      if(!structuralChromosome.isValid) {
-        exception = exception ++: InvalidParamValueBuildException("Animal " + name ,"structural Chromosome", structuralChromosome)
-      }
       val regTries: Iterable[Try[CompleteDefaultGeneData]] = regulationChromosome.map(_.tryCompleteBuild())
       val reg: Iterable[CompleteDefaultGeneData] = regTries.collect({case Success(value) => value})
       if(reg.size != regulationChromosome.size) {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All regulation chromosome's genes must be complete",
           regTries.collect({case Failure(value: CompleteBuildException) => value}))
-      }
-      if(!regulationChromosome.isValid) {
-        exception = exception ++: InvalidParamValueBuildException("Animal " + name ,"Regulation Chromosome", regulationChromosome)
       }
       val sexTries: Iterable[Try[CompleteDefaultGeneData]] = sexualChromosome.map(_.tryCompleteBuild())
       val sex: Iterable[CompleteDefaultGeneData] = sexTries.collect({case Success(value) => value})
@@ -109,17 +120,20 @@ object AnimalBuilder {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All sexual chromosome's genes must be complete",
           sexTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
-      if(!sexualChromosome.isValid) {
-        exception = exception ++: InvalidParamValueBuildException("Animal " + name ,"Sexual Chromosome", sexualChromosome)
-      }
       (exception, struct, reg, sex)
     }
 
-    override def newInstance[NT <: EntityStatus](name: Option[String], geneLength: Option[Int],
-                                                 alleleLength: Option[Int], reign: Option[String])
-                                                (implicit tt: TypeTag[NT]): AnimalBuilder[NT] = {
-      new AnimalBuilderImpl(name, geneLength, alleleLength, reign, typology, structuralChromosome, regulationChromosome,
-        sexualChromosome)
+    override def checkProperties: Option[CompleteBuildException] = {
+      var exception = super.checkProperties
+      if(!typology.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "typology", typology)
+      if(!structuralChromosome.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "structuralChromosome", structuralChromosome)
+      if(!regulationChromosome.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "regulationChromosome", regulationChromosome)
+      if(!sexualChromosome.isValid)
+        exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "sexualChromosome", sexualChromosome)
+      exception
     }
   }
 

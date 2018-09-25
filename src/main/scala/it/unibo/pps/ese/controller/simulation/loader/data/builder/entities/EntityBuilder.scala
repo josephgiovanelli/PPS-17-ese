@@ -1,12 +1,14 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuilderStatus
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BuilderStatus, NotBuildableBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus.{EntityWithAlleleLength, EntityWithGeneLength, EntityWithReign, PlantWithHardness, PlantWithNutritionalValue, _}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 
 import scala.reflect.runtime.universe._
+import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
+import it.unibo.pps.ese.utils.DefaultValidable.ValidableInsideRange._
 
-trait EntityBuilder[S <: EntityStatus] { self =>
+trait EntityBuilder[S <: EntityStatus] extends NotBuildableBuilder[S] {
   type RET[A <: S] <: EntityBuilder[A]
   def setName(name: String): RET[S with EntityWithName]
   def setGeneLength(geneLength: Int): RET[S with EntityWithGeneLength]
@@ -18,7 +20,7 @@ trait EntityBuilder[S <: EntityStatus] { self =>
 abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
                                                    geneLength: Option[Int],
                                                    alleleLength: Option[Int],
-                                                   reign: Option[String])(implicit private val test: TypeTag[S]) extends EntityBuilder[S]{
+                                                   reign: Option[String])(implicit private val test: TypeTag[S], val validStatus: TypeTag[ValidEntity]) extends EntityBuilder[S]{
 
   def setName(name: String): RET[S with EntityWithName] =
     newInstance(Some(name), geneLength, alleleLength, reign)
@@ -34,6 +36,19 @@ abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
 
   def newInstance[NT <: S](name: Option[String], geneLength: Option[Int], alleleLength: Option[Int],
                                       reign: Option[String])(implicit tt: TypeTag[NT]): RET[NT]
+
+  protected def checkProperties: Option[CompleteBuildException] = {
+    var exception: Option[CompleteBuildException] = None
+    if(!name.isValid)
+      exception = exception ++: InvalidParamValueBuildException("Entity " + name.getOrElse(""), "name", name)
+    if(!geneLength.inValidRange)
+      exception = exception ++: InvalidParamValueBuildException("Entity " + name.getOrElse(""), "geneLength", geneLength)
+    if(!alleleLength.inValidRange)
+      exception = exception ++: InvalidParamValueBuildException("Entity " + name.getOrElse(""), "alleleLength", alleleLength)
+    if(!reign.isValid)
+      exception = exception ++: InvalidParamValueBuildException("Entity " + name.getOrElse(""), "reign", reign)
+    exception
+  }
 }
 
 sealed trait EntityStatus extends BuilderStatus
