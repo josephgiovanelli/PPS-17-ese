@@ -9,6 +9,10 @@ import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.{EntityKi
 import it.unibo.pps.ese.model.components.animals.trackers.EmbryoStatus
 import it.unibo.pps.ese.utils.Point
 
+/**
+  * This implicit classes are used to enrich the EntityInfo class and obtain strong typed data from it.
+  * This is necessary because on dynamic objects data is stored under Object interface.
+  */
 object EntityInfoConversion {
 
   implicit class ExampleComponentConversions(obj: EntityInfo) {

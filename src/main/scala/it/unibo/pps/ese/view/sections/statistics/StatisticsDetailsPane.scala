@@ -1,9 +1,8 @@
 package it.unibo.pps.ese.view.sections.statistics
 
+import it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.ChartsData
 import javafx.application.Platform
-
 import it.unibo.pps.ese.view.core.MainComponent
-
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry._
 import scalafx.scene.chart._
@@ -11,19 +10,34 @@ import scalafx.scene.control.{Button, ComboBox, ScrollPane}
 import scalafx.scene.layout._
 import scalafx.Includes._
 import scalafx.scene.paint.Color
+
 import scala.concurrent.ExecutionContext
 
-case class ChartsData(populationTrend: Seq[(String, Seq[(Long, Long)])],
-                      populationDistribution: Seq[(String, Long)],
-                      births: Seq[(String, Seq[(Long, Long)])],
-                      mutations: Seq[(String, Seq[(Long, Long)])])
-
+/**
+  * Pane used to visualize statistical data about the running simulation
+  */
 sealed trait StatisticsDetailsPane extends BorderPane {
+
+  /**
+    * Render the statistical charts
+    * @param chartsData The data to visualize
+    */
   def initializeCharts(chartsData: ChartsData)
+
+  /**
+    * Show the available eras analyzable with the replay function
+    * @param era Available eras
+    */
   def populateEraDropdown(era: Seq[Long])
 }
+
 object StatisticsDetailsPane {
 
+  /**
+    * @param mainComponent Component required for controller communication
+    * @param executionContext An execution context, required for async tasks
+    * @return A StatisticsDetailsPane instance
+    */
   def apply(mainComponent: MainComponent)
            (implicit executionContext: ExecutionContext):StatisticsDetailsPane =
     new WebBasedStatisticsDetailsPane(mainComponent)

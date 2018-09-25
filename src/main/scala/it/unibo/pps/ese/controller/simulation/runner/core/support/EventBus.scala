@@ -7,18 +7,59 @@ import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success}
 
+/**
+  * Public APIs of a basic event bus implementation
+  */
 sealed trait EventBus {
+
+  /**
+    * Send an event on the bus
+    * @param event The event to be sent
+    */
   def send(event: IdentifiedEvent): Unit
+
+  /**
+    * Attach a listener for the events of the bus
+    * @param e The listener to be registered
+    */
   def attach(e: Consumer): Unit
+
+  /**
+    * Detach a registered listener
+    * @param consumer The listner to detach
+    */
   def detach(consumer: Consumer): Unit
+
+  /**
+    * Notify the bus that a side affect related to a served event has commence
+    */
   def notifyNewTaskStart(): Unit
+
+  /**
+    * Notify the bus that a side affect related to a served event has ended
+    */
   def notifyNewTaskEnd(): Unit
+
+  /**
+    * Require the bus to be notified when all events are served and all the associated side effects completed
+    * their execution
+    * @return A future that will be completed on tasks end
+    */
   def notifyOnTasksEnd(): Future[Done]
 }
 
 object EventBus {
+  /*
+    * @param executionContext An execution context, required for async tasks
+    * @return An EventBus instance
+    */
   def apply()(implicit executionContext: ExecutionContext): EventBus = new PriorityEventBus()
 
+  /**
+    * In this implementation of the EventBus trait all event are served asynchronously and in respect
+    * of their priority
+    * @param executionContext
+    */
   private class PriorityEventBus()(implicit executionContext: ExecutionContext) extends EventBus {
 
     case class EventInfo(event: Event, f: Event => Unit) {

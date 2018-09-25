@@ -4,6 +4,11 @@ import it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.Re
 import scalafx.scene.Scene
 import scalafx.stage.Stage
 
+/**
+  * Window where chosen entity's replay data are shown
+  * @param replayTarget The entity identifier
+  * @param replayController The ReplayController from which fetch data
+  */
 class ReplayStage(replayTarget: String, replayController: ReplayController) extends Stage {
 
   outer =>

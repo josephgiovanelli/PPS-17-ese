@@ -86,7 +86,8 @@ case class PlantReproductionComponent(override val entitySpecifications: EntityS
         result onComplete {
           //If everything has been successful, reproduction is simulated.
           case Success(data) =>
-            val entities: Set[Entity] = distinctRandomPoints(plantsGrown, currentInseminationRadius, currentInseminationRadius)
+            import it.unibo.pps.ese.controller.simulation.runner.core.support.RandomHelper._
+            val entities: Set[Entity] = Random.distinctRandomPoints(plantsGrown, currentInseminationRadius, currentInseminationRadius)
               .map(point => initializeEntity(geneticsSimulator.newPlant(data.species), Point(point.x + data.position.x, point.y + data.position.y)))
             publish(Create(entities))
           case Failure(error) => throw error

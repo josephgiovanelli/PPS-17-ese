@@ -14,34 +14,115 @@ import it.unibo.pps.ese.model.dataminer.datamodel.ReadOnlyEntityRepository
 import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
 import it.unibo.pps.ese.utils.Point
 import it.unibo.pps.ese.view.core.View
-import it.unibo.pps.ese.view.sections.statistics.ChartsData
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * This Trait contains the main APIs necessary to manage and query a running Simulation
+  */
 trait SimulationController {
+  /**
+    * Register a view module to be notified with simulation data for visualization purposes
+    * @param view The View to be registered
+    * @param frameRate Simulation data sample period. This value determines how fast the controller
+    *                  will notify the attached View with the Simulation data
+    */
   def attachView(view: View, frameRate: Int): Unit
+
+  /**
+    * Get a manageable interface for the running simulation.
+    * @return A ManageableController instance
+    */
   def manage: ManageableController
+
+  /**
+    * Get a queryable interface for the running simulation.
+    * @return A ManageableController instance
+    */
   def query: QueryableController
 }
+
+/**
+  * This Trait contains APIs related to simulation lifecycle management
+  */
 trait ManageableController {
+
+  /**
+    * Run the target simulation
+    */
   def play(): Unit
+
+  /**
+    * Pause the target simulation
+    */
   def pause(): Unit
+
+  /**
+    * Dispose the target simulation
+    */
   def exit(): Unit
+
+
   def add(animals: Map[String, Int], plants: Map[String, Int],
           newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
+
+  /**
+    * Check if the target simulation is running
+    * @return True if the simulation is running, false otherwise
+    */
   def isPlaying: Boolean
+
+  /**
+    * Check if the target simulation has been disposed
+    * @return True if the simulation has been disposed, false otherwise
+    */
   def isStopped: Boolean
 }
+
+/**
+  * This Trait contains APIs related to simulation data interrogation
+  */
 trait QueryableController {
+
+  /**
+    * Get info about selected entity
+    * @param id The entity identifier
+    * @return Entity's info if available
+    */
   def entityData(id: String): Option[EntityState]
+
   def watch(entity: String): Unit
+
   def unwatch(): Unit
+
+  /**
+    * Get statistical data about the running simulation
+    * @return A future that will be completed with the requested data
+    */
   def historicalData(): Future[ChartsData]
+
+  /**
+    * Get a list of the eras already calculated by the running simulation
+    * @return A Future that will be completed with the requested data
+    */
   def simulationEras(): Future[Seq[Long]]
+
+  /**
+    * Get a list of the entities who were alive in the selected era
+    * @return A Future that will be completed with the requested data
+    */
   def entitiesInEra(era: Long): Future[Seq[String]]
+
+  /**
+    * Get a new instance of the ReplayController trait, necessary to replay an entity's life
+    * @return A ReplayController instance
+    */
   def replay: ReplayController
 }
 
+/**
+  * ManageableController trait implementation
+  */
 trait BaseManageableController extends ManageableController {
 
   implicit val executionContext: ExecutionContext
@@ -84,6 +165,9 @@ trait BaseManageableController extends ManageableController {
   def isStopped: Boolean = _stop
 }
 
+/**
+  * QueryableController trait implementation
+  */
 trait BaseQueryableController extends QueryableController {
 
   implicit val executionContext: ExecutionContext
@@ -122,6 +206,9 @@ trait BaseQueryableController extends QueryableController {
   def replay: ReplayController = ReplayController(consolidatedState)
 }
 
+/**
+  * SimulationController trait implementation
+  */
 trait SingleViewController extends SimulationController with BaseManageableController with BaseQueryableController {
 
   private[this] val surgeon = Surgeon(realTimeState)
@@ -166,6 +253,13 @@ trait SingleViewController extends SimulationController with BaseManageableContr
 
 object SimulationController {
 
+  /**
+    * @param simulation The Simulation to be managed
+    * @param realTimeState The real time data source
+    * @param consolidatedState The historical data source
+    * @param executionContext An execution context, required for async tasks
+    * @return A SimulationController instance
+    */
   def apply(simulation: SimulationLoop, realTimeState: ReadOnlyEntityState, consolidatedState: ReadOnlyEntityRepository)
            (implicit executionContext: ExecutionContext): SimulationController =
     BaseController(simulation, realTimeState, consolidatedState)
