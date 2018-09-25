@@ -123,6 +123,9 @@ case class PhysicalStatusComponent(override val entitySpecifications: EntitySpec
     DynamicPhysicalStatusInfo(currentYear, currentEnergy, currentPhase, currentSpeed, currentFertility)
   }
 
+  /**
+    * Method by which events are received and the brain specifies the reaction to them.
+    */
   private def subscribeEvents(): Unit = {
     subscribe {
       /*
