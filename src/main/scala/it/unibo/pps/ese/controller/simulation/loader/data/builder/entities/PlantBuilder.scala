@@ -22,7 +22,7 @@ object PlantBuilder {
   def apply(): PlantBuilder[EmptyEntity] =
     new PlantBuilderImpl[EmptyEntity](None, None, None, None, None, None, None)
 
-  private class PlantBuilderImpl[T <: EntityStatus] (height: Option[Double],
+  private[this] class PlantBuilderImpl[T <: EntityStatus] (height: Option[Double],
                                                     nutritionalValue: Option[Double],
                                                     hardness: Option[Double],
                                                     name: Option[String],
@@ -81,8 +81,7 @@ object PlantBuilder {
     override protected def buildPartialInstance(): PartialPlantData =
       PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength, alleleLength, reign)
   }
-
-  private case class PlantDataImpl(getHeight: Option[Double],
+  private[this] case class PlantDataImpl(getHeight: Option[Double],
                                    getNutritionalValue: Option[Double],
                                    getHardness: Option[Double],
                                    name: String,

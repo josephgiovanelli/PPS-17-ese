@@ -107,7 +107,7 @@ object AlleleBuilder {
       with AlleleWithProbability with AlleleWithEffect
   }
 
-  private class AlleleDataImpl(val getGene: Option[String],
+  private[this] class AlleleDataImpl(val getGene: Option[String],
                                val id: String,
                                val getDominance: Option[Double],
                                val getConsume: Option[Double],

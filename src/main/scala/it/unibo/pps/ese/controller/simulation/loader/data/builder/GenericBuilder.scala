@@ -6,13 +6,22 @@ import it.unibo.pps.ese.utils.{DefaultRange, DefaultValue, InclusiveDefaultRange
 import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
 
+object BuildersValidationImplicits {
+  implicit val int: DefaultRange[Int] = InclusiveDefaultRange(0, 100)
+  implicit val double: DefaultRange[Double] = InclusiveDefaultRange(0, 100)
+  implicit val string: DefaultValue[String] = DefaultValue("")
+  implicit def iterable[X]: DefaultValue[Iterable[X]] = DefaultValue(Iterable[X]())
+  implicit def seq[X]: DefaultValue[Seq[X]] = DefaultValue(Seq[X]())
+  implicit def map[X, Y]: DefaultValue[Map[X, Y]] = DefaultValue(Map[X, Y]())
+}
+
 trait NotBuildableBuilder[S <: BuilderStatus] {
-  protected implicit val int: DefaultRange[Int] = InclusiveDefaultRange(0, 100)
-  protected implicit val double: DefaultRange[Double] = InclusiveDefaultRange(0, 100)
-  protected implicit val string: DefaultValue[String] = DefaultValue("")
-  protected implicit def iterable[X]: DefaultValue[Iterable[X]] = DefaultValue(Iterable[X]())
-  protected implicit def seq[X]: DefaultValue[Seq[X]] = DefaultValue(Seq[X]())
-  protected implicit def map[X, Y]: DefaultValue[Map[X, Y]] = DefaultValue(Map[X, Y]())
+  implicit val int: DefaultRange[Int] = BuildersValidationImplicits.int
+  implicit val double: DefaultRange[Double] = BuildersValidationImplicits.double
+  implicit val string: DefaultValue[String] = BuildersValidationImplicits.string
+  implicit def iterable[X]: DefaultValue[Iterable[X]] = BuildersValidationImplicits.iterable
+  implicit def seq[X]: DefaultValue[Seq[X]] = BuildersValidationImplicits.seq
+  implicit def map[X, Y]: DefaultValue[Map[X, Y]] = BuildersValidationImplicits.map
 }
 
 trait GenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends NotBuildableBuilder[S] {

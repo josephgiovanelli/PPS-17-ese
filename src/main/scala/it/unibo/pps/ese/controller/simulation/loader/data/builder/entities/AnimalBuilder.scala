@@ -25,7 +25,7 @@ object AnimalBuilder {
 
   def apply(): AnimalBuilder[EmptyEntity] = new AnimalBuilderImpl[EmptyEntity](None, None, None, None, None, Seq(), Seq(), Seq())
 
-  private class AnimalBuilderImpl[T <: EntityStatus](name: Option[String],
+  private[this] class AnimalBuilderImpl[T <: EntityStatus](name: Option[String],
                                              geneLength: Option[Int],
                                              alleleLength: Option[Int],
                                              reign: Option[String],

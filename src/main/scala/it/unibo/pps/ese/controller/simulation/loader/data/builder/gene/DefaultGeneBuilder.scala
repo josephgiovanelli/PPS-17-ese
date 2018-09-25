@@ -3,14 +3,14 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.gene
 import it.unibo.pps.ese.controller.simulation.loader
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.{DefaultGeneData, PartialAlleleData}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BaseBuildableGenericBuilder, BuilderStatus, ValidStatusGenericBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.GeneStatus.{DefaultGene, DefaultGeneTemplate, EmptyGene, ValidGene}
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
-trait DefaultGeneBuilder[S <: GeneStatus] extends BuildableGeneBuilder[S, DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData] {
+trait DefaultGeneBuilder[S <: GeneStatus] extends GenericGeneBuilder[S] with GenericBuilder[S, DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData] {
   type RET[A <: S] = DefaultGeneBuilder[A]
   def setDefaultInfo(defaultGene: it.unibo.pps.ese.controller.simulation.loader.DefaultGene): DefaultGeneBuilder[S with DefaultGeneTemplate]
 }
@@ -58,9 +58,9 @@ object DefaultGeneBuilder {
   }
 
   private[gene] class DefaultGeneDataImpl[A <: PartialAlleleData](override val getId: Option[String],
-                                                    override val name: String,
-                                                    _getProperties: Map[String, Class[_]],
-                                                    _getAlleles: Iterable[A]) extends DefaultGeneData[A] {
+                                                                  override val name: String,
+                                                                  _getProperties: Map[String, Class[_]],
+                                                                  _getAlleles: Iterable[A]) extends DefaultGeneData[A] {
     override val getProperties: Option[Map[String, Class[_]]] = if(_getProperties.isEmpty) None else Some(_getProperties)
     //TODO to set?????
     override val getAlleles: Option[Set[A]] = if(_getAlleles.isEmpty) None else Some(_getAlleles.toSet)

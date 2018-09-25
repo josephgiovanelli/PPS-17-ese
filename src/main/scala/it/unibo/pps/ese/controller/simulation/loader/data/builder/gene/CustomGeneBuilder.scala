@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.gene
 import it.unibo.pps.ese.controller.simulation.loader.beans.PropertyInfo
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.{CustomGeneData, PartialAlleleData}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BaseBuildableGenericBuilder, ValidStatusGenericBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BaseBuildableGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.DefaultGeneBuilder.DefaultGeneDataImpl
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.GeneStatus._
@@ -12,7 +12,7 @@ import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
-trait CustomGeneBuilder[S <: GeneStatus] extends BuildableGeneBuilder[S, CustomGene, PartialCustomGeneData, CompleteCustomGeneData] {
+trait CustomGeneBuilder[S <: GeneStatus] extends GenericGeneBuilder[S] with GenericBuilder[S, CustomGene, PartialCustomGeneData, CompleteCustomGeneData] {
   type RET[A <: S] = CustomGeneBuilder[A]
   def setCustomProperties(properties: Map[String, PropertyInfo]): CustomGeneBuilder[S with GeneWithProperties with GeneWithConversionMap]
   def addConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[S with GeneWithConversionMap]

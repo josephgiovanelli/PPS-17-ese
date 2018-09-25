@@ -17,7 +17,7 @@ trait EntityBuilder[S <: EntityStatus] extends NotBuildableBuilder[S] {
   def status: TypeTag[S]
 }
 
-abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
+private[entities] abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
                                                    geneLength: Option[Int],
                                                    alleleLength: Option[Int],
                                                    reign: Option[String])(implicit private val test: TypeTag[S], val validStatus: TypeTag[ValidEntity]) extends EntityBuilder[S]{

@@ -19,14 +19,11 @@ trait GenericGeneBuilder[S <: GeneStatus] extends NotBuildableBuilder[S] { self 
   def status: TypeTag[S]
 }
 
-trait BuildableGeneBuilder[S <: GeneStatus, CS <: GeneStatus, P <: PartialGeneData, C <: P]
-  extends GenericGeneBuilder[S] with GenericBuilder[S, CS, P, C]
-
-abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
+private[gene] abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                name: Option[String],
                                                properties: Map[String, Class[_]],
                                                alleles: Iterable[AlleleBuilder[_]])
-                                                      (implicit private val test: TypeTag[T], val validStatus: TypeTag[ValidGene])
+                                               (implicit private val test: TypeTag[T], val validStatus: TypeTag[ValidGene])
                                                extends GenericGeneBuilder[T] { self =>
 
   def setId(id: String): RET[T with GeneWithId] =
