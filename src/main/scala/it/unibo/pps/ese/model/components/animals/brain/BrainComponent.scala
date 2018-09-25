@@ -22,7 +22,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 /**
-  * Event with which inform the rest of the world of BrainComponent state.
+  * Event with which inform the rest of the world of [[BrainComponent]] state.
   * @param strength the strength quality of the entity in subject
   * @param actionField the action field of the entity in subject
   * @param visualField the visual field of the entity in subject
