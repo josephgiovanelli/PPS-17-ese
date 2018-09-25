@@ -25,7 +25,7 @@ sealed trait SpeciesUtilities{
     * @param n
     * @return
     */
-  def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal
+  def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal)
 
   /**
     * Translate the genome of an Animal
