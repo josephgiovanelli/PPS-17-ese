@@ -63,9 +63,8 @@ object DefaultGeneBuilder {
                                                                   _getAlleles: Iterable[A]) extends DefaultGeneData[A] {
     import BuildersValidationImplicits._
 
-    override val getProperties: Option[Map[String, Class[_]]] = if(_getProperties.isEmpty) None else Some(_getProperties)
-    //TODO to set?????
-    override val getAlleles: Option[Set[A]] = if(_getAlleles.isEmpty) None else Some(_getAlleles.toSet)
+    override val getProperties: Option[Map[String, Class[_]]] = _getProperties.boxToValidOption()
+    override val getAlleles: Option[Iterable[A]] = _getAlleles.boxToValidOption()
     override def getId: Option[String] = _getId.normalize()
   }
 }

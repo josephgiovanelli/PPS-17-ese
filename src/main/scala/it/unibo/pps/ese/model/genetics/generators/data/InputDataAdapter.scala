@@ -30,7 +30,7 @@ private[genetics] object InputDataAdapter {
         override def conversionMap: Map[String, Map[String, Double]] = Map(dgd.name->Map(dgd.name->1.0))
         override def id: String = dgd.id
 
-        override def name: String = dgd.name
+        override val name: String = dgd.name
 
         override def properties: Map[String, Class[_]] = dgd.properties
 

@@ -1,12 +1,26 @@
 package it.unibo.pps.ese.controller.simulation.loader.data
 
 trait PartialAlleleData {
+  val id: String
   def getGene: Option[String]
-  def id: String
   def getDominance: Option[Double]
   def getConsume: Option[Double]
   def getProbability: Option[Double]
   def getEffect: Option[Map[String, Double]]
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[PartialAlleleData]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: PartialAlleleData =>
+      (that canEqual this) &&
+        id == that.id
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(id)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 trait CompleteAlleleData extends PartialAlleleData {

@@ -123,7 +123,7 @@ object YamlLoader extends Loader {
           loadAlleles(f)
       }
     }
-    //TODO check no wrong alleles
+
     chromosomeData.names.getOrElse(Seq()).toSeq.map({
       case (k, v) =>
         var builder: DefaultGeneBuilder[_] = DefaultGeneBuilder()

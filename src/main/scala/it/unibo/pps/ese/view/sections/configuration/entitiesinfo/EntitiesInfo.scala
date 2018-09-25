@@ -304,7 +304,7 @@ object EntitiesInfo {
       structuralChromosome.map(customGene => customGene.name -> customChromosomeMapping(customGene)).toMap
 
     private def defaultChromosomeMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes): DefaultChromosomeInfo =
-      DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.getAlleles.getOrDefault))
+      DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.getAlleles.getOrDefault.toSet))
 
     private def customChromosomeMapping(customGene: PartialCustomGeneData): CustomChromosomeInfo =
       CustomChromosomeInfo(customGeneInfoMapping(customGene), allelesMapping(customGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))

@@ -14,7 +14,6 @@ object GeneticsEngine {
   def apply(geneticsSimulator: GeneticsSimulator, mutationProb: Double): GeneticsEngine =
     new GeneticsEngineImpl(geneticsSimulator, mutationProb)
 
-  //TODO clever way?
   private[this] class GeneticsEngineImpl(private val geneticsSimulator: GeneticsSimulator, override val mutationProb: Double) extends GeneticsEngine {
     def getAnimalInfoByGenome(species: String, childGenome: AnimalGenome): AnimalInfo = geneticsSimulator.getAnimalInfoByGenome(species, childGenome)
     def obtainMutantAlleles(species: String, gene: MGene): Iterable[MGene] = geneticsSimulator.obtainMutantAlleles(species, gene)
