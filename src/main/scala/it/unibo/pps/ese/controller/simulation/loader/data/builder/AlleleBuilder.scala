@@ -22,12 +22,7 @@ sealed trait AlleleBuilder[T <: AlleleStatus] extends GenericBuilder[T, FullAlle
 
 object AlleleBuilder {
 
-  def apply(): AlleleBuilder[EmptyAllele] = AlleleBuilder[EmptyAllele](None, None, None, None, None, Map())
-
-  private def apply[T <: AlleleStatus: TypeTag](gene: Option[String], id: Option[String], dominance: Option[Double], consume: Option[Double], probability: Option[Double],
-    effect: Map[String, Double]): AlleleBuilder[T] =
-      new AlleleBuilderImpl[T](gene, id, dominance, consume, probability, effect)
-        with ValidStatusGenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData, ValidAllele]
+  def apply(): AlleleBuilder[EmptyAllele] = new AlleleBuilderImpl[EmptyAllele](None, None, None, None, None, Map())
 
   private class AlleleBuilderImpl[T <: AlleleStatus](val gene: Option[String],
                                   id: Option[String],
@@ -35,25 +30,26 @@ object AlleleBuilder {
                                   consume: Option[Double],
                                   probability: Option[Double],
                                   effect: Map[String, Double])
-                                  (implicit val status: TypeTag[T], val validStatus: TypeTag[ValidAllele]) extends AlleleBuilder[T] {
+                                  (implicit val status: TypeTag[T], val validStatus: TypeTag[ValidAllele])
+    extends AlleleBuilder[T] with BaseBuildableGenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData] {
 
     def setGene(gene: String): AlleleBuilder[T with AlleleWithGene] =
-      AlleleBuilder(Some(gene), id, dominance, consume, probability, effect)
+      new AlleleBuilderImpl(Some(gene), id, dominance, consume, probability, effect)
 
     def setId(id: String): AlleleBuilder[T with AlleleWithId] =
-      AlleleBuilder(gene, Some(id), dominance, consume, probability, effect)
+      new AlleleBuilderImpl(gene, Some(id), dominance, consume, probability, effect)
 
     def setDominance(dominance: Double): AlleleBuilder[T with AlleleWithDominance] =
-      AlleleBuilder(gene, id, Some(dominance), consume, probability, effect)
+      new AlleleBuilderImpl(gene, id, Some(dominance), consume, probability, effect)
 
     def setConsume(consume: Double): AlleleBuilder[T with AlleleWithConsume] =
-      AlleleBuilder(gene, id, dominance, Some(consume), probability, effect)
+      new AlleleBuilderImpl(gene, id, dominance, Some(consume), probability, effect)
 
     def setProbability(probability: Double): AlleleBuilder[T with AlleleWithProbability] =
-      AlleleBuilder(gene, id, dominance, consume, Some(probability), effect)
+      new AlleleBuilderImpl(gene, id, dominance, consume, Some(probability), effect)
 
     def setEffect(effect: Map[String, Double]): AlleleBuilder[T with AlleleWithEffect] =
-      AlleleBuilder(gene, id, dominance, consume, probability, effect)
+      new AlleleBuilderImpl(gene, id, dominance, consume, probability, effect)
 
     def tryCompleteBuild(): Try[CompleteAlleleData] = {
       status.tpe match {
@@ -66,15 +62,6 @@ object AlleleBuilder {
           }
         case _ =>
           Failure(CompleteBuildException("Allele " + id + " must have all fields"))
-      }
-    }
-
-    def build(): PartialAlleleData = {
-      tryCompleteBuild() match {
-        case Success(value) =>
-          value
-        case Failure(_) =>
-          new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect)
       }
     }
 
@@ -98,6 +85,10 @@ object AlleleBuilder {
       if(!effect.isValid())
         exception = exception ++: InvalidParamValueBuildException("Allele: " + id.get, "effect", effect)
       exception
+    }
+
+    override protected def buildPartialInstance(): PartialAlleleData = {
+      new AlleleDataImpl(gene, id.get, dominance, consume, probability, effect)
     }
   }
 

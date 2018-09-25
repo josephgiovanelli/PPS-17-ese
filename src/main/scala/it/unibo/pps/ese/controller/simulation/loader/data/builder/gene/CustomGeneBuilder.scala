@@ -3,7 +3,7 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.gene
 import it.unibo.pps.ese.controller.simulation.loader.beans.PropertyInfo
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.{CustomGeneData, PartialAlleleData}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, ValidStatusGenericBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BaseBuildableGenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.DefaultGeneBuilder.DefaultGeneDataImpl
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.GeneStatus._
@@ -20,14 +20,7 @@ trait CustomGeneBuilder[S <: GeneStatus] extends BuildableGeneBuilder[S, CustomG
 
 object CustomGeneBuilder {
 
-  def apply(): CustomGeneBuilder[EmptyGene] = CustomGeneBuilder[EmptyGene](None, None, Map(), Iterable(), Map())
-
-  private def apply[T <: GeneStatus: TypeTag](id: Option[String],
-                                              name: Option[String],
-                                              properties: Map[String, Class[_]],
-                                              alleles: Iterable[AlleleBuilder[_]],
-                                              conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[T] =
-    new CustomGeneBuilderImpl[T](id, name, properties, alleles, conversionMap) with ValidStatusGenericBuilder[T , CustomGene, PartialCustomGeneData, CompleteCustomGeneData, ValidGene]
+  def apply(): CustomGeneBuilder[EmptyGene] = new CustomGeneBuilderImpl[EmptyGene](None, None, Map(), Iterable(), Map())
 
   private[this] class CustomGeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                name: Option[String],
@@ -35,21 +28,22 @@ object CustomGeneBuilder {
                                                alleles: Iterable[AlleleBuilder[_]],
                                                conversionMap: Map[String, Map[String, Double]])
                                               (implicit val status: TypeTag[T])
-    extends GenericGeneBuilderImpl[T](id, name, properties, alleles) with CustomGeneBuilder[T] { self =>
+    extends GenericGeneBuilderImpl[T](id, name, properties, alleles) with CustomGeneBuilder[T]
+      with BaseBuildableGenericBuilder[T , CustomGene, PartialCustomGeneData, CompleteCustomGeneData]
+      with ValidStatusGenericBuilder[T , CustomGene, PartialCustomGeneData, CompleteCustomGeneData, ValidGene] {
 
     override def newInstance[NT <: GeneStatus](id: Option[String], name: Option[String], properties: Map[String, Class[_]],
                                                alleles: Iterable[AlleleBuilder[_]])(implicit tt: TypeTag[NT]): CustomGeneBuilder[NT] = {
-      CustomGeneBuilder[NT](id, name, properties, alleles, conversionMap)
+      new CustomGeneBuilderImpl[NT](id, name, properties, alleles, conversionMap)
     }
 
-    override def build(): PartialCustomGeneData = {
-      tryCompleteBuild() match {
-        case Success(value) =>
-          value
-        case Failure(_) =>
-          new CustomGeneDataImpl(id, name.get, properties, alleles.map(_.build()), conversionMap)
-      }
+    override def setCustomProperties(properties: Map[String, PropertyInfo]): CustomGeneBuilder[T with GeneWithProperties with GeneWithConversionMap] = {
+      new CustomGeneBuilderImpl(id, name, properties.keySet.map((_, classOf[Double])).toMap, alleles,
+        properties.map({case (k,v) => (k, v.conversionMap)}))
     }
+
+    override def addConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[T with GeneWithConversionMap] =
+      new CustomGeneBuilderImpl(id, name, properties, alleles, conversionMap)
 
     override def tryCompleteBuild(): Try[CompleteCustomGeneData] = {
       status.tpe match {
@@ -66,20 +60,15 @@ object CustomGeneBuilder {
       }
     }
 
-    override def setCustomProperties(properties: Map[String, PropertyInfo]): CustomGeneBuilder[T with GeneWithProperties with GeneWithConversionMap] = {
-      CustomGeneBuilder(id, name, properties.keySet.map((_, classOf[Double])).toMap, alleles,
-        properties.map({case (k,v) => (k, v.conversionMap)}))
-    }
-
-    override def addConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[T with GeneWithConversionMap] =
-      CustomGeneBuilder(id, name, properties, alleles, conversionMap)
-
     override def checkProperties: Option[CompleteBuildException] = {
       var exception = super.checkProperties
       if(!conversionMap.isValid())
         exception = exception ++: InvalidParamValueBuildException("Gene: " + name.get, "conversion map", conversionMap)
       exception
     }
+
+    override protected def buildPartialInstance(): PartialCustomGeneData =
+      new CustomGeneDataImpl(id, name.get, properties, alleles.map(_.build()), conversionMap)
   }
 
   private[this] class CustomGeneDataImpl[A <: PartialAlleleData](_id: Option[String],

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.simulation.loader.data._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{GenericBuilder, ValidStatusGenericBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseBuildableGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 
@@ -20,17 +20,7 @@ trait PlantBuilder [T <: EntityStatus] extends EntityBuilder[T] with GenericBuil
 object PlantBuilder {
 
   def apply(): PlantBuilder[EmptyEntity] =
-    PlantBuilder[EmptyEntity](None, None, None, None, None, None, None)
-
-  private def apply[T <: EntityStatus: TypeTag](height: Option[Double],
-                    nutritionalValue: Option[Double],
-                    hardness: Option[Double],
-                    name: Option[String],
-                    geneLength: Option[Int],
-                    alleleLength: Option[Int],
-                    reign: Option[String]): PlantBuilder[T] =
-    new PlantBuilderImpl[T](height, nutritionalValue, hardness, name, geneLength, alleleLength, reign)
-      with ValidStatusGenericBuilder[T , FullPlant, PartialPlantData, CompletePlantData, ValidEntity]
+    new PlantBuilderImpl[EmptyEntity](None, None, None, None, None, None, None)
 
   private class PlantBuilderImpl[T <: EntityStatus] (height: Option[Double],
                                                     nutritionalValue: Option[Double],
@@ -40,24 +30,26 @@ object PlantBuilder {
                                                     alleleLength: Option[Int],
                                                     reign: Option[String])
                                                    (implicit val status: TypeTag[T])
-    extends EntityBuilderImpl[T](name, geneLength, alleleLength, reign) with PlantBuilder[T] {
+    extends EntityBuilderImpl[T](name, geneLength, alleleLength, reign) with PlantBuilder[T]
+      with BaseBuildableGenericBuilder[T , FullPlant, PartialPlantData, CompletePlantData]
+      with ValidStatusGenericBuilder[T , FullPlant, PartialPlantData, CompletePlantData, ValidEntity]{
 
 
     def setHeight(height: Double): PlantBuilder[T with PlantWithHeight] =
-      PlantBuilder(Some(height), nutritionalValue, hardness,name, geneLength,
+      new PlantBuilderImpl(Some(height), nutritionalValue, hardness,name, geneLength,
         alleleLength, reign)
 
     def setNutritionalValue(nutritionalValue: Double): PlantBuilder[T with PlantWithNutritionalValue] =
-      PlantBuilder(height, Some(nutritionalValue), hardness, name, geneLength,
+      new PlantBuilderImpl(height, Some(nutritionalValue), hardness, name, geneLength,
         alleleLength, reign)
 
     def setHardness(hardness: Double): PlantBuilder[T with PlantWithHardness] =
-      PlantBuilder(height, nutritionalValue, Some(hardness), name, geneLength,
+      new PlantBuilderImpl(height, nutritionalValue, Some(hardness), name, geneLength,
         alleleLength, reign)
 
     override def newInstance[NT <: EntityStatus](name: Option[String], geneLength: Option[Int], alleleLength: Option[Int],
                                                  reign: Option[String])(implicit tt: universe.TypeTag[NT]): PlantBuilder[NT] =
-      PlantBuilder[NT](height, nutritionalValue, hardness, name, geneLength,
+      new PlantBuilderImpl[NT](height, nutritionalValue, hardness, name, geneLength,
         alleleLength, reign)
 
     def tryCompleteBuild(): Try[CompletePlantData] = {
@@ -75,16 +67,6 @@ object PlantBuilder {
       }
     }
 
-    def build(): PartialPlantData = {
-      tryCompleteBuild match {
-        case Success(value) =>
-          value
-        case Failure(_) =>
-          PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength,
-            alleleLength, reign)
-      }
-    }
-
     override def checkProperties: Option[CompleteBuildException] = {
       var exception = super.checkProperties
       if(!height.inValidRange())
@@ -96,6 +78,8 @@ object PlantBuilder {
       exception
     }
 
+    override protected def buildPartialInstance(): PartialPlantData =
+      PlantDataImpl(height, nutritionalValue, hardness, name.get, geneLength, alleleLength, reign)
   }
 
   private case class PlantDataImpl(getHeight: Option[Double],

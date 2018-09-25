@@ -23,7 +23,9 @@ object SimulationBuilder {
 
   private class SimulationBuilderImpl[T <: SimulationStatus](animals: Iterable[(AnimalBuilder[_], Int)],
                                                              plants: Iterable[(PlantBuilder[_], Int)])
-                                                            (implicit val status: TypeTag[T]) extends SimulationBuilder[T] {
+                                                            (implicit val status: TypeTag[T])
+    extends SimulationBuilder[T] with BaseBuildableGenericBuilder[T, FullSimulation, PartialSimulationData, CompleteSimulationData] {
+
     def addAnimals(animals: Iterable[(AnimalBuilder[_], Int)]): SimulationBuilder[T with SimulationWithAnimals] = {
       new SimulationBuilderImpl(animals, plants)
     }
@@ -39,21 +41,10 @@ object SimulationBuilder {
           if(exc.isEmpty)
             Success(new SimulationDataImpl(check._2, check._3) with CompleteSimulationData)
           else
-            Failure(new CompleteSimulationBuildException(exc.get, new SimulationDataImpl[PartialAnimalData, PartialPlantData](
-              animals.map(t => (t._1.build(), t._2)), plants.map(t => (t._1.build(), t._2)))))
+            Failure(new CompleteSimulationBuildException(exc.get, buildPartialInstance()))
         case _ =>
           Failure(new CompleteSimulationBuildException("Simulation: animals and plants must be set",
-            new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals.map(t => (t._1.build(), t._2)),
-              plants.map(t => (t._1.build(), t._2)))))
-      }
-    }
-
-    def build(): SimulationData[_ <: PartialAnimalData, _ <: PartialPlantData] = {
-      tryCompleteBuild match {
-        case Success(value) =>
-          value
-        case Failure(exception: CompleteSimulationBuildException) =>
-          exception.partialSimulationData
+            buildPartialInstance()))
       }
     }
 
@@ -87,6 +78,11 @@ object SimulationBuilder {
       if(!plants.isValid())
         exception = exception ++: InvalidParamValueBuildException("Simulation" ,"plants", plants)
       exception
+    }
+
+    override protected def buildPartialInstance(): PartialSimulationData = {
+      new SimulationDataImpl[PartialAnimalData, PartialPlantData](animals.map(t => (t._1.build(), t._2)),
+        plants.map(t => (t._1.build(), t._2)))
     }
   }
 

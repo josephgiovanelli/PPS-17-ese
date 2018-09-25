@@ -16,8 +16,16 @@ trait NotBuildableBuilder[S <: BuilderStatus] {
 }
 
 trait GenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends NotBuildableBuilder[S] {
-  def build(): P
+  def tryBuild(): Try[P]
   def tryCompleteBuild(): Try[C]
+  def build(): P = {
+    tryBuild() match {
+      case Success(value) =>
+        value
+      case Failure(exception) =>
+        throw exception
+    }
+  }
   def buildComplete(implicit ev: S =:= CS, st: TypeTag[S]): C = {
     tryCompleteBuild() match {
       case Success(value) =>
@@ -28,16 +36,35 @@ trait GenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends
   }
 }
 
+trait BaseBuildableGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends GenericBuilder[S, CS, P, C] {
+
+  protected def buildPartialInstance(): P
+
+  def tryBuild(): Try[P] = {
+    tryCompleteBuild() match {
+      case Success(value) =>
+        Success(value)
+      case Failure(_) =>
+        Success(buildPartialInstance())
+    }
+  }
+}
+
 trait ValidStatusGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P, VS] extends GenericBuilder[S, CS, P, C] {
   protected def checkMandatoryProperties(): Option[CompleteBuildException]
   protected def status: TypeTag[S]
   protected def validStatus: TypeTag[VS]
 
-  abstract override def build(): P = {
-    if(!(status.tpe <:< validStatus.tpe && checkMandatoryProperties().isEmpty)) {
-      throw checkMandatoryProperties().get
+  abstract override def tryBuild(): Try[P] = {
+    super.tryBuild() match {
+      case t: Success[_] =>
+        if(!(status.tpe <:< validStatus.tpe && checkMandatoryProperties().isEmpty))
+          Failure(checkMandatoryProperties().get)
+        else
+          t
+      case t =>
+        t
     }
-    super.build()
   }
 }
 
