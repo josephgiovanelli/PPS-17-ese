@@ -1,7 +1,4 @@
 package it.unibo.pps.ese.model.components.animals.brain.cerebralcortex
-
-import it.unibo.pps.ese.model.components.animals.brain.cerebralcortex.MemoryType
-
 object Memory {
   type Score = Double
 
