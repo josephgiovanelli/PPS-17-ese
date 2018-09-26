@@ -9,6 +9,9 @@ import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object ConversionMapProperties {
     val title = "Conversion Map Pane"
     val headerText = "Define a conversion map"
@@ -17,6 +20,15 @@ object ConversionMapProperties {
 import ConversionMapProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to specify the conversion map between a property and a quality.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param currentConversion the previous conversion map if the modality is modify
+  * @param qualities the qualities that can be set
+  */
 case class ConversionMapPane(mainDialog: MainDialog,
                              override val previousContent: Option[PropertiesPane],
                              modality: Modality,

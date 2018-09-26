@@ -19,6 +19,9 @@ import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object CustomGeneProperties {
   val title = "Custom Gene Pane"
   val headerText = "Define your chromosome"
@@ -27,6 +30,14 @@ object CustomGeneProperties {
 import CustomGeneProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert a gene that belongs to Structural Chromosome
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  */
 case class CustomGenePane(mainDialog: MainDialog,
                           override val previousContent: Option[ChromosomePane],
                           modality: Modality,

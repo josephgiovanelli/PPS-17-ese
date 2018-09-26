@@ -13,6 +13,16 @@ import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
 import scalafx.scene.layout.GridPane
 
+/**
+  * The common structure of [[DefaultGenePane]] and [[CustomGenePane]]
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param gene the gene identifier
+  * @param title the title of the pane
+  * @param headerText the header text of the pane
+  * @param path the path from the starting pane to this one
+  */
 abstract class GenePane(mainDialog: MainDialog,
                         override val previousContent: Option[ChromosomePane],
                         gene: Option[String],
@@ -25,6 +35,9 @@ abstract class GenePane(mainDialog: MainDialog,
   def confirmAlleles(gene: String)
 }
 
+/**
+  * It defines the title and the header
+  */
 object DefaultGeneProperties {
     val title = "Default Gene Pane"
     val headerText = "Define your chromosome"
@@ -33,6 +46,17 @@ object DefaultGeneProperties {
 import DefaultGeneProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert a gene that belongs to Regulation or Sexual Chromosome.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param chromosomeTypes Regulation or Sexual
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  * @param propertiesSet the previous set of properties if the modality is modify
+  */
 case class DefaultGenePane(mainDialog: MainDialog,
                            override val previousContent: Option[ChromosomePane],
                            modality: Modality,
