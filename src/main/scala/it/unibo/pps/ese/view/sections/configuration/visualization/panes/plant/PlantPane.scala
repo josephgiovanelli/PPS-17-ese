@@ -4,14 +4,11 @@ import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.WhiteLabel
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.plants.PlantInfo
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog, Modality}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog, Modality}
 
 import scala.collection.immutable.ListMap
-import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, Pane}
-import scalafx.stage.Window
 
 object PlantProperties {
   val title = "Plant Pane"
@@ -25,13 +22,7 @@ case class PlantPane(mainDialog: MainDialog,
                      override val previousContent: Option[ConfigurationPane],
                      modality: Modality,
                      override val key: Option[String] = None)
-  extends BackPane(mainDialog, previousContent, key, title, headerText, previousContent.get.path + newLine(1) + title) {
-
-  /*
-  Header
-   */
-
-  println(uniqueFields)
+  extends AbstractPane(mainDialog, previousContent, key, title, headerText, previousContent.get.path + newLine(1) + title, 1) {
 
   /*
   Fields
@@ -47,7 +38,6 @@ case class PlantPane(mainDialog: MainDialog,
     heightPlant -> (new WhiteLabel("Height"), new Label("")),
     nutritionalValue -> (new WhiteLabel("Availability"), new Label("")),
     hardness -> (new WhiteLabel("Hardness"), new Label("")))
-
 
 
   center = createGrid(0)

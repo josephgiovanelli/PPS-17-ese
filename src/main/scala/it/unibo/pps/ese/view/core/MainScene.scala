@@ -1,9 +1,8 @@
 package it.unibo.pps.ese.view.core
 
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityState
 import javafx.application.Platform
 import javafx.event.ActionEvent
-
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.sections.bodyviewer.{AnimalInternalStatus, BodyPane}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.{ConfigurationContent, ConfirmContent, MainDialog}

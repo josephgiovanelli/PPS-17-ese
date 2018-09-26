@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.model.components.animals.reproduction
 
 import it.unibo.pps.ese.controller.simulation.runner.core
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.{BaseEvent, InteractionEvent, RequestEvent, ResponseEvent}
 import it.unibo.pps.ese.model.components.animals.reproduction.util.{EmbryosUtil, GeneticsEngine, ReproductionInfo}
 import it.unibo.pps.ese.controller.simulation.runner.core._
 import it.unibo.pps.ese.controller.simulation.runner.core.support._
@@ -8,12 +9,14 @@ import it.unibo.pps.ese.model.components._
 import it.unibo.pps.ese.model.components.animals.brain.{Couple, InteractionEntity}
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
-import it.unibo.pps.ese.model.genetics.dna.AnimalGenome
+import it.unibo.pps.ese.model.genetics.dna.{AnimalGenome, MGene}
 import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
 import it.unibo.pps.ese.utils.Point
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
+
+case class NewMutantAlleles(mutantGenes:Seq[MGene]) extends BaseEvent
 
 case class ReproductionBaseInformationRequest() extends RequestEvent
 case class ReproductionBaseInformationResponse(override val id: String, gender: String, species: String) extends ResponseEvent

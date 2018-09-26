@@ -6,29 +6,60 @@ import scalafx.collections.ObservableBuffer
 import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.image.ImageView
 import scalafx.scene.layout.{BorderPane, GridPane, HBox}
 import scalafx.scene.paint.Color
 
+/**
+  * The modality of creation of a pane
+  */
 trait Modality
+
+/**
+  * Add modality
+  */
 case object AddModality extends Modality
+
+/**
+  * MOdify modality
+  */
 case object ModifyModality extends Modality
 
 object PaneProperties {
   def newLine(level: Int): String = {
     var n: String = "\n"
-    for (i <- 0 to level) {
+    for (_ <- 0 to level) {
       n += "\t"
     }
     n + "|_"
   }
 }
 
-abstract class DialogPane(val title: String, val headerText: String, val path: String) extends BorderPane
+/**
+  * The basic class for a content pane of the configuration dialog
+  *
+  * @param title
+  * @param headerText
+  * @param path
+  * @param depth
+  */
+abstract class DialogPane(val title: String, val headerText: String, val path: String, val depth: Int) extends BorderPane
 
-abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String],
-                           title: String, headerText: String, path: String)
-  extends DialogPane(title, headerText, path) {
+/**
+  * A common pane for checkable and backable panes
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param key the key of the entity
+  * @param title the title of the pane
+  * @param headerText the header text of the pane
+  * @param path the path from the starting pane to this one
+  * @param depth the depth of the path
+  * @tparam A the type of the pane
+  */
+abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String],
+                               title: String, headerText: String, path: String, depth: Int)
+  extends DialogPane(title, headerText, path, depth) {
 
   prefWidth = 500
   prefHeight = 600
@@ -69,7 +100,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
     implicit val popInt: ParseOp[Int] = ParseOp[Int](_.toInt)
 
     def parse[T: ParseOp](s: String): Option[T] = try { Some(implicitly[ParseOp[T]].op(s)) }
-    catch { case _ => None }
+    catch { case _: Throwable => None }
   }
 
   /*
@@ -87,7 +118,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
   var intFields: Set[TextField] = Set.empty
   var doubleFields: Set[TextField] = Set.empty
   var uniqueFields: Map[TextField, Set[String]] = Map.empty
-  var listFields: Seq[ObservableBuffer[String]] = Seq.empty
+  var listFields: Seq[(ObservableBuffer[String], Int)] = Seq.empty
   var lengthFields: Map[TextField, Int] = Map.empty
   var probabilityFields: Set[TextField] = Set.empty
 
@@ -95,7 +126,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
   OkButton
    */
 
-  val okButton = new Button{
+  val okButton: Button = new Button{
     margin = Insets(10,0,0,0)
     text = "Confirm"
   }
@@ -128,7 +159,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
         okButton.disable = checkFields(subject, newValue)))
 
     listFields.foreach(subject =>
-      subject.onChange ((_, _) =>
+      subject._1.onChange ((_, _) =>
         okButton.disable = checkFields))
 
     okButton.disable = checkFields
@@ -189,7 +220,7 @@ abstract class BackPane[A](mainDialog: MainDialog, val previousContent: Option[D
       (uniqueFields.keySet.exists(field => uniqueCheck(field)) && uniqueFields.nonEmpty) ||
       (lengthFields.keySet.exists(field => lengthCheck(field)) && lengthFields.nonEmpty) ||
       (probabilityFields.exists(field => probabilityCheck(field)) && probabilityFields.nonEmpty) ||
-      listFields.exists(x => x.isEmpty)
+      listFields.exists(x => x._1.lengthCompare(x._2) < 0)
   }
 
 }

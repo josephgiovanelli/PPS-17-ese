@@ -1,7 +1,12 @@
-package it.unibo.pps.ese.model.dataminer
+package it.unibo.pps.ese.model.dataminer.datamodel
 
 import it.unibo.pps.ese.model.components.animals.brain.ActionTypes
+import it.unibo.pps.ese.model.dataminer.DataModelSupport._
 import it.unibo.pps.ese.utils.Point
+
+/**
+  * Group of case classes that implement the model defined in DataModel
+  */
 
 case class EntityLogImpl(id: EntityId,
                          structuralData: StructuralData,

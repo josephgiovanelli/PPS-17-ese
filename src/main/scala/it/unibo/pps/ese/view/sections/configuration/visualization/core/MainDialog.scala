@@ -2,12 +2,16 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.core
 
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.{ConfigurationPane, ConfirmPane}
 import it.unibo.pps.ese.view.core.{MainComponent, SetupViewBridge}
+import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.EntitiesInfo
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext
 import scalafx.Includes._
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
-import scalafx.scene.control.Label
+import scalafx.scene.Node
+import scalafx.scene.control.ButtonBar.ButtonData
+import scalafx.scene.control.{ButtonType, Dialog, Label}
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
@@ -21,6 +25,9 @@ trait MainDialog {
   def show()
   def window: Window
   def closeDialog()
+  def addToPendingAnimals(id: String): Unit
+  def deleteFromPendingAnimals(id: String): Unit
+  def cleanPendingAnimals(): Unit
 }
 
 trait FirstContent
@@ -51,8 +58,21 @@ object MainDialog {
                        newPlantSpecies: Seq[String] = Seq.empty,
                        previousAnimalsCount: Map[String, Int] = Map.empty,
                        previousPlantsCount: Map[String, Int] = Map.empty)
-                      (implicit executionContext: ExecutionContext) extends AbstractDialog[Unit](window, None) with MainDialog {
+                      (implicit executionContext: ExecutionContext) extends Dialog[Unit] with MainDialog {
 
+
+    initOwner(window)
+
+    val cancelCloseButtonType: ButtonType = new ButtonType("Exit", ButtonData.CancelClose)
+    dialogPane().buttonTypes = Seq(cancelCloseButtonType)
+    val cancelCloseButton: Node = dialogPane().lookupButton(cancelCloseButtonType)
+    cancelCloseButton.visible = false
+
+    dialogPane().background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+
+
+    var pendingAnimals: ListBuffer[String] =  ListBuffer.empty
+    private var currentContent: Option[DialogPane] = None
     val configurationPane = ConfigurationPane(this, None, setupViewBridge, mainComponent, setUp, previousAnimalsCount, previousPlantsCount)
     val confirmPane = ConfirmPane(
       this,
@@ -86,13 +106,28 @@ object MainDialog {
       }
 
       title = content.title
+
+      currentContent = Some(content)
     }
 
     dialogPane().getStylesheets.add(getClass.getResource("/it/unibo/pps/ese/view/sections/configuration/red-border.css").toExternalForm)
 
+    onCloseRequest = _ =>
+      if (currentContent.isDefined && currentContent.get.depth > 1)
+        cleanPendingAnimals()
+
     override def show(): Unit = showAndWait()
 
     override def closeDialog(): Unit = this.close()
+
+    override def addToPendingAnimals(id: String): Unit = pendingAnimals += id
+
+    override def deleteFromPendingAnimals(id: String): Unit = pendingAnimals -= id
+
+    override def cleanPendingAnimals(): Unit = {
+        pendingAnimals.foreach(animal => EntitiesInfo.instance().deleteAnimal(animal))
+        pendingAnimals = ListBuffer.empty
+      }
   }
 
 

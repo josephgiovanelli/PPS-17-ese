@@ -1,9 +1,9 @@
 package it.unibo.pps.ese.view.main
 
 import java.awt.MouseInfo
-import javafx.application.Platform
 
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityState
+import javafx.application.Platform
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
@@ -23,12 +23,35 @@ import scalafx.scene.input.{MouseEvent, ScrollEvent}
 import scalafx.scene.paint.Color
 import scalafx.scene.paint.Color._
 
+/**
+  * Contains the methods relative to the world pane visible from outside
+  */
 trait WorldView {
+  /**
+    * Updates the world and shows the new state
+    *
+    * @param generation the current generation
+    * @param world the new state of the world
+    */
   def updateWorld(generation: Int, world: Seq[EntityState]): Unit
 }
+
+/**
+  * COntains all the methods that allows the communication between view's components
+  */
 trait WorldPane extends ScrollPane with WorldView{
   var entitySize: IntegerProperty = IntegerProperty(ZoomPreferences.prefZoom)
+
+  /**
+    * Applies the given filters to the wolrd view
+    *
+    * @param entityFiltersValues the filters to be applied
+    */
   def applyFilters(entityFiltersValues: EntityFiltersValues): Unit
+
+  /**
+    * Clears the filters
+    */
   def clearFilters(): Unit
 }
 
@@ -300,9 +323,9 @@ private class WorldPaneImpl(
   private def drawFields(position: Position, color: Color, visualField: Double, actionField: Double): Unit = {
     graphicsContext.stroke = color
     val visualFieldCenterPosition = Position(position.x-entitySize()*(visualField/2), position.y-entitySize()*(visualField/2))
-    val actionFieldCenterPosition = Position(position.x-entitySize()*(actionField/2), position.y-entitySize()*(actionField/2))
+//    val actionFieldCenterPosition = Position(position.x-entitySize()*(actionField/2), position.y-entitySize()*(actionField/2))
     graphicsContext.strokeOval(visualFieldCenterPosition.x, visualFieldCenterPosition.y, entitySize()*visualField, entitySize()*visualField)
-    graphicsContext.strokeOval(actionFieldCenterPosition.x, actionFieldCenterPosition.y, entitySize()*actionField, entitySize()*actionField)
+//    graphicsContext.strokeOval(actionFieldCenterPosition.x, actionFieldCenterPosition.y, entitySize()*actionField, entitySize()*actionField)
   }
 
   private def getEntityById(id: String): Option[EntityState] = {

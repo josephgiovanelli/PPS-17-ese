@@ -12,13 +12,16 @@ import it.unibo.pps.ese.utils.Point
 import org.kaikikm.threadresloader.ResourceLoader
 import org.scalatest.WordSpec
 
-import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.Await
 import PartialEntitiesInitUtils._
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl
+import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImplUtils._
 
 class ReproductionTest extends WordSpec {
+
+  private val i = (9 to 1 by -1).iterator
 
   StaticRules.instance().addSpecies(Set("Gatto", "Giraffa", "ErbaGatta"))
   private val worldRules: WorldRulesImpl = WorldRulesImpl(Integer.MIN_VALUE, Integer.MAX_VALUE, 0,

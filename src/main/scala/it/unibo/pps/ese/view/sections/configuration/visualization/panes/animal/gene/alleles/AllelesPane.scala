@@ -1,20 +1,17 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles
 
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.ChromosomePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.GenePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.WhiteLabel
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
-import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo, GeneInfo}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog}
+import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog}
 
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{BorderPane, VBox}
 
 object AllelesProperties {
     val title = "Alleles Pane"
@@ -29,14 +26,7 @@ case class AllelesPane(mainDialog: MainDialog,
                        animal: String,
                        gene: String,
                        chromosomeTypes: ChromosomeTypes)
-  extends BackPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(4) + title) {
-
-  /*
-  Header
-  */
-
-//  title = "Alleles Dialog"
-//  headerText = "Define chromosome alleles"
+  extends AbstractPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(4) + title, 4) {
 
   /*
   Fields
@@ -61,7 +51,7 @@ case class AllelesPane(mainDialog: MainDialog,
     items = allelesName
     selectionModel().selectedItem.onChange( (_, _, value) => {
       if (selectionModel().getSelectedIndex != -1) {
-        val missedProperties: Map[String, Double] = (properties -- currentAlleles(value).effect.keySet).map(x => (x, 0.0)).groupBy(_._1).map{ case (k,v) => (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+        val missedProperties: Map[String, Double] = (properties -- currentAlleles(value).effect.keySet).map(x => (x, 0.0)).toMap
         val currentAllele: AlleleInfo = currentAlleles(value)
         currentAllele.effect ++= missedProperties
         currentAlleles += (value -> currentAllele)
@@ -72,10 +62,6 @@ case class AllelesPane(mainDialog: MainDialog,
       }
     })
   }
-
-
-
-//  allelesListView.prefHeight = MIN_ELEM * ROW_HEIGHT
 
   val allelesButton = new Button("Add")
   allelesButton.onAction = _ => mainDialog.setContent(AllelePane(mainDialog, Some(this), animal, gene, None, properties, chromosomeTypes))
@@ -94,7 +80,7 @@ case class AllelesPane(mainDialog: MainDialog,
   Checks
    */
 
-  listFields = Seq(allelesName)
+  listFields = Seq((allelesName, 1))
   createChecks()
 
   def confirmAddAlleleInfo(a: AlleleInfo): Unit = {
@@ -113,7 +99,6 @@ case class AllelesPane(mainDialog: MainDialog,
   okButton.onAction = _ => {
     mainDialog.setContent(previousContent.get)
     previousContent.get.confirmAlleles(gene)
-
   }
 
 }

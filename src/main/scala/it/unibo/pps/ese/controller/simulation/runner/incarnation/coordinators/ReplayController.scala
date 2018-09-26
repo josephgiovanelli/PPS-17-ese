@@ -1,15 +1,37 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 
-import it.unibo.pps.ese.model.dataminer.ReadOnlyEntityRepository
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers.Stalker
+import it.unibo.pps.ese.model.dataminer.datamodel.ReadOnlyEntityRepository
 import it.unibo.pps.ese.view.sections.statistics.ReplayView
 
+/**
+  * APIs contained in this Trait allow to manage the functionalities related to the Replay function
+  */
 trait ReplayController {
+
+  /**
+    * Initialize the Replay Controller, linking the target entity
+    * @param entityId The entity identifier
+    */
   def initialize(entityId: String): Unit
+
+  /**
+    * Free controller resources
+    */
   def dispose(): Unit
+
+  /**
+    * Attach a view module. Replay data will be sent to attached views at the end of every replay cycle
+    * @param replayView The View to be attached
+    */
   def attachView(replayView: ReplayView)
 }
 object ReplayController {
+
+  /**
+    * @param consolidatedState The data source used to fetch historical info of the selected entity
+    * @return A ReplayController instance
+    */
   def apply(consolidatedState: ReadOnlyEntityRepository): ReplayController = new BaseReplayController(consolidatedState)
 
   private class BaseReplayController(consolidatedState: ReadOnlyEntityRepository) extends ReplayController {

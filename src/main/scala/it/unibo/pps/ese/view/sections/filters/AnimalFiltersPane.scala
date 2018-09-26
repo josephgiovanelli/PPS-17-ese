@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.view.sections.filters
 
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityState
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.LifePhases
 import it.unibo.pps.ese.model.genetics.entities._
@@ -10,17 +10,12 @@ import it.unibo.pps.ese.view.sections.filters.FiltersComponentsFactory.FiltersVB
 import it.unibo.pps.ese.view.utilities.EntityConversions
 import it.unibo.pps.ese.view.utilities.EntityConversions._
 
-trait AnimalFiltersPane extends FiltersVBox with DisablePane {
-  def entityFiltersValues: EntityFiltersValues
-  def updateFilters()
-}
-
 object AnimalFiltersPane {
 
-  def apply(geneticsSimulator: GeneticsSimulator): AnimalFiltersPane =
+  def apply(geneticsSimulator: GeneticsSimulator): EntityFiltersPane =
     new AnimalFiltersPaneImpl(geneticsSimulator)
 
-  class AnimalFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends AnimalFiltersPane {
+  class AnimalFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends EntityFiltersPane {
 
     val maleRepresentation: String = "Male"
     val femaleRepresentation: String = "Female"

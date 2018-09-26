@@ -1,14 +1,23 @@
 package it.unibo.pps.ese.model.components.animals.trackers
 
-import it.unibo.pps.ese.controller.simulation.runner.core.support.BaseEvent
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityProperty, _}
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport.BaseEvent
+import it.unibo.pps.ese.controller.simulation.runner.core._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.model.components.animals.DigestionEnd
 import it.unibo.pps.ese.model.components.animals.brain._
-import it.unibo.pps.ese.model.components.animals.reproduction.{PregnancyEnd, PregnancyRequirements, Pregnant}
+import it.unibo.pps.ese.model.components.animals.reproduction.{NewMutantAlleles, PregnancyEnd, PregnancyRequirements, Pregnant}
 
 import scala.concurrent.ExecutionContext
 
-
+/**
+  * Event with which inform the rest of the world of [[OrgansTrackerComponent]] state.
+  * @param eyes tells if the eyes are active in this iteration
+  * @param hippocampus tells if the hippocampus is active in this iteration
+  * @param stomach tells if the stomach is active in this iteration
+  * @param pregnant tells if the pregnant status is active
+  * @param embryo tells status of embryo, if present
+  * @param reproductionOrgan tells if the reproduction organ is active in this iteration
+  */
 case class OrgansTrackerInfo(eyes: Boolean,
                              hippocampus: Boolean,
                              stomach: Boolean,
@@ -16,7 +25,14 @@ case class OrgansTrackerInfo(eyes: Boolean,
                              embryo: Option[EmbryoStatus.Value],
                              reproductionOrgan: Boolean) extends BaseEvent
 
+/**
+  * It sets all organs in inactive state.
+  */
 case class ClearOrgans() extends BaseEvent
+
+/**
+  * These events are used to activate a part of the body.
+  */
 case class ActivateEyes() extends BaseEvent
 case class ActivateHippocampus() extends BaseEvent
 case class ActivateStomach() extends BaseEvent
@@ -26,13 +42,24 @@ case class InitPregnancy() extends BaseEvent
 case class GrowEmbryo() extends BaseEvent
 case class EndPregnancy() extends BaseEvent
 
+/**
+  * Enumeration that defines the status that the embryo can assume.
+  */
 object EmbryoStatus extends Enumeration {
   val primal, mid, advanced = Value
 }
 
+/**
+  * This component tracks all organs of the entity, in each iteration.
+  * @param entitySpecifications the base information of the entity
+  * @param executionContext the execution context
+  */
 class OrgansTrackerComponent(override val entitySpecifications: EntitySpecifications)
                                   (implicit val executionContext: ExecutionContext) extends WriterComponent(entitySpecifications)  {
 
+  /**
+    * The current status of each organs.
+    */
   var eyes: Boolean = false
   var hippocampus: Boolean = false
   var stomach: Boolean = false
@@ -45,15 +72,23 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
     configureMappings()
   }
 
+  /**
+    * Method by which events are received and the brain specifies the reaction to them.
+    */
   private def subscribeEvents(): Unit = {
     subscribe {
+      /*
+      In each iteration all organs are disabled.
+       */
       case ComputeNextState() =>
         eyes = false
         hippocampus = false
         reproductionOrgan = false
         publish(ClearOrgans())
         publish(new ComputeNextStateAck)
-
+      /*
+      Depending on the event received, the corresponding part of the body is enabled.
+       */
       case UseEyes() =>
         eyes = true
         publish(ActivateEyes())
@@ -88,7 +123,9 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
         pregnant = false
         embryo = None
         publish(EndPregnancy())
-
+      /*
+      If this message is received the brain has to communicate his information.
+       */
       case GetInfo() =>
         publish(OrgansTrackerInfo(eyes, hippocampus, stomach, pregnant, embryo, reproductionOrgan))
         publish(new GetInfoAck)
@@ -96,6 +133,11 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
     }
   }
 
+  /**
+    * The exterior can see the component as a set of attributes.
+    * These are modified by the published events.
+    * This method defines how events change attributes.
+    */
   private def configureMappings(): Unit = {
     addMapping[OrgansTrackerInfo]((classOf[OrgansTrackerInfo], ev => Seq(
       EntityProperty("eyes", ev eyes),
@@ -104,8 +146,6 @@ class OrgansTrackerComponent(override val entitySpecifications: EntitySpecificat
       EntityProperty("pregnant", ev pregnant),
       EntityProperty("embryo", ev embryo),
       EntityProperty("reproductionOrgan", ev reproductionOrgan),
-      //da levare
-      EntityProperty("genes", Seq.empty)
     )))
 
     addMapping[ClearOrgans]((classOf[ClearOrgans], _ => Seq(

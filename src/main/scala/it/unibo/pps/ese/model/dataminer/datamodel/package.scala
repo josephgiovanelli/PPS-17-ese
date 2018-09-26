@@ -1,6 +1,9 @@
-package it.unibo.pps.ese.model
+package it.unibo.pps.ese.model.dataminer
 
-package object dataminer {
+/**
+  * Bindings for data types used in data model
+  */
+package object DataModelSupport {
   type EntityId = String
   type Era = Long
   type Species = String

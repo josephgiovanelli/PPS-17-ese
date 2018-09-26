@@ -7,12 +7,10 @@ import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals
 import it.unibo.pps.ese.view.sections.configuration.visualization.core._
 
 import scala.collection.immutable.ListMap
-import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, Pane}
-import scalafx.stage.Window
+import scalafx.scene.layout.GridPane
 
 object AnimalProperties {
   val title = "Animal Pane"
@@ -26,13 +24,7 @@ case class AnimalPane(mainDialog: MainDialog,
                       override val previousContent: Option[ConfigurationPane],
                       modality: Modality,
                       animal: Option[String] = None)
-  extends BackPane[String](mainDialog, previousContent, animal, title, headerText, previousContent.get.path + newLine(1) + title) {
-
-  /*
-  Header
-   */
-
-
+  extends AbstractPane[String](mainDialog, previousContent, animal, title, headerText, previousContent.get.path + newLine(1) + title, 1) {
 
   /*
   Fields
@@ -92,11 +84,11 @@ case class AnimalPane(mainDialog: MainDialog,
     EntitiesInfo.instance().setAnimalBaseInfo(name.text.value, AnimalBaseInfo(geneLength.text.value.toInt,
       alleleLength.text.value.toInt, typology.value.value))
     mainDialog.setContent(ChromosomePane(mainDialog, Some(this), AddModality, if (animal.isEmpty) name.text.value else animal.get))
+    mainDialog.addToPendingAnimals(name.text.value)
   }
+
 
   def confirmChromosome(name: String): Unit = {
     previousContent.get.confirmAnimalSpecies(modality, name)
   }
-
-
 }

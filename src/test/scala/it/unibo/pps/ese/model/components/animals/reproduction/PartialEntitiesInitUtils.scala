@@ -26,7 +26,7 @@ object PartialEntitiesInitUtils {
   }
 
   def baseEntityInit(animalInfo: AnimalInfo)(implicit i: Iterator[Int], executionContext: ExecutionContext) : Entity = {
-    val entity = Entity("improved", i.next().toString)
+    val entity = Entity("improved" + i.next())
     entity addComponent initializeReproductionComponent(entity, animalInfo)
     entity
   }
