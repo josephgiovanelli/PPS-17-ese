@@ -9,7 +9,9 @@
 |         | Comunicazione per la scrittura della storia iterazione per iterazione | Joseph | 5 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 |         | Raccolta informazioni riguardo agli organi attivi ad ogni iterazione | Joseph | 25 | 10 | 0 | 0 | 0 | 0 | 0 | 0 |
 | L'utente può creare un animale a partire da parti del corpo disponibili
-|         |________ | Matteo | 120 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         |Caricamento parziale dei dati di simulazione | Matteo | 40 | 60 | 45 | 30 | 15 | 0 | 0 | 0 |
+|         |Creazione di un sustema di salvataggio dei dati di simulazione parziale | Matteo | 40 | 40 | 40 | 40 | 40 | 40 | 20 | 0 |
+|         |Creazione di un'interfaccia che permetta il caricamento di geni parziali come parti del corpo | Matteo | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 |
 | L'utente può salvare una simulazione e riprenderla in un secondo momento
 |         |________ | Luca | 120 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Visualizzazione delle dinamiche interne all'animale e gli avvenimenti salienti del mondo di simulazione
