@@ -83,8 +83,8 @@ object ViewLauncher {
             this.hide()
           })
           Success(Unit)
-        case _ =>
-          throw new IllegalStateException()
+        case Failure(exception) =>
+          throw exception
       }
     }
 

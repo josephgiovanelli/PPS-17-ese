@@ -1,5 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.loader
 
+import it.unibo.pps.ese.model.genetics.entities.QualityType
+
 trait EnumElem
 
 trait MyEnum[T <: EnumElem] {
@@ -50,4 +52,15 @@ object SexualDefaultGenes extends MyEnum[SexualDefaultGene] {
   case object PREGNANCY_DURATION extends SexualDefaultGene("pregnancyDuration", Map(("pregnancyDuration", classOf[Double])))
 
   val elements: Set[SexualDefaultGene] = Set(FERTILITY, FECUNDITY, PREGNANCY_DURATION)
+}
+
+sealed case class Property(name: String, requiredType: Class[_]) extends EnumElem
+
+object AnimalStructuralProperties extends MyEnum[Property] {
+  override def elements: Set[Property] = QualityType.animalStructuralQualities.map(q =>
+    Property(EnumUtils.nameNormalize(q.entryName), classOf[Double])).toSet
+}
+
+private object EnumUtils {
+  def nameNormalize(name: String): String = name.charAt(0).toLower + name.drop(1)
 }

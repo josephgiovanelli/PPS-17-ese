@@ -6,11 +6,11 @@ properties:
     conversionMap:
       speed: 6.0
       height: 3.0
-      rangeofaction: 2.0
+      rangeOfAction: 2.0
 
   muscolatura:
     conversionMap:
       speed: 3.0
-      ResistenceToAttack: 4.0
-      Strength: 10.0
-      NutritionalValue: 6.0
+      resistenceToAttack: 4.0
+      strength: 10.0
+      nutritionalValue: 6.0

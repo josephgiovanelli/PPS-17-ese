@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
+import it.unibo.pps.ese.controller.simulation.loader.AnimalStructuralProperties
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
@@ -8,6 +9,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseBuildable
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
+import it.unibo.pps.ese.model.genetics.entities.QualityType
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
@@ -89,6 +91,15 @@ object AnimalBuilder {
       if(struct.size != structuralChromosome.size) {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All structural chromosome's genes must be complete",
           structTries.collect({case Failure(value: CompleteBuildException) => value}))
+      }
+      val effectedProperties = struct.flatMap(_.conversionMap.values.flatMap(_.keySet)).toSet
+      if(!(effectedProperties == AnimalStructuralProperties.elements.map(_.name))) {
+        var exceptions: Seq[CompleteBuildException] = Seq()
+        val notEffected = AnimalStructuralProperties.elements.map(_.name) -- effectedProperties
+        exceptions = exceptions ++ notEffected.map(e => CompleteBuildException("Quality: " + e + " not effected"))
+        val extraEffected = effectedProperties -- AnimalStructuralProperties.elements.map(_.name)
+        exceptions = exceptions ++ extraEffected.map(e => CompleteBuildException("Quality: " + e + " effected, but not exists or isn't accessible"))
+        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | Regulation chromosome mus effect all and only animal's base qualities", exceptions)
       }
       val regTries: Iterable[Try[CompleteDefaultGeneData]] = regulationChromosome.map(_.tryCompleteBuild())
       val reg: Iterable[CompleteDefaultGeneData] = regTries.collect({case Success(value) => value})
