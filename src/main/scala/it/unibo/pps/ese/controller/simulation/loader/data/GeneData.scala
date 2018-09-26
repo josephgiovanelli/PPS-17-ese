@@ -29,6 +29,6 @@ trait FullGeneData[A <: PartialAlleleData] extends GeneData[A] {
 
 object GeneData {
   type PartialGeneData = GeneData[_ <: PartialAlleleData]
-  trait CompleteGeneData extends FullGeneData[CompleteAlleleData]
+  type CompleteGeneData = FullGeneData[CompleteAlleleData]
 }
 

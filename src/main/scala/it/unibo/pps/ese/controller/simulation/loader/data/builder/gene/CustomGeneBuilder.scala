@@ -12,7 +12,7 @@ import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe._
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
-trait CustomGeneBuilder[S <: GeneStatus] extends GenericGeneBuilder[S] with GenericBuilder[S, CustomGene, PartialCustomGeneData, CompleteCustomGeneData] {
+trait CustomGeneBuilder[S <: GeneStatus] extends GeneBuilder[S] with GenericBuilder[S, CustomGene, PartialCustomGeneData, CompleteCustomGeneData] {
   type RET[A <: S] = CustomGeneBuilder[A]
   def setCustomProperties(properties: Map[String, PropertyInfo]): CustomGeneBuilder[S with GeneWithProperties with GeneWithConversionMap]
   def addConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[S with GeneWithConversionMap]
