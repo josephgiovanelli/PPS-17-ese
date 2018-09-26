@@ -16,7 +16,7 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
         .setEffect(Map("test" -> 1))
       ))
       .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map("test" -> Map("height" -> 1)))
+      .addConversionMap(Map("test" -> Map("height" -> 1, "fieldOfView" -> 1, "rangeOfAction" -> 1, "resistenceToAttack" -> 1, "strength" -> 1, "nutritionalValue" -> 1, "attractiveness" -> 1, "speed" -> 1)))
 
     val staticIncomplete = CustomGeneBuilder()
       .setName("namecsi")

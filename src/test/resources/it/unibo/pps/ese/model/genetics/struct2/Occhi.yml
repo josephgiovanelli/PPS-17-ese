@@ -4,5 +4,5 @@ allelesPath: ./oAll
 properties:
   view:
     conversionMap:
-      fieldofview: 1.0
-      Attractiveness : 5.0
+      fieldOfView: 1.0
+      attractiveness : 5.0
