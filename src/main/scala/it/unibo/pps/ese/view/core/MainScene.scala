@@ -10,7 +10,7 @@ import it.unibo.pps.ese.view.sections.filters.FiltersPane
 import it.unibo.pps.ese.view.sections.history.{HistoryLog, HistoryPane}
 import it.unibo.pps.ese.view.main.WorldPrefernces._
 import it.unibo.pps.ese.view.main.{DetailsPane, WorldPane, WorldView}
-import it.unibo.pps.ese.view.sections.speciesdetails.GenomeDetailsPane
+import it.unibo.pps.ese.view.sections.genome.GenomeDetailsPane
 import it.unibo.pps.ese.view.sections.statistics.StatisticsDetailsPane
 
 import scala.concurrent.ExecutionContext

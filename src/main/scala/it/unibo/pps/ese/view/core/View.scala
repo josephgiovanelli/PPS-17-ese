@@ -150,12 +150,10 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator, controller: Simulat
   }
 
   override def watchEntity(id: String): Unit = {
-    println("Watching")
     observers.foreach(_.setWatched(id))
   }
 
   override def unwatchEntity(id: String): Unit = {
-    println("Unwatching")
     observers.foreach(_.unsetWatched(id))
     import it.unibo.pps.ese.view.utilities.Conversions._
     mainView.clearStatus()

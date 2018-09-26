@@ -5,12 +5,47 @@ import it.unibo.pps.ese.model.genetics.dnaexpression._
 import it.unibo.pps.ese.model.genetics.entities.{AnimalInfo, QualityType, Species}
 import it.unibo.pps.ese.model.genetics.generators.data.TranslatedAnimalData
 
+/**
+  * Utilities for a species of animal
+  */
 sealed trait SpeciesUtilities{
+  /**
+    * @return a generated [[AnimalInfo]] of a new animal
+    */
   def generateAnimal:AnimalInfo = translateGenome(generateAnimalGenome)
+
+  /**
+    *
+    * @return a generated Genome
+    */
   def generateAnimalGenome:AnimalGenome
+
+  /**
+    * Create a certain number of animal
+    * @param n
+    * @return
+    */
   def generateNumberOfAnimal(n:Int):Seq[AnimalInfo]= List.range(0,n).map(_=>generateAnimal)
+
+  /**
+    * Translate the genome of an Animal
+    * @param genome
+    * @return
+    */
   def translateGenome(genome:AnimalGenome):AnimalInfo
+
+  /**
+    * To obtain alle the possible mutan allels
+    * @param gene
+    * @return
+    */
   def obtainMutantAlleles(gene:MGene):Seq[MGene]
+
+  /**
+    * Check if the just appeared genes are new mutant alleles
+    * @param genes
+    * @return
+    */
   def checkNewApparitions(genes:Seq[MGene]):Seq[MGene]
   def obtainNotAppearedMutation:Seq[AlleleInfo]
   private[genetics] def restoreOldNotAppearedAlleles(oldNotAppearedAlleles:Seq[AlleleInfo]):Unit
@@ -26,7 +61,7 @@ object SpeciesUtilities{
     var restored: Boolean = false
     val geneFeatures: Seq[GeneFeatures] = allGeneData.map(geneData => {
       val allelicBehaviours: Seq[AllelicBehaviour] = geneData
-        .allelicForm
+        .allelicFormWithProbability
         .map(ad => AllelicBehaviour(
           ad.geneSeq,
           ad.allelicSeq,
@@ -62,7 +97,7 @@ object SpeciesUtilities{
 
     override private[genetics] def getProbabilityOfGene(gene: GeneWithAllelicForms):Double = {
       allGeneData
-        .flatMap(_.allelicForm)
+        .flatMap(_.allelicFormWithProbability)
         .find(a=>a.geneSeq==gene.geneId && a.allelicSeq==gene.alleleCode)
         .getOrElse(throw new IllegalStateException())
         .probability
@@ -92,12 +127,12 @@ object SpeciesUtilities{
         feedingChromosomeGenes = List(stringToDiet(animalData.typology)),
         sexualChromosomeGenes = allGenes(animalData.sexualChromosome)
       )
-      val mutantAllele: Seq[AlleleInfo] = allGeneData.flatMap(_.allelicForm).filter(_.probability == 0)
+      val mutantAllele: Seq[AlleleInfo] = allGeneData.flatMap(_.allelicFormWithProbability).filter(_.probability == 0)
       var notAppearedMutation: Seq[AlleleInfo] = mutantAllele
       def allGenes(genes: Seq[GeneData]): Seq[GeneWithPossibleAlleles] = {
         genes.map(geneData => {
           val alleles: Seq[AlleleWithProbability] = geneData
-            .allelicForm
+            .allelicFormWithProbability
             .filter(_.probability > 0)
             .map(allele =>
               AlleleWithProbability(allele.allelicSeq, allele.probability))

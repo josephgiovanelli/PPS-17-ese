@@ -2,6 +2,9 @@ package it.unibo.pps.ese.model.genetics.entities
 
 import enumeratum._
 
+/**
+  * An enumeratum with all the possible qualities
+  */
   sealed trait QualityType extends EnumEntry
   object QualityType extends Enum[QualityType]{
     val values = findValues
@@ -30,8 +33,10 @@ import enumeratum._
     def femaleSexualQualities:Seq[QualityType] = List(Fertility,Fecundity,PregnancyDuration)
   }
 
-
-  sealed trait Quality{
+/**
+  * A [[QualityType]] with it's value
+  */
+sealed trait Quality{
     def qualityValue:Double
     def qualityType:QualityType
   }
@@ -48,6 +53,9 @@ import enumeratum._
     }
   }
 
+/**
+  * Object that contain the constraints for all the qualities
+  */
   object QualityValueConstraints{
     implicit def qualityTypeToConstraint(qualityType: QualityType):Double=>Boolean = {
       if(constraints.contains(qualityType)) constraints(qualityType) else (_)=>true

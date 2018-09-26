@@ -12,7 +12,7 @@ import it.unibo.pps.ese.utils.Position
 import it.unibo.pps.ese.view.core._
 import it.unibo.pps.ese.view.sections.filters.EntityFiltersValues
 import it.unibo.pps.ese.view.main.WorldPrefernces._
-import it.unibo.pps.ese.view.sections.speciesdetails.{GenomeDetailsPane, GenomeStatsUtilities}
+import it.unibo.pps.ese.view.sections.genome.{GenomeDetailsPane, GenomeStatsUtilities}
 
 import scala.util.Random
 import scalafx.Includes._

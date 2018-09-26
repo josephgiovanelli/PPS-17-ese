@@ -2,6 +2,9 @@ package it.unibo.pps.ese.model.genetics.generators.data
 
 import it.unibo.pps.ese.model.genetics.dnaexpression.GeneData
 
+/**
+  * Information useful to build a species
+  */
 trait TranslatedAnimalData{
   def name: String
   def geneLength: Int

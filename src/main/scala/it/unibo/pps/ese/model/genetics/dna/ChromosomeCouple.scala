@@ -1,8 +1,10 @@
 package it.unibo.pps.ese.model.genetics.dna
 
-import it.unibo.pps.ese.model.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.model.genetics.entities.{Female, Gender, Male}
 
+/**
+  * A Couple of chromosome of the same type leaving ChromosomeUnit as abstract
+  */
 trait ChromosomeCouple{
   type ChromosomeUnit <: Chromosome
   def addChromosomeCouple(c1:ChromosomeUnit, c2:ChromosomeUnit)
@@ -11,7 +13,17 @@ trait ChromosomeCouple{
   def firstChromosome:ChromosomeUnit
   def secondChromosome:ChromosomeUnit
 }
+
+/**
+  * Companion object for [[ChromosomeCouple]]
+  */
 object ChromosomeCouple{
+  /**
+    * Build a ChromosomeCouple with [[Chromosome]] as ChromosomeUnit type
+    * @param c1
+    * @param c2
+    * @return
+    */
   def apply(c1: Chromosome,c2: Chromosome): ChromosomeCouple = {
     val cc = new ChromosomeCoupleImpl {
       type ChromosomeUnit = Chromosome
@@ -21,25 +33,7 @@ object ChromosomeCouple{
   }
 }
 
-trait SexualChromosomeCouple extends ChromosomeCouple{
-  type ChromosomeUnit <: SexualChromosome
-  def gender:Gender = (firstChromosome.sexualChromosome,secondChromosome.sexualChromosome) match {
-    case (X,X) => Female
-    case (X,Y) => Male
-    case (Y,X) => Male
-    case _=> throw new IllegalStateException()
-  }
-}
-object SexualChromosomeCouple{
-  def apply(sc1:SexualChromosome,sc2:SexualChromosome): SexualChromosomeCouple ={
-    val scc = new ChromosomeCoupleImpl with SexualChromosomeCouple {
-      type ChromosomeUnit = SexualChromosome
-    }
-    scc.addChromosomeCouple(sc1,sc2)
-    scc
-  }
-}
-abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
+private [genetics] abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
   private var couple:Map[Int,ChromosomeUnit] = Map()
   override def addChromosomeCouple(c1: ChromosomeUnit, c2: ChromosomeUnit): Unit = {
     _assignCouple(c1,c2)
@@ -63,3 +57,36 @@ abstract class ChromosomeCoupleImpl() extends ChromosomeCouple{
     case _=> throw new IllegalArgumentException()
   }
 }
+
+/**
+  * An extended ChromosomeCouple for Sexual Chromosomes
+  */
+trait SexualChromosomeCouple extends ChromosomeCouple{
+  type ChromosomeUnit <: SexualChromosome
+  def gender:Gender = (firstChromosome.sexualChromosome,secondChromosome.sexualChromosome) match {
+    case (X,X) => Female
+    case (X,Y) => Male
+    case (Y,X) => Male
+    case _=> throw new IllegalStateException()
+  }
+}
+
+/**
+  * Companion for SexualChromosomeCouple
+  */
+object SexualChromosomeCouple{
+  /**
+    * To Build a SexualChromosomeCouple mixing ChromosomeCoupleImpl with SexualChromosomeCouple
+    * @param sc1
+    * @param sc2
+    * @return
+    */
+  def apply(sc1:SexualChromosome,sc2:SexualChromosome): SexualChromosomeCouple ={
+    val scc = new ChromosomeCoupleImpl with SexualChromosomeCouple {
+      type ChromosomeUnit = SexualChromosome
+    }
+    scc.addChromosomeCouple(sc1,sc2)
+    scc
+  }
+}
+

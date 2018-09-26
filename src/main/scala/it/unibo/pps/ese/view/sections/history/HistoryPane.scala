@@ -1,7 +1,5 @@
 package it.unibo.pps.ese.view.sections.history
 
-import java.lang.Math
-
 import it.unibo.pps.ese.view.utilities.TextUtilities._
 import it.unibo.pps.ese.view.sections.history.LogConversions._
 import javafx.collections.{FXCollections, ObservableList}

@@ -5,6 +5,7 @@ import it.unibo.pps.ese.model.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenic
 import it.unibo.pps.ese.model.genetics.entities._
 
 package object dna {
+
   def stringToElement[T](s1:String,s2:String,r1:T,r2:T)(s:String):T = s match {
     case `s1` => r1
     case `s2` => r2
@@ -41,13 +42,34 @@ package object dna {
       .toList
 
   implicit class RichChromosome (c1 :Chromosome) {
+    /**
+      * To build a [[ChromosomeCouple]] given another chromosome
+      * @param c2
+      * @return
+      */
     def :+:(c2:Chromosome):ChromosomeCouple = ChromosomeCouple(c1,c2)
+
+    /**
+      * To obtain a map entry with [[ChromosomeType]] as key and [[ChromosomeCouple]] as value
+      * @param c2
+      * @return
+      */
     def |->|(c2:Chromosome):(ChromosomeType,ChromosomeCouple) = c1.chromosomeType->ChromosomeCouple(c1,c2)
   }
   implicit class RichSexualChromosome (c1 :SexualChromosome) {
+    /**
+      * To build a [[SexualChromosomeCouple]] given another SexualChromosome
+      * @param c2
+      * @return
+      */
     def :+:(c2:SexualChromosome):SexualChromosomeCouple = SexualChromosomeCouple(c1,c2)
   }
   implicit class RichChromosomeMap(aC:Map[ChromosomeType,ChromosomeCouple]){
+    /**
+      * Method to build a genome
+      * @param scc
+      * @return
+      */
     def |%-%|(scc: SexualChromosomeCouple):AnimalGenome=dna.AnimalGenome(aC,scc)
   }
   implicit class RichGenome(genome: AnimalGenome){

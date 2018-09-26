@@ -1,7 +1,10 @@
-package it.unibo.pps.ese.view.sections.speciesdetails
+package it.unibo.pps.ese.view.sections.genome
 
 import scalafx.scene.paint.{Color, PhongMaterial}
 
+/**
+  * Object that contains some [[PhongMaterial]]
+  */
 object Materials {
   val blueMaterial:PhongMaterial = new PhongMaterial {
     diffuseColor = Color.web("1abc9c")
