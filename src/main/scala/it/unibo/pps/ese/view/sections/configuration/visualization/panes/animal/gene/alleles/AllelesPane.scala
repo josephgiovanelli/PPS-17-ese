@@ -13,6 +13,9 @@ import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object AllelesProperties {
     val title = "Alleles Pane"
     val headerText = "Define chromosome alleles"
@@ -21,6 +24,15 @@ object AllelesProperties {
 import AllelesProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert an allele in a gene.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  * @param chromosomeTypes the chromosome type of the gene of the allele
+  */
 case class AllelesPane(mainDialog: MainDialog,
                        override val previousContent: Option[GenePane],
                        animal: String,

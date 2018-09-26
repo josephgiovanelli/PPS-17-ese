@@ -46,7 +46,8 @@ object PaneProperties {
 abstract class DialogPane(val title: String, val headerText: String, val path: String, val depth: Int) extends BorderPane
 
 /**
-  * A common pane for checkable and backable panes
+  * A common pane for checkable and backable panes.
+  * It explains methods to create all the fields to insert and the APIs to set what kind of fields are, in order to automatically validate the form.
   *
   * @param mainDialog the main dialog with which communicating
   * @param previousContent the previous content
@@ -64,6 +65,9 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
   prefWidth = 500
   prefHeight = 600
 
+  /*
+  Back Section
+   */
 
   if (previousContent.isDefined) {
     val backButton = new Button("Back")
@@ -80,7 +84,6 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
     info.onMouseExited = _ => {
       tooltip.hide()
     }
-
 
     backButton.margin = Insets(0, 0, 20, 0)
 
@@ -107,7 +110,6 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
   Dialog Setup
    */
 
-
   val errorClass = PseudoClass("error")
 
   /*
@@ -130,12 +132,18 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
     margin = Insets(10,0,0,0)
     text = "Confirm"
   }
+
   bottom = okButton
 
   /*
   Methods
    */
 
+  /**
+    * Create the grid with the fields set.
+    * @param initRow the index of first row
+    * @return teh grid to add to the content
+    */
   def createGrid(initRow: Int): GridPane =
     new GridPane() {
       hgap = 10
@@ -153,6 +161,9 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
     }
 
 
+  /**
+    * Generates the checks based on the fields set.
+    */
   def createChecks(): Unit = {
     mandatoryFields.foreach(subject =>
       subject.text.onChange ((_, _, newValue) =>
@@ -166,21 +177,51 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
   }
 
 
+  /**
+    * It checks that the field isn't empty
+    * @param field the field to check
+    * @return if the field is define
+    */
   def mandatoryCheck(field: TextField): Boolean =
     field.getText.trim().isEmpty
 
+  /**
+    * It checks that the field is an int
+    * @param field the field to check
+    * @return if the field is an int
+    */
   def intCheck(field: TextField): Boolean =
     if (intFields.contains(field)) ParseUtils.parse[Int](field.getText.trim()).isEmpty else false
 
+  /**
+    * It checks that the field is a double
+    * @param field the field to check
+    * @return if the field is a double
+    */
   def doubleCheck(field: TextField): Boolean =
     if (doubleFields.contains(field)) ParseUtils.parse[Double](field.getText.trim()).isEmpty else false
 
+  /**
+    * It checks that the field is unique
+    * @param field the field to check
+    * @return if the field is unique
+    */
   def uniqueCheck(field: TextField): Boolean =
     if (key.isEmpty && uniqueFields.keySet.contains(field)) uniqueFields(field).contains(field.text.value) else false
 
+  /**
+    * It checks that the field length is correct with previous set
+    * @param field the field to check
+    * @return if the field length is correct
+    */
   def lengthCheck(field: TextField): Boolean =
     if (lengthFields.keySet.contains(field)) field.text.value.length != lengthFields(field) else false
 
+  /**
+    * It checks that the field is a probability
+    * @param field the field to check
+    * @return if the field is a probability
+    */
   def probabilityCheck(field:TextField): Boolean =
     if (probabilityFields.contains(field))
       if (ParseUtils.parse[Double](field.getText.trim()).isEmpty)
@@ -189,6 +230,13 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
         field.text.value.toDouble < 0.0 || field.text.value.toDouble > 1.0
     else false
 
+  /**
+    * It checks the checks on the field, if something's wrong then shows the error.
+    *
+    * @param field the field to check
+    * @param newValue the value of the field
+    * @return if the field is correct
+    */
   def checkFields(field: TextField, newValue: String): Boolean = {
     val mandatory = mandatoryCheck(field)
     val int = intCheck(field)
@@ -213,6 +261,10 @@ abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Opti
     checkFields
   }
 
+  /**
+    * It checks if all field are correct.
+    * @return if the fields aren't correct
+    */
   def checkFields: Boolean = {
     (mandatoryFields.exists(field => mandatoryCheck(field)) && mandatoryFields.nonEmpty) ||
       (intFields.exists(field => intCheck(field)) && intFields.nonEmpty) ||

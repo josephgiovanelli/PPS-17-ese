@@ -8,6 +8,9 @@ import scala.collection.immutable.ListMap
 import scalafx.application.Platform
 import scalafx.scene.control._
 
+/**
+  * It defines the title and the header
+  */
 object EffectProperties {
     val title = "Effect Pane"
     val headerText = "Define an allele effect"
@@ -16,6 +19,13 @@ object EffectProperties {
 import EffectProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert the relation between the allele and a property.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param currentEffect the previous effect if is present
+  */
 case class EffectPane(mainDialog: MainDialog,
                       override val previousContent: Option[AllelePane],
                       currentEffect: (String, Double))

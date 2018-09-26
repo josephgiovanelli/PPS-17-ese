@@ -22,6 +22,9 @@ import scalafx.scene.control.{Button, ListView}
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.FileChooser
 
+/**
+  * It defines the title and the header
+  */
 object ConfigurationProperties {
   val title = "Configuration Pane"
   val headerText = "Insert or edit your species"
@@ -29,6 +32,18 @@ object ConfigurationProperties {
 
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.ConfigurationProperties._
 
+/**
+  * The first pane that allows to insert animals and plants.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param setupViewBridge a component that checks the integrity if the data
+  * @param mainComponent the component to communicate data to
+  * @param setUp if the simulation isn't running
+  * @param previousAnimalsCount if the simulation is running, these species are in the simulation
+  * @param previousPlantsCount if the simulation is running, these species are in the simulation
+  * @param executionContext the execution context
+  */
 case class ConfigurationPane(mainDialog: MainDialog,
                              override val previousContent: Option[DialogPane],
                              setupViewBridge: Option[SetupViewBridge],

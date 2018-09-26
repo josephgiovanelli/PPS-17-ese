@@ -16,6 +16,9 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.paint.Color
 
+/**
+  * It defines the title and the header
+  */
 object ConfirmProperties {
   val title = "Confirm Dialog"
   val headerText = "Choose number of entities for each species"
@@ -23,6 +26,18 @@ object ConfirmProperties {
 
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.ConfirmProperties._
 
+/**
+  * Pane that allows to insert how many entities for each species you want to put into the simulation.
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param setupViewBridge a component that checks the integrity if the data
+  * @param mainComponent the component to communicate data to
+  * @param setUp if the simulation isn't running
+  * @param newAnimalSpecies if the simulation is running, these species aren't in the simulation
+  * @param newPlantSpecies if the simulation is running, these species aren't in the simulation
+  * @param previousAnimalsCount if the simulation is running, these species are in the simulation
+  * @param previousPlantsCount if the simulation is running, these species are in the simulation
+  */
 case class ConfirmPane(mainDialog: MainDialog,
                        override val previousContent: Option[DialogPane],
                        setupViewBridge: Option[SetupViewBridge],

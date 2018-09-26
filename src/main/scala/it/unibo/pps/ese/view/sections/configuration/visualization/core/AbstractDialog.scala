@@ -10,11 +10,11 @@ import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
 /**
-  * An abstract dialog
+  * An abstract dialog that specify a common features
   *
-  * @param window
-  * @param key
-  * @tparam A
+  * @param window the window of the parent
+  * @param key if present is useful to restart information
+  * @tparam A the type of the return
   */
 abstract class AbstractDialog[A](window: Window, key: Option[String] = None) extends Dialog[A] {
 
