@@ -3,11 +3,11 @@
 | Product Backlog Item | Sprint Task                                                                    	 | Volunteer | Initial estimate of Effort | 1 | 2 | 3 | 4 | 5 | 6 |
 |----------|-----------------------------------------------------------------------------|--------------------|-----------------------|---|---|---|---|---|---|
 | Gli animali sono in grado di muoversi, nutrirsi e di vivere
-|         | Creare teoria prolog per albero di decisione e valutare versione scala più prestante | Joseph | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Definire ed implementare modulo per la gestione delle caratteristiche dinamiche dell'entità| Joseph | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Testing alberi di decisione | Joseph | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Integrazione decision support | Joseph e Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Definire ed implementare fasi di interazione fra componenti per la decisione finale sulla mossa da compiere| Joseph | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
+|         | Creare teoria prolog per albero di decisione e valutare versione scala più prestante | Joseph | 50 | 30 | 10 | 0 | 0 | 0 | 0 |
+|         | Definire ed implementare modulo per la gestione delle caratteristiche dinamiche dell'entità| Joseph | 10 | 10 | 10 | 10 | 10 | 0 | 0 |
+|         | Testing alberi di decisione | Joseph | 10 | 10 | 10 | 0 | 0 | 0 | 0 |
+|         | Integrazione decision support | Joseph | 10 | 10 | 10 | 10 | 0 | 0 | 0 |
+|         | Definire ed implementare fasi di interazione fra componenti per la decisione finale sulla mossa da compiere| Joseph | 20 | 20 | 20 | 20 | 10 | 0 | 0 |
 | L'utente può definire le caratteristiche dell'animale tramite file di markup
 |         | Definizione dei dati di input| Matteo e Diego | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
 |         | Definizione struttura e gerarchia dei file yaml| Matteo | 5 | 0 | 0 | 0 | 0 | 0 | 0 |

@@ -3,7 +3,11 @@
 | Product Backlog Item | Sprint Task                                                                    	 | Volunteer | Initial estimate of Effort | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
 |----------|-----------------------------------------------------------------------------|--------------------|-----------------------|---|---|---|---|---|---|---|
 | Raccolta dei dati sulle dinamiche interne all'animale e gli avvenimenti salienti del mondo di simulazione
-|         | ________| Joseph | 120 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         | Implementare modulo di riproduzione delle piante | Joseph | 10 | 10 | 10 | 0 | 0 | 0 | 0 | 0 |
+|         | Aggiungere entità e specie a simulazione in corso | Joseph | 10 | 10 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         | Creazione modulo per il ripristino della storia di un'entità | Joseph | 50 | 50 | 50 | 40 | 20 | 0 | 0 | 0 |
+|         | Comunicazione per la scrittura della storia iterazione per iterazione | Joseph | 5 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         | Raccolta informazioni riguardo agli organi attivi ad ogni iterazione | Joseph | 25 | 10 | 0 | 0 | 0 | 0 | 0 | 0 |
 | L'utente può creare un animale a partire da parti del corpo disponibili
 |         |________ | Matteo | 120 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | L'utente può salvare una simulazione e riprenderla in un secondo momento

@@ -3,8 +3,9 @@
 | Product Backlog Item | Sprint Task                                                                    	 | Volunteer | Initial estimate of Effort | 1 | 2 | 3 | 4 | 5 | 6 |
 |----------|-----------------------------------------------------------------------------|--------------------|-----------------------|---|---|---|---|---|---|
 | L'utente può creare da zero una specie tramite interfaccia grafica
-|         | Creazione coordinatore per il salvataggio dei dati| Joseph | 50 | 0 | 0 | 0 | 0 | 0 | 0 |
-|         | Creazione dei dialog per l'inserimento dei dati| Joseph | 50 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         | Creazione coordinatore per il salvataggio dei dati| Joseph | 30 | 20 | 10 | 0 | 0 | 0 | 0 |
+|         | Creazione dei dialog per l'inserimento dei dati| Joseph | 30 | 20 | 10 | 0 | 0 | 0 | 0 |
+|         | Validazione dei dialog per l'inserimento dei dati| Joseph | 40 | 40 | 40 | 40 | 20 | 0 | 0 |
 | Gli animali si possono riprodurre
 |         | Sviluppo test automatizzati beahviour| Matteo | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
 |         | Sincronizzazione coppia per effettuare copulazione nello stesso turno| Matteo | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
