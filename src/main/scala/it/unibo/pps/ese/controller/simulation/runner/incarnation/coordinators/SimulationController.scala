@@ -213,7 +213,8 @@ trait SingleViewController extends SimulationController with BaseManageableContr
 
   private[this] val surgeon = Surgeon(realTimeState)
   private[this] val storyTeller = StoryTeller(miner)
-  private[this] val _era: AtomicInteger = new AtomicInteger(1)
+  private[this] val _era: AtomicInteger = new AtomicInteger(0)
+  private[this] var _attached = false
 
   simulation attachEraListener(era => _era set era.toInt)
   consolidatedState attachNewDataListener(era => storyTeller updateHistoryLog era)
@@ -222,10 +223,12 @@ trait SingleViewController extends SimulationController with BaseManageableContr
 
   override def unwatch(): Unit = surgeon leaves()
 
-  def attachView(view: View, frameRate: Int): Unit = {
+  def attachView(view: View, frameRate: Int): Unit = if (!_attached){
+    _attached = true
     storyTeller attachView view
     import ViewHelpers.ManageableObserver
     view addObserver this
+    play()
     new Thread (() => {
       while(!isStopped) {
         normalizeFrameRate(() => {

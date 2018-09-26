@@ -51,7 +51,6 @@ private class ViewImpl(geneticsSimulator: GeneticsSimulator, controller: Simulat
   var mainView: WorldView = new MainScene(geneticsSimulator,this)
   var currentView: ViewType.Value = ViewType.MainView
   setScene(ViewType.MainView)
-  controller.manage.play()
   this.setOnCloseRequest((e: WindowEvent) => {
     controller.manage.exit()
   })
