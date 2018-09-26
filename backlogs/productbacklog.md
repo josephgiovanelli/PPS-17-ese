@@ -6,12 +6,12 @@
 | 1        |Design e creazione architettura di base del sistema	                             	 |                     | 20                    | 0        |   |   |   |
 | 2        |  Gestione della genetica delle entità|                     | 40                    | 70|   |   |   | 
 | 3        |  Visualizzazione del mondo di gioco|                     | 10                    |   |   |   |   |
-| 4        |  Caricamento della simulazione via yaml|         | 30                  |   |   |   |   |
+| 4        |  Caricamento della simulazione via yaml|         | 120                  | 20 | 50 | 0 | 0 |
 | 5        |  Gestione dell'approvigionamento di un animale| | 50                  | 0  | 0  | 0  | 0  |
 | 6        |  Gestione del mondo di gioco |                     | 20                  |   |   |   |   |
 | 7        |  Gestione delle interazioni fra entità 	 |                  | 50                  | 0  | 0  | 0  | 0  |
 | 8        |  Visualizzazione delle caratteristiche di un entità 	    |                       |                     |   |   |   |   |
-| 9        |  Gli animal si possono riprodurre	    |                       | 80                    | 40  | 0  | 0  | 0  |
+| 9        |  Gli animal si possono riprodurre	    |                       | 120                    | 100  | 0  | 0  | 0  |
 | 10        |  Le piante si possono riprodurre    |                       |   10                  |  10 | 10  | 0  | 0  |
 | 11        |  Gli animali sono dotati di una memoria	    |                       |                     |   |   |   |   |
 | 12        |  L'utente può configurare una simulazione tramite interfaccia grafica |                       | 100                    |  100 | 50   | 20  | 0  |
