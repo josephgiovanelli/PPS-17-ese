@@ -14,8 +14,11 @@ import net.jcazevedo.moultingyaml._
 
 import scala.util.{Failure, Success, Try}
 
+trait FileLoader extends Loader {
+  override type DataSource = File
+}
 
-object YamlLoader extends Loader {
+object YamlLoader extends FileLoader {
 
   import BeansYamlProtocol._
   import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
@@ -114,8 +117,7 @@ object YamlLoader extends Loader {
 
   private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData,
                                                       currentFolder: Folder): Seq[DefaultGeneBuilder[_]] = {
-    //TODO in builder, only check subset here
-    //require(chromosomeData.names.keySet == genesSet.map(_.name))
+
     var alleles: Seq[AlleleBuilder[_]] = Seq()
     if(chromosomeData.allelesPath.isDefined) {
       alleles = normalizeConfigPath(chromosomeData.allelesPath.get, currentFolder) match {

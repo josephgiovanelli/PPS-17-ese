@@ -22,8 +22,6 @@ class TestAnimalBuilder extends WordSpec with AnimalBuilderFixture {
             fail()
         }
       }
-      //TODO generate gene with correct data
-      //TODO expl and impl build correctly if filled with default gene data
     }
 
     "has missing parameters" should {

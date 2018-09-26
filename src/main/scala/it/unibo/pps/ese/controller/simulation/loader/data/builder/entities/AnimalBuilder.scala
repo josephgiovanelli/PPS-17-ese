@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
-import it.unibo.pps.ese.controller.simulation.loader.AnimalStructuralProperties
+import it.unibo.pps.ese.controller.simulation.loader.{AnimalStructuralProperties, DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
@@ -9,7 +9,6 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseBuildable
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
-import it.unibo.pps.ese.model.genetics.entities.QualityType
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
@@ -92,6 +91,8 @@ object AnimalBuilder {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All structural chromosome's genes must be complete",
           structTries.collect({case Failure(value: CompleteBuildException) => value}))
       }
+      if(struct.size != struct.toSet.size)
+        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | Structural chromosome contains duplicated genes")
       val effectedProperties = struct.flatMap(_.conversionMap.values.flatMap(_.keySet)).toSet
       if(!(effectedProperties == AnimalStructuralProperties.elements.map(_.name))) {
         var exceptions: Seq[CompleteBuildException] = Seq()
@@ -101,19 +102,35 @@ object AnimalBuilder {
         exceptions = exceptions ++ extraEffected.map(e => CompleteBuildException("Quality: " + e + " effected, but not exists or isn't accessible"))
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | Regulation chromosome mus effect all and only animal's base qualities", exceptions)
       }
-      val regTries: Iterable[Try[CompleteDefaultGeneData]] = regulationChromosome.map(_.tryCompleteBuild())
-      val reg: Iterable[CompleteDefaultGeneData] = regTries.collect({case Success(value) => value})
-      if(reg.size != regulationChromosome.size) {
-        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All regulation chromosome's genes must be complete",
-          regTries.collect({case Failure(value: CompleteBuildException) => value}))
+      val regCheck = checkDefaultChromosome(regulationChromosome, "regulation", RegulationDefaultGenes.elements.toSeq.toSet)
+      exception = exception ++: regCheck._1
+      val sexCheck = checkDefaultChromosome(sexualChromosome, "sexual", SexualDefaultGenes.elements.toSeq.toSet)
+      exception = exception ++: sexCheck._1
+      (exception, struct, regCheck._2, sexCheck._2)
+    }
+
+    private def checkDefaultChromosome(chromosome: Iterable[DefaultGeneBuilder[_]], chromosomeName: String,
+                                       defaultElements: Set[DefaultGene]): (Option[CompleteBuildException], Iterable[CompleteDefaultGeneData]) = {
+      var exception: Option[CompleteBuildException] = None
+      val tries: Iterable[Try[CompleteDefaultGeneData]] = chromosome.map(_.tryCompleteBuild())
+      val complete: Iterable[CompleteDefaultGeneData] = tries.collect({case Success(value) => value})
+      if(complete.size != chromosome.size) {
+        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All " + chromosomeName + " chromosome's genes must be complete",
+          tries.collect({case Failure(value: CompleteBuildException) => value}))
       }
-      val sexTries: Iterable[Try[CompleteDefaultGeneData]] = sexualChromosome.map(_.tryCompleteBuild())
-      val sex: Iterable[CompleteDefaultGeneData] = sexTries.collect({case Success(value) => value})
-      if(sex.size != sexualChromosome.size) {
-        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All sexual chromosome's genes must be complete",
-          sexTries.collect({case Failure(value: CompleteBuildException) => value}))
+      if(complete.size != complete.toSet.size)
+        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | " + chromosomeName.capitalize + " chromosome contains duplicated genes")
+      val chromosomeElements = complete.map(c => (c.name, c.properties)).toSet
+      val expectedChromosomeElements = defaultElements.map(g => (g.name, g.properties))
+      if(chromosomeElements != expectedChromosomeElements) {
+        var exceptions: Seq[CompleteBuildException] = Seq()
+        exceptions = exceptions ++ (expectedChromosomeElements -- chromosomeElements).map(expected =>
+          CompleteBuildException("Gene with " + expected._1 + " name and " + expected._2.keySet + " properties missing"))
+        exceptions = exceptions ++ (chromosomeElements -- expectedChromosomeElements).map(notExpected =>
+          CompleteBuildException("Gene with " + notExpected._1 + " name and " + notExpected._2.keySet + " is not a default gene"))
+        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | " + chromosomeName.capitalize + " chromosome must contain only predefined genes", exceptions)
       }
-      (exception, struct, reg, sex)
+      (exception, complete)
     }
 
     override def checkProperties: Option[CompleteBuildException] = {

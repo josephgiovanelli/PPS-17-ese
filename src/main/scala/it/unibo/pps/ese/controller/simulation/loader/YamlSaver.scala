@@ -16,12 +16,17 @@ import it.unibo.pps.ese.controller.simulation.loader.exception.ResourceAlreadyEx
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
+trait FileSaver extends Saver {
+  override type DataSupport = Folder
+  def addResourceToOverride(resource: ExistingResource)
+}
+
 object YamlSaver {
 
-  def apply(simulationData: PartialSimulationData, simulationName: String): Saver =
+  def apply(simulationData: PartialSimulationData, simulationName: String): FileSaver =
     new YamlSaverImpl(simulationData, simulationName)
 
-  private class YamlSaverImpl(val simulationData: PartialSimulationData, val simulationName: String) extends Saver {
+  private class YamlSaverImpl(val simulationData: PartialSimulationData, val simulationName: String) extends FileSaver {
 
     import BeansYamlProtocol._
 
@@ -41,9 +46,8 @@ object YamlSaver {
           f.getOrCreateFolder().getOrElse(throw new IOException())
       })) match {
         case Success(_) =>
-          Success()
+          Success(Unit)
         case Failure(exception) =>
-          //TODO delete already created files
           Failure(exception)
       }
     }

@@ -6,6 +6,8 @@ import it.unibo.pps.ese.controller.simulation.loader.io.File
 import scala.util.Try
 
 trait Loader {
-  def loadSimulation(configFile: File): PartialSimulationData
-  def loadCompleteSimulation(configFile: File): Try[CompleteSimulationData]
+  type DataSource
+
+  def loadSimulation(configFile: DataSource): PartialSimulationData
+  def loadCompleteSimulation(configFile: DataSource): Try[CompleteSimulationData]
 }

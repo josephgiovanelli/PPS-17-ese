@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.gene
 
-import it.unibo.pps.ese.controller.simulation.loader.data.GeneData.PartialGeneData
+import it.unibo.pps.ese.controller.simulation.loader.data.GeneData.{CompleteGeneData, PartialGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BuilderStatus, GenericBuilder, NotBuildableBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
@@ -52,9 +52,9 @@ private[gene] abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[
     if(!(all.map(_.probability).sum == 1.0))
       exception = exception ++: CompleteBuildException("Gene: " + name.get + " | sum of alleles' probabilities must be 1")
     if(!all.forall(_.effect.keySet.subsetOf(properties.keySet)))
-      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | alleles problem")
+      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | alleles must effect only gene's properties")
     if(!all.forall(a => id.contains(a.gene)))
-      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | alleles problem")
+      exception = exception ++: CompleteBuildException("Gene: " + name.get + " | alleles must refer to gene's id")
     (exception, all)
   }
 

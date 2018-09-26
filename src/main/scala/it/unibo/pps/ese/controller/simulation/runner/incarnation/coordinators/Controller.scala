@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 
-import it.unibo.pps.ese.controller.simulation.loader.{Saver, YamlLoader, YamlSaver}
+import it.unibo.pps.ese.controller.simulation.loader.{FileSaver, YamlLoader, YamlSaver}
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.simulation.loader.io.{ExistingResource, File, Folder}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.SimulationBuilder
@@ -22,7 +22,7 @@ object Controller {
 
   private class BaseController()(implicit executionContext: ExecutionContext) extends Controller {
 
-    var saver: Option[Saver] = None
+    var saver: Option[FileSaver] = None
 
     override def startSimulation(data: CompleteSimulationData): Future[Try[SimulationController]] = {
       Future(Success(new SimulationBuilder[EmptySimulation]
