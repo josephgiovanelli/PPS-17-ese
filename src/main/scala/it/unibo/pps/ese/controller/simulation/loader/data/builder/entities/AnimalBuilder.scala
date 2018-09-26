@@ -4,11 +4,12 @@ import it.unibo.pps.ese.controller.simulation.loader.{AnimalStructuralProperties
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
 import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{CompleteCustomGeneData, PartialCustomGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
+import it.unibo.pps.ese.controller.simulation.loader.data.GeneData.CompleteGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseBuildableGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder, GeneBuilder}
 
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
@@ -108,6 +109,19 @@ object AnimalBuilder {
       exception = exception ++: sexCheck._1
       (exception, struct, regCheck._2, sexCheck._2)
     }
+
+//    private def checkChromosome(chromosome: Iterable[GeneBuilder[_]], chromosomeName: String): (Option[CompleteBuildException], Iterable[CompleteGeneData]) = {
+//      var exception: Option[CompleteBuildException] = None
+//      val tries: Iterable[Try[CompleteGeneData]] = chromosome.map(_.tryCompleteBuild())
+//      val complete: Iterable[CompleteGeneData] = tries.collect({case Success(value) => value})
+//      if(complete.size != chromosome.size) {
+//        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All " + chromosomeName + " chromosome's genes must be complete",
+//          tries.collect({case Failure(value: CompleteBuildException) => value}))
+//      }
+//      if(complete.size != complete.toSet.size)
+//        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | " + chromosomeName.capitalize + " chromosome contains duplicated genes")
+//
+//    }
 
     private def checkDefaultChromosome(chromosome: Iterable[DefaultGeneBuilder[_]], chromosomeName: String,
                                        defaultElements: Set[DefaultGene]): (Option[CompleteBuildException], Iterable[CompleteDefaultGeneData]) = {

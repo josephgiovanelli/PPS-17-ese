@@ -40,11 +40,13 @@ object ViewLauncher {
     with SetupViewBridge with StartViewBridge {
     title = "Evolution Simulation Engine"
     val simulationController: Option[SimulationController] = None
-    this.scene = StartMenuView(this)
+    val startMenuView = StartMenuView(this)
+    this.scene = startMenuView
 
     def launchSetup(currentWindow: Window, simulationData: Option[PartialSimulationData] = None): Unit = {
       simulationData.foreach(populateEntitiesInfo)
       MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
+      startMenuView.disableButtons(false)
     }
 
     def startSimulation(file: File, currentWindow: Window): Future[Try[Unit]] = {
