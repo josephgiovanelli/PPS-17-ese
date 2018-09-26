@@ -15,7 +15,7 @@ object BuildersValidationImplicits {
   implicit def map[X, Y]: DefaultValue[Map[X, Y]] = DefaultValue(Map[X, Y]())
 }
 
-trait NotBuildableBuilder[S <: BuilderStatus] {
+trait BuilderContent[S <: BuilderStatus] {
   implicit val int: DefaultRange[Int] = BuildersValidationImplicits.int
   implicit val double: DefaultRange[Double] = BuildersValidationImplicits.double
   implicit val string: DefaultValue[String] = BuildersValidationImplicits.string
@@ -24,7 +24,7 @@ trait NotBuildableBuilder[S <: BuilderStatus] {
   implicit def map[X, Y]: DefaultValue[Map[X, Y]] = BuildersValidationImplicits.map
 }
 
-trait StaticBuildableBuilder[S <: BuilderStatus, +P, +C <: P] extends NotBuildableBuilder[S] {
+trait StaticBuilder[S <: BuilderStatus, +P, +C <: P] extends BuilderContent[S] {
   def tryBuild(): Try[P]
   def tryCompleteBuild(): Try[C]
   def build(): P = {
@@ -37,11 +37,11 @@ trait StaticBuildableBuilder[S <: BuilderStatus, +P, +C <: P] extends NotBuildab
   }
 }
 
-trait DynamicBuildableBuilder[S <: BuilderStatus, CS <: BuilderStatus, +C] extends NotBuildableBuilder[S] {
+trait DynamicBuilder[S <: BuilderStatus, CS <: BuilderStatus, +C] extends BuilderContent[S] {
   def buildComplete(implicit ev: S =:= CS, st: TypeTag[S]): C
 }
 
-trait GenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends StaticBuildableBuilder[S, P, C] with DynamicBuildableBuilder[S, CS, C] {
+trait GenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends StaticBuilder[S, P, C] with DynamicBuilder[S, CS, C] {
   override def buildComplete(implicit ev: S =:= CS, st: TypeTag[S]): C = {
     tryCompleteBuild() match {
       case Success(value) =>
@@ -52,7 +52,7 @@ trait GenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] exten
   }
 }
 
-trait BaseBuildableGenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends GenericBuilder[S, CS, P, C] {
+trait BaseGenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends GenericBuilder[S, CS, P, C] {
 
   protected def buildPartialInstance(): P
 

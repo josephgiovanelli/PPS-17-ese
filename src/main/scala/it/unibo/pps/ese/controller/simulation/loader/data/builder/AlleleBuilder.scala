@@ -31,7 +31,7 @@ object AlleleBuilder {
                                   probability: Option[Double],
                                   effect: Map[String, Double])
                                   (implicit val status: TypeTag[T], val validStatus: TypeTag[ValidAllele])
-    extends AlleleBuilder[T] with BaseBuildableGenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData] {
+    extends AlleleBuilder[T] with BaseGenericBuilder[T, FullAllele, PartialAlleleData, CompleteAlleleData] {
 
     def setGene(gene: String): AlleleBuilder[T with AlleleWithGene] =
       new AlleleBuilderImpl(Some(gene), id, dominance, consume, probability, effect)

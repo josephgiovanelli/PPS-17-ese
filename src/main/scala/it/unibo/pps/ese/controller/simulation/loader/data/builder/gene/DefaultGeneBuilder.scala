@@ -25,7 +25,7 @@ object DefaultGeneBuilder {
                                                 alleles: Iterable[AlleleBuilder[_]])
                                                (implicit val status: TypeTag[T])
     extends GenericGeneBuilderImpl[T](id, name, properties, alleles) with DefaultGeneBuilder[T]
-      with BaseBuildableGenericBuilder[T , DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData]
+      with BaseGenericBuilder[T , DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData]
       with ValidStatusGenericBuilder[T , DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData, ValidGene]{
 
     override def newInstance[NT <: GeneStatus](id: Option[String], name: Option[String], properties: Map[String, Class[_]],

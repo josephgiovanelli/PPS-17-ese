@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.CustomGeneData.{Comple
 import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.{CompleteDefaultGeneData, PartialDefaultGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data.GeneData.CompleteGeneData
 import it.unibo.pps.ese.controller.simulation.loader.data._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseBuildableGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder, GeneBuilder}
@@ -37,7 +37,7 @@ object AnimalBuilder {
                                              sexualChromosome: Iterable[DefaultGeneBuilder[_]])
                                             (implicit val status: TypeTag[T])
     extends EntityBuilderImpl[T](name, geneLength, alleleLength, reign) with AnimalBuilder[T]
-      with BaseBuildableGenericBuilder[T , FullAnimal, PartialAnimalData, CompleteAnimalData]
+      with BaseGenericBuilder[T , FullAnimal, PartialAnimalData, CompleteAnimalData]
       with ValidStatusGenericBuilder[T , FullAnimal, PartialAnimalData, CompleteAnimalData, ValidEntity] {
 
 
@@ -86,14 +86,9 @@ object AnimalBuilder {
 
     private def checkComplete(): (Option[CompleteBuildException], Iterable[CompleteCustomGeneData], Iterable[CompleteDefaultGeneData], Iterable[CompleteDefaultGeneData]) ={
       var exception: Option[CompleteBuildException] = None
-      val structTries: Iterable[Try[CompleteCustomGeneData]] = structuralChromosome.map(_.tryCompleteBuild())
-      val struct: Iterable[CompleteCustomGeneData] = structTries.collect({case Success(value) => value})
-      if(struct.size != structuralChromosome.size) {
-        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All structural chromosome's genes must be complete",
-          structTries.collect({case Failure(value: CompleteBuildException) => value}))
-      }
-      if(struct.size != struct.toSet.size)
-        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | Structural chromosome contains duplicated genes")
+      val checkStruct = checkChromosome(structuralChromosome, "structural")
+      exception = exception ++: checkStruct._1
+      val struct = checkStruct._2.asInstanceOf[Iterable[CompleteCustomGeneData]]
       val effectedProperties = struct.flatMap(_.conversionMap.values.flatMap(_.keySet)).toSet
       if(!(effectedProperties == AnimalStructuralProperties.elements.map(_.name))) {
         var exceptions: Seq[CompleteBuildException] = Seq()
@@ -110,30 +105,25 @@ object AnimalBuilder {
       (exception, struct, regCheck._2, sexCheck._2)
     }
 
-//    private def checkChromosome(chromosome: Iterable[GeneBuilder[_]], chromosomeName: String): (Option[CompleteBuildException], Iterable[CompleteGeneData]) = {
-//      var exception: Option[CompleteBuildException] = None
-//      val tries: Iterable[Try[CompleteGeneData]] = chromosome.map(_.tryCompleteBuild())
-//      val complete: Iterable[CompleteGeneData] = tries.collect({case Success(value) => value})
-//      if(complete.size != chromosome.size) {
-//        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All " + chromosomeName + " chromosome's genes must be complete",
-//          tries.collect({case Failure(value: CompleteBuildException) => value}))
-//      }
-//      if(complete.size != complete.toSet.size)
-//        exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | " + chromosomeName.capitalize + " chromosome contains duplicated genes")
-//
-//    }
-
-    private def checkDefaultChromosome(chromosome: Iterable[DefaultGeneBuilder[_]], chromosomeName: String,
-                                       defaultElements: Set[DefaultGene]): (Option[CompleteBuildException], Iterable[CompleteDefaultGeneData]) = {
+    private def checkChromosome(chromosome: Iterable[GeneBuilder[_]], chromosomeName: String): (Option[CompleteBuildException], Iterable[CompleteGeneData]) = {
       var exception: Option[CompleteBuildException] = None
-      val tries: Iterable[Try[CompleteDefaultGeneData]] = chromosome.map(_.tryCompleteBuild())
-      val complete: Iterable[CompleteDefaultGeneData] = tries.collect({case Success(value) => value})
+      val tries: Iterable[Try[CompleteGeneData]] = chromosome.map(_.tryCompleteBuild())
+      val complete: Iterable[CompleteGeneData] = tries.collect({case Success(value) => value})
       if(complete.size != chromosome.size) {
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | All " + chromosomeName + " chromosome's genes must be complete",
           tries.collect({case Failure(value: CompleteBuildException) => value}))
       }
       if(complete.size != complete.toSet.size)
         exception = exception ++: CompleteBuildException("Animal: "+ name.get +" | " + chromosomeName.capitalize + " chromosome contains duplicated genes")
+      (exception, complete)
+    }
+
+    private def checkDefaultChromosome(chromosome: Iterable[DefaultGeneBuilder[_]], chromosomeName: String,
+                                       defaultElements: Set[DefaultGene]): (Option[CompleteBuildException], Iterable[CompleteDefaultGeneData]) = {
+      var exception: Option[CompleteBuildException] = None
+      val check = checkChromosome(chromosome, chromosomeName)
+      exception = exception ++: check._1
+      val complete = check._2.asInstanceOf[Iterable[CompleteDefaultGeneData]]
       val chromosomeElements = complete.map(c => (c.name, c.properties)).toSet
       val expectedChromosomeElements = defaultElements.map(g => (g.name, g.properties))
       if(chromosomeElements != expectedChromosomeElements) {

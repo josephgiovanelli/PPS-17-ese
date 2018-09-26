@@ -10,7 +10,7 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
-trait GenericGeneBuilder[S <: GeneStatus] extends NotBuildableBuilder[S] { self =>
+trait GenericGeneBuilder[S <: GeneStatus] extends BuilderContent[S] { self =>
   type RET[A <: S] <: GenericGeneBuilder[A]
   def setId(id: String): RET[S with GeneWithId]
   def setName(name: String): RET[S with GeneWithName]
@@ -19,7 +19,7 @@ trait GenericGeneBuilder[S <: GeneStatus] extends NotBuildableBuilder[S] { self 
   def status: TypeTag[S]
 }
 
-trait GeneBuilder[S <: GeneStatus] extends GenericGeneBuilder[S] with StaticBuildableBuilder[S, PartialGeneData, CompleteGeneData]
+trait GeneBuilder[S <: GeneStatus] extends GenericGeneBuilder[S] with StaticBuilder[S, PartialGeneData, CompleteGeneData]
 
 private[gene] abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                name: Option[String],

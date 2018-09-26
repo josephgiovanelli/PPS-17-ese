@@ -29,7 +29,7 @@ object CustomGeneBuilder {
                                                conversionMap: Map[String, Map[String, Double]])
                                               (implicit val status: TypeTag[T])
     extends GenericGeneBuilderImpl[T](id, name, properties, alleles) with CustomGeneBuilder[T]
-      with BaseBuildableGenericBuilder[T , CustomGene, PartialCustomGeneData, CompleteCustomGeneData]
+      with BaseGenericBuilder[T , CustomGene, PartialCustomGeneData, CompleteCustomGeneData]
       with ValidStatusGenericBuilder[T , CustomGene, PartialCustomGeneData, CompleteCustomGeneData, ValidGene] {
 
     override def newInstance[NT <: GeneStatus](id: Option[String], name: Option[String], properties: Map[String, Class[_]],

@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.simulation.loader.data._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseBuildableGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 
@@ -31,7 +31,7 @@ object PlantBuilder {
                                                     reign: Option[String])
                                                    (implicit val status: TypeTag[T])
     extends EntityBuilderImpl[T](name, geneLength, alleleLength, reign) with PlantBuilder[T]
-      with BaseBuildableGenericBuilder[T , FullPlant, PartialPlantData, CompletePlantData]
+      with BaseGenericBuilder[T , FullPlant, PartialPlantData, CompletePlantData]
       with ValidStatusGenericBuilder[T , FullPlant, PartialPlantData, CompletePlantData, ValidEntity]{
 
 

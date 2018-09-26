@@ -26,3 +26,8 @@ trait FullEntityData extends EntityData {
   def alleleLength: Int = getAlleleLength.getOrElse(throw new IllegalStateException())
   def reign: String = getReign.getOrElse(throw new IllegalStateException())
 }
+
+object EntityData {
+  type PartialEntityData = EntityData
+  type CompleteEntityData = FullEntityData
+}

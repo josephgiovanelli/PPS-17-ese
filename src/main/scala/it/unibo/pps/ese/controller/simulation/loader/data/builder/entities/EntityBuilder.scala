@@ -1,7 +1,8 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.simulation.loader.data.EntityData
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BuilderStatus, NotBuildableBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.EntityData.{CompleteEntityData, PartialEntityData}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BuilderStatus, BuilderContent, StaticBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus.{EntityWithAlleleLength, EntityWithGeneLength, EntityWithReign, PlantWithHardness, PlantWithNutritionalValue, _}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 
@@ -9,8 +10,8 @@ import scala.reflect.runtime.universe._
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableInsideRange._
 
-trait EntityBuilder[S <: EntityStatus] extends NotBuildableBuilder[S] {
-  type RET[A <: S] <: EntityBuilder[A]
+trait GenericEntityBuilder[S <: EntityStatus] extends BuilderContent[S] {
+  type RET[A <: S] <: GenericEntityBuilder[A]
   def setName(name: String): RET[S with EntityWithName]
   def setGeneLength(geneLength: Int): RET[S with EntityWithGeneLength]
   def setAlleleLength(alleleLength: Int): RET[S with EntityWithAlleleLength]
@@ -18,10 +19,12 @@ trait EntityBuilder[S <: EntityStatus] extends NotBuildableBuilder[S] {
   def status: TypeTag[S]
 }
 
+trait EntityBuilder[S <: EntityStatus] extends GenericEntityBuilder[S] with StaticBuilder[S, PartialEntityData, CompleteEntityData]
+
 private[entities] abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
                                                    geneLength: Option[Int],
                                                    alleleLength: Option[Int],
-                                                   reign: Option[String])(implicit private val test: TypeTag[S], val validStatus: TypeTag[ValidEntity]) extends EntityBuilder[S]{
+                                                   reign: Option[String])(implicit private val test: TypeTag[S], val validStatus: TypeTag[ValidEntity]) extends GenericEntityBuilder[S]{
 
   def setName(name: String): RET[S with EntityWithName] =
     newInstance(Some(name), geneLength, alleleLength, reign)
