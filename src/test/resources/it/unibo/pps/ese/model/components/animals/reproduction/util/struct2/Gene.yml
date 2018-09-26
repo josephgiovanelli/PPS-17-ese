@@ -13,5 +13,5 @@ properties:
   tutte:
     conversionMap:
       rangeOfAction: 4.0
-      atrength: 1.0
+      strength: 1.0
       nutritionalValue: 6.0

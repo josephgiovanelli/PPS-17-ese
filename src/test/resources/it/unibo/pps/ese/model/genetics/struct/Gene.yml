@@ -14,3 +14,4 @@ properties:
     conversionMap:
       rangeOfAction: 5.0
       nutritionalValue: 6.0
+      strength: 1.0

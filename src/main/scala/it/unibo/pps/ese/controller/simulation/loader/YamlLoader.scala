@@ -189,7 +189,6 @@ object YamlLoader extends Loader {
     }
   }
 
-
   private def loadFileContent(file: File): String = {
     loadFileContent(file.openInputStream)
   }

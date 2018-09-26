@@ -19,6 +19,8 @@ import PartialEntitiesInitUtils._
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImpl
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImplUtils._
 
+import scala.util.{Failure, Success}
+
 class ReproductionTest extends WordSpec {
 
   private val i = (9 to 1 by -1).iterator
@@ -29,7 +31,12 @@ class ReproductionTest extends WordSpec {
     Set(("Gatto", "Gatto"), ("Giraffa", "Giraffa")))
   StaticRules.instance().setRules(worldRules)
 
-  private val data = YamlLoader.loadSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/simulation/loader/Simulation.yml"))).asInstanceOf[CompleteSimulationData]
+  private val data = YamlLoader.loadCompleteSimulation(File(ResourceLoader.getResource("it/unibo/pps/ese/controller/simulation/loader/Simulation.yml"))) match {
+    case Success(value) =>
+      value
+    case Failure(exception) =>
+      throw exception
+  }
   private val initializedSimulation = GeneticsSimulator.beginSimulation(data)
 
   object IteratorsFactory {
