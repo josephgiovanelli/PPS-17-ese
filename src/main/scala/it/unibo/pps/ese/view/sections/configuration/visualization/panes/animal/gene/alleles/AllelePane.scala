@@ -13,6 +13,9 @@ import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
 import scalafx.scene.layout.{GridPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object AlleleProperties {
     val title = "Allele Dialog"
     val headerText = "Create an allele"
@@ -21,6 +24,17 @@ object AlleleProperties {
 import AlleleProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert the allele information.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  * @param allele the previous allele identifier if is present before
+  * @param properties the properties to set
+  * @param chromosomeTypes the chromosome type of the gene of the allele
+  */
 case class AllelePane(mainDialog: MainDialog,
                       override val previousContent: Option[AllelesPane],
                       animal: String,

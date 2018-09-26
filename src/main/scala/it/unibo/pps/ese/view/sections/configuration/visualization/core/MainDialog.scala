@@ -16,20 +16,77 @@ import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
 
+/**
+  * The dialog where to put the content to be visualized
+  */
 trait MainDialog {
+  /**
+    *
+    * @return the title of the dialog
+    */
   def title: StringProperty
+
+  /**
+    * Sets the title of the dialog
+    * @param title
+    */
   def title_=(title: String)
+
+  /**
+    *
+    * @return the header text of the dialog
+    */
   def headerText: StringProperty
+
+  /**
+    * Sets the header text of the dialog
+    * @param headerText
+    */
   def headerText_=(headerText: String)
+
+  /**
+    * Sets the content of the dialog
+    * @param content the `DialogPane` to be set
+    */
   def setContent(content: DialogPane)
+
+  /**
+    * Shows the dialog
+    */
   def show()
+
+  /**
+    *
+    * @return the `Window` of this dialog
+    */
   def window: Window
+
+  /**
+    * Closes the dialog
+    */
   def closeDialog()
+
+  /**
+    * Adds the animal to the animal pending list
+    * @param id the id of the animal
+    */
   def addToPendingAnimals(id: String): Unit
+
+  /**
+    * Deletes the animal from the animal pending list
+    * @param id the id of the animal
+    */
   def deleteFromPendingAnimals(id: String): Unit
+
+  /**
+    * Cleans the animal pending list
+    */
   def cleanPendingAnimals(): Unit
 }
 
+/**
+  * The first content of the dialog
+  */
 trait FirstContent
 case object ConfigurationContent extends FirstContent
 case object ConfirmContent extends FirstContent

@@ -17,6 +17,9 @@ import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object PropertiesProperties {
   val title = "Properties Pane"
   val headerText = "Define gene properties"
@@ -25,6 +28,18 @@ object PropertiesProperties {
 import PropertiesProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert the properties of a gene that belongs to a structural chromosome.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  * @param property the previous property if the modality is modify
+  * @param currentConversionMap the conversion map if the modality is modify
+  * @param properties the all properties already set
+  */
 case class PropertiesPane(mainDialog: MainDialog,
                           override val previousContent: Option[CustomGenePane],
                           modality: Modality,

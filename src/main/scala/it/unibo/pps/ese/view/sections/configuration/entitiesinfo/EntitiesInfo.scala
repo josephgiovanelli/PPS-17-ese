@@ -16,62 +16,156 @@ import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.plants.
 
 import scala.util.Try
 
-
+/**
+  * The trait that allows to configure an entity.
+  */
 sealed trait EntitiesInfo {
 
   /*
   Animals
    */
 
+  /**
+    * It gets the animal if exists.
+    * @param id the animal identifier
+    * @return the animal reference
+    */
   def getAnimalInfo(id: String): Option[AnimalInfo]
 
+  /**
+    * It gets only the base info of the animal.
+    * @param id the animal identifier
+    * @return the base info of the animal
+    */
   def getAnimalBaseInfo(id: String): AnimalBaseInfo
 
+  /**
+    * It gets only the animal chromosome.
+    * @param id the animal identifier
+    * @return the animal chromosome
+    */
   def getAnimalChromosomeInfo(id: String): AnimalChromosomeInfo
 
-
+  /**
+    * It allows to set the animal base info.
+    * @param id animal identifier
+    * @param animalBaseInfo the animal base info
+    */
   def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit
 
+  /**
+    * It allows to set the animal chromosome.
+    * @param id animal identifier
+    * @param animalChromosomeInfo the animal chromosome
+    */
   def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit
 
+  /**
+    * It allows to set the base info of a gene of a chromosome.
+    * @param id animal identifier
+    * @param chromosomeTypes the animal chromosome types ([[StructuralChromosome]]
+    * @param customGeneInfo the base info of animal chromosome
+    */
   def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, customGeneInfo: CustomGeneInfo): Unit
 
+  /**
+    * It allows to set the base info of a gene of a chromosome.
+    * @param id animal identifier
+    * @param chromosomeTypes the animal chromosome types ([[RegulationChromosome]], [[SexualChromosome]])
+    * @param defaultGeneInfo the base info of animal chromosome
+    */
   def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, defaultGeneInfo: DefaultGeneInfo): Unit
 
+  /**
+    * It allows to set the alleles of a gene.
+    * @param id animal identifier
+    * @param chromosomeTypes the animal chromosome types ([[StructuralChromosome]], [[RegulationChromosome]], [[SexualChromosome]])
+    * @param gene the gene identifier
+    * @param alleles the alleles of the gene
+    */
   def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes, gene: String, alleles: Map[String, AlleleInfo]): Unit
-
-
-  def deletePlant(id: String): Unit
-
-  def deleteAnimal(id: String): Unit
 
   /*
   Plants
    */
 
+  /**
+    * It gets the plant if exists.
+    * @param id the plant identifier
+    * @return the plant reference
+    */
   def getPlantInfo(id: String): Option[PlantInfo]
 
+  /**
+    * It allows to set the plant information.
+    * @param id the plant identifier
+    * @param plantInfo the plant information
+    */
   def setPlantInfo(id: String, plantInfo: PlantInfo): Unit
 
   /*
   Simulation
    */
 
+  /**
+    * It allows to delete a plant.
+    * @param id the plant identifier
+    */
+  def deletePlant(id: String): Unit
+
+  /**
+    * It allows to delete an animal.
+    * @param id the animal identifier
+    */
+  def deleteAnimal(id: String): Unit
+
+  /**
+    * It gets all animal species.
+    * @return a set of animal species
+    */
   def getAnimals: Set[String]
 
+  /**
+    * It gets all plant species.
+    * @return a set of plant species
+    */
   def getPlants: Set[String]
 
+  /**
+    * It create a [[SimulationData]] based on the information inserted
+    * @param animalsEntities for each animal species the number of individuals to be created is specified
+    * @param plantsEntities for each plant species the number of individuals to be created is specified
+    * @return a simulation data that have to be complete to run a simulation
+    */
   def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): Try[CompleteSimulationData]
+
+  /**
+    * It create a [[SimulationData]] based on the information inserted
+    * @param animalsEntities for each animal species the number of individuals to be created is specified
+    * @param plantsEntities for each plant species the number of individuals to be created is specified
+    * @return a simulation data that may be incomplete
+    */
   def getPartialSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): PartialSimulationData
 
+  /**
+    * It creates the editable information by a [[SimulationData]]
+    * @param animalData the animal information to add that may be incomplete, if you want to add something else
+    * @param plantData the plant information to add that may be incomplete, if you want to add something else
+    */
   def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit
 }
 
+/**
+  * Enumeration that define the types of chromosome.
+  */
 trait ChromosomeTypes
 object StructuralChromosome extends ChromosomeTypes
 object RegulationChromosome extends ChromosomeTypes
 object SexualChromosome extends ChromosomeTypes
 
+/**
+  * The singleton that allows to access at the information at any time.
+  */
 object EntitiesInfo {
   private val _instance = new EntitiesInfoImpl()
   def instance(): EntitiesInfoImpl =
@@ -91,35 +185,35 @@ object EntitiesInfo {
     Animals
      */
 
-    def getAnimalInfo(id: String): Option[AnimalInfo] = animals.get(id)
+    override def getAnimalInfo(id: String): Option[AnimalInfo] = animals.get(id)
 
-    def getAnimalBaseInfo(id: String): AnimalBaseInfo = animals.get(id) match {
+    override def getAnimalBaseInfo(id: String): AnimalBaseInfo = animals.get(id) match {
       case Some(animalInfo) => animalInfo.animalBaseInfo
       case None => throw new IllegalStateException()
     }
 
-    def getAnimalChromosomeInfo(id: String): AnimalChromosomeInfo = animals.get(id) match {
+    override def getAnimalChromosomeInfo(id: String): AnimalChromosomeInfo = animals.get(id) match {
       case Some(animalInfo) => animalInfo.animalChromosomeInfo
       case None => throw new IllegalStateException()
     }
 
-    def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit = {
+    override def setAnimalBaseInfo(id: String, animalBaseInfo: AnimalBaseInfo): Unit = {
       val animalChromosomeInfo = if (animals.get(id).isDefined) animals(id).animalChromosomeInfo
       else AnimalChromosomeInfo(Map.empty, Map.empty, Map.empty)
       animals += (id -> AnimalInfo(animalBaseInfo, animalChromosomeInfo))
     }
 
-    def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit =
+    override def setAnimalChromosomeInfo(id: String, animalChromosomeInfo: AnimalChromosomeInfo): Unit =
       animals += (id -> AnimalInfo(animals(id).animalBaseInfo, animalChromosomeInfo))
 
-    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, customGeneInfo: CustomGeneInfo): Unit = {
+    override def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, customGeneInfo: CustomGeneInfo): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(id)
       val currentStructuralChromosome = currentAnimalChromosome.structuralChromosome
       val alleles: Map[String, AlleleInfo] = if (currentStructuralChromosome.get(customGeneInfo.name).isDefined) currentStructuralChromosome(customGeneInfo.name).alleles else Map()
       currentAnimalChromosome.structuralChromosome += (customGeneInfo.name -> CustomChromosomeInfo(customGeneInfo, alleles))
     }
 
-    def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, defaultGeneInfo: DefaultGeneInfo): Unit = {
+    override def setChromosomeBaseInfo(id: String, chromosomeTypes: ChromosomeTypes, defaultGeneInfo: DefaultGeneInfo): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalInfo(id) match {
         case Some(animalInfo) => animalInfo.animalChromosomeInfo
         case None => throw new IllegalStateException()
@@ -136,7 +230,7 @@ object EntitiesInfo {
       }
     }
 
-    def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes, gene: String, alleles: Map[String, AlleleInfo]): Unit = {
+    override def setChromosomeAlleles(id: String, chromosomeTypes: ChromosomeTypes, gene: String, alleles: Map[String, AlleleInfo]): Unit = {
       val currentAnimalChromosome: AnimalChromosomeInfo = getAnimalChromosomeInfo(id)
 
       chromosomeTypes match {
@@ -152,48 +246,47 @@ object EntitiesInfo {
       }
     }
 
-
-    override def deletePlant(id: String): Unit = plants -= id
-
-    override def deleteAnimal(id: String): Unit = animals -= id
-
     /*
     Plants
      */
 
-    def getPlantInfo(id: String): Option[PlantInfo] = plants.get(id)
+    override def getPlantInfo(id: String): Option[PlantInfo] = plants.get(id)
 
-    def setPlantInfo(id: String, plantInfo: PlantInfo): Unit = plants += (id -> plantInfo)
+    override def setPlantInfo(id: String, plantInfo: PlantInfo): Unit = plants += (id -> plantInfo)
 
     /*
     Simulation
      */
 
-    def getAnimals: Set[String] = animals.keySet
+    override def deletePlant(id: String): Unit = plants -= id
 
-    def getPlants: Set[String] = plants.keySet
+    override def deleteAnimal(id: String): Unit = animals -= id
+
+    override def getAnimals: Set[String] = animals.keySet
+
+    override def getPlants: Set[String] = plants.keySet
 
 
-    def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): Try[CompleteSimulationData] =
+    override def getSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): Try[CompleteSimulationData] =
       SimulationBuilder()
       .addAnimals(animalsMapping(animalsEntities))
       .addPlants(plantsMapping(plantsEntities))
       .tryCompleteBuild
 
-    def getPartialSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): PartialSimulationData =
+    override def getPartialSimulationData(animalsEntities: Map[String, Int], plantsEntities: Map[String, Int]): PartialSimulationData =
       SimulationBuilder()
         .addAnimals(animalsMapping(animalsEntities))
         .addPlants(plantsMapping(plantsEntities))
         .build()
 
-    def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit = {
+    override def loadSimulationData(animalData: Iterable[PartialAnimalData], plantData: Iterable[PartialPlantData]): Unit = {
       animals ++= animalsMapping(animalData)
       plants ++= plantsMapping(plantData)
     }
 
 
     /*
-    Mapping methods EntitiesInfo to SimulationData
+    Utilities methods that map EntitiesInfo to SimulationData
      */
 
     private def plantsMapping(plantsEntities: Map[String, Int]): Map[PlantBuilder[_], Int] = {
@@ -278,7 +371,7 @@ object EntitiesInfo {
 
 
     /*
-    Mapping methods SimulationData to EntitiesInfo
+    Utilities methods that map SimulationData to EntitiesInfo
      */
 
 
@@ -314,6 +407,7 @@ object EntitiesInfo {
 
     private def defaultChromosomeMapping(defaultGene: PartialDefaultGeneData, chromosomeTypes: ChromosomeTypes): DefaultChromosomeInfo =
       DefaultChromosomeInfo(defaultGeneInfoMapping(defaultGene, chromosomeTypes), allelesMapping(defaultGene.getAlleles.getOrDefault.toSet))
+
 
     private def customChromosomeMapping(customGene: PartialCustomGeneData): CustomChromosomeInfo =
       CustomChromosomeInfo(customGeneInfoMapping(customGene), allelesMapping(customGene.getAlleles.getOrDefault.toSet[PartialAlleleData]))

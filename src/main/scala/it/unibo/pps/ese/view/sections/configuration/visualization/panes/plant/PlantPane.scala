@@ -10,6 +10,9 @@ import scala.collection.immutable.ListMap
 import scalafx.application.Platform
 import scalafx.scene.control._
 
+/**
+  * It defines the title and the header
+  */
 object PlantProperties {
   val title = "Plant Pane"
   val headerText = "Create a plant"
@@ -18,6 +21,14 @@ object PlantProperties {
 import PlantProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert a plant.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify a plant
+  * @param key the key of the entity
+  */
 case class PlantPane(mainDialog: MainDialog,
                      override val previousContent: Option[ConfigurationPane],
                      modality: Modality,

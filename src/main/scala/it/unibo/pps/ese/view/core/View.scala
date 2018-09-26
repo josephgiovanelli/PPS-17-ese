@@ -73,6 +73,13 @@ trait MainComponent {
     */
   def unwatchEntity(id:String):Unit
 
+  /**
+    * It allows to add entities at run time.
+    * @param animals the animal species that are already in the simulation
+    * @param plants the plant species that are already in the simulation
+    * @param newAnimals the animal species that aren't in the simulation
+    * @param newPlants the plant species that aren't in the simulation
+    */
   def addEntities(animals: Map[String, Int], plants: Map[String, Int], newAnimals: Map[CompleteAnimalData, Int], newPlants: Map[CompletePlantData, Int]): Unit
   def historicalData(): Future[ChartsData]
   def simulationEras(): Future[Seq[Long]]
