@@ -11,7 +11,7 @@ import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
 import scalafx.scene.Node
 import scalafx.scene.control.ButtonBar.ButtonData
-import scalafx.scene.control.{ButtonType, Dialog, Label}
+import scalafx.scene.control.{ButtonType, Dialog, Label, ScrollPane}
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 import scalafx.stage.Window
@@ -118,12 +118,14 @@ object MainDialog {
                       (implicit executionContext: ExecutionContext) extends Dialog[Unit] with MainDialog {
 
 
+
+
     initOwner(window)
 
     val cancelCloseButtonType: ButtonType = new ButtonType("Exit", ButtonData.CancelClose)
     dialogPane().buttonTypes = Seq(cancelCloseButtonType)
     val cancelCloseButton: Node = dialogPane().lookupButton(cancelCloseButtonType)
-    cancelCloseButton.visible = false
+//    cancelCloseButton.visible = false
 
     dialogPane().background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
 
@@ -142,13 +144,29 @@ object MainDialog {
       previousAnimalsCount,
       previousPlantsCount)
 
-    dialogPane().content = firstContent match {
-      case ConfigurationContent => configurationPane
-      case ConfirmContent => confirmPane
+    val mainPane = new VBox{
+      background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+      prefWidth = 450
+      prefHeight = 500
     }
 
+    val scroll = new ScrollPane {
+      background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+      hbarPolicy = ScrollPane.ScrollBarPolicy.Never
+    }
+    scroll.content = mainPane
+    dialogPane().content = scroll
+
+
+
+    setContent(firstContent match {
+      case ConfigurationContent => configurationPane
+      case ConfirmContent => confirmPane
+    })
+
+
     def setContent(content: DialogPane): Unit = {
-      dialogPane().content = content
+      mainPane.children = content
 
       dialogPane().header = new BorderPane {
 
@@ -156,7 +174,7 @@ object MainDialog {
           margin = Insets(20, 0, 20, 0)
           text = content.headerText
           style = "-fx-text-fill:white;" +
-            "-fx-font-size:30px;"
+            "-fx-font-size:23px;"
         }
 
         background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
