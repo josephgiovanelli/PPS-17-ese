@@ -64,7 +64,7 @@ object YamlSaver {
     }
 
     def saveMainFile(file: FileResource, overrideAll: Boolean): Unit = {
-      val currentFolder = file.getParent().get.getOrCreateFolder().get
+      val currentFolder = file.getParent.get.getOrCreateFolder().get
       val animals = simulationData.getAnimals.map(iter => {
         iter.map(animalTuple => {
           val fileName = simulationName + "_" + animalTuple._1.name + fileExtension

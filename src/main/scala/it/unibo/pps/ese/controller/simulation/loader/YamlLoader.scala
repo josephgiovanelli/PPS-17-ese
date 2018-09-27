@@ -44,7 +44,7 @@ object YamlLoader extends FileLoader {
   }
 
   private def obtainSimulationBuilder(configFile: File): SimulationBuilder[_] = {
-    val currentFolder = configFile.getParentFolder().get
+    val currentFolder = configFile.getParentFolder.get
     val simulation = loadFileContent(configFile).parseYaml.convertTo[Simulation]
 
     var builder : SimulationBuilder[_] = SimulationBuilder()
@@ -89,14 +89,14 @@ object YamlLoader extends FileLoader {
     var regulationChromosome: Seq[DefaultGeneBuilder[_]] = Seq()
     var sexualChromosome: Seq[DefaultGeneBuilder[_]] = Seq()
     if(loadedAnimal.structuralChromosome.isDefined)
-      structuralChromosome = normalizeConfigPath(loadedAnimal.structuralChromosome.get, config.getParentFolder().get) match {
+      structuralChromosome = normalizeConfigPath(loadedAnimal.structuralChromosome.get, config.getParentFolder.get) match {
         case f: Folder =>
           loadStructuralChromosome(f)
       }
     if(loadedAnimal.regulationChromosome.isDefined)
-      regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome.get, config.getParentFolder().get)
+      regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome.get, config.getParentFolder.get)
     if(loadedAnimal.sexualChromosome.isDefined)
-      sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome.get, config.getParentFolder().get)
+      sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome.get, config.getParentFolder.get)
     var builder: AnimalBuilder[_ <: EntityStatus] = AnimalBuilder().setName(loadedAnimal.name)
     if(loadedAnimal.typology.isDefined)
       builder = builder.setTypology(loadedAnimal.typology.get)

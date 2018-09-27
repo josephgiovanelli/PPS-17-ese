@@ -6,12 +6,12 @@ import it.unibo.pps.ese.controller.simulation.loader.io.File.FileFormat
 import org.apache.commons.io.FilenameUtils
 
 trait IOResource {
-  def getParent(): Option[FolderResource]
-  def getName(): String
+  def getParent: Option[FolderResource]
+  def getName: String
 }
 
 trait ExistingResource extends IOResource {
-  def getParentFolder(): Option[Folder]
+  def getParentFolder: Option[Folder]
 }
 
 trait FolderResource extends IOResource {
@@ -51,7 +51,7 @@ sealed abstract class IOResourceImpl(path: URL) extends IOResource {
   require(url != null)
   protected val javaFile: java.io.File = new java.io.File(url.toURI)
 
-  def getParent(): Option[FolderResource] = {
+  def getParent: Option[FolderResource] = {
     if(javaFile.getParent == null)
       None
     else
@@ -63,7 +63,7 @@ sealed abstract class IOResourceImpl(path: URL) extends IOResource {
       }
   }
 
-  def getName(): String = javaFile.getName
+  def getName: String = javaFile.getName
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[IOResourceImpl]
 
@@ -123,8 +123,8 @@ object IOResource {
 abstract class ExistingResourceImpl(path: URL) extends IOResourceImpl(path) with ExistingResource {
   require(javaFile.exists())
 
-  override def getParentFolder(): Option[Folder] = {
-    getParent() match {
+  override def getParentFolder: Option[Folder] = {
+    getParent match {
       case Some(r: Folder) =>
         Some(r)
       case _ =>
