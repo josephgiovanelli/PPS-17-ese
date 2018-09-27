@@ -144,8 +144,6 @@ class ReproductionComponent(override val entitySpecifications: EntitySpecificati
       case ComputeNextState() =>
         if(embryos.nonEmpty) {
           inPregnancyTime += 1
-          if (inPregnancyTime != 0 && inPregnancyTime % energyRequirementsIncreasePeriod == 0)
-            publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / energyRequirementsIncreaseSteps))
           if(inPregnancyTime >= pregnancyDurationInClocks) {
             val sons = embryos
             embryos = Seq()
@@ -159,6 +157,8 @@ class ReproductionComponent(override val entitySpecifications: EntitySpecificati
               case Failure(exception) =>
                 throw exception
             })
+          } else if (inPregnancyTime != 0 && inPregnancyTime % energyRequirementsIncreasePeriod == 0) {
+            publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / energyRequirementsIncreaseSteps))
           }
         }
         publish(new ComputeNextStateAck)
