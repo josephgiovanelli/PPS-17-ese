@@ -128,7 +128,7 @@ class ReproductionComponent(override val entitySpecifications: EntitySpecificati
 
   private val energyRequirementsPerChild = _energyRequirements * 0.2 / math.round(_fecundity)
   private val energyRequirementsIncreaseSteps = 2
-  private val pregnancyDurationInClocks: Long = Seq((_clocksPerYear * _pregnancyDuration).toLong, energyRequirementsIncreaseSteps + 1).min
+  private val pregnancyDurationInClocks: Long = Seq((_clocksPerYear * _pregnancyDuration).toLong, energyRequirementsIncreaseSteps + 1).max
   private val energyRequirementsIncreasePeriod = pregnancyDurationInClocks / (energyRequirementsIncreaseSteps + 1)
   private var embryos: Seq[AnimalInfo] = Seq()
   private var inPregnancyTime: Long = 0

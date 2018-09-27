@@ -162,7 +162,20 @@ object AnimalBuilder {
           CompleteBuildException("Gene with " + expected._1 + " name and " + expected._2.keySet + " properties missing"))
         exceptions = exceptions ++ (chromosomeElements -- expectedChromosomeElements).map(notExpected =>
           CompleteBuildException("Gene with " + notExpected._1 + " name and " + notExpected._2.keySet + " is not a default gene"))
-        exception = exception ++: CompleteBuildException("Animal: "+ _name.get +" | " + chromosomeName.capitalize + " chromosome must contain only predefined genes", exceptions)
+        exception = exception ++: CompleteBuildException("Animal: "+ _name.get +" | " + chromosomeName.capitalize +
+          " chromosome must contain only predefined genes", exceptions)
+      }
+      val genesWithNotCorrectId = complete.filter(!_.getId.forall(_.length == _geneLength.getOrElse(0)))
+      if(genesWithNotCorrectId.nonEmpty) {
+        val exceptions = genesWithNotCorrectId.map(g => CompleteBuildException("Gene " + g.name + " has incorrect id: " + g.id))
+        exception = exception ++: CompleteBuildException("Animal: "+ _name.get +" | " + chromosomeName.capitalize +
+          " chromosome must contain only genes with id's length " + _geneLength, exceptions)
+      }
+      val allelesWithNotCorrectId = complete.flatMap(_.alleles).filter(a => !(a.id.length == _alleleLength.getOrElse(0)))
+      if(allelesWithNotCorrectId.nonEmpty) {
+        val exceptions = allelesWithNotCorrectId.map(a => CompleteBuildException("Gene " + a.gene + " Allele " + a.id + " has incorrect id: " + a.id))
+        exception = exception ++: CompleteBuildException("Animal: "+ _name.get +" | " + chromosomeName.capitalize +
+          " chromosome must contain only genes with allele's id's length " + _alleleLength, exceptions)
       }
       (exception, complete)
     }
