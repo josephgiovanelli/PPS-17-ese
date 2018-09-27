@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
 import it.unibo.pps.ese.controller.simulation.loader.data.EntityData
 import it.unibo.pps.ese.controller.simulation.loader.data.EntityData.{CompleteEntityData, PartialEntityData}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BuilderStatus, BuilderContent, StaticBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BuilderStatus, BuilderContent, DynamicBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus.{EntityWithAlleleLength, EntityWithGeneLength, EntityWithReign, PlantWithHardness, PlantWithNutritionalValue, _}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 
@@ -10,7 +10,7 @@ import scala.reflect.runtime.universe._
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableInsideRange._
 
-trait GenericEntityBuilder[S <: EntityStatus] extends BuilderContent[S] {
+trait GenericEntityBuilder[S <: EntityStatus] extends BuilderContent {
   type RET[A <: S] <: GenericEntityBuilder[A]
   def setName(name: String): RET[S with EntityWithName]
   def setGeneLength(geneLength: Int): RET[S with EntityWithGeneLength]
@@ -19,7 +19,7 @@ trait GenericEntityBuilder[S <: EntityStatus] extends BuilderContent[S] {
   def status: TypeTag[S]
 }
 
-trait EntityBuilder[S <: EntityStatus] extends GenericEntityBuilder[S] with StaticBuilder[S, PartialEntityData, CompleteEntityData]
+trait EntityBuilder[S <: EntityStatus] extends GenericEntityBuilder[S] with DynamicBuilder[PartialEntityData, CompleteEntityData]
 
 private[entities] abstract class EntityBuilderImpl[S <: EntityStatus](name: Option[String],
                                                    geneLength: Option[Int],
