@@ -1,11 +1,12 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder
 
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.{CompleteAnimalData, PartialAnimalData}
+import it.unibo.pps.ese.controller.simulation.loader.data.EntityData.CompleteEntityData
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.SimulationBuilder.SimulationStatus
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.SimulationBuilder.SimulationStatus.{EmptySimulation, FullSimulation, SimulationWithAnimals, SimulationWithPlants}
 import it.unibo.pps.ese.controller.simulation.loader.data._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.{AnimalBuilder, PlantBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.{AnimalBuilder, EntityBuilder, PlantBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException, InvalidParamValueBuildException}
 
 import scala.util.{Failure, Success, Try}
@@ -50,28 +51,28 @@ object SimulationBuilder {
 
     def checkComplete(): (Option[CompleteBuildException], Iterable[(CompleteAnimalData, Int)], Iterable[(CompletePlantData, Int)]) = {
       var exception: Option[CompleteBuildException] = None
-      val aTries: Iterable[(Try[CompleteAnimalData], Int)] = animals.map(t => (t._1.tryCompleteBuild(), t._2))
-      val a: Iterable[(CompleteAnimalData, Int)] = aTries.collect({
-        case (Success(value), i) =>
-          (value, i)
-      })
-      if(animals.size != a.size) {
-        exception = exception ++: CompleteBuildException("Simulation: All animals must be complete",
-          aTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
-      }
-      val pTries: Iterable[(Try[CompletePlantData], Int)] = plants.map(t => (t._1.tryCompleteBuild, t._2))
-      val p: Iterable[(CompletePlantData, Int)] = pTries.collect({
-        case (Success(value), i) =>
-          (value, i)
-      })
-      if(plants.size != p.size) {
-        exception = exception ++: CompleteBuildException("Simulation: All plants must be complete",
-          pTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
-      }
+      val checkA = checkEntities(animals, "animals")
+      exception = exception ++: checkA._1
+      val a = checkA._2.asInstanceOf[Iterable[(CompleteAnimalData, Int)]]
+      val checkP = checkEntities(plants, "plants")
+      exception = exception ++: checkP._1
+      val p = checkP._2.asInstanceOf[Iterable[(CompletePlantData, Int)]]
       (exception, a, p)
     }
 
-    //def checkEntities()
+    def checkEntities(entities: Iterable[(EntityBuilder[_], Int)], name: String): (Option[CompleteBuildException], Iterable[(CompleteEntityData, Int)]) = {
+      var exception: Option[CompleteBuildException] = None
+      val tries: Iterable[(Try[CompleteEntityData], Int)] = entities.map(t => (t._1.tryCompleteBuild(), t._2))
+      val complete: Iterable[(CompleteEntityData, Int)] = tries.collect({
+        case (Success(value), i) =>
+          (value, i)
+      })
+      if(entities.size != complete.size) {
+        exception = exception ++: CompleteBuildException("Simulation: All " + name + " must be complete",
+          tries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
+      }
+      (exception, complete)
+    }
 
     private def checkProperties(): Option[CompleteBuildException] = {
       var exception: Option[CompleteBuildException] = None
