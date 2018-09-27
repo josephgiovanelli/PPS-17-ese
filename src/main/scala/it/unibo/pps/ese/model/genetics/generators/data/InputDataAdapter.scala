@@ -40,13 +40,13 @@ private[genetics] object InputDataAdapter {
 
         override def alleles: Set[CompleteAlleleData] = dgd.alleles
 
-        override def getConversionMap: Option[Map[String, Map[String, Double]]] = None
+        override val getConversionMap: Option[Map[String, Map[String, Double]]] = None
 
-        override def getId: Option[String] = None
+        override val getId: Option[String] = None
 
-        override def getProperties: Option[Map[String, Class[_]]] = None
+        override val getProperties: Option[Map[String, Class[_]]] = None
 
-        override def getAlleles: Option[Set[CompleteAlleleData]] = None
+        override val getAlleles: Option[Set[CompleteAlleleData]] = None
       }
       MyCustomGeneData
     }

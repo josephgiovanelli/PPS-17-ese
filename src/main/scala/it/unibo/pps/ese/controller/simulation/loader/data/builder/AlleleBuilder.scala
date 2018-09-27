@@ -174,10 +174,10 @@ object AlleleBuilder {
                                      _getEffect: Map[String, Double]) extends PartialAlleleData {
     import BuildersValidationImplicits._
 
-    override def getEffect: Option[Map[String, Double]] = _getEffect.boxToValidOption()
-    override def getGene: Option[String] = _getGene.normalize()
-    override def getDominance: Option[Double] = _getDominance.normalize()
-    override def getConsume: Option[Double] = _getConsume.normalize()
-    override def getProbability: Option[Double] = _getProbability.normalize()
+    override val getEffect: Option[Map[String, Double]] = _getEffect.boxToValidOption()
+    override val getGene: Option[String] = _getGene.normalize()
+    override val getDominance: Option[Double] = _getDominance.normalize()
+    override val getConsume: Option[Double] = _getConsume.normalize()
+    override val getProbability: Option[Double] = _getProbability.normalize()
   }
 }

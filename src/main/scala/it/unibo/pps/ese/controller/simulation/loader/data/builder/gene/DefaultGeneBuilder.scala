@@ -81,6 +81,6 @@ object DefaultGeneBuilder {
 
     override val getProperties: Option[Map[String, Class[_]]] = _getProperties.boxToValidOption()
     override val getAlleles: Option[Iterable[A]] = _getAlleles.boxToValidOption()
-    override def getId: Option[String] = _getId.normalize()
+    override val getId: Option[String] = _getId.normalize()
   }
 }

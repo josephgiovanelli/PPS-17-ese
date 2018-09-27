@@ -198,7 +198,7 @@ object AnimalBuilder {
     extends EntityDataImpl(_name, _getGeneLength, _getAlleleLength, _getReign) with AnimalData[C, D] {
     import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuildersValidationImplicits._
 
-    def getTypology: Option[String] = _getTypology.normalize()
+    val getTypology: Option[String] = _getTypology.normalize()
     val getStructuralChromosome: Option[Iterable[C]] = _getStructuralChromosome.boxToValidOption()
     val getRegulationChromosome: Option[Iterable[D]] = _getRegulationChromosome.boxToValidOption()
     val getSexualChromosome: Option[Iterable[D]] = _getSexualChromosome.boxToValidOption()

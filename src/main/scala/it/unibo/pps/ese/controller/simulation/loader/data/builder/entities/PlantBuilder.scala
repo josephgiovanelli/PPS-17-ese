@@ -121,8 +121,8 @@ object PlantBuilder {
 
     import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuildersValidationImplicits._
 
-    override def getHeight: Option[Double] = _getHeight.normalize()
-    override def getNutritionalValue: Option[Double] = _getNutritionalValue.normalize()
-    override def getHardness: Option[Double] = _getHardness.normalize()
+    override val getHeight: Option[Double] = _getHeight.normalize()
+    override val getNutritionalValue: Option[Double] = _getNutritionalValue.normalize()
+    override val getHardness: Option[Double] = _getHardness.normalize()
   }
 }
