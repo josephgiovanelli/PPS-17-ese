@@ -207,7 +207,7 @@ object DataMiner {
     private val _extinctSpecies: Era => Seq[Species] = memoize {
       era =>
         if (era == startEra) Seq.empty
-        else aliveSpecies(era) diff aliveSpecies(era - 1)
+        else aliveSpecies(era - 1) filterNot (aliveSpecies(era).contains(_))
     }
 
     private val _aliveCount: Era => Long = memoize {
