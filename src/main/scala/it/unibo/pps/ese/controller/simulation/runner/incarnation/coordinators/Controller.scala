@@ -9,15 +9,54 @@ import it.unibo.pps.ese.controller.simulation.runner.incarnation.SimulationBuild
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
+/** Base controller that offer services before simulation start*/
 trait Controller {
+  /** Start a new simulation starting from configuration file
+    *
+    * @param file Configuration file
+    * @return Simulation controller that offer services after the simulation start and simulation data loaded from file
+    */
   def startSimulation(file: File): Future[Try[(SimulationController, CompleteSimulationData)]]
+
+  /** Start a new simulation starting from simulation;s data
+    *
+    * @param data Simulation's data
+    * @return Simulation controller that offer services after the simulation start
+    */
   def startSimulation(data: CompleteSimulationData): Future[Try[SimulationController]]
+
+  /** Load simulation's data from given file
+    *
+    * @param file Simulation's config file
+    * @return Simulation's setup data, loaded as partial
+    */
   def loadSimulation(file: File): Future[Try[PartialSimulationData]]
+
+  /** Try to save simulation in given folder
+    *
+    * @param simulation Simulation data
+    * @param simulationName Simulation name
+    * @param target Target folder
+    * @return Operation result
+    */
   def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]]
+
+  /** Retrive last simulation's data save
+    *
+    * @param target Target folder
+    * @param overrideResource Optional resource to override
+    * @param overrideAll Override all existing resources flag
+    * @return
+    */
   def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]]
 }
+
+/** Factory object for [[it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.Controller]] */
 object Controller {
 
+  /**
+    * @return New [[it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators.Controller]]
+    */
   def apply()(implicit executionContext: ExecutionContext): Controller = new BaseController()
 
   private class BaseController()(implicit executionContext: ExecutionContext) extends Controller {

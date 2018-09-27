@@ -15,23 +15,72 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.application.Platform
 import scalafx.stage.Window
 
-
+/** Coordinator view for pre simulation start views launch*/
 trait ViewLauncher
 
+/** Interface that defines services for StartView*/
 trait StartViewBridge {
+  /** Start a new simulation
+    *
+    * @param file Simulation's config file
+    * @param currentWindow Current window
+    * @return Operation result
+    */
   def startSimulation(file: File, currentWindow: Window): Future[Try[Unit]]
+
+  /** Load new simulation and start editing view
+    *
+    * @param file Simulation's config file
+    * @param currentWindow Current window
+    * @return Operation result
+    */
   def loadSimulation(file: File, currentWindow: Window): Future[Try[Unit]]
+
+  /** Start setup view filled with given data
+    *
+    * @param currentWindow Current window
+    * @param simulationData Optional simulation data
+    */
   def launchSetup(currentWindow: Window, simulationData: Option[PartialSimulationData] = None): Unit
 }
 
+/** Interface that defines services for setup dialogs*/
 trait SetupViewBridge {
+
+  /** Start a new simulation
+    *
+    * @param data Simulation's data
+    * @return Operation result
+    */
   def startSimulation(data: CompleteSimulationData): Future[Try[Unit]]
+
+  /** Save simulation's setup data
+    *
+    * @param simulation Simulation's data
+    * @param simulationName Simualtion's name
+    * @param target Target save folder
+    * @return Operation result
+    */
   def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]]
+
+  /** Retrive simulation save with new resource to override or overriding all resources already present
+    *
+    * @param target Target folder
+    * @param overrideResource Resource to override
+    * @param overrideAll Override all flag
+    * @return Operation result
+    */
   def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]]
 }
 
+/** Factory object for [[it.unibo.pps.ese.view.core.ViewLauncher]]*/
 object ViewLauncher {
 
+  /**
+    * @param geneticsSimulator Genetics simulator
+    * @param controller Controller
+    * @return a new [[it.unibo.pps.ese.view.core.ViewLauncher]]
+    */
   def apply(geneticsSimulator: GeneticsSimulator, controller: Controller)
            (implicit executionContext: ExecutionContext): ViewLauncher = new ViewLauncherImpl(geneticsSimulator, controller)
 

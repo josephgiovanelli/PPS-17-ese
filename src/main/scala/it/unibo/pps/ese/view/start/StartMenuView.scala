@@ -18,7 +18,12 @@ import scalafx.stage.FileChooser.ExtensionFilter
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
+/** Initial software menu view*/
 trait StartMenuView extends Scene {
+  /** Disable view buttons
+    *
+    * @param disable Disable
+    */
   def disableButtons(disable: Boolean): Unit
 }
 
