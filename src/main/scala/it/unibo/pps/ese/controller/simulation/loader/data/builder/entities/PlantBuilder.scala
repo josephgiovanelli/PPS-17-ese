@@ -95,7 +95,7 @@ object PlantBuilder {
 
     override def checkProperties: Option[CompleteBuildException] = {
       var exception = super.checkProperties
-      if(!reign.contains(Reigns.ANIMALS.code))
+      if(!reign.contains(Reigns.PLANTS.code))
         exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "reign", reign)
       if(!height.inValidRange())
         exception = exception ++: InvalidParamValueBuildException("Plant " + name.getOrElse(""), "height", height)
