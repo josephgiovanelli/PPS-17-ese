@@ -17,14 +17,14 @@ trait GeneDetails{
   /**
     * To visualize the information about the gene in argument
     * @param geneStats
-    *                  The gene's informations
+    *                  The gene's information
     * @param cName
     *              The chromosome to which the gene belongs
     */
   def visualizeGeneStats(geneStats: GeneStats,cName:String)
 
   /**
-    * To clear the gene informations
+    * To clear the gene information
     */
   def emptyGeneStats():Unit
 }

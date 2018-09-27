@@ -18,7 +18,7 @@ class TestChromosomeMixing extends FunSuite {
 
       override def obtainMutantAlleles(species: String, gene: MGene): Iterable[MGene] = Seq()
 
-      override def mutationProb: Double = 0
+      override val mutationProb: Double = 0
     }
 
     val bg1 = BasicGene(Seq('A'), StructuralGene)
@@ -60,7 +60,7 @@ class TestChromosomeMixing extends FunSuite {
       override def obtainMutantAlleles(species: String, gene: MGene): Iterable[MGene] =
         GeneticsSimulator.obtainMutantAlleles(species, gene)
 
-      override def mutationProb: Double = 1.0
+      override val mutationProb: Double = 1.0
     }
 
     val species = initializedSimulation.getAllAnimals.head._1

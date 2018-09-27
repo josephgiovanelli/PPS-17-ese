@@ -287,7 +287,7 @@ object EntityBuilderHelpers {
 
   private def initializeReproductionComponent(entity: Entity, animalInfo: AnimalInfo, entitiesCreationFunction: (AnimalInfo, Point) => Entity)
                                              (implicit executionContext: ExecutionContext): Component = {
-    ReproductionComponent(
+    new ReproductionComponent(
       entity specifications,
       animalInfo.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
       GeneticsSimulator,

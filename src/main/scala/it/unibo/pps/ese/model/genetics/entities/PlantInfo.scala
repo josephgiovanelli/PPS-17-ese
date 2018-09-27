@@ -5,7 +5,7 @@ import it.unibo.pps.ese.model.genetics.Utilities
 import it.unibo.pps.ese.model.genetics.dna.Genome
 
 /**
-  *  The plant informations
+  *  The plant information
   */
 trait PlantInfo extends EntityInfo{
   def genome:Genome

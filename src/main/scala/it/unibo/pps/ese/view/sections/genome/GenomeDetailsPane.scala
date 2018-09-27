@@ -18,7 +18,7 @@ import it.unibo.pps.ese.view.utilities.TextUtilities._
   */
 sealed trait GenomeDetailsPane extends Pane{
   /**
-    * To set the coupled gene informations about a animal
+    * To set the coupled gene information about a animal
     * @param genomeStats
     */
   def setGenomeStats(genomeStats:List[GeneInformationCoupled]):Unit

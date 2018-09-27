@@ -8,6 +8,14 @@ import scala.util.Random
 
 object EmbryosUtil {
 
+  /** Create a quantity of embryos based to given fecundity starting from parents' reproduction information
+    *
+    * @param firstReproductionInfo ReproductionInfo of first parent
+    * @param secondReproductionInfo ReproductionInfo of second parent
+    * @param fecundity Fecundity
+    * @param geneticEngine Required GeneticEngine
+    * @return
+    */
   def createEmbryos(firstReproductionInfo: ReproductionInfo, secondReproductionInfo: ReproductionInfo,
                     fecundity: Double)(implicit geneticEngine: GeneticsEngine): Seq[AnimalInfo] = {
     require(firstReproductionInfo.species == firstReproductionInfo.species)
@@ -18,6 +26,13 @@ object EmbryosUtil {
       .map(_ => makeEmbryo(firstReproductionInfo, secondReproductionInfo))
   }
 
+  /** Create an embryos starting from parents' reproduction information
+    *
+    * @param firstReproductionInfo ReproductionInfo of first parent
+    * @param secondReproductionInfo ReproductionInfo of second parent
+    * @param geneticEngine Required GeneticEngine
+    * @return
+    */
   def makeEmbryo(firstReproductionInfo: ReproductionInfo, secondReproductionInfo: ReproductionInfo)
                 (implicit geneticEngine: GeneticsEngine): AnimalInfo = {
     require(firstReproductionInfo.species == firstReproductionInfo.species)
@@ -36,19 +51,19 @@ object EmbryosUtil {
   }
 
 
-  def generateNewChromosomeCouple(firstCouple: ChromosomeCouple, secondCouple: ChromosomeCouple, species: String)
+  private[util] def generateNewChromosomeCouple(firstCouple: ChromosomeCouple, secondCouple: ChromosomeCouple, species: String)
                                  (implicit geneticEngine: GeneticsEngine): (ChromosomeType, ChromosomeCouple) = {
     mutateChromosome(randomChromosome(firstCouple), species) |->|
       mutateChromosome(randomChromosome(secondCouple), species)
   }
 
-  def generateNewChromosomeCouple(firstCouple: SexualChromosomeCouple, secondCouple: SexualChromosomeCouple,
+  private[util] def generateNewChromosomeCouple(firstCouple: SexualChromosomeCouple, secondCouple: SexualChromosomeCouple,
                                         species: String)(implicit geneticEngine: GeneticsEngine): SexualChromosomeCouple = {
     mutateChromosome(randomChromosome(firstCouple), species) :+:
       mutateChromosome(randomChromosome(secondCouple), species)
   }
 
-  def mutateChromosome[T<:Chromosome](chromosome: T, species: String)(implicit geneticEngine: GeneticsEngine): T = {
+  private def mutateChromosome[T<:Chromosome](chromosome: T, species: String)(implicit geneticEngine: GeneticsEngine): T = {
     val newGeneList = chromosome.geneList.map(gene => {
       if(math.random() < geneticEngine.mutationProb && geneticEngine.obtainMutantAlleles(species, gene).nonEmpty)
         Random.shuffle(geneticEngine.obtainMutantAlleles(species, gene)).head
@@ -67,12 +82,26 @@ object EmbryosUtil {
   }
 }
 
+/** Trait that defines an animal reproduction information necessary to simulate reproduction*/
+trait ReproductionInfo {
+  /** Animal's genome*/
+  val genome: AnimalGenome
+  /** Animal's fertility*/
+  val fertility: Double
+  /** Animal's species*/
+  val species: String
+}
 
-trait ReproductionInfo {def genome: AnimalGenome
-def fertility: Double
-def species: String }
-
+/** Factory object for [[it.unibo.pps.ese.model.components.animals.reproduction.util.ReproductionInfo]]*/
 object ReproductionInfo {
+
+  /** Create a [[it.unibo.pps.ese.model.components.animals.reproduction.util.ReproductionInfo]]
+    *
+    * @param genome Animal's genome
+    * @param fertility Animal's fertility
+    * @param species Animal's species
+    * @return New [[it.unibo.pps.ese.model.components.animals.reproduction.util.ReproductionInfo]]
+    */
   def apply(genome: AnimalGenome, fertility: Double, species: String): ReproductionInfo = ReproductionInfoImpl(genome, fertility, species)
 
   private case class ReproductionInfoImpl(genome: AnimalGenome, fertility: Double, species: String) extends ReproductionInfo

@@ -17,9 +17,9 @@ sealed trait ModifiableSphereCouple{
     * @param geneInformationCoupled
     *   The information to assign
     * @param lS
-    *   The left [[GeneDetailsSubScene]] used to show the informations
+    *   The left [[GeneDetailsSubScene]] used to show the information
     * @param rS
-    *   The right [[GeneDetailsSubScene]] used to show the informations
+    *   The right [[GeneDetailsSubScene]] used to show the information
     */
   def setGeneStats(geneInformationCoupled: GeneInformationCoupled, lS:GeneDetailsSubScene, rS:GeneDetailsSubScene):Unit
 
