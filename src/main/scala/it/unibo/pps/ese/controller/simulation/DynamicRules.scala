@@ -6,7 +6,7 @@ import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 /**
   * Trait through which the rules of the world can be accessed and changed.
   */
-sealed trait StaticRules extends WorldTypesImpl {
+sealed trait DynamicRules extends WorldTypesImpl {
 
   /**
     * The method that allows knowledge of species in the world.
@@ -41,13 +41,13 @@ sealed trait StaticRules extends WorldTypesImpl {
 }
 
 /**
-  * Singleton Implementation of [[StaticRules]] that allows to access to services at any time.
+  * Singleton Implementation of [[DynamicRules]] that allows to access to services at any time.
   */
-object StaticRules {
-  private val _instance = new StaticRulesImpl()
-  def instance(): StaticRulesImpl = _instance
+object DynamicRules {
+  private val _instance = new DynamicRulesImpl()
+  def instance(): DynamicRulesImpl = _instance
 
-  class StaticRulesImpl() extends StaticRules {
+  class DynamicRulesImpl() extends DynamicRules {
     private var entityKinds: Set[String] = Set.empty
     private var worldRules: Option[WorldRules] = None
 

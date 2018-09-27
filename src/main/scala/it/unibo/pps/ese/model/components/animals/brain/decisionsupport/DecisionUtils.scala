@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport
 
-import it.unibo.pps.ese.controller.simulation.StaticRules
+import it.unibo.pps.ese.controller.simulation.DynamicRules
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityKinds.EntityKinds
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes.GenderTypes
 
@@ -101,10 +101,10 @@ object EntityKinds extends Enumeration {
   updateSpecies()
 
   /**
-    * Whenever other species appear in the world, through the singleton [[StaticRules]], these are updated.
+    * Whenever other species appear in the world, through the singleton [[DynamicRules]], these are updated.
     */
   def updateSpecies(): Unit = {
-    entityKinds = StaticRules.instance().getSpecies
+    entityKinds = DynamicRules.instance().getSpecies
     entityKinds.foreach(Value)
     constants = entityKinds.map(v => Symbol(v) -> withName(v)).toMap
   }
