@@ -14,6 +14,7 @@ import net.jcazevedo.moultingyaml._
 
 import scala.util.{Failure, Success, Try}
 
+/** Trait that defines simulation's data loader that loads data starting from simulation config file*/
 trait FileLoader extends Loader {
   override type DataSource = File
 }
