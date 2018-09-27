@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import it.unibo.pps.ese.controller.simulation.StaticRules
+import it.unibo.pps.ese.controller.simulation.DynamicRules
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.model.dataminer.DataMiner
@@ -152,7 +152,7 @@ trait BaseManageableController extends ManageableController {
       (a, p) => EntityBuilderHelpers.initializeEntity(a, p, worldInfo.width, worldInfo.height, animalCreationFunction)
     val entities: Seq[Entity] = EntityBuilderHelpers.initializeEntities(animals, plants, newAnimals, newPlants,
       worldInfo.width, worldInfo.height, animalCreationFunction)
-    StaticRules.instance().updateRules()
+    DynamicRules.instance().updateRules()
     simulation addEntities entities
   }
 

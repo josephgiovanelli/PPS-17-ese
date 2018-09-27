@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.fixtures.Anima
 import org.scalatest.WordSpec
 
 class TestAnimalBuilder extends WordSpec with AnimalBuilderFixture {
-  "A GeneBuilder" ignore {
+  "A GeneBuilder" when {
     "is correctly filled" should {
       "explicitly build correctly" in {
         animalBFixture.complete.buildComplete match {

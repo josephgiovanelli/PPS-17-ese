@@ -119,7 +119,7 @@ trait GeneticsSimulator {
   /**
     * To retrieve all the information about a given gene
     * @param geneM
-    *              The [[MGene]] for which obtain the informations
+    *              The [[MGene]] for which obtain the information
     * @param animalInfo
     *                   The animalInfo of the gene which belongs the gene
     * @return

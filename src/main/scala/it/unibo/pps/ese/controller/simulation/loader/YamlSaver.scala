@@ -16,13 +16,25 @@ import it.unibo.pps.ese.controller.simulation.loader.exception.ResourceAlreadyEx
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
+/** Trait that defines simulation's saver that save simulation setup data to a given folder*/
 trait FileSaver extends Saver {
-  override type DataSupport = Folder
+  override type MemorySupport = Folder
+
+  /**
+    * @param resource Resource that saving process can override
+    */
   def addResourceToOverride(resource: ExistingResource)
 }
 
+/** Factory object to produce [[it.unibo.pps.ese.controller.simulation.loader.FileSaver]] that use YAML protocol for data serialization*/
 object YamlSaver {
 
+  /**
+    *
+    * @param simulationData Simulation to save
+    * @param simulationName Simulation name
+    * @return Configured saver
+    */
   def apply(simulationData: PartialSimulationData, simulationName: String): FileSaver =
     new YamlSaverImpl(simulationData, simulationName)
 
@@ -64,7 +76,7 @@ object YamlSaver {
     }
 
     def saveMainFile(file: FileResource, overrideAll: Boolean): Unit = {
-      val currentFolder = file.getParent().get.getOrCreateFolder().get
+      val currentFolder = file.getParent.get.getOrCreateFolder().get
       val animals = simulationData.getAnimals.map(iter => {
         iter.map(animalTuple => {
           val fileName = simulationName + "_" + animalTuple._1.name + fileExtension

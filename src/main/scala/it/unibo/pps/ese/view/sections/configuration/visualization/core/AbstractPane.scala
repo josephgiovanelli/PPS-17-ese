@@ -2,12 +2,13 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.core
 
 import java.awt.MouseInfo
 
+import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
 import scalafx.css.PseudoClass
 import scalafx.geometry.Insets
 import scalafx.scene.control._
 import scalafx.scene.image.ImageView
-import scalafx.scene.layout.{BorderPane, GridPane, HBox}
+import scalafx.scene.layout._
 import scalafx.scene.paint.Color
 
 /**
@@ -43,7 +44,10 @@ object PaneProperties {
   * @param path
   * @param depth
   */
-abstract class DialogPane(val title: String, val headerText: String, val path: String, val depth: Int) extends BorderPane
+abstract class DialogPane(val title: String, val headerText: String, val path: String, val depth: Int) extends BorderPane {
+  background = new Background(Array(new BackgroundFill(Color.color(0.2, 0.2, 0.2, 1.0), CornerRadii.Empty, Insets.Empty)))
+  prefHeight = 500
+}
 
 /**
   * A common pane for checkable and backable panes.
@@ -61,9 +65,6 @@ abstract class DialogPane(val title: String, val headerText: String, val path: S
 abstract class AbstractPane[A](mainDialog: MainDialog, val previousContent: Option[DialogPane], val key: Option[String],
                                title: String, headerText: String, path: String, depth: Int)
   extends DialogPane(title, headerText, path, depth) {
-
-  prefWidth = 500
-  prefHeight = 600
 
   /*
   Back Section

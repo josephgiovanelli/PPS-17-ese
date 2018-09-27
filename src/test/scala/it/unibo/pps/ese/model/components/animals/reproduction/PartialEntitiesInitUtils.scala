@@ -38,7 +38,7 @@ object PartialEntitiesInitUtils {
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo)(implicit i: Iterator[Int], executionContext: ExecutionContext): Component = {
     def animalCreationFunction: (AnimalInfo, Point) => Entity = (a, p) => entityInit(a, p, 0.0)
-    ReproductionComponent(
+    new ReproductionComponent(
       entity.specifications,
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
       GeneticsSimulator,

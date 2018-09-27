@@ -3,6 +3,7 @@ package it.unibo.pps.ese.controller.simulation.loader
 import it.unibo.pps.ese.controller.simulation.loader.beans._
 import net.jcazevedo.moultingyaml.{DefaultYamlProtocol, YamlFormat}
 
+/** Object containing protocols for beans serializing/deserializing*/
 object BeansYamlProtocol extends DefaultYamlProtocol {
   implicit val simulationFormat: YamlFormat[Simulation] = yamlFormat2(Simulation)
   implicit val plantFormat: YamlFormat[Plant] = yamlFormat7(Plant)

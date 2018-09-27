@@ -10,22 +10,38 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
+/** Builder that can build a PartialDefaultGeneData as partial data instance and a CompleteDefaultGeneData as complete data
+  * instance
+  *
+  * @tparam S Builder's current status
+  */
 trait DefaultGeneBuilder[S <: GeneStatus] extends GeneBuilder[S] with GenericBuilder[S, DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData] {
   type RET[A <: S] = DefaultGeneBuilder[A]
+
+  /** Set multiple builder's properties starting from [[it.unibo.pps.ese.controller.simulation.loader.DefaultGene]]
+    *
+    * @param defaultGene Default gene data
+    * @return New builder with updated param and status
+    */
   def setDefaultInfo(defaultGene: it.unibo.pps.ese.controller.simulation.loader.DefaultGene): DefaultGeneBuilder[S with DefaultGeneTemplate]
 }
 
+/** Factory object for [[it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.DefaultGeneBuilder]]*/
 object DefaultGeneBuilder {
 
+  /** Create a new empty [[it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.DefaultGeneBuilder]]
+    *
+    * @return An empty [[it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.DefaultGeneBuilder]]
+    */
   def apply(): DefaultGeneBuilder[EmptyGene] = new DefaultGeneBuilderImpl[EmptyGene](None, None, Map(), Iterable())
 
-  private[this] class DefaultGeneBuilderImpl[T <: GeneStatus](id: Option[String],
-                                                name: Option[String],
-                                                properties: Map[String, Class[_]],
-                                                alleles: Iterable[AlleleBuilder[_]])
+  private[this] class DefaultGeneBuilderImpl[T <: GeneStatus](_id: Option[String],
+                                                              _name: Option[String],
+                                                              _properties: Map[String, Class[_]],
+                                                              _alleles: Iterable[AlleleBuilder[_]])
                                                (implicit val status: TypeTag[T])
-    extends GenericGeneBuilderImpl[T](id, name, properties, alleles) with DefaultGeneBuilder[T]
-      with BaseBuildableGenericBuilder[T , DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData]
+    extends GenericGeneBuilderImpl[T](_id, _name, _properties, _alleles) with DefaultGeneBuilder[T]
+      with BaseGenericBuilder[T , DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData]
       with ValidStatusGenericBuilder[T , DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData, ValidGene]{
 
     override def newInstance[NT <: GeneStatus](id: Option[String], name: Option[String], properties: Map[String, Class[_]],
@@ -34,26 +50,26 @@ object DefaultGeneBuilder {
     }
 
     override def setDefaultInfo(defaultGene: loader.DefaultGene): DefaultGeneBuilder[T with DefaultGeneTemplate] = {
-      new DefaultGeneBuilderImpl(id, Some(defaultGene.name), defaultGene.properties, alleles)
+      new DefaultGeneBuilderImpl(_id, Some(defaultGene.name), defaultGene.properties, _alleles)
     }
 
     override def tryCompleteBuild(): Try[CompleteDefaultGeneData] = {
       status.tpe match {
         case t if t <:< typeOf[DefaultGene] =>
-          val check = completeGeneRequirements
+          val check = completeGeneRequirements()
           val exc = check._1 ++: checkProperties
           if(exc.isEmpty) {
-            Success(new DefaultGeneDataImpl(id, name.get, properties, check._2) with CompleteDefaultGeneData)
+            Success(new DefaultGeneDataImpl(_id, _name.get, _properties, check._2) with CompleteDefaultGeneData)
           } else {
             Failure(check._1.get)
           }
         case _ =>
-          Failure(checkProperties.get)
+          Failure(checkProperties().get)
       }
     }
 
     override protected def buildPartialInstance(): PartialDefaultGeneData = {
-      new DefaultGeneDataImpl(id, name.get, properties, alleles.map(_.build()))
+      new DefaultGeneDataImpl(_id, _name.get, _properties, _alleles.map(_.build()))
     }
   }
 
@@ -65,6 +81,6 @@ object DefaultGeneBuilder {
 
     override val getProperties: Option[Map[String, Class[_]]] = _getProperties.boxToValidOption()
     override val getAlleles: Option[Iterable[A]] = _getAlleles.boxToValidOption()
-    override def getId: Option[String] = _getId.normalize()
+    override val getId: Option[String] = _getId.normalize()
   }
 }

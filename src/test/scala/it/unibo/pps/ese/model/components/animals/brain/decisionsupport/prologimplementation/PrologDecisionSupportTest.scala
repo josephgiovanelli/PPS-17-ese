@@ -1,6 +1,6 @@
 package it.unibo.pps.ese.model.components.animals.brain.decisionsupport.prologimplementation
 
-import it.unibo.pps.ese.controller.simulation.StaticRules
+import it.unibo.pps.ese.controller.simulation.DynamicRules
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImplUtils._
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.WorldRulesImplUtils._
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport._
@@ -11,10 +11,10 @@ class PrologDecisionSupportTest extends FunSuite {
   /*
   Definition of the world rules.
   */
-  StaticRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
+  DynamicRules.instance().addSpecies(Set("carnivorous", "herbivore", "plant"))
   val worldRules: WorldRulesImpl = WorldRulesImpl(3, 5, 3, Set(("carnivorous", "herbivore"), ("herbivore", "plant")),
     Set(("carnivorous", "carnivorous"), ("herbivore", "herbivore")))
-  StaticRules.instance().setRules(worldRules)
+  DynamicRules.instance().setRules(worldRules)
 
   /*
   Definition of the entity attributes.

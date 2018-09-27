@@ -79,7 +79,7 @@ sealed trait CachedWorld {
   private[this] val _queryableState: EntitiesStateCache = EntitiesStateCache apply
 
   /**
-    * Get the custom mapper, used when cache's informations are required
+    * Get the custom mapper, used when cache's information are required
     * @return The custom mapper
     */
   def stateMapper: EntityState => EntityState

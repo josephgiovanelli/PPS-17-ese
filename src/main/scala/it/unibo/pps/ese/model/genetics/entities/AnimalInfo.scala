@@ -4,7 +4,7 @@ import it.unibo.pps.ese.model.genetics.dna.AnimalGenome
 import it.unibo.pps.ese.model.genetics.dnaexpression.{AllelicBehaviour, AnimalFeature}
 
 /**
-  * Basic common informations of an Entity
+  * Basic common information of an Entity
   */
 trait EntityInfo {
   /**
@@ -20,7 +20,7 @@ trait EntityInfo {
 }
 
 /**
-  * Informations about Animal
+  * Information about Animal
   */
 trait AnimalInfo extends EntityInfo{
   /**

@@ -118,7 +118,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
       val chosenFile: java.io.File = fileChooser.showSaveDialog(mainDialog.window)
       if (chosenFile != null) {
         this.disable = true
-        IOResource(chosenFile.toURI.toURL).getParent() match {
+        IOResource(chosenFile.toURI.toURL).getParent match {
           case Some(f: Folder) =>
             val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
             handleSaveResult(saver.saveSimulationData(data, chosenFile.getName, f), saver, f)
