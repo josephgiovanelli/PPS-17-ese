@@ -7,12 +7,12 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
   def customGBFixture = new {
 
     val complete = CustomGeneBuilder()
-      .setId("idcc")
+      .setId("aaa")
       .setName("namecc")
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-        .setId("a")
-        .setGene("idcc")
+        .setId("aaa")
+        .setGene("aaa")
         .setEffect(Map("test" -> 1))
       ))
       .addProperties(Map("test" -> Double.getClass))
@@ -22,20 +22,20 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
       .setName("namecsi")
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-          .setId("a")
-          .setGene("idcsi")
+          .setId("aab")
+          .setGene("aab")
           .setEffect(Map("test" -> 1))
       ))
       .addProperties(Map("test" -> Double.getClass))
       .addConversionMap(Map("test" -> Map("height" -> 1)))
 
     val dynamicIncomplete = CustomGeneBuilder()
-      .setId("iddi")
+      .setId("aac")
       .setName("namecdi")
       .addAlleles(Set(
         alleleBFixture.templateHalfProb
-          .setId("a")
-          .setGene("iddi")
+          .setId("aac")
+          .setGene("aac")
           .setEffect(Map("test" -> 1))
       ))
       .addProperties(Map("test" -> Double.getClass))
