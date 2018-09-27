@@ -176,7 +176,6 @@ object MainDialog {
     override def show(): Unit = showAndWait()
 
     override def closeDialog(): Unit = {
-      setupViewBridge.get.setupAborted
       this.close()
     }
 

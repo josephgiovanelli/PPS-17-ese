@@ -25,7 +25,6 @@ trait StartViewBridge {
 }
 
 trait SetupViewBridge {
-  def setupAborted:Unit
   def startSimulation(data: CompleteSimulationData): Future[Try[Unit]]
   def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]]
   def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]]
@@ -110,8 +109,6 @@ object ViewLauncher {
     def retrySave(target: Folder, overrideResource: Option[ExistingResource], overrideAll: Boolean = false): Future[Try[Unit]] = {
       controller.retrySave(target, overrideResource, overrideAll)
     }
-
-    override def setupAborted: Unit = startMenuView.disableButtons(true)
   }
 }
 
