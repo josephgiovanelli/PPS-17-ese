@@ -334,6 +334,8 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
           //and ask to the decision support the near prey/partner.
           val entityChoice = targets.min(Ordering.by((_:EntityChoiceImpl).distance))
           val entityAttribute = entityInVisualField(entityChoice.name)
+          //I move towards the target,
+          (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
           //If the target entity is inside my action field
           if (entityChoice.distance < actionField) {
             //I do the action,
@@ -341,10 +343,6 @@ case class BrainComponent(override val entitySpecifications: EntitySpecification
             publish(InteractionEntity(entityAttribute name, action))
             hippocampus.notifyEvent(action, Position(me.position.x, me.position.y))
             if (action.equals(Eat)) digestionState = true
-          }
-          //otherwise I move towards the target,
-          else {
-            (0 until floorSpeed) foreach( _ => me.position = decisionSupport.nextMove(me, entityAttribute))
           }
           //and update my position.
           position = Point(me.position.x, me.position.y)
