@@ -143,7 +143,7 @@ private class EntityDataImpl(val name: String,
                              _getReign: Option[String]) extends EntityData {
   import it.unibo.pps.ese.controller.simulation.loader.data.builder.BuildersValidationImplicits._
 
-  override def getGeneLength: Option[Int] = _getGeneLength.normalize()
-  override def getAlleleLength: Option[Int] = _getAlleleLength.normalize()
-  override def getReign: Option[String] = _getReign.normalize()
+  override val getGeneLength: Option[Int] = _getGeneLength.normalize()
+  override val getAlleleLength: Option[Int] = _getAlleleLength.normalize()
+  override val getReign: Option[String] = _getReign.normalize()
 }
