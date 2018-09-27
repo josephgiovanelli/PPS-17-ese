@@ -54,6 +54,20 @@ object SexualDefaultGenes extends MyEnum[SexualDefaultGene] {
   val elements: Set[SexualDefaultGene] = Set(FERTILITY, FECUNDITY, PREGNANCY_DURATION)
 }
 
+sealed abstract class Code(val code: String) extends EnumElem
+object Typologies extends MyEnum[Code] {
+  case object CARNIVOROUS extends Code("C")
+  case object HERBIVOROUS extends Code("H")
+
+  val elements: Set[Code] = Set(CARNIVOROUS, HERBIVOROUS)
+}
+object Reigns extends MyEnum[Code] {
+  case object ANIMALS extends Code("A")
+  case object PLANTS extends Code("P")
+
+  val elements: Set[Code] = Set(ANIMALS, PLANTS)
+}
+
 sealed case class Property(name: String, requiredType: Class[_]) extends EnumElem
 
 object AnimalStructuralProperties extends MyEnum[Property] {

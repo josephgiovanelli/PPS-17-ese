@@ -1,5 +1,6 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.entities
 
+import it.unibo.pps.ese.controller.simulation.loader.Reigns
 import it.unibo.pps.ese.controller.simulation.loader.data._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.{BaseGenericBuilder, GenericBuilder, ValidStatusGenericBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.EntityStatus._
@@ -10,15 +11,40 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableInsideRange._
 
+/** Builder that can build a PartialPlantData as partial data instance and a CompletePlantData as complete data
+  * instance
+  *
+  * @tparam T Builder's current status
+  */
 trait PlantBuilder [T <: EntityStatus] extends EntityBuilder[T] with GenericBuilder[T, FullPlant, PartialPlantData, CompletePlantData] {
   override type RET[A <: T] = PlantBuilder[A]
+  /** Set plant's height
+    *
+    * @param height Plant's height
+    * @return New builder with updated param and status
+    */
   def setHeight(height: Double): PlantBuilder[T with PlantWithHeight]
+  /** Set plant's nutritional value
+    *
+    * @param nutritionalValue Plant's nutritional value
+    * @return New builder with updated param and status
+    */
   def setNutritionalValue(nutritionalValue: Double): PlantBuilder[T with PlantWithNutritionalValue]
+  /** Set plant's hardness
+    *
+    * @param hardness Plant's hardness
+    * @return New builder with updated param and status
+    */
   def setHardness(hardness: Double): PlantBuilder[T with PlantWithHardness]
 }
 
+/** Factory object for [[it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.PlantBuilder]]*/
 object PlantBuilder {
 
+  /** Create a new empty [[it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.PlantBuilder]]
+    *
+    * @return An empty [[it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.PlantBuilder]]
+    */
   def apply(): PlantBuilder[EmptyEntity] =
     new PlantBuilderImpl[EmptyEntity](None, None, None, None, None, None, None)
 
@@ -69,6 +95,8 @@ object PlantBuilder {
 
     override def checkProperties: Option[CompleteBuildException] = {
       var exception = super.checkProperties
+      if(!reign.contains(Reigns.ANIMALS.code))
+        exception = exception ++: InvalidParamValueBuildException("Animal: " + name.getOrElse(""), "reign", reign)
       if(!height.inValidRange())
         exception = exception ++: InvalidParamValueBuildException("Plant " + name.getOrElse(""), "height", height)
       if(!nutritionalValue.inValidRange())

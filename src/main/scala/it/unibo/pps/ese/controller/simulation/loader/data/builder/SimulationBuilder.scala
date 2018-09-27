@@ -34,6 +34,7 @@ trait SimulationBuilder[T <: SimulationStatus] extends GenericBuilder[T, FullSim
   def addPlants(plants: Iterable[(PlantBuilder[_], Int)]): SimulationBuilder[T with SimulationWithPlants]
 }
 
+/** Factory object for [[it.unibo.pps.ese.controller.simulation.loader.data.builder.SimulationBuilder]]*/
 object SimulationBuilder {
 
   /** Create a new empty [[it.unibo.pps.ese.controller.simulation.loader.data.builder.SimulationBuilder]]
@@ -54,7 +55,7 @@ object SimulationBuilder {
       new SimulationBuilderImpl(_animals, _plants ++ plants)
     }
 
-    override def tryCompleteBuild: Try[CompleteSimulationData] = {
+    override def tryCompleteBuild(): Try[CompleteSimulationData] = {
       status.tpe match {
         case t if t <:< typeOf[FullSimulation] =>
           val check = checkComplete()
