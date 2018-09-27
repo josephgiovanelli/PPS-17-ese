@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.simulation.runner.incarnation
 
 import java.util.UUID.randomUUID
 
-import it.unibo.pps.ese.controller.simulation.StaticRules
+import it.unibo.pps.ese.controller.simulation.DynamicRules
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.CompleteSimulationData
@@ -117,9 +117,9 @@ class SimulationBuilder[Simulation <: SimulationBuilder.Simulation]
     def animalCreationFunction: (AnimalInfo, Point) => Entity =
       (a, p) => EntityBuilderHelpers.initializeEntity(a, p, width, height, animalCreationFunction)
 
-    StaticRules.instance().addSpecies((geneticsSimulator.speciesList ++ geneticsSimulator.plantSpeciesList) toSet)
+    DynamicRules.instance().addSpecies((geneticsSimulator.speciesList ++ geneticsSimulator.plantSpeciesList) toSet)
     val worldRules: WorldRulesImpl = WorldRulesImpl(attackThreshold,heightThreshold,couplingThreshold)
-    StaticRules.instance().setRules(worldRules)
+    DynamicRules.instance().setRules(worldRules)
 
     geneticsSimulator.speciesList
       .flatMap(x => initializedSimulation.getAllAnimals(x))

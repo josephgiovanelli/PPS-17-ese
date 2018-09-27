@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.simulation.runner.incarnation.coordinators
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import it.unibo.pps.ese.controller.simulation.StaticRules
+import it.unibo.pps.ese.controller.simulation.DynamicRules
 import it.unibo.pps.ese.controller.simulation.loader.data.AnimalData.CompleteAnimalData
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.model.dataminer.DataMiner
@@ -152,7 +152,7 @@ trait BaseManageableController extends ManageableController {
       (a, p) => EntityBuilderHelpers.initializeEntity(a, p, worldInfo.width, worldInfo.height, animalCreationFunction)
     val entities: Seq[Entity] = EntityBuilderHelpers.initializeEntities(animals, plants, newAnimals, newPlants,
       worldInfo.width, worldInfo.height, animalCreationFunction)
-    StaticRules.instance().updateRules()
+    DynamicRules.instance().updateRules()
     simulation addEntities entities
   }
 
@@ -226,7 +226,8 @@ trait SingleViewController extends SimulationController with BaseManageableContr
 
   private[this] val surgeon = Surgeon(realTimeState)
   private[this] val storyTeller = StoryTeller(miner)
-  private[this] val _era: AtomicInteger = new AtomicInteger(1)
+  private[this] val _era: AtomicInteger = new AtomicInteger(0)
+  private[this] var _attached = false
 
   simulation attachEraListener(era => _era set era.toInt)
   consolidatedState attachNewDataListener(era => storyTeller updateHistoryLog era)
@@ -235,10 +236,12 @@ trait SingleViewController extends SimulationController with BaseManageableContr
 
   override def unwatch(): Unit = surgeon leaves()
 
-  def attachView(view: View, frameRate: Int): Unit = {
+  def attachView(view: View, frameRate: Int): Unit = if (!_attached){
+    _attached = true
     storyTeller attachView view
     import ViewHelpers.ManageableObserver
     view addObserver this
+    play()
     new Thread (() => {
       while(!isStopped) {
         normalizeFrameRate(() => {

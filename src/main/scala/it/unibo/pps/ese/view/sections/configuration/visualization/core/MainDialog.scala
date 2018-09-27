@@ -193,7 +193,9 @@ object MainDialog {
 
     override def show(): Unit = showAndWait()
 
-    override def closeDialog(): Unit = this.close()
+    override def closeDialog(): Unit = {
+      this.close()
+    }
 
     override def addToPendingAnimals(id: String): Unit = pendingAnimals += id
 

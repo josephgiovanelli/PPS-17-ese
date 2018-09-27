@@ -24,7 +24,7 @@ trait NotBuildableBuilder[S <: BuilderStatus] {
   implicit def map[X, Y]: DefaultValue[Map[X, Y]] = BuildersValidationImplicits.map
 }
 
-trait GenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends NotBuildableBuilder[S] {
+trait StaticBuildableBuilder[S <: BuilderStatus, +P, +C <: P] extends NotBuildableBuilder[S] {
   def tryBuild(): Try[P]
   def tryCompleteBuild(): Try[C]
   def build(): P = {
@@ -35,7 +35,14 @@ trait GenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends
         throw exception
     }
   }
-  def buildComplete(implicit ev: S =:= CS, st: TypeTag[S]): C = {
+}
+
+trait DynamicBuildableBuilder[S <: BuilderStatus, CS <: BuilderStatus, +C] extends NotBuildableBuilder[S] {
+  def buildComplete(implicit ev: S =:= CS, st: TypeTag[S]): C
+}
+
+trait GenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends StaticBuildableBuilder[S, P, C] with DynamicBuildableBuilder[S, CS, C] {
+  override def buildComplete(implicit ev: S =:= CS, st: TypeTag[S]): C = {
     tryCompleteBuild() match {
       case Success(value) =>
         value
@@ -45,7 +52,7 @@ trait GenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends
   }
 }
 
-trait BaseBuildableGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P] extends GenericBuilder[S, CS, P, C] {
+trait BaseBuildableGenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends GenericBuilder[S, CS, P, C] {
 
   protected def buildPartialInstance(): P
 
@@ -59,7 +66,7 @@ trait BaseBuildableGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C 
   }
 }
 
-trait ValidStatusGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, P, C <: P, VS] extends GenericBuilder[S, CS, P, C] {
+trait ValidStatusGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, +P, +C <: P, VS] extends GenericBuilder[S, CS, P, C] {
   protected def checkMandatoryProperties(): Option[CompleteBuildException]
   protected def status: TypeTag[S]
   protected def validStatus: TypeTag[VS]

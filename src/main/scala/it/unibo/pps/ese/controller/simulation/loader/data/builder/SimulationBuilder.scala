@@ -59,8 +59,8 @@ object SimulationBuilder {
         exception = exception ++: CompleteBuildException("Simulation: All animals must be complete",
           aTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
       }
-      if(!animals.forall(_._2 > 0))
-        exception = exception ++: CompleteBuildException("Simulation: All animals have a positive quantity")
+//      if(!animals.forall(_._2 > 0))
+//        exception = exception ++: CompleteBuildException("Simulation: All animals have a positive quantity")
       val pTries: Iterable[(Try[CompletePlantData], Int)] = plants.map(t => (t._1.tryCompleteBuild, t._2))
       val p: Iterable[(CompletePlantData, Int)] = pTries.collect({
         case (Success(value), i) =>
@@ -70,8 +70,8 @@ object SimulationBuilder {
         exception = exception ++: CompleteBuildException("Simulation: All plants must be complete",
           pTries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
       }
-      if(!plants.forall(_._2 > 0))
-        exception = exception ++: CompleteBuildException("Simulation: All animals have a positive quantity")
+//      if(!plants.forall(_._2 > 0))
+//        exception = exception ++: CompleteBuildException("Simulation: All animals have a positive quantity")
       (exception, a, p)
     }
 

@@ -63,11 +63,11 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
                                   extends WriterComponent(entitySpecifications)  {
 
   private val energyRequirementsPerChild = energyRequirements * 0.2 / math.round(fecundity)
-  private val pregnancyDurationInClocks: Long = (clocksPerYear * pregnancyDuration).toLong
+  private val energyRequirementsIncreaseSteps = 2
+  private val pregnancyDurationInClocks: Long = Seq((clocksPerYear * pregnancyDuration).toLong, energyRequirementsIncreaseSteps + 1).min
+  private val energyRequirementsIncreasePeriod = pregnancyDurationInClocks / (energyRequirementsIncreaseSteps + 1)
   private var embryos: Seq[AnimalInfo] = Seq()
   private var inPregnancyTime: Long = 0
-  private val energyRequirementsIncreaseSteps = 2
-  private val energyRequirementsIncreasePeriod = pregnancyDurationInClocks / (energyRequirementsIncreaseSteps + 1)
 
   implicit val geneticEngine: GeneticsEngine = GeneticsEngine(geneticsSimulator, mutationProb)
 
@@ -80,8 +80,16 @@ case class ReproductionComponent(override val entitySpecifications: EntitySpecif
       case ComputeNextState() =>
         if(embryos.nonEmpty) {
           inPregnancyTime += 1
-          if(inPregnancyTime != 0 && inPregnancyTime % energyRequirementsIncreasePeriod == 0)
-            publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / energyRequirementsIncreaseSteps))
+          try {
+            if (inPregnancyTime != 0 && inPregnancyTime % energyRequirementsIncreasePeriod == 0)
+              publish(PregnancyRequirements(energyRequirementsPerChild * embryos.size / energyRequirementsIncreaseSteps))
+          } catch {
+            case e: Exception =>
+              println(pregnancyDuration)
+              println(pregnancyDurationInClocks)
+              println(energyRequirementsIncreasePeriod)
+              throw e
+          }
           if(inPregnancyTime >= pregnancyDurationInClocks) {
             val sons = embryos
             embryos = Seq()

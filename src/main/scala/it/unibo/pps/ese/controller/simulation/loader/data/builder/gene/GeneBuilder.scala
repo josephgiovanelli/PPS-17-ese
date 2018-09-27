@@ -2,7 +2,7 @@ package it.unibo.pps.ese.controller.simulation.loader.data.builder.gene
 
 import it.unibo.pps.ese.controller.simulation.loader.data.GeneData.{CompleteGeneData, PartialGeneData}
 import it.unibo.pps.ese.controller.simulation.loader.data._
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.{AlleleBuilder, BuilderStatus, GenericBuilder, NotBuildableBuilder}
+import it.unibo.pps.ese.controller.simulation.loader.data.builder._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, InvalidParamValueBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.GeneStatus._
 
@@ -18,6 +18,8 @@ trait GenericGeneBuilder[S <: GeneStatus] extends NotBuildableBuilder[S] { self 
   def addAlleles(alleles: Iterable[AlleleBuilder[_]]): RET[S with GeneWithAlleles]
   def status: TypeTag[S]
 }
+
+trait GeneBuilder[S <: GeneStatus] extends GenericGeneBuilder[S] with StaticBuildableBuilder[S, PartialGeneData, CompleteGeneData]
 
 private[gene] abstract class GenericGeneBuilderImpl[T <: GeneStatus](id: Option[String],
                                                name: Option[String],

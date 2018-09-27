@@ -10,7 +10,7 @@ import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
-trait DefaultGeneBuilder[S <: GeneStatus] extends GenericGeneBuilder[S] with GenericBuilder[S, DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData] {
+trait DefaultGeneBuilder[S <: GeneStatus] extends GeneBuilder[S] with GenericBuilder[S, DefaultGene, PartialDefaultGeneData, CompleteDefaultGeneData] {
   type RET[A <: S] = DefaultGeneBuilder[A]
   def setDefaultInfo(defaultGene: it.unibo.pps.ese.controller.simulation.loader.DefaultGene): DefaultGeneBuilder[S with DefaultGeneTemplate]
 }

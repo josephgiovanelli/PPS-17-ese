@@ -19,6 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 trait StartMenuView extends Scene {
+  def disableButtons(disable: Boolean): Unit
 }
 
 object StartMenuView {

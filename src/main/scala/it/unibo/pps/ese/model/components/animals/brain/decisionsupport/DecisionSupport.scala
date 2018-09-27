@@ -2,7 +2,7 @@ package it.unibo.pps.ese.model.components.animals.brain.decisionsupport
 
 
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.EntityAttributesImplUtils._
-import it.unibo.pps.ese.controller.simulation.StaticRules
+import it.unibo.pps.ese.controller.simulation.DynamicRules
 
 import scala.math._
 
@@ -14,9 +14,9 @@ import scala.math._
 trait DecisionSupport extends WorldTypesImpl {
 
   /**
-    * Rules of the world, acquired through the singleton [[StaticRules]], needed to filter each entity in the visual field.
+    * Rules of the world, acquired through the singleton [[DynamicRules]], needed to filter each entity in the visual field.
     */
-  val worldRules: WorldRules = StaticRules.instance().getRules
+  val worldRules: WorldRules = DynamicRules.instance().getRules
 
   implicit def tupleToEntityChoice(tuple: (Name, Int)): EntityChoice = new EntityChoice(tuple._1, tuple._2)
   implicit def streamTupleToStreamEntityChoice(tuples: Stream[(Name, Int)]): Stream[EntityChoice] = tuples map tupleToEntityChoice
