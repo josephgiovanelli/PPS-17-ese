@@ -1,6 +1,7 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.customproperties
 
 
+import it.unibo.pps.ese.controller.simulation.loader.AnimalStructuralProperties
 import it.unibo.pps.ese.model.genetics.entities.QualityType
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.CustomGenePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, ErrorLabel, WhiteLabel}
@@ -71,7 +72,7 @@ case class PropertiesPane(mainDialog: MainDialog,
     else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get).geneInfo.conversionMap(property.get)
     else Map.empty
 
-  var qualities: Set[String] = QualityType.values.map(x => x.toString).toSet -- conversionMap.keySet
+  var qualities: Set[String] = AnimalStructuralProperties.elements.map(_.name) -- conversionMap.keySet
 
   val conversionMapName: ObservableBuffer[String] = ObservableBuffer[String](conversionMap.keySet toSeq)
   val conversionMapListView: ListView[String] = new CustomListView[String] {

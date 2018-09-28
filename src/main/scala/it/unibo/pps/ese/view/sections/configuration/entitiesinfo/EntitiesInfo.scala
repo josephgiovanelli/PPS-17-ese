@@ -108,6 +108,11 @@ sealed trait EntitiesInfo {
    */
 
   /**
+    * It allows to delete all entities.
+    */
+  def deleteAllEntities(): Unit
+
+  /**
     * It allows to delete a plant.
     * @param id the plant identifier
     */
@@ -257,6 +262,11 @@ object EntitiesInfo {
     /*
     Simulation
      */
+
+    override def deleteAllEntities(): Unit = {
+      plants = Map.empty
+      animals = Map.empty
+    }
 
     override def deletePlant(id: String): Unit = plants -= id
 

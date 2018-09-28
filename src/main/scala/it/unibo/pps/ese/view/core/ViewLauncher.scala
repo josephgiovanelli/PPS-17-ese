@@ -93,6 +93,7 @@ object ViewLauncher {
     this.scene = startMenuView
 
     def launchSetup(currentWindow: Window, simulationData: Option[PartialSimulationData] = None): Unit = {
+      EntitiesInfo.instance().deleteAllEntities()
       simulationData.foreach(populateEntitiesInfo)
       MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
       startMenuView.disableButtons(false)

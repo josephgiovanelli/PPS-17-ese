@@ -141,12 +141,12 @@ case class ConfirmPane(mainDialog: MainDialog,
             val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
             mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
           }
+          mainDialog.closeDialog()
         case Failure(exception: CompleteSimulationBuildException) =>
           NoCompleteSimulationAlert(mainDialog.window, exception).showAndWait()
         case Failure(exception) =>
           UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
     }
-    mainDialog.closeDialog()
   }
 
 }
