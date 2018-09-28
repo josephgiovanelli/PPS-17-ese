@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.Partia
 import it.unibo.pps.ese.controller.simulation.loader.data.{PartialAlleleData, PartialPlantData}
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.simulation.loader.io.File.FileFormats
-import it.unibo.pps.ese.controller.simulation.loader.io.{ExistingResource, File, FileResource, Folder, FolderResource, IOResource, NotExistingFile, NotExistingFolder, UndefinedNotExistingResource}
+import it.unibo.pps.ese.controller.simulation.loader.io.{ExistingResource, File, FileResource, Folder, FolderResource, IOResource, NotExistingFile, NotExistingFolder}
 import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
 import java.io.IOException
@@ -56,6 +56,8 @@ object YamlSaver {
           file.write(str)
         case (f: FolderResource, _) =>
           f.getOrCreateFolder().getOrElse(throw new IOException())
+        case _ =>
+          throw new IllegalStateException()
       })) match {
         case Success(_) =>
           Success(Unit)

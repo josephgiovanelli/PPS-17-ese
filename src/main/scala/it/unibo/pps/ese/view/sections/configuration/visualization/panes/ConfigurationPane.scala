@@ -139,6 +139,8 @@ case class ConfigurationPane(mainDialog: MainDialog,
           Platform.runLater(saveButton.disable = false)
         case Failure(exception: ResourceAlreadyExistsException) =>
           Platform.runLater(handleSaveFailure(exception, saver, target))
+        case Failure(exception) =>
+          Platform.runLater(UnexpectedExceptionAlert(mainDialog.window, exception))
       }
     case Failure(exception) =>
       Platform.runLater(UnexpectedExceptionAlert(mainDialog.window, exception))

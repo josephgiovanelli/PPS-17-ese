@@ -103,7 +103,7 @@ trait GenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] exten
   * @tparam P Type of partial data to build
   * @tparam C Type of complete data to build
   */
-trait BaseGenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends GenericBuilder[S, CS, P, C] {
+private[builder] trait BaseGenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] extends GenericBuilder[S, CS, P, C] {
 
   /** Create partial data instance
     *
@@ -131,7 +131,7 @@ trait BaseGenericBuilder[S <: BuilderStatus, CS <: BuilderStatus, +P, +C <: P] e
   * @tparam C Type of complete data to build
   * @tparam VS Valid builder's status required to make a complete build
   */
-trait ValidStatusGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, +P, +C <: P, VS] extends GenericBuilder[S, CS, P, C] {
+private[builder] trait ValidStatusGenericBuilder[S <: BuilderStatus ,CS <: BuilderStatus, +P, +C <: P, VS <: BuilderStatus] extends GenericBuilder[S, CS, P, C] {
   /** Method checks mandatory fields required for a partial data build
     *
     * @return Exception representing mandatory fields missing or invalidity

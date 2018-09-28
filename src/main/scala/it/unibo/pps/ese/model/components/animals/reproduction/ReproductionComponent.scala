@@ -191,7 +191,7 @@ class ReproductionComponent(override val entitySpecifications: EntitySpecificati
             case Success(info) =>
               publish(PartnerInfoResponse(r.id, r.senderId, _animalGenome, info.fertility))
             case Failure(exception) =>
-              exception
+              throw exception
           }
       case r: ForceReproductionForward[_] =>
         handleForcedReproduction(r.forwardedForcing)
