@@ -64,37 +64,42 @@ class ReproductionTest extends WordSpec {
   "Two fertile animals" must {
     "copulate" when {
       "female take action" when {
-        def createMale(implicit i: Iterator[Int]): Entity = entityInit(maleInfo, Point(1,1), 1.0)
-        def createFemale(implicit i: Iterator[Int], male: Entity): Entity = entityInit(femaleInfo, Point(2,2), 1.0, Some(male.specifications.id))
+        def createMale(implicit i: Iterator[Int]): (Entity, FakeComponent) = entityInit(maleInfo, Point(1,1), 1.0)
+        def createFemale(implicit i: Iterator[Int], male: Entity): (Entity, FakeComponent) = entityInit(femaleInfo, Point(2,2), 1.0, Some(male.specifications.id))
         "partner not already moved" in {
           val world = World[Deterministic](10, 10)
           implicit val i: Iterator[Int] = IteratorsFactory.lastCreatedMovesFirst
-          implicit val male: Entity = createMale
+          implicit val male: Entity = createMale._1
           world.addEntity(male)
-          world.addEntity(createFemale)
+          val female = createFemale
+          world.addEntity(female._1)
           Await.result(world.requireInfoUpdate, Duration.Inf)
           checkPopulationIncrementAfterPeriod(4, 3, world)
           checkPopulationStability(world)
+          assert(female._2.pregnRequirementsMsg == 2)
+          assert(female._2.pregnMsg == 1)
+          assert(female._2.pregnEndMsg == 1)
+          info("info messages to other components work")
         }
         "partner already moved" in {
           val world = World[Deterministic](10, 10)
           implicit val i: Iterator[Int] = IteratorsFactory.firstCreatedMovesFirst
-          implicit val male: Entity = createMale
+          implicit val male: Entity = createMale._1
           world.addEntity(male)
-          world.addEntity(createFemale)
+          world.addEntity(createFemale._1)
           Await.result(world.requireInfoUpdate, Duration.Inf)
           checkPopulationIncrementAfterPeriod(5, 3, world)
           checkPopulationStability(world)
         }
       }
       "male take action" when {
-        def createMale(implicit i: Iterator[Int], female: Entity): Entity = entityInit(maleInfo, Point(1,1), 1.0, Some(female.specifications.id))
-        def createFemale(implicit i: Iterator[Int]): Entity = entityInit(femaleInfo, Point(2,2), 1.0)
+        def createMale(implicit i: Iterator[Int], female: Entity): (Entity, FakeComponent) = entityInit(maleInfo, Point(1,1), 1.0, Some(female.specifications.id))
+        def createFemale(implicit i: Iterator[Int]): (Entity, FakeComponent) = entityInit(femaleInfo, Point(2,2), 1.0)
         "partner not already moved" in {
           val world = World[Deterministic](10, 10)
           implicit val i: Iterator[Int] = IteratorsFactory.lastCreatedMovesFirst
-          implicit val female: Entity = createFemale
-          world.addEntity(createMale)
+          implicit val female: Entity = createFemale._1
+          world.addEntity(createMale._1)
           world.addEntity(female)
           Await.result(world.requireInfoUpdate, Duration.Inf)
           checkPopulationIncrementAfterPeriod(4, 3, world)
@@ -102,9 +107,9 @@ class ReproductionTest extends WordSpec {
         }
         "partner already moved" in {
           implicit val i: Iterator[Int] = IteratorsFactory.firstCreatedMovesFirst
-          implicit val female: Entity = createFemale
+          implicit val female: Entity = createFemale._1
           val world = World[Deterministic](10, 10)
-          world.addEntity(createMale)
+          world.addEntity(createMale._1)
           world.addEntity(female)
           Await.result(world.requireInfoUpdate, Duration.Inf)
           checkPopulationIncrementAfterPeriod(5, 3, world)
@@ -118,8 +123,8 @@ class ReproductionTest extends WordSpec {
     "copulate producing 0 children" in {
       val world = World[Deterministic](10, 10)
       implicit val i: Iterator[Int] = IteratorsFactory.lastCreatedMovesFirst
-      val male = entityInit(maleInfo, Point(1,1), 0.0)
-      val female = entityInit(femaleInfo, Point(2,2), 0.0, Some(male.specifications.id))
+      val male = entityInit(maleInfo, Point(1,1), 0.0)._1
+      val female = entityInit(femaleInfo, Point(2,2), 0.0, Some(male.specifications.id))._1
       world.addEntity(male)
       world.addEntity(female)
       checkPopulationStability(world)

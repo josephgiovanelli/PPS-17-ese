@@ -20,6 +20,10 @@ case class FakeComponent(override val entitySpecifications: EntitySpecifications
                         (implicit val executionContext: ExecutionContext)
   extends WriterComponent(entitySpecifications) {
   var forceReproduction: Option[ForceReproduction] = None
+  var pregnRequirementsMsg = 0
+  var pregnMsg = 0
+  var pregnEndMsg = 0
+
 
   override def initialize(): Unit = {
     subscribeEvents()
@@ -46,6 +50,12 @@ case class FakeComponent(override val entitySpecifications: EntitySpecifications
       forceReproduction = Some(r)
     case r: PartnerForceReproduction if r.receiverId == entitySpecifications.id =>
       forceReproduction = Some(r)
+    case r: PregnancyRequirements =>
+      pregnRequirementsMsg += 1
+    case r: Pregnant =>
+      pregnMsg += 1
+    case r: PregnancyEnd =>
+      pregnEndMsg += 1
     case GetInfo() =>
       this synchronized {
         publish(FakeStatusInfo(species, EntityUpdateState.WAITING))

@@ -9,7 +9,7 @@ import it.unibo.pps.ese.utils.Point
 import scala.concurrent.ExecutionContext
 
 object PartialEntitiesInitUtils {
-  def entityInit(animalInfo: AnimalInfo, position: Point, fertility: Double, active: Option[String] = None)(implicit i: Iterator[Int], executionContext: ExecutionContext): Entity = {
+  def entityInit(animalInfo: AnimalInfo, position: Point, fertility: Double, active: Option[String] = None)(implicit i: Iterator[Int], executionContext: ExecutionContext): (Entity, FakeComponent) = {
     var gender = ""
     if(animalInfo.gender == Male) {
       gender = "male"
@@ -31,13 +31,15 @@ object PartialEntitiesInitUtils {
     entity
   }
 
-  def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, fertility: Double, active: Option[String])(implicit executionContext: ExecutionContext): Entity = {
-    entity addComponent FakeComponent(entity.specifications, info.species.name, gender, position, fertility, active)
-    entity
+  def behaviourEntityInit(entity: Entity, info: AnimalInfo, position: Point, gender: String, fertility: Double,
+                          active: Option[String])(implicit executionContext: ExecutionContext): (Entity, FakeComponent) = {
+    val fakeComponent = FakeComponent(entity.specifications, info.species.name, gender, position, fertility, active)
+    entity addComponent fakeComponent
+    (entity, fakeComponent)
   }
 
   def initializeReproductionComponent(entity: Entity, info: AnimalInfo)(implicit i: Iterator[Int], executionContext: ExecutionContext): Component = {
-    def animalCreationFunction: (AnimalInfo, Point) => Entity = (a, p) => entityInit(a, p, 0.0)
+    def animalCreationFunction: (AnimalInfo, Point) => Entity = (a, p) => entityInit(a, p, 0.0)._1
     new ReproductionComponent(
       entity.specifications,
       info.qualities.getOrElse(Fecundity, Quality(0, Fecundity)).qualityValue,
