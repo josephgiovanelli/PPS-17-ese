@@ -15,8 +15,8 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
         .setGene("aaa")
         .setEffect(Map("test" -> 1))
       ))
-      .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map("test" -> Map("height" -> 1, "fieldOfView" -> 1, "rangeOfAction" -> 1, "resistenceToAttack" -> 1, "strength" -> 1, "nutritionalValue" -> 1, "attractiveness" -> 1, "speed" -> 1)))
+      .setProperties(Map("test" -> Double.getClass))
+      .setConversionMap(Map("test" -> Map("height" -> 1, "fieldOfView" -> 1, "rangeOfAction" -> 1, "resistenceToAttack" -> 1, "strength" -> 1, "nutritionalValue" -> 1, "attractiveness" -> 1, "speed" -> 1)))
 
     val staticIncomplete = CustomGeneBuilder()
       .setName("namecsi")
@@ -26,8 +26,8 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
           .setGene("aab")
           .setEffect(Map("test" -> 1))
       ))
-      .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map("test" -> Map("height" -> 1)))
+      .setProperties(Map("test" -> Double.getClass))
+      .setConversionMap(Map("test" -> Map("height" -> 1)))
 
     val dynamicIncomplete = CustomGeneBuilder()
       .setId("aac")
@@ -38,7 +38,7 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
           .setGene("aac")
           .setEffect(Map("test" -> 1))
       ))
-      .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map("test" -> Map("height" -> 1)))
+      .setProperties(Map("test" -> Double.getClass))
+      .setConversionMap(Map("test" -> Map("height" -> 1)))
   }
 }

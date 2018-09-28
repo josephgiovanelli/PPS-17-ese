@@ -9,7 +9,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     val complete = DefaultGeneBuilder()
       .setId("iddc")
       .setName("namedc")
-      .addProperties(Map("test" -> classOf[Double]))
+      .setProperties(Map("test" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
         .setId("a")
@@ -25,7 +25,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
           .setGene("iddc")
           .setEffect(Map("iddsi" -> 1))
       ))
-      .addProperties(Map("test" -> classOf[Double]))
+      .setProperties(Map("test" -> classOf[Double]))
 
     val dynamicIncomplete = DefaultGeneBuilder()
       .setId("idddi")
@@ -36,12 +36,12 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
           .setGene("idddi")
           .setEffect(Map("test" -> 1))
       ))
-      .addProperties(Map("test" -> classOf[Double]))
+      .setProperties(Map("test" -> classOf[Double]))
 
     private val maturity = DefaultGeneBuilder()
       .setId("aaa")
       .setName("maturity")
-      .addProperties(Map("maturity" -> classOf[Double]))
+      .setProperties(Map("maturity" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aaa")
@@ -52,7 +52,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     private val life = DefaultGeneBuilder()
       .setId("aab")
       .setName("life")
-      .addProperties(Map("life" -> classOf[Double]))
+      .setProperties(Map("life" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aab")
@@ -63,7 +63,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     private val childhood = DefaultGeneBuilder()
       .setId("aac")
       .setName("childhood")
-      .addProperties(Map("childhood" -> classOf[Double]))
+      .setProperties(Map("childhood" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aac")
@@ -74,7 +74,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     private val oldness = DefaultGeneBuilder()
       .setId("aad")
       .setName("oldness")
-      .addProperties(Map("oldness" -> classOf[Double]))
+      .setProperties(Map("oldness" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aad")
@@ -85,7 +85,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     private val decline = DefaultGeneBuilder()
       .setId("aae")
       .setName("decline")
-      .addProperties(Map("decline" -> classOf[Double]))
+      .setProperties(Map("decline" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aae")
@@ -98,7 +98,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     val fertility = DefaultGeneBuilder()
       .setId("aaf")
       .setName("fertility")
-      .addProperties(Map("fertility" -> classOf[Double]))
+      .setProperties(Map("fertility" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aaf")
@@ -109,7 +109,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     val fecundity = DefaultGeneBuilder()
       .setId("aag")
       .setName("fecundity")
-      .addProperties(Map("fecundity" -> classOf[Double]))
+      .setProperties(Map("fecundity" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aag")
@@ -120,7 +120,7 @@ trait DefaultGeneBuildFixture extends AlleleBuildFixture {
     val pregnancyDuration = DefaultGeneBuilder()
       .setId("aah")
       .setName("pregnancyDuration")
-      .addProperties(Map("pregnancyDuration" -> classOf[Double]))
+      .setProperties(Map("pregnancyDuration" -> classOf[Double]))
       .addAlleles(Set(
         alleleBFixture.templateFullProb
           .setId("aah")

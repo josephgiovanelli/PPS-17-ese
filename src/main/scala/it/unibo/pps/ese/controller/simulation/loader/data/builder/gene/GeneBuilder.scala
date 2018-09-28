@@ -31,13 +31,12 @@ private[builder] trait GenericGeneBuilder[S <: GeneStatus] extends BuilderConten
     * @return New builder with updated param and status
     */
   def setName(name: String): RET[S with GeneWithName]
-  //TODO set properties
   /** Add gene's properties represented by a map containing qualities name as key and their type as value
     *
     * @param properties Gene's id
     * @return New builder with updated param and status
     */
-  def addProperties(properties: Map[String, Class[_]]): RET[S with GeneWithProperties]
+  def setProperties(properties: Map[String, Class[_]]): RET[S with GeneWithProperties]
   /** Add gene's alleles as list of builders
     *
     * @param alleles Gene's alleles builders
@@ -68,7 +67,7 @@ private[gene] abstract class GenericGeneBuilderImpl[T <: GeneStatus: TypeTag](_i
   def setName(name: String): RET[T with GeneWithName] =
     newInstance(_id, Some(name), _properties, _alleles)
 
-  def addProperties(properties: Map[String, Class[_]]): RET[T with GeneWithProperties] =
+  def setProperties(properties: Map[String, Class[_]]): RET[T with GeneWithProperties] =
     newInstance(_id, _name, properties, _alleles)
 
   override def addAlleles(alleles: Iterable[AlleleBuilder[_]]): RET[T with GeneWithAlleles] =
