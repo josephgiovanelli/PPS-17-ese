@@ -1,0 +1,7 @@
+gene: aac
+id: sda
+dominance: 5.0
+consume: 5.0
+probability: 1.0
+effect:
+  maturity: 0.6

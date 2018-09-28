@@ -25,13 +25,12 @@ trait CustomGeneBuilder[S <: GeneStatus] extends GeneBuilder[S] with GenericBuil
     * @return New builder with updated param and status
     */
   def setCustomProperties(properties: Map[String, PropertyInfo]): CustomGeneBuilder[S with GeneWithProperties with GeneWithConversionMap]
-  //TODO set conversion map
   /** Set gene's conversion map with a map containing properties as key and the respective conversion maps as value
     *
     * @param conversionMap Gene's conversion map
     * @return New builder with updated param and status
     */
-  def addConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[S with GeneWithConversionMap]
+  def setConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[S with GeneWithConversionMap]
 }
 
 /** Factory object for [[it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.CustomGeneBuilder]]*/
@@ -63,7 +62,7 @@ object CustomGeneBuilder {
         properties.map({case (k,v) => (k, v.conversionMap)}))
     }
 
-    override def addConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[T with GeneWithConversionMap] =
+    override def setConversionMap(conversionMap: Map[String, Map[String, Double]]): CustomGeneBuilder[T with GeneWithConversionMap] =
       new CustomGeneBuilderImpl(_id, _name, _properties, _alleles, conversionMap)
 
     override def tryCompleteBuild(): Try[CompleteCustomGeneData] = {

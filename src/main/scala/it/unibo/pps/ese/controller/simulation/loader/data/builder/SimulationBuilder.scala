@@ -105,6 +105,12 @@ object SimulationBuilder {
         exception = exception ++: CompleteBuildException("Simulation: All " + name + " must be complete",
           tries.collect({case (Failure(exc: CompleteBuildException), _) => exc}))
       }
+      if(complete.size != complete.toMap.size) {
+        exception = exception ++: CompleteBuildException("Simulation: there are duplicated " + name)
+      }
+      if(!complete.map(_._2).forall(_ >= 0)) {
+        exception = exception ++: CompleteBuildException("Simulation: all " + name + "must have 0 or greater quantity")
+      }
       (exception, complete)
     }
 

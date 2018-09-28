@@ -93,6 +93,7 @@ object ViewLauncher {
     this.scene = startMenuView
 
     def launchSetup(currentWindow: Window, simulationData: Option[PartialSimulationData] = None): Unit = {
+      EntitiesInfo.instance().deleteAllEntities()
       simulationData.foreach(populateEntitiesInfo)
       MainDialog(currentWindow, None, Option(this), setUp = true, ConfigurationContent).show()
       startMenuView.disableButtons(false)
@@ -126,6 +127,7 @@ object ViewLauncher {
     }
 
     def startSimulation(data: CompleteSimulationData): Future[Try[Unit]] = {
+      Platform.runLater(startMenuView.disableButtons(true))
       controller.startSimulation(data) map {
         case Success(value) =>
           Platform.runLater({
@@ -135,6 +137,7 @@ object ViewLauncher {
           })
           Success(Unit)
         case Failure(exception) =>
+          Platform.runLater(startMenuView.disableButtons(false))
           throw exception
       }
     }
