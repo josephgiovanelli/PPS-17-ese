@@ -1,0 +1,20 @@
+name: Tyrannosaurus
+geneLength: 3
+alleleLength: 3
+reign: A
+typology: C
+structuralChromosome: ./struct
+regulationChromosome:
+  allelesPath: ./reg
+  names:
+    life: aaa
+    childhood: aab
+    maturity: aac
+    oldness: aad
+    decline: aae
+sexualChromosome:
+  allelesPath: ./sex
+  names:
+    fertility: aaf
+    fecundity: aag
+    pregnancyDuration: aak

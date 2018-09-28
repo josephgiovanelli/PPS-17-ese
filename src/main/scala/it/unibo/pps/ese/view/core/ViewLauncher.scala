@@ -126,6 +126,7 @@ object ViewLauncher {
     }
 
     def startSimulation(data: CompleteSimulationData): Future[Try[Unit]] = {
+      Platform.runLater(startMenuView.disableButtons(true))
       controller.startSimulation(data) map {
         case Success(value) =>
           Platform.runLater({
@@ -135,6 +136,7 @@ object ViewLauncher {
           })
           Success(Unit)
         case Failure(exception) =>
+          Platform.runLater(startMenuView.disableButtons(false))
           throw exception
       }
     }

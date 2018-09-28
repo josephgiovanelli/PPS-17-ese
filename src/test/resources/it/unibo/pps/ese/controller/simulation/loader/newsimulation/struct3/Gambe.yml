@@ -1,0 +1,16 @@
+id: gmb
+simpleName: gambe
+allelesPath: ./all
+properties:
+  lunghezza:
+    conversionMap:
+      speed: 3.0
+      height: 4.0
+      rangeOfAction: 3.0
+
+  muscolatura:
+    conversionMap:
+      speed: 3.0
+      resistenceToAttack: 5.0
+      strength: 9.0
+      nutritionalValue: 6.0

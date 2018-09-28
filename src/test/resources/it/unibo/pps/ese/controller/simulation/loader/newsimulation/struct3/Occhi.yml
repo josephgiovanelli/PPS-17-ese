@@ -1,0 +1,10 @@
+id: occ
+simpleName: occhi
+allelesPath: ./oAll
+properties:
+  view:
+    conversionMap:
+      fieldOfView: 10.0
+  beauty:
+    conversionMap:
+      attractiveness : 5.0
