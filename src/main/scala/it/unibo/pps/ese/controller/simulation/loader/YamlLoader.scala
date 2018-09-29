@@ -32,7 +32,7 @@ object YamlLoader extends FileLoader {
 
   def loadCompleteSimulation(configFile: File): Try[CompleteSimulationData] = {
     val builder = obtainSimulationBuilder(configFile)
-      builder.tryCompleteBuild match {
+      builder.tryCompleteBuild() match {
       case Success(value) =>
         Success(value)
       case Failure(exception) =>

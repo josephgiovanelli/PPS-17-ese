@@ -1,7 +1,7 @@
 package it.unibo.pps.ese.model.components.animals.reproduction.util
 
 import it.unibo.pps.ese.model.genetics.dna.ChromosomeType.ChromosomeType
-import it.unibo.pps.ese.model.genetics.dna.{AnimalGenome, Chromosome, ChromosomeCouple, ChromosomeType, MGene, SexualChromosomeCouple}
+import it.unibo.pps.ese.model.genetics.dna.{AnimalGenome, Chromosome, ChromosomeCouple, ChromosomeType, SexualChromosomeCouple}
 import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
 
 import scala.util.Random

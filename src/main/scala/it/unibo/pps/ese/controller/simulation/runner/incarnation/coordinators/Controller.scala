@@ -89,7 +89,7 @@ object Controller {
     override def saveSimulationData(simulation: PartialSimulationData, simulationName: String, target: Folder): Future[Try[Unit]] = {
       Future({
         saver = Some(YamlSaver(simulation, simulationName))
-        saver.get.saveData(target, false)
+        saver.get.saveData(target, overrideAll = false)
       })
     }
 

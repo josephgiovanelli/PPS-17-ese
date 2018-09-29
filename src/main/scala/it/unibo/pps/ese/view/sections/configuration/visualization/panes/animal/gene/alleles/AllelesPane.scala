@@ -108,6 +108,18 @@ case class AllelesPane(mainDialog: MainDialog,
     mainDialog.setContent(this)
   }
 
+  backButton.onAction = _ => {
+    mainDialog.setContent(previousContent.get)
+    if (currentAlleles.isEmpty) {
+      chromosomeTypes match {
+        case StructuralChromosome => currentAnimalChromosome.structuralChromosome -= gene
+        case RegulationChromosome => currentAnimalChromosome.regulationChromosome -= gene
+        case SexualChromosome => currentAnimalChromosome.sexualChromosome -= gene
+      }
+      EntitiesInfo.instance().setAnimalChromosomeInfo(animal, currentAnimalChromosome)
+    }
+  }
+
   okButton.onAction = _ => {
     mainDialog.setContent(previousContent.get)
     previousContent.get.confirmAlleles(gene)
