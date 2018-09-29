@@ -25,7 +25,7 @@
 |         | Definire interfaccia comune per le qualità | Diego             |  5  | 0  | 0 | 0 | 0 | 0 | 0 |
 |         | Codificare geni | Diego             |  10  | 0  | 0 | 0 | 0 | 0 | 0 |
 | I vari esseri interagiscono tra loro e la simulazione procede temporalmente
-|         | Definire struttura generica del modello di simulazione | Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Comunicazione intra e inter entità | Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Aggiornamento entità | Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Creazione controller e gestione loop simulazione| Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
+|         | Design e implementazione architettura del motore di simulazione | Giuseppe | 40 | 10 | 5 | 5 | 0 | 0 | 0 |
+|         | Comunicazione intra e inter entità | Giuseppe | 20 | 20 | 20 | 10 | 10 | 5 | 0 |
+|         | Aggiornamento entità | Giuseppe | 20 | 20 | 20 | 15 | 10 | 5 | 0 |
+|         | Creazione controller e gestione loop simulazione| Giuseppe | 20 | 20 | 20 | 15 | 0 | 0 | 0 |

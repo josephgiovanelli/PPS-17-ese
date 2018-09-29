@@ -28,7 +28,7 @@
 |         | Visualizzare le qualità dell'entità | Diego             |  15  | 15 | 15 | 15 | 15 | 5 | 0 |
 |         | Aggiungere funzionalità per recuperare le informazione sui vari geni| Diego             |  10  | 15  | 15 | 5 | 5 | 5 | 0 |
 | Raccolta di dati statistici sulla simulazione
-|         | Definire struttura generica del modello di simulazione | Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Comunicazione intra e inter entità | Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Aggiornamento entità | Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
-|         | Creazione controller e gestione loop simulazione| Giuseppe | 15 | 5 | 5 | 0 | 0 | 0 | 0 |
+|         | Design del modello di gestione dati | Giuseppe | 50 | 20 | 0 | 0 | 0 | 0 | 0 |
+|         | Adeguamento flusso dati real-time | Giuseppe | 10 | 10 | 5 | 5 | 0 | 0 | 0 |
+|         | Creazione flusso dati consolidati | Giuseppe | 30 | 30 | 30 | 20 | 10 | 5 | 0 |
+|         | Impostazione del modulo di query sui dati| Giuseppe | 10 | 10 | 10 | 10 | 5 | 0 | 0 |
