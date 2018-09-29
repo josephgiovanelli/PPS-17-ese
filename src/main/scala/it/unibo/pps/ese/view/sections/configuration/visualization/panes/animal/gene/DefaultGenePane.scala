@@ -3,7 +3,7 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.
 import it.unibo.pps.ese.controller.simulation.loader._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.ChromosomePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles.AllelesPane
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.WhiteLabel
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog, Modality}
@@ -64,7 +64,7 @@ case class DefaultGenePane(mainDialog: MainDialog,
                            animal: String,
                            gene: Option[String],
                            propertiesSet: Set[_ <: DefaultGene])
-  extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3)) {
+  extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3) + title) {
 
   /*
   Fields
@@ -86,7 +86,7 @@ case class DefaultGenePane(mainDialog: MainDialog,
   val previousNameGene = new TextField()
 
   fields = ListMap(
-    idGene -> (new WhiteLabel("Id"), new WhiteLabel(""))
+    idGene -> (new WhiteLabel("Id"), new ErrorLabel(""))
   )
 
   val grid: GridPane = createGrid(0)
