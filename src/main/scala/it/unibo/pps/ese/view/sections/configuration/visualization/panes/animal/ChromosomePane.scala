@@ -86,6 +86,7 @@ case class ChromosomePane(mainDialog: MainDialog,
 
   val regulationButton = new Button("Add")
   regulationButton.onAction = _ => {
+    println(getCurrentRegulationChromosome)
     mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), AddModality, RegulationChromosome, animal, None,
       RegulationDefaultGenes.elements -- getCurrentRegulationChromosome))
   }
