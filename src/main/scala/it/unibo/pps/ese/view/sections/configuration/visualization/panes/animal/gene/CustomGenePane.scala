@@ -24,7 +24,7 @@ import scalafx.scene.layout.{BorderPane, GridPane, VBox}
   */
 object CustomGeneProperties {
   val title = "Custom Gene Pane"
-  val headerText = "Define your chromosome"
+  val headerText = "Define your gene"
 }
 
 import CustomGeneProperties._

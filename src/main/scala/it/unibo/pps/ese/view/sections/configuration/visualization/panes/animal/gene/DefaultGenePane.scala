@@ -40,7 +40,7 @@ abstract class GenePane(mainDialog: MainDialog,
   */
 object DefaultGeneProperties {
     val title = "Default Gene Pane"
-    val headerText = "Define your chromosome"
+    val headerText = "Define your gene"
 }
 
 import DefaultGeneProperties._
