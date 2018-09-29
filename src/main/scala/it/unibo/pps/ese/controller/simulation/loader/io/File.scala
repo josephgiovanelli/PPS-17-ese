@@ -10,11 +10,6 @@ import org.apache.commons.io.FileUtils
 trait File extends ExistingResource with FileResource {
 
   /**
-    * @return Java file corresponding to this file
-    */
-  def rawFile: java.io.File
-
-  /**
     * @return File name
     */
   def name: String
@@ -69,7 +64,6 @@ object File {
   def apply(file: java.io.File): File = new FileImpl(file.toURI.toURL)
 
   private class FileImpl(filePath: URL) extends ExistingResourceImpl(filePath) with File {
-    val rawFile: java.io.File = javaFile
     val name: String = javaFile.getName
     require(javaFile.isFile)
 

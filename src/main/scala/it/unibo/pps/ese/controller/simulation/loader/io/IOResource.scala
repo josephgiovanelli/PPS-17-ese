@@ -21,6 +21,12 @@ trait IOResource {
 /** Trait that defines a generic IO resource that already exists*/
 trait ExistingResource extends IOResource {
   /**
+    * @return Java file corresponding to this resource
+    */
+  def rawFile: java.io.File
+
+
+  /**
     * @return Parent folder
     */
   def getParentFolder: Option[Folder]
@@ -179,6 +185,7 @@ object IOResource {
 
 abstract class ExistingResourceImpl(path: URL) extends IOResourceImpl(path) with ExistingResource {
   require(javaFile.exists())
+  val rawFile: java.io.File = javaFile
 
   override def getParentFolder: Option[Folder] = {
     getParent match {
