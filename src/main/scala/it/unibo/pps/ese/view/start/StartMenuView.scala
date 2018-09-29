@@ -31,26 +31,26 @@ object StartMenuView {
 
   def apply(viewController: StartViewBridge)(implicit executionContext: ExecutionContext): StartMenuView = new StartMenuViewImpl(viewController)
 
-  private class StartMenuViewImpl(startViewBridge: StartViewBridge)(implicit executionContext: ExecutionContext) extends Scene(433, 650) with StartMenuView {
+  private[this] class StartMenuViewImpl(startViewBridge: StartViewBridge)(implicit executionContext: ExecutionContext) extends Scene(433, 650) with StartMenuView {
 
-    val currentWindow: scalafx.stage.Window = this.window()
-    val buttonStyle =
+    private val currentWindow: scalafx.stage.Window = this.window()
+    private val buttonStyle =
       "-fx-font-weight: 600;\n" +
       "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
       "-fx-font-size: 11pt ;"
-    val buttonBackground = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
-    val fileChooser = new FileChooser() {
+    private val buttonBackground = new Background(Array(new BackgroundFill(Color.rgb(236, 240, 241,0.8), CornerRadii.Empty, Insets.Empty)))
+    private val fileChooser = new FileChooser() {
       title = "Open Simulation Config File"
       extensionFilters ++= Seq(new ExtensionFilter("Simulation Files", File.FileFormats.YAML.extensions.map("*" + _)) )
     }
-    val vbox: VBox = new VBox() {
+    private val vbox: VBox = new VBox() {
       fillWidth = true
       prefWidth <== width
       prefHeight <== height
       spacing = 80
     }
 
-    val loadButton = new Button("Load And Run Existing Simulation") {
+    private val loadButton = new Button("Load And Run Existing Simulation") {
       background = buttonBackground
       textFill = Color.web("34495e")
       prefHeight = 40
@@ -64,7 +64,7 @@ object StartMenuView {
         }
       }
     }
-    val loadEditButton = new Button("Load And Edit Existing Simulation") {
+    private val loadEditButton = new Button("Load And Edit Existing Simulation") {
       background = buttonBackground
       textFill = Color.web("34495e")
       prefHeight = 40
@@ -79,7 +79,7 @@ object StartMenuView {
       }
     }
 
-    val createButton = new Button("Create New Simulation") {
+    private val createButton = new Button("Create New Simulation") {
       background = buttonBackground
       textFill = Color.web("34495e")
       prefHeight = 40
@@ -113,7 +113,7 @@ object StartMenuView {
     }
 
     vbox.children = List(loadButton, loadEditButton, createButton)
-    val text = new Text{
+    private val text = new Text{
       text = "Evolution Simulation Engine"
       margin  = Insets(30,55,0,55)
       fill = Color.White
@@ -122,11 +122,11 @@ object StartMenuView {
     text.style = "-fx-font-weight: 600;\n" +
       "-fx-font-family: 'Helvetica', Arial, sans-serif;\n" +
       "-fx-font-size: 20pt ;"
-    val border = new BorderPane() {
+    private val border = new BorderPane() {
       top  = text
       center = vbox
     }
-    val back:Image = new Image("it/unibo/pps/ese/view/backgrounds/launcherBack.jpg")
+    private val back:Image = new Image("it/unibo/pps/ese/view/backgrounds/launcherBack.jpg")
     border.background = new Background(Array(new BackgroundFill(new ImagePattern(back),CornerRadii.Empty, Insets.Empty)))
 
     root = border

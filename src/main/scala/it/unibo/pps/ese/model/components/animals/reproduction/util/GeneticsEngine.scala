@@ -13,7 +13,7 @@ trait GeneticsEngine {
     * It translate the dna in information about the animal
     * @param species
     *               The species of the given animal
-    * @param genome
+    * @param childGenome
     *               The [[AnimalGenome]] of the animal
     * @return
     */

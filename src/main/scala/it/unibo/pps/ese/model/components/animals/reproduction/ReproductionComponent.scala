@@ -151,7 +151,7 @@ class ReproductionComponent(override val entitySpecifications: EntitySpecificati
             publish(PregnancyEnd())
             requireData[BaseInfoRequest, BaseInfoResponse](new BaseInfoRequest).onComplete({
               case Success(info) =>
-                publish(NewMutantAlleles(sons.flatMap(s=>GeneticsSimulator.checkNewMutation(s.species.name,s.genome)).toSeq))
+                publish(NewMutantAlleles(sons.flatMap(s=>GeneticsSimulator.checkNewMutation(s.species.name,s.genome))))
                 val newEntities = sons.map(i => _animalCreationFunction(i, info.position))
                 publish(Create(newEntities))
               case Failure(exception) =>
