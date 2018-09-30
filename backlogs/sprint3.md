@@ -26,4 +26,4 @@
 |         |Completamento del modulo di query sui dati | Giuseppe | 25 | 15 | 5 | 0 | 0 | 0 | 0 | 0 |
 |         |Sviluppo schermata di visualizzazione dei grafici statistici | Giuseppe | 30 | 10 | 10 | 0 | 0 | 0 | 0 | 0 |
 |         |Sviluppo del controller di gestione del replay | Giuseppe | 10 | 10 | 10 | 10 | 10 | 0 | 0 | 0 |
-|         |Sviluppo schermata di visualizzazione replay entità | Giuseppe | 35 | 0 | 0 | 0 | 0 | 10 | 5 | 0 |
+|         |Sviluppo schermata di visualizzazione replay entità | Giuseppe | 35 | 35 | 15 | 15 | 15 | 10 | 5 | 0 |
