@@ -1,13 +1,16 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles
 
 
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{ErrorLabel, WhiteLabel}
 
 import scala.collection.immutable.ListMap
 import scalafx.application.Platform
 import scalafx.scene.control._
 
+/**
+  * It defines the title and the header
+  */
 object EffectProperties {
     val title = "Effect Pane"
     val headerText = "Define an allele effect"
@@ -16,17 +19,17 @@ object EffectProperties {
 import EffectProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert the relation between the allele and a property.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param currentEffect the previous effect if is present
+  */
 case class EffectPane(mainDialog: MainDialog,
                       override val previousContent: Option[AllelePane],
                       currentEffect: (String, Double))
-  extends BackPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(6) + title) {
-
-  /*
-  Header
-   */
-
-//  title = "Effect Dialog"
-//  headerText = "Define an allele effect"
+  extends AbstractPane[(String, Double)](mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(6) + title, 6) {
 
   /*
   Fields
@@ -67,10 +70,10 @@ case class EffectPane(mainDialog: MainDialog,
   Result
    */
 
-
   okButton.onAction = _ => {
     previousContent.get.confirmAddEffect(propertyName.text.value, effectValue.text.value.toDouble)
   }
+
 }
 
 

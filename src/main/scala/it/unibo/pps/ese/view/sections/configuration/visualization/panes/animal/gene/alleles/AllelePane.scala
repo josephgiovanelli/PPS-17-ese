@@ -1,20 +1,21 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles
 
 
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, ChromosomeInfo}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog}
 
 import scala.collection.immutable.ListMap
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{GridPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object AlleleProperties {
     val title = "Allele Dialog"
     val headerText = "Create an allele"
@@ -23,6 +24,17 @@ object AlleleProperties {
 import AlleleProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert the allele information.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  * @param allele the previous allele identifier if is present before
+  * @param properties the properties to set
+  * @param chromosomeTypes the chromosome type of the gene of the allele
+  */
 case class AllelePane(mainDialog: MainDialog,
                       override val previousContent: Option[AllelesPane],
                       animal: String,
@@ -30,12 +42,7 @@ case class AllelePane(mainDialog: MainDialog,
                       allele: Option[String],
                       properties: Set[String],
                       chromosomeTypes: ChromosomeTypes)
-  extends BackPane[AlleleInfo](mainDialog, previousContent, allele, title, headerText, previousContent.get.path + newLine(5) + title) {
-
-  /*
-  Header
-   */
-
+  extends AbstractPane[AlleleInfo](mainDialog, previousContent, allele, title, headerText, previousContent.get.path + newLine(5) + title, 5) {
 
   /*
   Fields
@@ -74,7 +81,7 @@ case class AllelePane(mainDialog: MainDialog,
 
   var effects:  Map[String, Double] =
     if (allele.isDefined) currentAlleles(allele.get).effect
-    else properties.map(x => (x, 0.0)).groupBy(_._1).map{ case (k,v) => (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+    else properties.map(x => (x, 0.0)).toMap
   val effectsName: ObservableBuffer[String] = ObservableBuffer[String](effects.keySet toSeq)
   val effectsListView: ListView[String] = new CustomListView[String] {
     items = effectsName
@@ -104,7 +111,7 @@ case class AllelePane(mainDialog: MainDialog,
 
   mandatoryFields = fields.keySet
   doubleFields = mandatoryFields - idAllele
-  listFields = Seq(effectsName)
+  listFields = Seq((effectsName, 1))
   uniqueFields = Map(idAllele -> allelesId)
   lengthFields = Map(idAllele -> EntitiesInfo.instance().getAnimalBaseInfo(animal).alleleLength)
   probabilityFields = Set(probability)

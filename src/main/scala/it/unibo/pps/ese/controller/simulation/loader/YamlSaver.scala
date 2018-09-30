@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.DefaultGeneData.Partia
 import it.unibo.pps.ese.controller.simulation.loader.data.{PartialAlleleData, PartialPlantData}
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.PartialSimulationData
 import it.unibo.pps.ese.controller.simulation.loader.io.File.FileFormats
-import it.unibo.pps.ese.controller.simulation.loader.io.{ExistingResource, File, FileResource, Folder, FolderResource, IOResource, NotExistingFile, NotExistingFolder, UndefinedNotExistingResource}
+import it.unibo.pps.ese.controller.simulation.loader.io.{ExistingResource, File, FileResource, Folder, FolderResource, IOResource, NotExistingFile, NotExistingFolder}
 import it.unibo.pps.ese.utils.DefaultValue
 import net.jcazevedo.moultingyaml._
 import java.io.IOException
@@ -16,12 +16,29 @@ import it.unibo.pps.ese.controller.simulation.loader.exception.ResourceAlreadyEx
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
+/** Trait that defines simulation's saver that save simulation setup data to a given folder*/
+trait FileSaver extends Saver {
+  override type MemorySupport = Folder
+
+  /**
+    * @param resource Resource that saving process can override
+    */
+  def addResourceToOverride(resource: ExistingResource)
+}
+
+/** Factory object to produce [[it.unibo.pps.ese.controller.simulation.loader.FileSaver]] that use YAML protocol for data serialization*/
 object YamlSaver {
 
-  def apply(simulationData: PartialSimulationData, simulationName: String): Saver =
+  /**
+    *
+    * @param simulationData Simulation to save
+    * @param simulationName Simulation name
+    * @return Configured saver
+    */
+  def apply(simulationData: PartialSimulationData, simulationName: String): FileSaver =
     new YamlSaverImpl(simulationData, simulationName)
 
-  private class YamlSaverImpl(val simulationData: PartialSimulationData, val simulationName: String) extends Saver {
+  private class YamlSaverImpl(val simulationData: PartialSimulationData, val simulationName: String) extends FileSaver {
 
     import BeansYamlProtocol._
 
@@ -30,7 +47,7 @@ object YamlSaver {
     private val toWrite: ListBuffer[(IOResource, Option[String])] = new ListBuffer()
 
     implicit val string: DefaultValue[String] = DefaultValue("")
-    import it.unibo.pps.ese.utils.DefaultGetImplicits._
+    import it.unibo.pps.ese.utils.DefaultGet._
 
     def writeFiles(): Try[Unit] = {
       Try(toWrite.foreach({
@@ -39,11 +56,12 @@ object YamlSaver {
           file.write(str)
         case (f: FolderResource, _) =>
           f.getOrCreateFolder().getOrElse(throw new IOException())
+        case _ =>
+          throw new IllegalStateException()
       })) match {
         case Success(_) =>
-          Success()
+          Success(Unit)
         case Failure(exception) =>
-          //TODO delete already created files
           Failure(exception)
       }
     }
@@ -60,7 +78,7 @@ object YamlSaver {
     }
 
     def saveMainFile(file: FileResource, overrideAll: Boolean): Unit = {
-      val currentFolder = file.getParent().get.getOrCreateFolder().get
+      val currentFolder = file.getParent.get.getOrCreateFolder().get
       val animals = simulationData.getAnimals.map(iter => {
         iter.map(animalTuple => {
           val fileName = simulationName + "_" + animalTuple._1.name + fileExtension

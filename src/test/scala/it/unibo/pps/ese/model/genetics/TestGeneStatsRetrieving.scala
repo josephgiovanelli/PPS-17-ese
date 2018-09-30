@@ -56,6 +56,7 @@ class TestGeneStatsRetrieving extends fixture.FunSuite {
           assert(d == 5.0)
           assert(p == 1.0)
           assert(aq.toSet == Set(
+            QualityType.Strength,
             QualityType.Speed,
             QualityType.Height,
             QualityType.ResistenceToAttack,

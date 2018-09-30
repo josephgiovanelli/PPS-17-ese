@@ -1,9 +1,12 @@
 package it.unibo.pps.ese.model.genetics.entities
 
 import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
-import it.unibo.pps.ese.model.genetics.{Utilities, entities}
+import it.unibo.pps.ese.model.genetics.Utilities
 import it.unibo.pps.ese.model.genetics.dna.Genome
 
+/**
+  *  The plant information
+  */
 trait PlantInfo extends EntityInfo{
   def genome:Genome
 }

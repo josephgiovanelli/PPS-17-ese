@@ -7,38 +7,38 @@ trait CustomGeneBuildFixture extends AlleleBuildFixture {
   def customGBFixture = new {
 
     val complete = CustomGeneBuilder()
-      .setId("idcc")
+      .setId("aaa")
       .setName("namecc")
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-        .setId("")
-        .setGene("idcc")
+        .setId("aaa")
+        .setGene("aaa")
         .setEffect(Map("test" -> 1))
       ))
-      .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map())
+      .setProperties(Map("test" -> Double.getClass))
+      .setConversionMap(Map("test" -> Map("height" -> 1, "fieldOfView" -> 1, "rangeOfAction" -> 1, "resistenceToAttack" -> 1, "strength" -> 1, "nutritionalValue" -> 1, "attractiveness" -> 1, "speed" -> 1)))
 
     val staticIncomplete = CustomGeneBuilder()
       .setName("namecsi")
       .addAlleles(Set(
         alleleBFixture.templateFullProb
-          .setId("")
-          .setGene("idcsi")
+          .setId("aab")
+          .setGene("aab")
           .setEffect(Map("test" -> 1))
       ))
-      .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map())
+      .setProperties(Map("test" -> Double.getClass))
+      .setConversionMap(Map("test" -> Map("height" -> 1)))
 
     val dynamicIncomplete = CustomGeneBuilder()
-      .setId("iddi")
+      .setId("aac")
       .setName("namecdi")
       .addAlleles(Set(
         alleleBFixture.templateHalfProb
-          .setId("")
-          .setGene("iddi")
+          .setId("aac")
+          .setGene("aac")
           .setEffect(Map("test" -> 1))
       ))
-      .addProperties(Map("test" -> Double.getClass))
-      .addConversionMap(Map())
+      .setProperties(Map("test" -> Double.getClass))
+      .setConversionMap(Map("test" -> Map("height" -> 1)))
   }
 }

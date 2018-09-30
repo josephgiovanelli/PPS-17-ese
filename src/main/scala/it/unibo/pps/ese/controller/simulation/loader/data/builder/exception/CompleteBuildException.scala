@@ -1,29 +1,45 @@
 package it.unibo.pps.ese.controller.simulation.loader.data.builder.exception
 
-class CompleteBuildException(val motivations: Iterable[Motivation]) extends Exception(toString) {
+/** Specialization of [[it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.HierarchyMotivationsException]]
+  * that indicated a problem in a builder's complete build
+  */
+trait CompleteBuildException extends HierarchyMotivationsException {
+  override type MixedException = CompleteBuildException
 
-  def this(motivation: String, subMotivations: Iterable[Motivation] = Seq()) {
-    this(Seq(new Motivation(motivation, subMotivations)))
+  def +:(exception: HierarchyMotivationsException): MixedException = {
+    CompleteBuildException(exception.motivations ++ motivations)
   }
 
-  def this(motivation: String, exc: Iterable[CompleteBuildException])(implicit i: DummyImplicit) {
-    this(motivation, exc.flatMap(_.motivations))
+  def :+(exception: HierarchyMotivationsException): MixedException = {
+    CompleteBuildException(motivations ++ exception.motivations)
   }
-
-  def +:(exception: CompleteBuildException): CompleteBuildException = {
-    new CompleteBuildException(exception.motivations ++ motivations)
-  }
-
-  def :+(exception: CompleteBuildException): CompleteBuildException = {
-    new CompleteBuildException(motivations ++ exception.motivations)
-  }
-
-  override def toString: String = motivations.mkString("\n")
-
 }
 
-class Motivation(val motivation: String, subMotivations: Iterable[Motivation]) {
-  override def toString: String = {
-    motivation + subMotivations.foldLeft("")((a, b) => a + "\n  " + b.toString.replaceAll("\n", "\n  "))
+/** Factory object for [[it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException]]*/
+object CompleteBuildException {
+
+  /**
+    * @param motivations Motivations
+    * @return New [[it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException]]
+    */
+  def apply(motivations: Iterable[Motivation]): CompleteBuildException = new AbsHierarchyMotivationsException(motivations) with CompleteBuildException
+
+  /**
+    * @param motivation Motivation as string
+    * @param subMotivations Sub motivations
+    * @return New [[it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException]]
+    */
+  def apply(motivation: String, subMotivations: Iterable[Motivation] = Seq()): CompleteBuildException = {
+    new AbsHierarchyMotivationsException(motivation, subMotivations) with CompleteBuildException
   }
+
+  /**
+    * @param motivation Motivation as string
+    * @param exc Exceptions that indicates sub motivations
+    * @return New [[it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteBuildException]]
+    */
+  def apply(motivation: String, exc: Iterable[HierarchyMotivationsException])(implicit i: DummyImplicit): CompleteBuildException = {
+    new AbsHierarchyMotivationsException(motivation, exc) with CompleteBuildException
+  }
+
 }

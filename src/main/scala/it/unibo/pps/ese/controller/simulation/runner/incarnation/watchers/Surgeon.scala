@@ -1,26 +1,43 @@
 package it.unibo.pps.ese.controller.simulation.runner.incarnation.watchers
 
 import it.unibo.pps.ese.model.components.animals.brain.decisionsupport.GenderTypes
-import it.unibo.pps.ese.controller.simulation.runner.core.{EntityState, ReadOnlyEntityState}
+import it.unibo.pps.ese.controller.simulation.runner.core.data.{EntityState, ReadOnlyEntityState}
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.components.animals.brain.{Couple, Eat, Nothing}
-import it.unibo.pps.ese.view._
 import it.unibo.pps.ese.view.sections.bodyviewer._
 import it.unibo.pps.ese.view.core.View
 
+/**
+  * Component that inspect an entity in order to know the internal status of it.
+  * @param realTimeState the repository to query
+  */
 case class Surgeon(realTimeState: ReadOnlyEntityState) {
 
+  /**
+    * The entity identifier to inspect.
+    */
   var inspected: Option[String] = None
 
-  def inspects(entityId: String): Unit = synchronized {
+  /**
+    * It allows to inspect the entity.
+    * @param entityId the entity identifier
+    */
+  def inspects(entityId: String): Unit = this synchronized {
     inspected = Some(entityId)
   }
 
-  def leaves(): Unit = synchronized {
+  /**
+    * It allows to leaves the entity.
+    */
+  def leaves(): Unit = this synchronized {
     inspected = None
   }
 
-  def informAboutOrgansStatus(view: View): Unit = synchronized {
+  /**
+    * It queries the repository and inform the view about the entity organs activity.
+    * @param view the view of the system
+    */
+  def informAboutOrgansStatus(view: View): Unit = this synchronized {
     if(inspected.isDefined) {
       import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
       val entity: Option[EntityState] = realTimeState getFilteredState(x => x.entityId == inspected.get) match {

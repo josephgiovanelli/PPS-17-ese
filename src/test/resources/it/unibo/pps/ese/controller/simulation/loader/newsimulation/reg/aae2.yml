@@ -1,0 +1,7 @@
+gene: aae
+id: sdb
+dominance: 5.0
+consume: 5.0
+probability: 0.0
+effect:
+  decline: 0.9

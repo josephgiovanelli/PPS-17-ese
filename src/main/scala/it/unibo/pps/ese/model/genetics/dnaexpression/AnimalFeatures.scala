@@ -2,20 +2,27 @@ package it.unibo.pps.ese.model.genetics.dnaexpression
 
 import it.unibo.pps.ese.model.genetics.entities.{DietType, Gender, Quality, QualityType}
 
-
+/**
+  * A helper class to set and retrieve the information about an animal during the translation of its dna
+  */
 private[genetics] sealed trait AnimalFeature{
-  private[genetics] def affectQuality(qualityType: QualityType, value:Double)
-  private[genetics] def gender_(gender: Gender)
+  /**
+    * To affect a quality
+    * @param qualityType
+    * @param value
+    */
+  private[dnaexpression] def affectQuality(qualityType: QualityType, value:Double)
+  private[dnaexpression] def gender_(gender: Gender)
   def gender:Gender
   def dietType:DietType
-  private[genetics]def dietType_(dietT: DietType)
+  private[dnaexpression]def dietType_(dietT: DietType)
   def animalQualities:Map[QualityType,Quality]
   def activeAllelicStructure:Seq[AllelicBehaviour]
   def addActiveStructuralAllele(b:AllelicBehaviour)
 }
 
 
-private[genetics] class AnimalFeatureImpl extends AnimalFeature{
+private[dnaexpression] class AnimalFeatureImpl extends AnimalFeature{
   var animalGender:Option[Gender] = Option.empty
   var diet:Option[DietType] = None
   val typeFilter:((Quality,QualityType)=>Boolean) = (a,b)=>a.qualityType==b

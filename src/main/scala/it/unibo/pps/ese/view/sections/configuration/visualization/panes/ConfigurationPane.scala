@@ -22,6 +22,9 @@ import scalafx.scene.control.{Button, ListView}
 import scalafx.scene.layout.{BorderPane, VBox}
 import scalafx.stage.FileChooser
 
+/**
+  * It defines the title and the header
+  */
 object ConfigurationProperties {
   val title = "Configuration Pane"
   val headerText = "Insert or edit your species"
@@ -29,6 +32,18 @@ object ConfigurationProperties {
 
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.ConfigurationProperties._
 
+/**
+  * The first pane that allows to insert animals and plants.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param setupViewBridge a component that checks the integrity if the data
+  * @param mainComponent the component to communicate data to
+  * @param setUp if the simulation isn't running
+  * @param previousAnimalsCount if the simulation is running, these species are in the simulation
+  * @param previousPlantsCount if the simulation is running, these species are in the simulation
+  * @param executionContext the execution context
+  */
 case class ConfigurationPane(mainDialog: MainDialog,
                              override val previousContent: Option[DialogPane],
                              setupViewBridge: Option[SetupViewBridge],
@@ -37,11 +52,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
                              previousAnimalsCount: Map[String, Int] = Map.empty,
                              previousPlantsCount: Map[String, Int] = Map.empty)
                             (implicit executionContext: ExecutionContext)
-  extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
-
-  /*
-  Header
-   */
+  extends AbstractPane[Unit](mainDialog, previousContent, None, title, headerText, title, 0) {
 
   val errorLabel = new ErrorLabel("")
 
@@ -95,7 +106,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
   /*
    * FILE SAVING
    */
-  val fileChooser = new FileChooser() {
+  val fileChooser: FileChooser = new FileChooser() {
     title = "Save simulation YAML"
   }
 
@@ -107,7 +118,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
       val chosenFile: java.io.File = fileChooser.showSaveDialog(mainDialog.window)
       if (chosenFile != null) {
         this.disable = true
-        IOResource(chosenFile.toURI.toURL).getParent() match {
+        IOResource(chosenFile.toURI.toURL).getParent match {
           case Some(f: Folder) =>
             val saver = setupViewBridge.getOrElse(throw new IllegalStateException())
             handleSaveResult(saver.saveSimulationData(data, chosenFile.getName, f), saver, f)
@@ -121,13 +132,15 @@ case class ConfigurationPane(mainDialog: MainDialog,
     saveButton.disable = true
   }
 
-  def handleSaveResult(saveResult: Future[Try[Unit]], saver: SetupViewBridge, target: Folder) = saveResult onComplete  {
+  def handleSaveResult(saveResult: Future[Try[Unit]], saver: SetupViewBridge, target: Folder): Unit = saveResult onComplete  {
     case Success(result) =>
       result match {
         case Success(_) =>
           Platform.runLater(saveButton.disable = false)
         case Failure(exception: ResourceAlreadyExistsException) =>
           Platform.runLater(handleSaveFailure(exception, saver, target))
+        case Failure(exception) =>
+          Platform.runLater(UnexpectedExceptionAlert(mainDialog.window, exception))
       }
     case Failure(exception) =>
       Platform.runLater(UnexpectedExceptionAlert(mainDialog.window, exception))
@@ -138,7 +151,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
       case Some(Buttons.Override) =>
         handleSaveResult(saver.retrySave(target, Some(exception.existingResource)), saver, target)
       case Some(Buttons.OverrideAll) =>
-        handleSaveResult(saver.retrySave(target, None, true), saver, target)
+        handleSaveResult(saver.retrySave(target, None, overrideAll = true), saver, target)
       case _ =>
     }
   }
@@ -154,7 +167,7 @@ case class ConfigurationPane(mainDialog: MainDialog,
   Checks
    */
 
-  listFields = Seq(plantsName)
+  listFields = Seq((plantsName, 1))
   createChecks()
 
   /*

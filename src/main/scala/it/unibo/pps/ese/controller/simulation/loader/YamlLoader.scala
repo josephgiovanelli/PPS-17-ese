@@ -2,12 +2,10 @@ package it.unibo.pps.ese.controller.simulation.loader
 
 import java.io.InputStream
 
-import com.sun.net.httpserver.Authenticator
 import it.unibo.pps.ese.controller.simulation.loader.beans._
 import it.unibo.pps.ese.controller.simulation.loader.data.SimulationData.{CompleteSimulationData, PartialSimulationData}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder._
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.entities.{AnimalBuilder, EntityStatus, PlantBuilder}
-import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.{CompleteBuildException, CompleteSimulationBuildException}
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.gene.{CustomGeneBuilder, DefaultGeneBuilder}
 import it.unibo.pps.ese.controller.simulation.loader.io.File.FileFormats
 import it.unibo.pps.ese.controller.simulation.loader.io.{ExistingResource, File, Folder, IOResource}
@@ -16,12 +14,15 @@ import net.jcazevedo.moultingyaml._
 
 import scala.util.{Failure, Success, Try}
 
+/** Trait that defines simulation's data loader that loads data starting from simulation config file*/
+trait FileLoader extends Loader {
+  override type DataSource = File
+}
 
-object YamlLoader extends Loader {
-
+object YamlLoader extends FileLoader {
 
   import BeansYamlProtocol._
-  import it.unibo.pps.ese.utils.ValidableImplicits.ValidableByDisequality._
+  import it.unibo.pps.ese.utils.DefaultValidable.ValidableByDisequality._
 
   implicit val int: DefaultValue[Int] = DefaultValue(Integer.MIN_VALUE)
   implicit val double: DefaultValue[Double] = DefaultValue(Double.MinValue)
@@ -31,7 +32,7 @@ object YamlLoader extends Loader {
 
   def loadCompleteSimulation(configFile: File): Try[CompleteSimulationData] = {
     val builder = obtainSimulationBuilder(configFile)
-      builder.tryCompleteBuild match {
+      builder.tryCompleteBuild() match {
       case Success(value) =>
         Success(value)
       case Failure(exception) =>
@@ -44,30 +45,30 @@ object YamlLoader extends Loader {
   }
 
   private def obtainSimulationBuilder(configFile: File): SimulationBuilder[_] = {
-    val currentFolder = configFile.getParentFolder().get
+    val currentFolder = configFile.getParentFolder.get
     val simulation = loadFileContent(configFile).parseYaml.convertTo[Simulation]
 
     var builder : SimulationBuilder[_] = SimulationBuilder()
     if(simulation.animals.isDefined) {
       val animals = simulation.animals.get.map({
         case (animalConfigPath, v) =>
-          (normalizeConfigPath(animalConfigPath, currentFolder) match {case f: File => loadAnimal(f).asInstanceOf[AnimalBuilder[_ <: EntityStatus]]}, v)
+          (normalizeConfigPath(animalConfigPath, currentFolder) match {case f: File => loadAnimal(f)}, v)
       })
       builder = builder.addAnimals(animals)
     }
     if(simulation.plants.isDefined) {
       val plants = simulation.plants.get.map({
         case (plantConfigPath, v) =>
-          (normalizeConfigPath(plantConfigPath, currentFolder) match {case f: File => loadPlant(f).asInstanceOf[PlantBuilder[_ <: EntityStatus]]}, v)
+          (normalizeConfigPath(plantConfigPath, currentFolder) match {case f: File => loadPlant(f)}, v)
       })
       builder = builder.addPlants(plants)
     }
     builder
   }
 
-  private def loadPlant(config: File): PlantBuilder[_] = {
+  private def loadPlant(config: File): PlantBuilder[_ <: EntityStatus] = {
     val loadedPlant = loadFileContent(config).parseYaml.convertTo[Plant]
-    var builder: PlantBuilder[_] = PlantBuilder().setName(loadedPlant.name)
+    var builder: PlantBuilder[_ <: EntityStatus] = PlantBuilder().setName(loadedPlant.name)
     if(loadedPlant.reign.isDefined)
       builder = builder.setReign(loadedPlant.reign.get)
     if(loadedPlant.alleleLength.isDefined)
@@ -83,21 +84,21 @@ object YamlLoader extends Loader {
     builder
   }
 
-  private def loadAnimal(config: File): AnimalBuilder[_] = {
+  private def loadAnimal(config: File): AnimalBuilder[_ <: EntityStatus] = {
     val loadedAnimal = loadFileContent(config).parseYaml.convertTo[Animal]
     var structuralChromosome: Seq[CustomGeneBuilder[_]] = Seq()
     var regulationChromosome: Seq[DefaultGeneBuilder[_]] = Seq()
     var sexualChromosome: Seq[DefaultGeneBuilder[_]] = Seq()
     if(loadedAnimal.structuralChromosome.isDefined)
-      structuralChromosome = normalizeConfigPath(loadedAnimal.structuralChromosome.get, config.getParentFolder().get) match {
+      structuralChromosome = normalizeConfigPath(loadedAnimal.structuralChromosome.get, config.getParentFolder.get) match {
         case f: Folder =>
           loadStructuralChromosome(f)
       }
     if(loadedAnimal.regulationChromosome.isDefined)
-      regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome.get, config.getParentFolder().get)
+      regulationChromosome = loadDefaultChromosome(RegulationDefaultGenes.elements, loadedAnimal.regulationChromosome.get, config.getParentFolder.get)
     if(loadedAnimal.sexualChromosome.isDefined)
-      sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome.get, config.getParentFolder().get)
-    var builder: AnimalBuilder[_] = AnimalBuilder().setName(loadedAnimal.name)
+      sexualChromosome = loadDefaultChromosome(SexualDefaultGenes.elements, loadedAnimal.sexualChromosome.get, config.getParentFolder.get)
+    var builder: AnimalBuilder[_ <: EntityStatus] = AnimalBuilder().setName(loadedAnimal.name)
     if(loadedAnimal.typology.isDefined)
       builder = builder.setTypology(loadedAnimal.typology.get)
     if(loadedAnimal.reign.isDefined)
@@ -106,19 +107,18 @@ object YamlLoader extends Loader {
       builder = builder.setAlleleLength(loadedAnimal.alleleLength.get)
     if(loadedAnimal.geneLength.isDefined)
       builder = builder.setGeneLength(loadedAnimal.geneLength.get)
-    if(structuralChromosome.isValid)
+    if(structuralChromosome.isValid())
       builder = builder.addStructuralChromosome(structuralChromosome)
-    if(regulationChromosome.isValid)
+    if(regulationChromosome.isValid())
       builder = builder.addRegulationChromosome(regulationChromosome)
-    if(sexualChromosome.isValid)
+    if(sexualChromosome.isValid())
       builder = builder.addSexualChromosome(sexualChromosome)
     builder
   }
 
   private def loadDefaultChromosome[T <: DefaultGene](genesSet: Set[T], chromosomeData: DefaultChromosomeData,
                                                       currentFolder: Folder): Seq[DefaultGeneBuilder[_]] = {
-    //TODO in builder, only check subset here
-    //require(chromosomeData.names.keySet == genesSet.map(_.name))
+
     var alleles: Seq[AlleleBuilder[_]] = Seq()
     if(chromosomeData.allelesPath.isDefined) {
       alleles = normalizeConfigPath(chromosomeData.allelesPath.get, currentFolder) match {
@@ -126,14 +126,14 @@ object YamlLoader extends Loader {
           loadAlleles(f)
       }
     }
-    //TODO check no wrong alleles
+
     chromosomeData.names.getOrElse(Seq()).toSeq.map({
       case (k, v) =>
         var builder: DefaultGeneBuilder[_] = DefaultGeneBuilder()
           .setDefaultInfo(genesSet.find(e => e.name == k).get)
-        if(v.isValid)
+        if(v.isValid())
           builder = builder.setId(v)
-        if(chromosomeData.allelesPath.isDefined && v.isValid)
+        if(chromosomeData.allelesPath.isDefined && v.isValid())
           builder = builder.addAlleles(alleles.filter(a => a.gene.getOrElse("") == v))
         builder
     })
@@ -191,7 +191,6 @@ object YamlLoader extends Loader {
       }
     }
   }
-
 
   private def loadFileContent(file: File): String = {
     loadFileContent(file.openInputStream)

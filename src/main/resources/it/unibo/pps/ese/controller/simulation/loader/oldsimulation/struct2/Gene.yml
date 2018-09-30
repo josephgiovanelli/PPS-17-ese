@@ -9,10 +9,10 @@ properties:
   muscolatura:
     conversionMap:
       speed: 0.5
-      ResistenceToAttack: 4.0
+      resistenceToAttack: 4.0
 
   tutte:
     conversionMap:
-      rangeofaction: 5.0
-      NutritionalValue: 6.0
-      Strength: 1.0
+      rangeOfAction: 5.0
+      nutritionalValue: 6.0
+      strength: 1.0

@@ -16,27 +16,16 @@ import javafx.beans.value.ObservableStringValue
 
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 
-import scalafx.beans.property.{DoubleProperty, ReadOnlyStringProperty, StringProperty}
 import scalafx.collections.{ObservableArray, ObservableBuffer}
-import scalafx.scene.control.{ChoiceBox, Tooltip}
-import scalafx.util.StringConverter
-import scalafx.util.converter.NumberStringConverter
 import it.unibo.pps.ese.view.utilities.EntityConversions
 import it.unibo.pps.ese.view.utilities.EntityConversions._
-import it.unibo.pps.ese.view.sections.filters.PlantFiltersValues
-import it.unibo.pps.ese.view.main.WorldPane
-
-trait PlantFiltersPane extends FiltersVBox with DisablePane {
-  def entityFiltersValues: EntityFiltersValues
-  def updateFilters()
-}
 
 object PlantFiltersPane {
 
-  def apply(geneticsSimulator: GeneticsSimulator): PlantFiltersPane =
+  def apply(geneticsSimulator: GeneticsSimulator): EntityFiltersPane =
     new PlantFiltersPaneImpl(geneticsSimulator)
 
-  private class PlantFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends PlantFiltersPane {
+  private class PlantFiltersPaneImpl(geneticsSimulator: GeneticsSimulator) extends EntityFiltersPane {
 
     val speciesHBox: ChoiceHBox = choiceHBox("Species", geneticsSimulator.plantSpeciesList)
     val heightVBox: SliderVBox = sliderVBox(EntityConversions.height)

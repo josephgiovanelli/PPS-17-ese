@@ -2,7 +2,7 @@ package it.unibo.pps.ese.model.genetics
 
 import it.unibo.pps.ese.model.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import org.scalatest.FunSuite
-import it.unibo.pps.ese.model.genetics.dna.{BasicGene, IdentifierGene}
+import it.unibo.pps.ese.model.genetics.dna.{BasicGene, IdentifierGene, X}
 import it.unibo.pps.ese.model.genetics.generators.{AlleleWithProbability, GeneWithPossibleAlleles, SpeciesGenerator}
 class TestGenomeCreation extends FunSuite{
   test("Test creation"){
@@ -105,21 +105,7 @@ class TestGenomeCreation extends FunSuite{
       feedingChromosomeGenes = List(fg),
       sexualChromosomeGenes = List(sxgp1,sxgp2,sxgp2)
     )
-    println(speciesGenerator.generateAnimalGenome)
-
-//    val g1:Seq[ProteinoGenicAmminoacid] = List('A')
-//    val a1:Seq[ProteinoGenicAmminoacid] = List('C')
-//    val a2:Seq[ProteinoGenicAmminoacid] = List('D')
-//    val a3:Seq[ProteinoGenicAmminoacid] = List('F')
-//    val ap1:AlleleWithProbability = AlleleWithProbability(a1,0.4)
-//    val ap2:AlleleWithProbability = AlleleWithProbability(a2,0.3)
-//    val ap3:AlleleWithProbability = AlleleWithProbability(a3,0.3)
-//    val gpa:GeneWithPossibleAlleles = GeneWithPossibleAlleles(g1,List(ap1,ap2,ap3))
-//    val map = gpa.alleles.map(a=>(a.allelicSeq,a.probability)).toMap
-//    println(map)
-//    println(Utilities.sample(map))
-//    println(Vector.fill(1000)(Utilities.sample(map)).groupBy(identity).mapValues(_.size))
-//
-
+    assert(speciesGenerator.generateAnimalGenome.autosomeChromosomeCouples.nonEmpty)
+    assert(speciesGenerator.generateAnimalGenome.sexualChromosomeCouple.firstChromosome.sexualChromosome==X)
   }
 }

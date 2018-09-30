@@ -2,11 +2,10 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal
 
 
 import it.unibo.pps.ese.controller.simulation.loader._
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.{CustomGenePane, DefaultGenePane}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.AnimalChromosomeInfo
-import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.{ChromosomeTypes, EntitiesInfo, RegulationChromosome, SexualChromosome}
+import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.{EntitiesInfo, RegulationChromosome, SexualChromosome}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core._
 
 import scalafx.Includes._
@@ -14,9 +13,11 @@ import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{BorderPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object ChromosomeProperties {
   val title = "Chromosome Pane"
   val headerText = "Define animal chromosome"
@@ -25,15 +26,19 @@ object ChromosomeProperties {
 import ChromosomeProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert the chromosome of the animal.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param animal the identifier of animal
+  */
 case class ChromosomePane(mainDialog: MainDialog,
                           override val previousContent: Option[AnimalPane],
                           modality: Modality,
                           animal: String)
-  extends BackPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(2) + title) {
-
-  /*
-  Header
-   */
+  extends AbstractPane(mainDialog, previousContent, None, title, headerText, previousContent.get.path + newLine(2) + title, 2) {
 
   /*
   Fields
@@ -76,15 +81,12 @@ case class ChromosomePane(mainDialog: MainDialog,
     })
   }
 
-//  structuralChromosomeListView.prefHeight = MIN_ELEM * ROW_HEIGHT
-//  regulationChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
-//  sexualChromosomeListView.prefHeight =  MIN_ELEM *  ROW_HEIGHT
-
   val structuralButton = new Button("Add")
   structuralButton.onAction = _ => mainDialog.setContent(CustomGenePane(mainDialog, Some(ChromosomePane.this), AddModality, animal, None))
 
   val regulationButton = new Button("Add")
   regulationButton.onAction = _ => {
+    println(getCurrentRegulationChromosome)
     mainDialog.setContent(DefaultGenePane(mainDialog, Some(ChromosomePane.this), AddModality, RegulationChromosome, animal, None,
       RegulationDefaultGenes.elements -- getCurrentRegulationChromosome))
   }
@@ -113,7 +115,7 @@ case class ChromosomePane(mainDialog: MainDialog,
 
   center = new VBox() {
     children ++= Seq(structuralPane, structuralChromosomeListView, regulationPane, regulationChromosomeListView,
-      sexualPane, sexualChromosomeListView, new WhiteLabel("At least one element per chromosome"))
+      sexualPane, sexualChromosomeListView, new WhiteLabel("At least one element per  structural chromosome and"), new WhiteLabel("all regulation and life chromosomes must be present"))
     styleClass += "sample-page"
   }
 
@@ -121,7 +123,9 @@ case class ChromosomePane(mainDialog: MainDialog,
   Checks
    */
 
-  listFields = Seq(structuralName, regulationName, sexualName)
+  listFields = Seq((structuralName, 1),
+    (regulationName, RegulationDefaultGenes.elements.size),
+    (sexualName, SexualDefaultGenes.elements.size))
 
   createChecks()
 
@@ -137,6 +141,8 @@ case class ChromosomePane(mainDialog: MainDialog,
 
   okButton.onAction = _ => {
     previousContent.get.confirmChromosome(animal)
+    mainDialog.deleteFromPendingAnimals(animal)
+    mainDialog.cleanPendingAnimals()
   }
 
 

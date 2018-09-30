@@ -2,8 +2,7 @@ package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.
 
 
 
-import it.unibo.pps.ese.controller.simulation.loader.{DefaultGene, RegulationDefaultGenes, SexualDefaultGenes}
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
+import it.unibo.pps.ese.controller.simulation.loader.{RegulationDefaultGenes, SexualDefaultGenes}
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.ChromosomePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles.AllelesPane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.customproperties.PropertiesPane
@@ -18,30 +17,33 @@ import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object CustomGeneProperties {
   val title = "Custom Gene Pane"
-  val headerText = "Define your chromosome"
+  val headerText = "Define your gene"
 }
 
 import CustomGeneProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert a gene that belongs to Structural Chromosome
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  */
 case class CustomGenePane(mainDialog: MainDialog,
                           override val previousContent: Option[ChromosomePane],
                           modality: Modality,
                           animal: String,
                           gene: Option[String] = None)
   extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3) + title) {
-
-  /*
-  Header
-   */
-
-//  title = "Custom Gene Dialog"
-//  headerText = "Define structural chromosome"
 
   /*
   Fields
@@ -106,7 +108,7 @@ case class CustomGenePane(mainDialog: MainDialog,
     (RegulationDefaultGenes.elements ++ SexualDefaultGenes.elements).map(x => x.name)
 
   mandatoryFields = fields.keySet
-  listFields = Seq(propertiesName)
+  listFields = Seq((propertiesName, 1))
   uniqueFields = Map(
     nameGene -> genesName,
     idGene -> genes.values.map(x => x.geneInfo.id).toSet
@@ -156,7 +158,6 @@ case class CustomGenePane(mainDialog: MainDialog,
         conversionMap += (c.property -> c.map)
     }
     mainDialog.setContent(this)
-
   }
 
 }

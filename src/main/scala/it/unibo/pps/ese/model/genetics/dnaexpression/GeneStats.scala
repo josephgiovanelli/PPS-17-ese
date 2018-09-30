@@ -3,6 +3,9 @@ package it.unibo.pps.ese.model.genetics.dnaexpression
 import it.unibo.pps.ese.model.genetics.dna.{GeneWithAllelicForms, MGene}
 import it.unibo.pps.ese.model.genetics.entities.QualityType
 
+/**
+  * Aggregated information about Gene
+  */
 sealed trait GeneStats
 case class AllelicGeneStats(
                              gene:GeneWithAllelicForms,

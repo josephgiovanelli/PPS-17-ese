@@ -16,18 +16,18 @@ class TestHippocampus extends FunSuite {
   test("Test add and use short term memories") {
     import Properties._
     val h: Hippocampus = Hippocampus(worldWidth, worldHeight, locationalFieldSize)
-    h.notifyEvent(MemoryType.HUNTING, Position(25,20))
+    h.notifyEvent(Hunting, Position(25,20))
     assertThrows[IllegalStateException](h.computeDirection(Position(0,0)))
     assertThrows[IllegalStateException](h.chooseNewMemory(Position(0,0)))
-    h.startNewSearch(MemoryType.HUNTING)
+    h.startNewSearch(Hunting)
     assert(h.hasNewMemory)
     h.chooseNewMemory(Position(0,0))
     assert(h.computeDirection(Position(0,0))==Direction.RIGHT)
     assert(h.computeDirection(Position(15,0))==Direction.DOWN)
     assert(h.computeDirection(Position(25,20))==Direction.NONE)
 
-    h.notifyEvent(MemoryType.HUNTING, Position(50,50))
-    h.startNewSearch(MemoryType.HUNTING)
+    h.notifyEvent(Hunting, Position(50,50))
+    h.startNewSearch(Hunting)
     assert(h.hasNewMemory)
     h.chooseNewMemory(Position(80,70))
     assert(h.computeDirection(Position(80,70))==Direction.LEFT)
@@ -41,21 +41,21 @@ class TestHippocampus extends FunSuite {
   test("Test short term memory") {
     import Properties._
     val h: Hippocampus = Hippocampus(worldWidth, worldHeight, locationalFieldSize)
-    h.notifyEvent(MemoryType.HUNTING, Position(25,20))
-    h.notifyEvent(MemoryType.HUNTING, Position(50,60))
+    h.notifyEvent(Hunting, Position(25,20))
+    h.notifyEvent(Hunting, Position(50,60))
     for (i <- 0 until Hippocampus.shortTermMemoryMaxTime) {
       h.updateTime()
     }
-    h.startNewSearch(MemoryType.HUNTING)
+    h.startNewSearch(Hunting)
     assert(!h.hasNewMemory)
   }
 
   test("Test life of short term memory while searching") {
     import Properties._
     val h: Hippocampus = Hippocampus(worldWidth, worldHeight, locationalFieldSize)
-    h.notifyEvent(MemoryType.HUNTING, Position(25,20))
-    h.notifyEvent(MemoryType.HUNTING, Position(50,60))
-    h.startNewSearch(MemoryType.HUNTING)
+    h.notifyEvent(Hunting, Position(25,20))
+    h.notifyEvent(Hunting, Position(50,60))
+    h.startNewSearch(Hunting)
     for (i <- 0 until Hippocampus.shortTermMemoryMaxTime) {
       h.updateTime()
     }
@@ -68,22 +68,22 @@ class TestHippocampus extends FunSuite {
     val repetitionValue = 5
 
     for (i <- 0 until repetitionValue) {
-      h.notifyEvent(MemoryType.HUNTING, Position(0,0))
+      h.notifyEvent(Hunting, Position(0,0))
     }
     for (i <- 0 until Hippocampus.shortTermMemoryMaxTime) {
       h.updateTime()
     }
-    h.startNewSearch(MemoryType.HUNTING)
+    h.startNewSearch(Hunting)
     assert(h.hasNewMemory)
     for (i <- 0 until repetitionValue*Hippocampus.eventGainMax) {
       h.updateTime()
     }
     assert(!h.hasNewMemory)
 
-    h.notifyEvent(MemoryType.HUNTING, Position(0,0))
-    h.notifyEvent(MemoryType.HUNTING, Position(10,0))
-    h.notifyEvent(MemoryType.HUNTING, Position(5,8))
-    h.startNewSearch(MemoryType.HUNTING)
+    h.notifyEvent(Hunting, Position(0,0))
+    h.notifyEvent(Hunting, Position(10,0))
+    h.notifyEvent(Hunting, Position(5,8))
+    h.startNewSearch(Hunting)
     for (i <- 0 until Hippocampus.shortTermMemoryMaxTime) {
       h.updateTime()
     }

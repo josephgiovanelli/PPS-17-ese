@@ -1,12 +1,15 @@
 package it.unibo.pps.ese.view.utilities
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityInfo
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.ReignType
 import it.unibo.pps.ese.model.genetics.entities.AnimalInfo
 import it.unibo.pps.ese.view.sections.filters.{AnimalFiltersValues, EntityFiltersValues, PlantFiltersValues, Range}
-
 import scalaz._
 import Scalaz._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityInfo
+
+/**
+  *Utility object for entitie's qualities
+  */
 object EntityConversions {
   
   val strength: String = "Strength"
@@ -24,11 +27,19 @@ object EntityConversions {
   val nutritionalValue: String = "Nutritional Value"
   val defense: String = "Defense"
   val availability: String = "Availability"
+  val hardness:String = "Hardness"
 
+  /**
+    * Implicit class à la "pimp library" to add methods to [[EntityInfo]] for visualize and filter animal's qualities
+    * @param entityInfo
+    */
   implicit class RichEntityInfo(entityInfo:EntityInfo){
+    /**
+      * To retrieve numeric qualities about an entity
+      * @return
+      */
     def numericQualities:Map[String,Double] = entityInfo.reign match {
       case ReignType.ANIMAL =>
-//        println(entityInfo.fertility)
         Map(
           strength->entityInfo.strength,
           actionField->entityInfo.actionField,
@@ -49,21 +60,25 @@ object EntityConversions {
         Map(
           height->entityInfo.height,
           availability->entityInfo.nutritionalValue,
-          "Hardness"->entityInfo.defense
+          hardness->entityInfo.defense
         )
     }
+
+    /**
+      * Method to filter an [[EntityInfo]]
+      * @param entityFiltersValues
+      * @return
+      *         True if the entity info complies with the filters otherwise false
+      */
     def applyFilter(entityFiltersValues: EntityFiltersValues):Boolean = {
       val commonFilter:EntityFiltersValues=>Boolean =
         filter=>{
-//          println(if (filter.reign.isDefined) filter.reign.get== entityInfo.reign else true )
-//          println(if (filter.reign.isDefined) filter.reign.get== entityInfo.reign else true )
           (if (filter.reign.isDefined) filter.reign.get== entityInfo.reign else true )&&
             (if (filter.species.isDefined) filter.species.get == entityInfo.baseEntityInfo.species.name else true) &&
             filter.numericQualities.forall {
-              case (k, v) => entityInfo.numericQualities(k) <= 10000 &&
+              case (k, v) => (entityInfo.numericQualities(k) <= v.highValue || entityInfo.numericQualities(k) >100) &&
                 entityInfo.numericQualities(k) >= v.lowValue
             }
-
           }
 
       entityFiltersValues match {

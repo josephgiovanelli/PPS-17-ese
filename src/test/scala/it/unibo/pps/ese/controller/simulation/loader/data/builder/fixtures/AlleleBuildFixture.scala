@@ -6,7 +6,7 @@ trait AlleleBuildFixture {
   def alleleBFixture = new {
     val complete = AlleleBuilder()
       .setId("a")
-      .setGene("")
+      .setGene("a")
       .setConsume(0)
       .setDominance(0)
       .setEffect(Map("test" -> 1))
@@ -14,14 +14,14 @@ trait AlleleBuildFixture {
 
     val incomplete = AlleleBuilder()
       .setId("a")
-      .setGene("")
+      .setGene("a")
       .setDominance(0)
       .setEffect(Map("test" -> 1))
       .setProbability(1.0)
 
     val wrong = AlleleBuilder()
       .setConsume(0)
-      .setGene("")
+      .setGene("a")
       .setDominance(0)
       .setEffect(Map("test" -> 1))
       .setProbability(1.0)

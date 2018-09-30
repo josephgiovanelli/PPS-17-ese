@@ -1,5 +1,8 @@
 package it.unibo.pps.ese.model.genetics.dna
 
+/**
+  * Enumeration that contains all the possible type of Chromosome each with the list of the type of genes required
+  */
 object ChromosomeType extends Enumeration {
   type ChromosomeType = Value
   protected case class Val(trueSequence: Seq[GeneType],name:String) extends super.Val{
@@ -23,23 +26,60 @@ object ChromosomeType extends Enumeration {
 }
 
 sealed trait SexualChromosomeType
-
 case object X extends SexualChromosomeType
 case object Y extends SexualChromosomeType
 
 
 import it.unibo.pps.ese.model.genetics.dna.ChromosomeType.{ChromosomeType, _}
 
+/**
+  * The abstraction adopted for a Chromosome
+  */
 sealed trait Chromosome{ self =>
+  /**
+    *
+    * @return The [[ChromosomeType]] of this chromosome
+    */
   def chromosomeType:ChromosomeType
+
+  /**
+    * @return The list of [[MGene]] in this chromosome
+    */
   def geneList:Seq[MGene]
+
+  /**
+    * To mutate the chromosome with a new gene list
+    * @param newGenes
+    *                 The new gene list
+    * @return
+    *         The mutated chromosome
+    */
   def mutate(newGenes: Seq[MGene]): self.type
 }
 
+/**
+  * Companion object of Chromosome
+  */
 object Chromosome{
+  /**
+    * To build a Chromosome
+    * @param chromosomeType
+    * @param geneList
+    * @return
+    */
   def apply(chromosomeType: ChromosomeType,geneList:MGene*): Chromosome =
     new BasicChromosomeImpl(chromosomeType,geneList)
 
+  /**
+    * To build a sexual Chromosome
+    * @param chromosomeType
+    *                         The [[ChromosomeType]] of the Chromosome
+    * @param sexualChromosome
+    *                         The [[SexualChromosomeType]] of the Chromosome
+    * @param geneList
+    *                 The [[MGene]] list in the chromosome
+    * @return
+    */
   def apply(chromosomeType: ChromosomeType,
             sexualChromosome: SexualChromosomeType,
             geneList:MGene*): SexualChromosome = new SexualChromosomeImpl(chromosomeType,
@@ -47,17 +87,21 @@ object Chromosome{
     geneList)
 }
 
+/**
+  * A sexual chromosome
+  */
 sealed trait SexualChromosome extends Chromosome{
   def sexualChromosome: SexualChromosomeType
 }
 
-
-
-
+/**
+  * An abstract implementation for [[Chromosome]] that checks if the list of genes is right
+  * @param chromosomeType
+  * @param geneList
+  */
 abstract class BasicChromosome(
                                 override val chromosomeType: ChromosomeType,
                                 override val geneList:Seq[MGene]) extends Chromosome{
-//  println(chromosomeType+geneList.map(_.geneType).toString())
   require(checkListOfGene(chromosomeType,geneList.map(_.geneType)))
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[BasicChromosome]
@@ -78,6 +122,11 @@ abstract class BasicChromosome(
   override def toString: String = chromosomeType.toString+"->"+geneList
 }
 
+/**
+  * A autosome Chromosome
+  * @param chromosomeType
+  * @param geneList
+  */
 class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[MGene])
   extends BasicChromosome(chromosomeType,geneList){ self =>
 
@@ -85,6 +134,12 @@ class BasicChromosomeImpl(chromosomeType: ChromosomeType,geneList:Seq[MGene])
     new BasicChromosomeImpl(chromosomeType, newGenes).asInstanceOf[self.type ]
 }
 
+/**
+  * A sexual chromosome
+  * @param chromosomeType
+  * @param sexualChromosome
+  * @param geneList
+  */
 class SexualChromosomeImpl(chromosomeType: ChromosomeType,
                            override val sexualChromosome: SexualChromosomeType,
                            geneList:Seq[MGene])

@@ -5,7 +5,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.CompletePlantData
 import it.unibo.pps.ese.controller.simulation.loader.data.builder.exception.CompleteSimulationBuildException
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.EntitiesInfo
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{ErrorLabel, WhiteLabel}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, DialogPane, MainDialog}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, DialogPane, MainDialog}
 import it.unibo.pps.ese.view.core.{MainComponent, SetupViewBridge}
 import it.unibo.pps.ese.view.start.{NoCompleteSimulationAlert, UnexpectedExceptionAlert}
 
@@ -16,6 +16,9 @@ import scalafx.scene.control._
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.scene.paint.Color
 
+/**
+  * It defines the title and the header
+  */
 object ConfirmProperties {
   val title = "Confirm Dialog"
   val headerText = "Choose number of entities for each species"
@@ -23,6 +26,18 @@ object ConfirmProperties {
 
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.ConfirmProperties._
 
+/**
+  * Pane that allows to insert how many entities for each species you want to put into the simulation.
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param setupViewBridge a component that checks the integrity if the data
+  * @param mainComponent the component to communicate data to
+  * @param setUp if the simulation isn't running
+  * @param newAnimalSpecies if the simulation is running, these species aren't in the simulation
+  * @param newPlantSpecies if the simulation is running, these species aren't in the simulation
+  * @param previousAnimalsCount if the simulation is running, these species are in the simulation
+  * @param previousPlantsCount if the simulation is running, these species are in the simulation
+  */
 case class ConfirmPane(mainDialog: MainDialog,
                        override val previousContent: Option[DialogPane],
                        setupViewBridge: Option[SetupViewBridge],
@@ -32,21 +47,16 @@ case class ConfirmPane(mainDialog: MainDialog,
                        newPlantSpecies: Seq[String] = Seq.empty,
                        previousAnimalsCount: Map[String, Int] = Map.empty,
                        previousPlantsCount: Map[String, Int] = Map.empty)
-  extends BackPane[Unit](mainDialog, previousContent, None, title, headerText, title) {
+  extends AbstractPane[Unit](mainDialog, previousContent, None, title, headerText, title, 0) {
 
   /*
-  Header
+  Fields
    */
 
-
-
-
-  val animalsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
-      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
-  val plantsEntities: Map[TextField, (Label, Label)] =
-    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).groupBy(_._1).map{ case (k,v) =>
-      (k,v.map(_._2))}.map(x => x._1 -> x._2.head)
+  val animalsEntities: Map[TextField, (WhiteLabel, ErrorLabel)] =
+    EntitiesInfo.instance().getAnimals.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).toMap
+  val plantsEntities: Map[TextField, (WhiteLabel, ErrorLabel)] =
+    EntitiesInfo.instance().getPlants.map(x => new TextField() -> (new WhiteLabel(x), new ErrorLabel(""))).toMap
 
   fields = animalsEntities ++ plantsEntities
 
@@ -120,26 +130,23 @@ case class ConfirmPane(mainDialog: MainDialog,
   okButton.onAction = _ => {
       val animals: Map[String, Int] = animalsEntities.map(animal => animal._2._1.text.value -> animal._1.text.value.toInt)
       val plants: Map[String, Int] = plantsEntities.map(plant => plant._2._1.text.value -> plant._1.text.value.toInt)
-    EntitiesInfo.instance().getSimulationData(animals, plants) match {
-      case Success(simulationData) =>
-      if (setUp) {
-        setupViewBridge.getOrElse(throw new IllegalStateException()).startSimulation(simulationData)
-      } else {
-        val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
-        val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
-        val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
-        val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
-        println((newPlants.map(x => x._1.name), oldPlants.keySet))
-        mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
-      }
-      case Failure(exception: CompleteSimulationBuildException) =>
-        NoCompleteSimulationAlert(mainDialog.window, exception.buildException).showAndWait()
-        null
-      case Failure(exception) =>
-        UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
-        null
+      EntitiesInfo.instance().getSimulationData(animals, plants) match {
+        case Success(simulationData) =>
+          if (setUp) {
+            setupViewBridge.getOrElse(throw new IllegalStateException()).startSimulation(simulationData)
+          } else {
+            val newAnimals: Map[CompleteAnimalData, Int] = simulationData.animals.filter(animal => newAnimalSpecies.contains(animal._1.name))
+            val newPlants: Map[CompletePlantData, Int] = simulationData.plants.filter(plant => newPlantSpecies.contains(plant._1.name))
+            val oldAnimals: Map[String, Int] = animals.filter(animal => !newAnimalSpecies.contains(animal._1))
+            val oldPlants: Map[String, Int] = plants.filter(plant => !newPlantSpecies.contains(plant._1))
+            mainComponent.getOrElse(throw new IllegalStateException()).addEntities(oldAnimals, oldPlants, newAnimals, newPlants)
+          }
+          mainDialog.closeDialog()
+        case Failure(exception: CompleteSimulationBuildException) =>
+          NoCompleteSimulationAlert(mainDialog.window, exception).showAndWait()
+        case Failure(exception) =>
+          UnexpectedExceptionAlert(mainDialog.window, exception).showAndWait()
     }
-    mainDialog.closeDialog()
   }
 
 }

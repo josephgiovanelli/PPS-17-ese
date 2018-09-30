@@ -1,9 +1,8 @@
 package it.unibo.pps.ese.view.core
 
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityState
 import javafx.application.Platform
 import javafx.event.ActionEvent
-
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
 import it.unibo.pps.ese.model.genetics.GeneticsSimulator
 import it.unibo.pps.ese.view.sections.bodyviewer.{AnimalInternalStatus, BodyPane}
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.{ConfigurationContent, ConfirmContent, MainDialog}
@@ -11,7 +10,7 @@ import it.unibo.pps.ese.view.sections.filters.FiltersPane
 import it.unibo.pps.ese.view.sections.history.{HistoryLog, HistoryPane}
 import it.unibo.pps.ese.view.main.WorldPrefernces._
 import it.unibo.pps.ese.view.main.{DetailsPane, WorldPane, WorldView}
-import it.unibo.pps.ese.view.sections.speciesdetails.GenomeDetailsPane
+import it.unibo.pps.ese.view.sections.genome.GenomeDetailsPane
 import it.unibo.pps.ese.view.sections.statistics.StatisticsDetailsPane
 
 import scala.concurrent.ExecutionContext

@@ -25,7 +25,6 @@ object HistoryAggregator {
           historyLog.bornRegistry |+|
           historyLog.deadRegistry.mapValues(-_)
 
-      numGeneration = numGeneration + 1
       oldPopulation = totalPopulation
       totalPopulation = popBySpecies.values.sum
       //Every alertThreshold( e.g 1000 ) produce a log with the reached value and the most populous species
@@ -42,8 +41,9 @@ object HistoryAggregator {
       val generationsLog = for{
         i <-0L to numGeneration/genThreshold if i>(numGeneration-1)/genThreshold
       } yield Log("The World has reached the "+numGeneration +"° Generation",GenerationLog)
-
-      Log("Era number "+numGeneration,NewEraLog)::popLogs.flatten.toList ::: generationsLog.toList
+      val eraLog = Log("Era number "+numGeneration,NewEraLog)
+      numGeneration = numGeneration + 1
+      eraLog::popLogs.flatten.toList ::: generationsLog.toList
     }
     private def mostPopulousSpecies:(String,Long) = popBySpecies.toList.maxBy(_._2)
   }

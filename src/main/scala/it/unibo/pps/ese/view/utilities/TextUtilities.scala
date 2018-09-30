@@ -7,7 +7,16 @@ import scalafx.scene.control.Label
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.Color
 import scalafx.scene.text.{TextAlignment, TextFlow}
+
+/**
+  * Some utilities to work with text
+  */
 object TextUtilities {
+
+  /**
+    * Pimp a string to transform it in various form
+    * @param string
+    */
   implicit class RichText(string:String){
     def toTextStyled(style:String,color: Color,font: Font):Text ={
       val text = new Text(string)

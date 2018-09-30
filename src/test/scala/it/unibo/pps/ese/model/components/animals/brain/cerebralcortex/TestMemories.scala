@@ -39,7 +39,7 @@ class TestMemories extends FunSuite {
 
     var locationalField: LocationalField = LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(0, 20))
     var score = 50
-    var longTermMemory: LongTermMemory = LongTermMemory(MemoryType.HUNTING, locationalField, 50)
+    var longTermMemory: LongTermMemory = LongTermMemory(Hunting, locationalField, 50)
     longTermMemory.score+=60
     assert(longTermMemory.locationalField==LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(locationalFieldSize,20)))
     assert(longTermMemory.score==110)
@@ -50,7 +50,7 @@ class TestMemories extends FunSuite {
 
     val locationalField: LocationalField = LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(0, 20))
     val score = 50
-    val shortTermMemory: ShortTermMemory = ShortTermMemory(MemoryType.HUNTING, locationalField, score)
+    val shortTermMemory: ShortTermMemory = ShortTermMemory(Hunting, locationalField, score)
     shortTermMemory.updateTime()
     shortTermMemory.updateTime()
     assert(shortTermMemory.locationalField==LocationalField(worldWidth, worldHeight, locationalFieldSize, Position(locationalFieldSize,20)))

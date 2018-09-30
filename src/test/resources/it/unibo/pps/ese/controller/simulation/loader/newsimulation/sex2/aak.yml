@@ -1,0 +1,7 @@
+gene: aak
+id: sda
+dominance: 5.0
+consume: 5.0
+probability: 1.0
+effect:
+  pregnancyDuration: 0.1

@@ -1,23 +1,72 @@
 package it.unibo.pps.ese.controller.simulation.runner.core
 
+import it.unibo.pps.ese.controller.simulation.runner.core.EventBusSupport._
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityProperty
 import it.unibo.pps.ese.controller.simulation.runner.core.support._
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
+/**
+  * The NervousSystem is the communication medium used by entities' components to cooperate and share info
+  */
 sealed trait NervousSystem {
+
+  /**
+    * Publish a message on the nervous system. This event will be delivered to all others components
+    * @param event The message to deliver
+    */
   def publish(event: IdentifiedEvent) : Unit
+
+  /**
+    * Register a consumer on the nervous system in order to be notified when messages of the selected type
+    * are delivered
+    * @param handler The consumer to register
+    */
   def subscribe(handler: Consumer)
+
+  /**
+    * Send a data request. This method is equivalent to publish a message and register the response consumer
+    * @param publisher The sender id
+    * @param request The request message
+    * @tparam A The request type
+    * @tparam B The response type
+    * @return A supervised future that will be completed with the requested data
+    */
   def requireData[A <: RequestEvent, B <: ResponseEvent : Manifest](publisher: String, request: A): SupervisedFuture[B]
+
+  /**
+    * Register a mapping from an event to a sequence of entity properties. After the registration, when messages of the
+    * mapped type will be shared across the NervousSystem, the system will automatically extract the properties from
+    * it and use them to update the entity public status
+    * @param mapper The mapper to register
+    * @tparam A The type of the message to map
+    */
   def addMapping[A <: Event](mapper: (Class[A], A => Seq[EntityProperty]))
+
+  /**
+    * Verify if the nervous system has completed all of its jobs
+    * @return A future that will be completed when all the messages sent through the system are served
+    */
   def notifyOnTasksEnd(): Future[Done]
 }
 
+/**
+  * Traits that extends the capabilities of a NervousSystem adding the possibility to free the NervousSystem
+  * resources
+  */
 sealed trait ManageableNervousSystem extends NervousSystem {
+  /**
+    * Dispose NervousSystem resources
+    */
   def dispose(): Unit
 }
 
 object NervousSystem {
 
+  /**
+    * @param executionContext An execution context, necessary for async tasks
+    * @return A NervousSystem instance
+    */
   def apply()(implicit executionContext: ExecutionContext): ManageableNervousSystem = new SnifferNervousSystem()
 
   private class SnifferNervousSystem()(implicit executionContext: ExecutionContext) extends ManageableNervousSystem {

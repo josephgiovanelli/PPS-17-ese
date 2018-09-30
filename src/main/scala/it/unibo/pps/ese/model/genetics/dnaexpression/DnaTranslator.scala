@@ -4,8 +4,11 @@ import it.unibo.pps.ese.model.genetics._
 import it.unibo.pps.ese.model.genetics.dna.ChromosomeType.ChromosomeType
 import it.unibo.pps.ese.model.genetics.dna.ProteinoGenicAmminoacid.ProteinoGenicAmminoacid
 import it.unibo.pps.ese.model.genetics.dna._
-import it.unibo.pps.ese.model.genetics.entities.QualityType.Fertility
 import it.unibo.pps.ese.model.genetics.entities._
+
+/**
+  * To translate the genome of an Animal in AnimalFeature
+  */
 sealed trait DnaTranslator {
   def getQualitiesByGenome(animalGenome: AnimalGenome):AnimalFeature
 }
@@ -41,14 +44,17 @@ object DnaTranslator{
       animalFeature
     }
 
+    /**
+      * Some helpers to translate the genome
+      */
     private[this] object TranslationUtilities{
-
       def iterateIdentifierGene(gc1:Seq[MGene], animalFeature: AnimalFeature): AnimalFeature
       = gc1 match {
         case h+:t  =>
           iterateIdentifierGene(t,IdentifierGeneTranslator.translateIdentifierGene(h,animalFeature))
         case _ => animalFeature
       }
+
       def translateSexualChromosomeCouple(scc: SexualChromosomeCouple,af: AnimalFeature):AnimalFeature
       = scc.gender match {
         case Female=>
@@ -98,14 +104,9 @@ object DnaTranslator{
       }
 
       def conversionMapsFromGene(gene: MGene):Seq[ConversionMap] = {
-//        val filter:ConversionMap=>Boolean = gender match {
-//          case Some(Female) =>(q)=>QualityType.femaleSexualQualities.contains(q.qualityAffected)
-//          case Some(Male) => (q)=>QualityType.maleSexualQualities.contains(q.qualityAffected)
-//          case None => (_)=>true
-//         }
         findGeneFeatures(gene)
           .flatMap(_.conversionMaps)
-//          .filter(filter(_))
+
       }
 
       def alleleBehaviourCouple(gene: MGene, animalGenome: AnimalGenome):(AllelicBehaviour,AllelicBehaviour) = {

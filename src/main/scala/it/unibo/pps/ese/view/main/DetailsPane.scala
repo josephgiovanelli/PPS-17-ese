@@ -1,22 +1,20 @@
 package it.unibo.pps.ese.view.main
 
-import it.unibo.pps.ese.controller.simulation.runner.core.EntityState
+import it.unibo.pps.ese.controller.simulation.runner.core.data.EntityState
 import it.unibo.pps.ese.controller.simulation.runner.incarnation.EntityInfoConversion._
 import it.unibo.pps.ese.model.components.animals.LifePhases
 import it.unibo.pps.ese.model.genetics.entities.{AnimalInfo, Carnivorous, Female, Herbivore, Male, PlantInfo}
 import it.unibo.pps.ese.view.core.MainComponent
-import it.unibo.pps.ese.view.sections.speciesdetails.NonNumericQualityViewerBox
-import it.unibo.pps.ese.view.sections.speciesdetails.QualityBoxUtilities._
+import QualityBoxUtilities._
 import it.unibo.pps.ese.view.sections.statistics.ReplayStage
 import it.unibo.pps.ese.view.utilities.EntityConversions._
 import it.unibo.pps.ese.view.utilities.TextUtilities._
-
 import scalafx.Includes._
 import scalafx.scene.control.{Button, Label, ScrollPane}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.{BorderPane, VBox}
-trait DetailsPane extends ScrollPane {
 
+trait DetailsPane extends ScrollPane {
   def showDetails(e: EntityState,entityId:String): Unit
   def clearDetails() : Unit
 }

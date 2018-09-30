@@ -6,7 +6,7 @@ import it.unibo.pps.ese.controller.simulation.loader.data.builder.fixtures.Anima
 import org.scalatest.WordSpec
 
 class TestAnimalBuilder extends WordSpec with AnimalBuilderFixture {
-  "A GeneBuilder" when {
+  "A AnimalBuilder" when {
     "is correctly filled" should {
       "explicitly build correctly" in {
         animalBFixture.complete.buildComplete match {
@@ -22,12 +22,10 @@ class TestAnimalBuilder extends WordSpec with AnimalBuilderFixture {
             fail()
         }
       }
-      //TODO generate gene with correct data
-      //TODO expl and impl build correctly if filled with default gene data
     }
 
     "has missing parameters" should {
-      "implicitly build a PartialGeneData" in {
+      "implicitly build a PartialAnimal" in {
         animalBFixture.staticIncomplete.build() match {
           case gb: CompleteAnimalData =>
             fail()
@@ -39,7 +37,7 @@ class TestAnimalBuilder extends WordSpec with AnimalBuilderFixture {
     }
 
     "isn't filled correctly" should {
-      "implicitly build a PartialGeneData" in {
+      "implicitly build a PartialAnimal" in {
         animalBFixture.dynamicIncomplete.build() match {
           case gb: CompleteAnimalData =>
             fail()

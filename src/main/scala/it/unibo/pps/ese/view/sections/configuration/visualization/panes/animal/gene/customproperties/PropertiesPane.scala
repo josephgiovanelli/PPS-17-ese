@@ -1,8 +1,8 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.customproperties
 
 
+import it.unibo.pps.ese.controller.simulation.loader.AnimalStructuralProperties
 import it.unibo.pps.ese.model.genetics.entities.QualityType
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.CustomGenePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{CustomListView, ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
@@ -16,9 +16,11 @@ import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.control._
-import scalafx.scene.layout.{BorderPane, GridPane, Pane, VBox}
-import scalafx.stage.Window
+import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 
+/**
+  * It defines the title and the header
+  */
 object PropertiesProperties {
   val title = "Properties Pane"
   val headerText = "Define gene properties"
@@ -27,6 +29,18 @@ object PropertiesProperties {
 import PropertiesProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert the properties of a gene that belongs to a structural chromosome.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  * @param property the previous property if the modality is modify
+  * @param currentConversionMap the conversion map if the modality is modify
+  * @param properties the all properties already set
+  */
 case class PropertiesPane(mainDialog: MainDialog,
                           override val previousContent: Option[CustomGenePane],
                           modality: Modality,
@@ -35,12 +49,7 @@ case class PropertiesPane(mainDialog: MainDialog,
                           property: Option[String],
                           currentConversionMap: Option[Map[String, Double]],
                           properties: Iterable[String])
-  extends BackPane[ConversionMap](mainDialog, previousContent, property, title, headerText, previousContent.get.path + newLine(4) + title) {
-
-  /*
-  Header
-   */
-
+  extends AbstractPane[ConversionMap](mainDialog, previousContent, property, title, headerText, previousContent.get.path + newLine(4) + title, 4) {
 
   /*
   Fields
@@ -63,7 +72,7 @@ case class PropertiesPane(mainDialog: MainDialog,
     else if (gene.isDefined && property.isDefined) currentStructuralChromosome(gene.get).geneInfo.conversionMap(property.get)
     else Map.empty
 
-  var qualities: Set[String] = QualityType.values.map(x => x.toString).toSet -- conversionMap.keySet
+  var qualities: Set[String] = AnimalStructuralProperties.elements.map(_.name) -- conversionMap.keySet
 
   val conversionMapName: ObservableBuffer[String] = ObservableBuffer[String](conversionMap.keySet toSeq)
   val conversionMapListView: ListView[String] = new CustomListView[String] {
@@ -98,7 +107,7 @@ case class PropertiesPane(mainDialog: MainDialog,
    */
 
   mandatoryFields = fields.keySet
-  listFields = Seq(conversionMapName)
+  listFields = Seq((conversionMapName, 1))
   uniqueFields = Map(propertyName -> properties.toSet)
 
  createChecks()

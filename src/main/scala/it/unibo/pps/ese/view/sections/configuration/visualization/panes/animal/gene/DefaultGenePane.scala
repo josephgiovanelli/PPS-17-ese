@@ -1,41 +1,62 @@
 package it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene
 
 import it.unibo.pps.ese.controller.simulation.loader._
-import it.unibo.pps.ese.view.sections.configuration.visualization.panes._
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.ChromosomePane
 import it.unibo.pps.ese.view.sections.configuration.visualization.panes.animal.gene.alleles.AllelesPane
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.WhiteLabel
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.components.{ErrorLabel, WhiteLabel}
 import it.unibo.pps.ese.view.sections.configuration.entitiesinfo._
-import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AlleleInfo, AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
-import it.unibo.pps.ese.view.sections.configuration.visualization.core.{BackPane, MainDialog, Modality}
+import it.unibo.pps.ese.view.sections.configuration.entitiesinfo.support.animals.{AnimalChromosomeInfo, DefaultChromosomeInfo, DefaultGeneInfo}
+import it.unibo.pps.ese.view.sections.configuration.visualization.core.{AbstractPane, MainDialog, Modality}
 
 import scala.collection.immutable.ListMap
-import scalafx.Includes._
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, Pane}
-import scalafx.stage.Window
+import scalafx.scene.layout.GridPane
 
+/**
+  * The common structure of [[DefaultGenePane]] and [[CustomGenePane]]
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param gene the gene identifier
+  * @param title the title of the pane
+  * @param headerText the header text of the pane
+  * @param path the path from the starting pane to this one
+  */
 abstract class GenePane(mainDialog: MainDialog,
                         override val previousContent: Option[ChromosomePane],
                         gene: Option[String],
                         title: String,
                         headerText: String,
                         path: String)
-  extends BackPane[String](mainDialog, previousContent, gene, title, headerText, path) {
+  extends AbstractPane[String](mainDialog, previousContent, gene, title, headerText, path, 3) {
 
 
   def confirmAlleles(gene: String)
 }
 
+/**
+  * It defines the title and the header
+  */
 object DefaultGeneProperties {
     val title = "Default Gene Pane"
-    val headerText = "Define your chromosome"
+    val headerText = "Define your gene"
 }
 
 import DefaultGeneProperties._
 import it.unibo.pps.ese.view.sections.configuration.visualization.core.PaneProperties._
 
+/**
+  * The pane that allows to insert a gene that belongs to Regulation or Sexual Chromosome.
+  *
+  * @param mainDialog the main dialog with which communicating
+  * @param previousContent the previous content
+  * @param modality add or modify
+  * @param chromosomeTypes Regulation or Sexual
+  * @param animal the animal identifier
+  * @param gene the gene identifier
+  * @param propertiesSet the previous set of properties if the modality is modify
+  */
 case class DefaultGenePane(mainDialog: MainDialog,
                            override val previousContent: Option[ChromosomePane],
                            modality: Modality,
@@ -43,14 +64,7 @@ case class DefaultGenePane(mainDialog: MainDialog,
                            animal: String,
                            gene: Option[String],
                            propertiesSet: Set[_ <: DefaultGene])
-  extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3)) {
-
-  /*
-  Header
-   */
-
-//  title = "Default Gene Dialog"
-//  headerText = "Define " + chromosomeTypes.toString.toLowerCase + " chromosome"
+  extends GenePane(mainDialog, previousContent, gene, title, headerText, previousContent.get.path + newLine(3) + title) {
 
   /*
   Fields
@@ -72,7 +86,7 @@ case class DefaultGenePane(mainDialog: MainDialog,
   val previousNameGene = new TextField()
 
   fields = ListMap(
-    idGene -> (new WhiteLabel("Id"), new WhiteLabel(""))
+    idGene -> (new WhiteLabel("Id"), new ErrorLabel(""))
   )
 
   val grid: GridPane = createGrid(0)
