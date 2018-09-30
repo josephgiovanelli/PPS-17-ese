@@ -14,8 +14,8 @@ La fase di creazione/modifica di una simulazione richiede invece una spiegazione
 Nella prima schermata è possibile aggiungere entità alla simulazione, è inoltre possibile salvare la simulazione, 
 anche parzialmente completa.
 Le entità che possono essere aggiunte sono:
-*	Piante
-*	Animali
+*	**Piante**
+*	**Animali**
 
 Ogni volta che si presenta una schermata che contiene una lista di elementi, è possibile aggiungere un elemento cliccando sul tasto “Add”,
 mentre è possibile modificare uno specifico elemento facendo doppio click su di esso.
