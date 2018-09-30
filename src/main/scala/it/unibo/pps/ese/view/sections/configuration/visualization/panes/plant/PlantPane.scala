@@ -47,7 +47,7 @@ case class PlantPane(mainDialog: MainDialog,
   fields = ListMap(
     name -> (new WhiteLabel("Name"), new Label("")),
     heightPlant -> (new WhiteLabel("Height"), new Label("")),
-    nutritionalValue -> (new WhiteLabel("Availability"), new Label("")),
+    nutritionalValue -> (new WhiteLabel("Nutritional Value"), new Label("")),
     hardness -> (new WhiteLabel("Hardness"), new Label("")))
 
 
