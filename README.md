@@ -21,7 +21,7 @@ Il progetto consiste in un motore di simulazione evoluzionistico,con le seguenti
 
 ### Prerequisites
 
-Scala 2.12.6: https://www.scala-lang.org/
+Scala 2.12.6: https://www.scala-lang.org/ <br/>
 Java 1.8: https://www.java.com/it/download/faq/java8.xml
 
 ## Deployment
