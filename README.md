@@ -23,16 +23,11 @@ Il progetto consiste in un motore di simulazione evoluzionistico,con le seguenti
 
 Scala 2.12.6: https://www.scala-lang.org/ <br/>
 Java 1.8: https://www.java.com/it/download/faq/java8.xml
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
+### Documentation
+Project documentation: http://kaikikm.org/PPS-17-ese/it/unibo/pps/ese/index.html
 ## Built With
 
 * [SBT](https://www.scala-sbt.org/) - The build tool used
-
-
 
 ## Versioning
 
