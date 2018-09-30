@@ -1,6 +1,6 @@
 # Guida Utente
 
-In seguito è mostrata una guida utente volta a permettere di comprendere a pieno le funzionalità del simulatore.
+In seguito è mostrata una guida utente volta a permettere di comprendere a pieno le funzionalità dell'interfaccia del simulatore.
 
 All'avvio viene mostrato un launcher nel quale è possibile:
 *	Caricare una simulazione esistente
