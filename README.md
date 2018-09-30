@@ -1,13 +1,17 @@
 # PPS-17-ese
 [![Build Status](https://travis-ci.com/KaikiKM/PPS-17-ese.svg?token=oWAmD57ERLq49pfkA9og&branch=master)](https://travis-ci.com/KaikiKM/PPS-17-ese)
 
+Una guida operativa per l'uso del sistema è reperibile in [questo documento](GuidaUtente.md)
+
+## Requisiti
+
 Il progetto consiste in un motore di simulazione evoluzionistico,con le seguenti caratteristiche:
 
 * All'apertura l'utente potrà creare diverse specie con diverse caratteristiche fisiche ed un insieme di geni possibili che andranno a modificare le caratteristiche dei diversi individui.
 
 * Una volta impostati i parametri, il sistema simulerà un'ambiente bidimensionale nel quale gli animali si muoveranno crescendo, riproducendosi e cibandosi di altri animali o di piante.
 
-* Oltre alla visualizzazione del mondo il simulatore mostrerà informazioni riguardo alle singole entità e statistiche aggregate tramite grafici aggiornati in tempo reale. Le statistiche della simulazione potranno essere esportate su file.
+* Oltre alla visualizzazione del mondo il simulatore mostrerà informazioni riguardo alle singole entità e statistiche aggregate tramite grafici aggiornati in tempo reale.
 
 * Il sistema modellerà in modo realistico il meccanismo di riproduzione con il concetto di geni dominanti e recessivi e la possibilità che alcuni di questi si presentino all'interno della popolazione come mutazione genetica.
 
@@ -15,11 +19,10 @@ Il progetto consiste in un motore di simulazione evoluzionistico,con le seguenti
 
 ## Getting Started
 
-
-
 ### Prerequisites
 
 Scala 2.12.6: https://www.scala-lang.org/
+Java 1.8: https://www.java.com/it/download/faq/java8.xml
 
 ## Deployment
 
