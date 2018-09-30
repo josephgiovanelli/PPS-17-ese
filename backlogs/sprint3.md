@@ -13,7 +13,11 @@
 |         |Creazione di un sustema di salvataggio dei dati di simulazione parziale | Matteo | 40 | 40 | 40 | 40 | 40 | 40 | 20 | 0 |
 |         |Creazione di un'interfaccia che permetta il caricamento di geni parziali come parti del corpo | Matteo | 20 | 20 | 20 | 20 | 20 | 20 | 20 | 20 |
 | L'utente può salvare una simulazione e riprenderla in un secondo momento
-|         |________ | Luca | 120 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+|         |Modifica di classi per poter essere serializzate | Luca | 80 | 70 | 60 | 200 | 200 | 200 | 200 | 200 |
+|         |Creazione saver | Luca | 10 | 10 | 10 | 10 | 10 | 10 | 10 | 10 |
+|         |Creazione loader | Luca | 10 | 10 | 10 | 10 | 10 | 10 | 10 | 10 |
+|         |Sviluppo schermata dei filtri | Luca | 40 | 40 | 40 | 20 | 0 | 0 | 0 | 0 |
+|         |Modifica della grafica della configuration view | Luca | 40 | 40 | 40 | 40 | 30 | 20 | 5 | 0 |
 | Visualizzazione delle dinamiche interne all'animale e gli avvenimenti salienti del mondo di simulazione
 |         |Sviluppo schermata di visualizzazione della storia | Diego | 40 | 40 | 30 | 20 | 5 | 5 | 0 | 0 |
 |         |Sviluppo schermata di visualizzazione delle dinamiche interne all'animale | Diego | 50 | 50 | 35 | 5 | 0 | 0 | 0 | 0 |
