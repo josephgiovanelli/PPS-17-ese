@@ -18,8 +18,8 @@
 |13        | Raccolta di statistiche sulla simulazione	    |                       |  100                   | 100  | 0  | 0  | 0  |
 | 14        |  Il genoma di un animale viene visualizzato tramite interfaccia grafica	    |                       | 85 | 85 | 0 | 0 |   |
 | 15        |  E' possibile ripercorrere la vita dell'entità selezionata	    |                       |   50                  | 50  | 50  | 10  | 0  |
-| 16        |  Visualizzazione delle statistiche sulla simulazione	    |                       |          50           | 50  | 50  | 0  | 0  |
+| 16        |  Visualizzazione delle statistiche sulla simulazione	    |                       |          70           | 70  | 70  | 0  | 0  |
 | 17        | Si possono applicare filtri sulle entità da visualizzare 	    |                |           50    |  50 | 50  |  5 |  0 |
-| 18        |  Visualizzazione della storia della simulazione 	    |                       |   70                  | 70  |70   |0   | 0  |
+| 18        |  Visualizzazione della storia della simulazione 	    |                       |   45                  | 45  |45   |0   | 0  |
 | 19        |  Visualizzazione delle dinamiche interne all'animale 	    |                       |    95                 | 95  | 95  | 0  | 0  |
 | 20        |  Rifattorizzazione dei dialog di configurazione della simulazione 	    |          |         50    | 50  | 50  | 10  | 0  |
