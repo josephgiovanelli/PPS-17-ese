@@ -1,21 +1,21 @@
 # PPS-17-ese
 [![Build Status](https://travis-ci.com/KaikiKM/PPS-17-ese.svg?token=oWAmD57ERLq49pfkA9og&branch=master)](https://travis-ci.com/KaikiKM/PPS-17-ese)
 
-Una guida operativa per l'uso del sistema è reperibile in [questo documento](GuidaUtente.md)
+An operating guide for using the system can be found in [this document](GuidaUtente.md)
 
 ## Requisiti
 
-Il progetto consiste in un motore di simulazione evoluzionistico,con le seguenti caratteristiche:
+The project consists of an evolutionary simulation engine, with the following characteristics:
 
-* All'apertura l'utente potrà creare diverse specie con diverse caratteristiche fisiche ed un insieme di geni possibili che andranno a modificare le caratteristiche dei diversi individui.
+* Upon opening the user will be able to create different species with different physical characteristics and a set of possible genes that will modify the characteristics of the different individuals.
 
-* Una volta impostati i parametri, il sistema simulerà un'ambiente bidimensionale nel quale gli animali si muoveranno crescendo, riproducendosi e cibandosi di altri animali o di piante.
+* Once the parameters are set, the system will simulate a two-dimensional environment in which the animals will move growing, reproducing and feeding on other animals or plants.
 
-* Oltre alla visualizzazione del mondo il simulatore mostrerà informazioni riguardo alle singole entità e statistiche aggregate tramite grafici aggiornati in tempo reale.
+* In addition to displaying the world, the simulator will display information about the individual entities and aggregate statistics through graphs updated in real time.
 
-* Il sistema modellerà in modo realistico il meccanismo di riproduzione con il concetto di geni dominanti e recessivi e la possibilità che alcuni di questi si presentino all'interno della popolazione come mutazione genetica.
+* The system will realistically model the reproduction mechanism with the concept of dominant and recessive genes and the possibility that some of them present themselves within the population as a genetic mutation.
 
-* Verrà utilizzato un linguaggio di markup con il quale potranno essere definiti i parametri di simulazione oppure esportati da una simulazione configurata tramite interfaccia grafica.
+* A markup language will be used with which the simulation parameters can be defined or exported from a simulation configured via a graphical interface.
 
 ## Getting Started
 
